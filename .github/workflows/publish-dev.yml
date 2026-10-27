@@ -11,6 +11,8 @@ permissions:
 
 jobs:
   build:
+    # Inherited publishers target upstream registries; never publish from this fork.
+    if: github.repository == 'Forceu/Gokapi'
     runs-on: ubuntu-latest
 
     steps:
