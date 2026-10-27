@@ -1,0 +1,10 @@
+environment	0
+platform	0
+generate	0
+awsmock	0
+noaws	0
+integration	0
+vet	1
+fixtures-race	0
+s3-driver	0
+red	1

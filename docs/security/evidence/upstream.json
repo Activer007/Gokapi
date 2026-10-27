@@ -1,0 +1,270 @@
+{
+  "observed_date": "2026-10-27",
+  "upstream": "Forceu/Gokapi",
+  "master": "a9c25d453aab0c25f2d6e6926ec7312628638844",
+  "latest_release": {
+    "tag_name": "v2.2.4",
+    "published_at": "2026-03-10T15:44:19Z",
+    "html_url": "https://github.com/Forceu/Gokapi/releases/tag/v2.2.4"
+  },
+  "pulls": [
+    {
+      "number": 384,
+      "title": "Replace SHA1 password hash and salts with argon2id",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-03-20T21:12:50Z",
+      "merge_commit_sha": "60d00f2ab79587d08f1f0e92d55ad4e3394ac258",
+      "html_url": "https://github.com/Forceu/Gokapi/pull/384"
+    },
+    {
+      "number": 400,
+      "title": "Fix race condition when checking remaining downloads",
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-05-06T17:15:23Z",
+      "merge_commit_sha": "c2880b7834f2503b6bc65c28cbea15516eeddb02",
+      "html_url": "https://github.com/Forceu/Gokapi/pull/400"
+    },
+    {
+      "number": 419,
+      "title": "fix: delete the previous content when a file is replaced",
+      "state": "open",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit_sha": "a469c2d3f20d817cca844560ab2496a7c696b060",
+      "html_url": "https://github.com/Forceu/Gokapi/pull/419"
+    },
+    {
+      "number": 418,
+      "title": "Add Content-Security-Policy headers",
+      "state": "open",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit_sha": "0147df542eed8de1ae471705121b395001823ca0",
+      "html_url": "https://github.com/Forceu/Gokapi/pull/418"
+    },
+    {
+      "number": 423,
+      "title": "Add MariaDB and PostgreSQL database provider support",
+      "state": "open",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit_sha": "44ecd35ebe1c8eb51403156a26ef59e6c8366e03",
+      "html_url": "https://github.com/Forceu/Gokapi/pull/423"
+    },
+    {
+      "number": 424,
+      "title": "Migrate S3 storage driver from aws-sdk-go v1 to aws-sdk-go-v2",
+      "state": "open",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit_sha": "2a1e881db3facb5fecd56d78a4cdde9911d4c04d",
+      "html_url": "https://github.com/Forceu/Gokapi/pull/424"
+    },
+    {
+      "number": 436,
+      "title": "Fix non-admin users unable to create their first file request (#433)",
+      "state": "open",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit_sha": "48fbd9b9d2b88c5d3df0bd98d8cc749841a0b89b",
+      "html_url": "https://github.com/Forceu/Gokapi/pull/436"
+    },
+    {
+      "number": 438,
+      "title": "feat: support default AWS credential chain for S3",
+      "state": "open",
+      "merged": false,
+      "merged_at": null,
+      "merge_commit_sha": "3a00721b96e340d176bf676dc78351c9e98ec078",
+      "html_url": "https://github.com/Forceu/Gokapi/pull/438"
+    }
+  ],
+  "issues": [
+    {
+      "number": 407,
+      "title": "[Bug] API replace does not delete original file immediately.",
+      "state": "open",
+      "html_url": "https://github.com/Forceu/Gokapi/issues/407"
+    },
+    {
+      "number": 431,
+      "title": "[Feature Request] Per user upload quota",
+      "state": "open",
+      "html_url": "https://github.com/Forceu/Gokapi/issues/431"
+    }
+  ],
+  "advisories": [
+    {
+      "ghsa_id": "GHSA-45vh-rpc8-hxpp",
+      "cve_id": "CVE-2026-30961",
+      "summary": "File Request MaxSize Limit Bypassed in File Request",
+      "vulnerabilities": [
+        {
+          "package": {
+            "ecosystem": "go",
+            "name": "github.com/forceu/gokapi"
+          },
+          "vulnerable_version_range": "<=v2.2.3",
+          "patched_versions": "2.2.4",
+          "vulnerable_functions": []
+        }
+      ],
+      "html_url": "https://github.com/Forceu/Gokapi/security/advisories/GHSA-45vh-rpc8-hxpp"
+    },
+    {
+      "ghsa_id": "GHSA-qwc6-vc2v-2ggj",
+      "cve_id": "CVE-2026-30955",
+      "summary": "DoS in API endpoint",
+      "vulnerabilities": [
+        {
+          "package": {
+            "ecosystem": "go",
+            "name": "github.com/forceu/gokapi"
+          },
+          "vulnerable_version_range": "<=v2.2.3",
+          "patched_versions": "2.2.4",
+          "vulnerable_functions": []
+        }
+      ],
+      "html_url": "https://github.com/Forceu/Gokapi/security/advisories/GHSA-qwc6-vc2v-2ggj"
+    },
+    {
+      "ghsa_id": "GHSA-j6jp-78w8-34x6",
+      "cve_id": "CVE-2026-30943",
+      "summary": "Privilege Escalation in File Replace",
+      "vulnerabilities": [
+        {
+          "package": {
+            "ecosystem": "go",
+            "name": "github.com/forceu/gokapi"
+          },
+          "vulnerable_version_range": "<=v2.2.3",
+          "patched_versions": "2.2.4",
+          "vulnerable_functions": []
+        }
+      ],
+      "html_url": "https://github.com/Forceu/Gokapi/security/advisories/GHSA-j6jp-78w8-34x6"
+    },
+    {
+      "ghsa_id": "GHSA-m2hx-wjxc-9fp4",
+      "cve_id": "CVE-2026-29060",
+      "summary": "Privilege escalation with auth token",
+      "vulnerabilities": [
+        {
+          "package": {
+            "ecosystem": "",
+            "name": "Gokapi"
+          },
+          "vulnerable_version_range": "<2.2.3",
+          "patched_versions": "2.2.3",
+          "vulnerable_functions": []
+        }
+      ],
+      "html_url": "https://github.com/Forceu/Gokapi/security/advisories/GHSA-m2hx-wjxc-9fp4"
+    },
+    {
+      "ghsa_id": "GHSA-q658-hfpg-35qc",
+      "cve_id": "CVE-2026-29061",
+      "summary": "Privilege escalation via incomplete API-key permission revocation on user rank demotion",
+      "vulnerabilities": [
+        {
+          "package": {
+            "ecosystem": "",
+            "name": "Gokapi"
+          },
+          "vulnerable_version_range": "<2.2.3",
+          "patched_versions": "2.2.3",
+          "vulnerable_functions": []
+        }
+      ],
+      "html_url": "https://github.com/Forceu/Gokapi/security/advisories/GHSA-q658-hfpg-35qc"
+    },
+    {
+      "ghsa_id": "GHSA-hcff-qv74-7hr4",
+      "cve_id": "CVE-2026-29084",
+      "summary": "CSRF in Login Endpoint",
+      "vulnerabilities": [
+        {
+          "package": {
+            "ecosystem": "",
+            "name": "Gokapi"
+          },
+          "vulnerable_version_range": "<v2.2.3",
+          "patched_versions": "2.2.3",
+          "vulnerable_functions": []
+        }
+      ],
+      "html_url": "https://github.com/Forceu/Gokapi/security/advisories/GHSA-hcff-qv74-7hr4"
+    },
+    {
+      "ghsa_id": "GHSA-3c22-5j5m-4jq7",
+      "cve_id": "CVE-2026-28683",
+      "summary": "Stored XSS in SVG Hotlinks",
+      "vulnerabilities": [
+        {
+          "package": {
+            "ecosystem": "",
+            "name": "Gokapi"
+          },
+          "vulnerable_version_range": "<2.2.3",
+          "patched_versions": "2.2.3",
+          "vulnerable_functions": []
+        }
+      ],
+      "html_url": "https://github.com/Forceu/Gokapi/security/advisories/GHSA-3c22-5j5m-4jq7"
+    },
+    {
+      "ghsa_id": "GHSA-c36c-7pc2-f2ph",
+      "cve_id": "CVE-2026-28682",
+      "summary": "Data Leak in Upload Status Stream",
+      "vulnerabilities": [
+        {
+          "package": {
+            "ecosystem": "",
+            "name": "Gokapi"
+          },
+          "vulnerable_version_range": "<v2.2.3",
+          "patched_versions": "2.2.3",
+          "vulnerable_functions": []
+        }
+      ],
+      "html_url": "https://github.com/Forceu/Gokapi/security/advisories/GHSA-c36c-7pc2-f2ph"
+    },
+    {
+      "ghsa_id": "GHSA-4xg4-54hm-9j77",
+      "cve_id": "CVE-2025-48495",
+      "summary": "Stored XSS vulnerability in friendly name for API keys",
+      "vulnerabilities": [
+        {
+          "package": {
+            "ecosystem": "",
+            "name": "Gokapi"
+          },
+          "vulnerable_version_range": "<v2.0.0",
+          "patched_versions": "v2.0.0",
+          "vulnerable_functions": []
+        }
+      ],
+      "html_url": "https://github.com/Forceu/Gokapi/security/advisories/GHSA-4xg4-54hm-9j77"
+    },
+    {
+      "ghsa_id": "GHSA-95rc-wc32-gm53",
+      "cve_id": "CVE-2025-48494",
+      "summary": "Stored XSS by uploading file with malicious file name",
+      "vulnerabilities": [
+        {
+          "package": {
+            "ecosystem": "",
+            "name": "Gokapi"
+          },
+          "vulnerable_version_range": "<2.0.0",
+          "patched_versions": "v2.0.0",
+          "vulnerable_functions": []
+        }
+      ],
+      "html_url": "https://github.com/Forceu/Gokapi/security/advisories/GHSA-95rc-wc32-gm53"
+    }
+  ]
+}

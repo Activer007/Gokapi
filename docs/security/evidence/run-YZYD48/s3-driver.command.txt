@@ -1,0 +1,1 @@
+go test ./internal/test/securityfixture -count=1 -tags=test -run TestM0S3

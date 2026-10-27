@@ -1,0 +1,21 @@
+go: downloading modernc.org/sqlite v1.58.0
+go: downloading golang.org/x/crypto v0.57.0
+go: downloading github.com/caarlos0/env/v6 v6.10.1
+go: downloading github.com/gomodule/redigo v1.9.3
+go: downloading github.com/schollz/progressbar/v3 v3.19.1
+go: downloading github.com/secure-io/sio-go v0.3.1
+go: downloading golang.org/x/term v0.46.0
+go: downloading github.com/shirou/gopsutil/v4 v4.26.8
+go: downloading github.com/aws/aws-sdk-go v1.55.8
+go: downloading github.com/jinzhu/copier v0.4.0
+go: downloading github.com/NYTimes/gziphandler v1.1.1
+go: downloading github.com/Kodeworks/golang-image-ico v0.0.0-20141118225523-73f0f4cfade9
+go: downloading golang.org/x/time v0.16.0
+go: downloading github.com/coreos/go-oidc/v3 v3.21.0
+go: downloading golang.org/x/image v0.46.0
+go: downloading golang.org/x/oauth2 v0.37.0
+Updated API version in openapi.json
+Updated version template
+Updated minify go file
+Updated API version template
+go: downloading golang.org/x/exp v0.0.0-20260908205506-85c1c2202aba

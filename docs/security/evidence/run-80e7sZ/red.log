@@ -1,0 +1,16 @@
+--- FAIL: TestSEC010InitialSetupRequiresAuthorization (0.00s)
+    security_red_test.go:21: SEC-010: unauthenticated initial setup reaches configuration handler
+FAIL
+FAIL	github.com/forceu/gokapi/internal/configuration/setup	0.008s
+--- FAIL: TestSEC012HTTPSCookieRequiresSecure (0.00s)
+    security_red_test.go:21: SEC-012: HTTPS session cookie lacks Secure
+FAIL
+FAIL	github.com/forceu/gokapi/internal/webserver/authentication/sessionmanager	0.093s
+AWS login successful
+Warning, cannot delete file synthetic-delete: RequestCanceled: request context canceled
+caused by: context deadline exceeded
+--- FAIL: TestSEC040FailedDeletionKeepsManagementRecord (5.20s)
+    deletion_red_test.go:49: SEC-040: deletion failed but management metadata was removed
+FAIL
+FAIL	github.com/forceu/gokapi/internal/test/securityfixture	5.209s
+FAIL

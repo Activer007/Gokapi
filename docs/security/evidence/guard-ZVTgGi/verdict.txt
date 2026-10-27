@@ -1,0 +1,1 @@
+PASS: credential-type mutation detected on both providers

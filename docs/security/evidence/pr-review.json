@@ -1,0 +1,11 @@
+{
+  "scope": "SEC-003 new docs, scripts and Go tests; synthetic fixture credentials only",
+  "knownSecretPatterns": "NO_MATCH",
+  "secretMatchLocations": [],
+  "relativeLinks": "PASS",
+  "brokenLinks": [],
+  "sourceBaseline": "1f47d1d91eda7da2098d2820c1633f88942f19f4",
+  "productionTrackedDiff": [],
+  "publisherPrerequisite": "Activer007/Gokapi#1 merged 1f47d1d91eda7da2098d2820c1633f88942f19f4",
+  "reviewKind": "author self-review; no independent approval claimed"
+}
