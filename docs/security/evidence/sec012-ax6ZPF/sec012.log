@@ -1,0 +1,37 @@
+Binding webserver to 127.0.0.1:53843
+Webserver can be accessed at http://127.0.0.1:53843/admin
+Press CTRL+C to stop Gokapi
+Rate limiting disabled for unit tests
+=== RUN   TestSEC012FileCookieTransport
+--- PASS: TestSEC012FileCookieTransport (0.00s)
+=== RUN   TestSEC012PasswordChangeRevokesSessions
+--- PASS: TestSEC012PasswordChangeRevokesSessions (0.17s)
+PASS
+ok  	github.com/forceu/gokapi/internal/webserver	1.272s
+=== RUN   TestSEC012SessionCookieTransport
+--- PASS: TestSEC012SessionCookieTransport (0.00s)
+=== RUN   TestSEC012HTTPSCookieRequiresSecure
+--- PASS: TestSEC012HTTPSCookieRequiresSecure (0.00s)
+PASS
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/sessionmanager	0.099s
+=== RUN   TestSEC012CallbackThroughProxy
+=== RUN   TestSEC012CallbackThroughProxy/http-development
+=== RUN   TestSEC012CallbackThroughProxy/https-proxy
+--- PASS: TestSEC012CallbackThroughProxy (0.28s)
+    --- PASS: TestSEC012CallbackThroughProxy/http-development (0.14s)
+    --- PASS: TestSEC012CallbackThroughProxy/https-proxy (0.14s)
+=== RUN   TestSEC012CallbackCookieTransport
+--- PASS: TestSEC012CallbackCookieTransport (0.00s)
+PASS
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/oauth	0.379s
+=== RUN   TestSEC012LegacyLoginMigration
+=== RUN   TestSEC012LegacyLoginMigration/sqlite
+=== RUN   TestSEC012LegacyLoginMigration/redis
+Unable to check if Redis has persistence enabled.
+Unable to check if Redis has persistence enabled.
+Unable to check if Redis has persistence enabled.
+--- PASS: TestSEC012LegacyLoginMigration (0.44s)
+    --- PASS: TestSEC012LegacyLoginMigration/sqlite (0.18s)
+    --- PASS: TestSEC012LegacyLoginMigration/redis (0.17s)
+PASS
+ok  	github.com/forceu/gokapi/internal/test/securityfixture	0.446s

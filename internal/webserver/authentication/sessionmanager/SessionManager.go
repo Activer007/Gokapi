@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/forceu/gokapi/internal/configuration"
 	"github.com/forceu/gokapi/internal/configuration/database"
 	"github.com/forceu/gokapi/internal/helper"
 	"github.com/forceu/gokapi/internal/models"
@@ -88,6 +89,7 @@ func writeSessionCookie(w http.ResponseWriter, sessionString string, expiry time
 		Value:    sessionString,
 		Expires:  expiry,
 		HttpOnly: true,
+		Secure:   configuration.UsesHTTPS(),
 		SameSite: http.SameSiteLaxMode,
 	}
 	http.SetCookie(w, c)

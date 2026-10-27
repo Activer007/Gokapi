@@ -1,0 +1,4 @@
+ok  	github.com/forceu/gokapi/internal/webserver	2.643s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/sessionmanager	1.184s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/oauth	1.553s
+ok  	github.com/forceu/gokapi/internal/test/securityfixture	2.045s

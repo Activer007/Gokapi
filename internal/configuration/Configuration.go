@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"strings"
 
@@ -168,6 +169,13 @@ func LoadFromSetup(config models.Configuration, cloudConfig *cloudconfig.CloudCo
 	if e2eConfig.DeleteEncryptedStorage {
 		deleteAllEncryptedStorage()
 	}
+}
+
+// UsesHTTPS reports the externally configured transport, including TLS terminated
+// by a reverse proxy. Request forwarding headers must not control cookie security.
+func UsesHTTPS() bool {
+	u, err := url.Parse(Get().ServerUrl)
+	return err == nil && u.Host != "" && strings.EqualFold(u.Scheme, "https")
 }
 
 // GetEnvironment returns a copy of the environment object

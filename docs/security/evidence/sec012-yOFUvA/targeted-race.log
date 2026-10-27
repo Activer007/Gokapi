@@ -1,0 +1,18 @@
+Binding webserver to 127.0.0.1:53843
+Webserver can be accessed at http://127.0.0.1:53843/admin
+Press CTRL+C to stop Gokapi
+Rate limiting disabled for unit tests
+--- FAIL: TestSEC012PasswordChangeRevokesSessions (0.53s)
+    security_cookie_test.go:67: password change must require a fresh login
+FAIL
+FAIL	github.com/forceu/gokapi/internal/webserver	1.818s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/sessionmanager	1.280s
+--- FAIL: TestSEC012CallbackThroughProxy (0.34s)
+    --- FAIL: TestSEC012CallbackThroughProxy/http-development (0.16s)
+        security_callback_test.go:130: valid callback did not authenticate
+    --- FAIL: TestSEC012CallbackThroughProxy/https-proxy (0.18s)
+        security_callback_test.go:130: valid callback did not authenticate
+FAIL
+FAIL	github.com/forceu/gokapi/internal/webserver/authentication/oauth	0.604s
+ok  	github.com/forceu/gokapi/internal/test/securityfixture	2.165s
+FAIL

@@ -1,0 +1,21 @@
+Updated API version in openapi.json
+Updated version template
+Updated minify go file
+Updated API version template
+Updated protected URLs variable
+Updated environment variables documentation
+Updated API parsing
+Compiled Downloader WASM module
+Compiled E2E WASM module
+Copied wasm_exec.js
+Copied go.mod
+Copied openapi.json
+Minified Main CSS
+Minified Admin JS
+Minified Admin E2E JS
+Minified Download E2E JS
+Minified Streamsaver JS
+Minified SSE Worker JS
+Minified wasm_exec JS
+Minified Public functions JS
+Minified Public upload JS

@@ -25,6 +25,8 @@
 
 M1/SEC-010 当前基线为 `0b72099243e091eec4eb053154c46ce3dbf2fd7a`（本 fork PR #2）。2026-10-27重新确认原有首次放行与通配监听为 CONFIRMED_CODE；重新检索上游 open setup PR，#418/#422/#423/#424/#438不包含同样的初始化证明修复。实现与兼容决策见 [ADR-001](ADR-001-BOOTSTRAP-PROOF.md)，RED和回归见 TEST-REPORT。后续 SEC-011/012/013/014 仍未完成；M1 整体 Gate 尚未通过。
 
+M1/SEC-012（2026-10-28）基线 `c1e0ee2d78c8b8ddb951b5f1053f6d5e15572a31`，即本 fork PR #3 合并提交；本地仅 origin=Activer007/Gokapi，分支 `codex/sec-012-secure-cookies`。用户未部署，保留未跟踪的原计划目录。CONFIRMED_CODE：三类 Cookie 缺少 Secure、网页改密未撤销既有会话，隔离 RED 已证明；最小修复及兼容见 [ADR-002](ADR-002-COOKIE-AND-PASSWORD-ROLLOUT.md)。HISTORICAL_FIXED：当前 Argon2id 与 API/部署密码重置注销已存在，不重复实现。VALIDATE：稳定身份绑定、浏览器 SameSite、并发注销与完整旧版冷恢复不由本轮测试保证。2026-10-28 只读检索上游 open cookie PR 仅返回 [#361](https://github.com/Forceu/Gokapi/pull/361)，其主题为按转发头生成代理 URL，不采用它作为可信传输策略；未见相同待合并修复。公告快照仍沿用下表，不声称本轮完成所有公告复现。完整生成/三组/race结果见 TEST-REPORT，M1仍有SEC-011/013/014待完成。
+
 SEC-062 [PR #1](https://github.com/Activer007/Gokapi/pull/1) 已合并，提交 `1f47d1d91eda7da2098d2820c1633f88942f19f4`；这是 SEC-003 的分支基线。五个继承发布 job 均以仓库全名判断，只在 Forceu/Gokapi 执行，因此即使解除 fork 关系，Activer007/Gokapi 也不会向继承的 registry 发布。测试 workflow 改用 go.mod 指定的 Go 版本。GitHub CI [40529619817](https://github.com/Activer007/Gokapi/actions/runs/40529619817) 通过；逐文件自审已记录，未冒充独立审批。
 
 SEC-003 保持测试与证据范围，补强了 File Request Key 与普通 Key 的双向类型边界，并通过隔离 mutation 验证断言有效；修正证据脚本失败时仍返回成功的退出码。重新检索上游 open PR，相关 #422、#428、#436 不包含该测试基线或发布保护；未移植其改动。生产授权、删除、数据格式均不变。原始 M0 快照与日志不改写，后续测试和 Gate 以 TEST-REPORT 的 PR 审查增补为准。

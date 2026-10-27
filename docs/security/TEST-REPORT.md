@@ -141,3 +141,35 @@ TestDeleteFile 使用固定200ms+900ms等待异步删除；生产任务内部另
 M0的SEC-010测试已迁入默认test组并GREEN；SEC-012/040仍为后续opt-in RED，未由本轮修复。Docker真实容器/非root上传下载、实际浏览器行为、完整OIDC回调、全仓race、govulncheck本轮NOT_RUN；不能用本轮HTTP与地址单测替代这些M1 Gate。已有vet告警仍见M0报告。本轮采用标准库来源保护的依据见ADR-001。
 
 兼容与回滚详见[ADR-001](ADR-001-BOOTSTRAP-PROOF.md)。现有服务正常启动不改变；初装/重配须读取本地证明，远程native安装须使用SSH隧道。回滚无需数据转换，但恢复旧代码必须保持安装端口网络隔离。M1其余四个SEC-ID及旧密码迁移验证继续保留，整个目标未完成。
+
+## M1 / SEC-012 Cookie、会话与旧密码迁移
+
+2026-10-28，基线 `c1e0ee2d78c8b8ddb951b5f1053f6d5e15572a31`（SEC-010 PR #3 已合并；其最终head a6039e2，CI runs 40537227199/40537217848 均成功）。环境 Windows PowerShell + WSL Ubuntu-24.04、Go1.26.0 linux/amd64；每次 `run-sec012.sh` 新建 git archive 副本，按明确文件列表叠加并记录 hash，合成配置/数据只在临时目录。没有部署或修改生产数据。
+
+| 命令 / 证据 | 真实结果与原因 |
+| --- | --- |
+| `bash docs/security/tools/run-sec012.sh --red`，[sec012-Y6hWxh](evidence/sec012-Y6hWxh/results.tsv) | generate PASS；目标测试 FAIL，三类HTTPS Cookie没有Secure、网页改密会话仍有效。这是真实RED；该次尚无legacy迁移测试，fixture包no tests不能算验证通过 |
+| 首轮完整回归，[sec012-yOFUvA](evidence/sec012-yOFUvA/results.tsv) | generate PASS；目标/三组/race FAIL；新增断言错误期望相对Location，Go重定向规范化为/login和/admin。测试错误已修正，不当作安全RED；Cookie与legacy迁移断言已通过 |
+| 修正重定向断言后，[sec012-Wn12rR](evidence/sec012-Wn12rR/results.tsv) | generate PASS；目标/三组/race FAIL，仅HTTPS代理测试的HTTP CookieJar筛选断言失败。Go1.26 cookiejar secureMatch明确把localhost/loopback视为安全来源；不是生产Secure修复失效 |
+| 最终完整回归，[sec012-ax6ZPF](evidence/sec012-ax6ZPF/results.tsv) | environment、generate、目标SEC012、awsmock、noaws、integration、targeted-race全部PASS，脚本退出0；生产/测试文件对应overlay.sha256 |
+
+最终真实命令（逐条.command.txt/.log保留）：
+
+```sh
+go generate ./...
+go test ./internal/webserver ./internal/webserver/authentication/sessionmanager ./internal/webserver/authentication/oauth ./internal/test/securityfixture -count=1 -tags=test,noaws,security_red -run TestSEC012 -v
+go test ./... -parallel 8 -count=1 -tags=test,awsmock
+go test ./... -parallel 8 -count=1 -tags=test,noaws
+go test ./... -count=1 -tags=test,noaws,integration
+go test -race ./internal/webserver ./internal/webserver/authentication/sessionmanager ./internal/webserver/authentication/oauth ./internal/test/securityfixture -count=1 -tags=test,noaws -run TestSEC012
+```
+
+HTTPS代理测试使用example.com主机语义，transport禁用代理并强制只连接本地fixture，TLS仍验证证书，不访问真实域名；避免loopback的Secure例外造成错误结论。登录发state→错误state拒绝→正确回调兑换合成token/UserInfo→会话访问→退出失效，HTTP与TLS反代均通过，后端始终HTTP且冲突X-Forwarded-Proto不能改变策略。CookieJar不执行SameSite，SameSite只断言属性；实际浏览器NOT_RUN。没有更改OIDC邮箱关联或宣称补齐ID token验证。
+
+网页改密断言成功更新hash、清除本用户两设备会话和浏览器Cookie，其他用户会话保留；无效CSRF不改密码、不注销。legacy测试独立生成v2.2.4 SHA-1 fixture，调用真实认证路径，在SQLite/miniredis分别验证错误不迁移、成功Argon2id写回、重连持久化、重复正确/错误认证与原记录恢复。恢复单条记录不是旧二进制全量恢复；真实Redis持久化和冷恢复NOT_RUN。
+
+SEC-012原M0 opt-in RED现迁入默认test组；SEC-040仍需显式security_red。依赖未变，govulncheck及全仓race本轮NOT_RUN，原有vet告警未修复。更新环境事实：Windows已安装Docker CLI29.1.3，但Docker Desktop Linux引擎命名管道不存在、WSL无Docker CLI/socket；镜像/非root容器Gate仍BLOCKED，不再笼统称整台机器没安装Docker。
+
+兼容/发布/回滚详见[ADR-002](ADR-002-COOKIE-AND-PASSWORD-ROLLOUT.md)。本项无schema、身份或文件格式变化；旧Cookie需要维护窗口注销再登录，降回v2.2.4必须恢复配套备份。测试/PR通过不等于已发布镜像或M1全部完成。
+
+[PR #4](https://github.com/Activer007/Gokapi/pull/4) 创建于本 fork，初始提交 `f780a84f9e3ed59b8c2a560f48167724c3c890d8`。远端diff已逐项自审并记录COMMENT，不冒充独立审批；后续仅补PR链接和本说明。提交前gofmt、bash -n、diff --check和文档相对链接校验通过，新增证据及fixture的常见私钥/GitHub Token/AWS访问Key模式扫描无匹配；这是有限模式扫描，非全仓秘密审计。合并必须等待最终head的远端CI通过，动态结果以PR checks为准。

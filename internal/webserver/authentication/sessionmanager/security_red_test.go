@@ -1,4 +1,4 @@
-//go:build test && security_red
+//go:build test
 
 package sessionmanager
 
