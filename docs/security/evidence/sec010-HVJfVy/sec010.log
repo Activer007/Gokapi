@@ -1,0 +1,23 @@
+=== RUN   TestSEC010ProofRequired
+Rate limiting disabled for unit tests
+Rate limiting disabled for unit tests
+--- PASS: TestSEC010ProofRequired (0.00s)
+=== RUN   TestSEC010CredentialLifecycle
+--- PASS: TestSEC010CredentialLifecycle (0.00s)
+=== RUN   TestSEC010ListenBoundary
+--- PASS: TestSEC010ListenBoundary (0.00s)
+=== RUN   TestSEC010BrowserOrigin
+    bootstrap_test.go:139: origin="https://other.invalid" site="cross-site": got 200, want 403
+    bootstrap_test.go:139: origin="https://other.invalid" site="": got 200, want 403
+    bootstrap_test.go:139: origin="null" site="": got 200, want 403
+--- FAIL: TestSEC010BrowserOrigin (0.00s)
+=== RUN   TestSEC010SafeMethodCannotCommit
+    bootstrap_test.go:151: GET status=500, want 405
+--- FAIL: TestSEC010SafeMethodCannotCommit (0.00s)
+=== RUN   TestSEC010CompletedCommitRejectsConcurrentReplay
+--- PASS: TestSEC010CompletedCommitRejectsConcurrentReplay (0.00s)
+=== RUN   TestSEC010InitialSetupRequiresAuthorization
+--- PASS: TestSEC010InitialSetupRequiresAuthorization (0.00s)
+FAIL
+FAIL	github.com/forceu/gokapi/internal/configuration/setup	0.011s
+FAIL

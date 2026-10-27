@@ -26,7 +26,7 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 
 | ID | 优先级 / 分类 | 状态与风险 | 依赖 / 下一项 Gate / 最小 PR 范围 |
 | --- | --- | --- | --- |
-| SEC-010 | P0 CONFIRMED_CODE | 初装可达时免认证；隔离 RED | 001–003 → G1/G2；仅 bootstrap 授权与首次/重启/重配测试；保持安装兼容 |
+| SEC-010 | P0 CONFIRMED_CODE | M1 已实跑RED→GREEN：本地证明、回环监听、单次保存与同源保护 | [PR #3](https://github.com/Activer007/Gokapi/pull/3)；基线0b72099；ADR-001；TEST-REPORT记录全部回归；最终CI/合并状态见PR，Docker实机Gate仍归SEC-011 |
 | SEC-011 | P0 CONFIRMED_CODE | 默认镜像未 USER；实际部署 uid VALIDATE | 001 → Docker G1 BLOCKED；先 fork 部署文档/非 root 示例，旧卷迁移独立，不自动 chown |
 | SEC-012 | P0 CONFIRMED_CODE + HISTORICAL_FIXED | Cookie Secure 缺口；Argon2id 仅 master 已修 | 003 → G1/G2/G3；先 Cookie 独立 PR，再会话策略/迁移评审；不能重做 #384；OIDC Lax 兼容必须覆盖 |
 | SEC-013 | P0 CONFIRMED_CODE | Header/CF 信任入口，前提是模式开启且源站直连 | 002/003 → G1；仅可信 peer 判定及配置兼容；不把日志来源伪造等同已证实账户接管 |

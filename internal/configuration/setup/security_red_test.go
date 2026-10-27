@@ -1,4 +1,4 @@
-//go:build test && security_red
+//go:build test
 
 package setup
 
@@ -8,8 +8,11 @@ import (
 	"testing"
 )
 
-// Opt-in desired invariant. No setup result is applied and no listener is opened.
+// Regression promoted from the M0 opt-in RED. No setup result is applied.
 func TestSEC010InitialSetupRequiresAuthorization(t *testing.T) {
+	oldComplete := setupComplete.Load()
+	setupComplete.Store(false)
+	t.Cleanup(func() { setupComplete.Store(oldComplete) })
 	previous := isInitialSetup
 	isInitialSetup = true
 	t.Cleanup(func() { isInitialSetup = previous })

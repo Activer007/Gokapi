@@ -119,3 +119,25 @@ TestDeleteFile 使用固定200ms+900ms等待异步删除；生产任务内部另
 复现 mutation 可运行上表脚本；它不会修改工作树中的 Api.go。普通基线脚本在本 PR 提交后默认 archive 自然包含已提交 fixture，`security_red` 仍须显式启用。回滚 SEC-003 的测试/文档提交即可，无数据库、文件内容、Cookie、哈希或 OIDC 身份迁移。SEC-062 发布保护应独立保留；恢复发布需先配置自己的 registry 和凭据。
 
 暂存审查发现3处原始命令输出含尾随空白（build-info、早期无效 TSV 项、S3 错误日志）。不改写原始证据；.gitattributes 对 evidence 禁用文本转换及空白告警，对新增 shell/Go overlay 固定 LF，避免 Windows checkout 改变可执行脚本和已记录哈希。该属性仅覆盖本次新增材料，生产文件不受影响。
+
+## M1 / SEC-010 初始化证明
+
+本项执行跨2026-10-27/28（Asia/Shanghai）；初始M0日期与历史日志保持不变。
+
+基线 `0b72099243e091eec4eb053154c46ce3dbf2fd7a`，Windows工作树 + WSL Ubuntu-24.04 / Go1.26.0；Docker CLI仍不存在。`run-sec010.sh` 在新的 git archive 副本叠加 setup Go 文件/模板并记录hash；所有安装配置、数据库、证明文件均在隔离副本或t.TempDir中生成。原用户计划目录不复制、不提交。该轮未改依赖、哈希或schema。
+
+| 命令 / 证据 | 真实结果 |
+| --- | --- |
+| `bash docs/security/tools/run-sec010.sh --red`，[sec010-NzpQ4p](evidence/sec010-NzpQ4p/results.tsv) | generate PASS；SEC-010 FAIL：首次setup无凭据/错误凭据均触达回调，原始M0不变量也失败；是真实断言RED |
+| 首版完整回归，[sec010-5xqY10](evidence/sec010-5xqY10/results.tsv) | generate PASS；Go测试编译FAIL：新测试对临时值调用指针方法toJson；已改为局部变量。这不是安全RED |
+| 修正测试编译后，[sec010-NyYzaU](evidence/sec010-NyYzaU/results.tsv) | generate、SEC-010、awsmock、noaws、integration、定向race均PASS |
+| 同源/方法防御负例，[sec010-HVJfVy](evidence/sec010-HVJfVy/results.tsv) | generate PASS；SEC-010 FAIL：三种跨站来源返回200，GET保存入口返回500而非405；保留并加入最小防护 |
+| 最终完整回归，[sec010-0fE7Rw](evidence/sec010-0fE7Rw/results.tsv) | generate、SEC-010、awsmock、noaws、integration、定向race均PASS；退出0。最终生产/测试内容对应此overlay.sha256；随后脚本仅加参数检查与自身hash记录 |
+
+最终实际命令：`go generate ./...`；`go test ./internal/configuration/setup -count=1 -tags=test,noaws,security_red -run TestSEC010 -v`；`go test ./... -parallel 8 -count=1 -tags=test,awsmock`；`go test ./... -parallel 8 -count=1 -tags=test,noaws`；`go test ./... -count=1 -tags=test,noaws,integration`；`go test -race ./internal/configuration/setup -count=1 -tags=test,noaws -run TestSEC010`。全部PASS，逐条.command.txt和.log保留。
+
+实际安装TestIntegration现在用本地证明文件读取的凭据走HTTP：匿名完整配置POST不创建配置，认证后显示页面，错误表单不消耗证明，正确安装成功，文件被删除，再次提交不能改变配置；既有重配内部/Header/OAuth模式测试继续通过。TestInitialSetup覆盖已有配置跳过。专门测试覆盖初装/重配凭据矩阵、0600权限、重启轮换/旧证明拒绝、native/Docker监听地址、HTTP/代理HTTPS同源正例、跨站/opaque Origin反例、GET拒绝、16个并发完成态重放。并发测试只证明完成态重放与互斥路径，不声称覆盖全部存储并发。
+
+M0的SEC-010测试已迁入默认test组并GREEN；SEC-012/040仍为后续opt-in RED，未由本轮修复。Docker真实容器/非root上传下载、实际浏览器行为、完整OIDC回调、全仓race、govulncheck本轮NOT_RUN；不能用本轮HTTP与地址单测替代这些M1 Gate。已有vet告警仍见M0报告。本轮采用标准库来源保护的依据见ADR-001。
+
+兼容与回滚详见[ADR-001](ADR-001-BOOTSTRAP-PROOF.md)。现有服务正常启动不改变；初装/重配须读取本地证明，远程native安装须使用SSH隧道。回滚无需数据转换，但恢复旧代码必须保持安装端口网络隔离。M1其余四个SEC-ID及旧密码迁移验证继续保留，整个目标未完成。

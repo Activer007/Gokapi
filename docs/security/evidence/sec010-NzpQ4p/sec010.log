@@ -1,0 +1,14 @@
+=== RUN   TestSEC010ProofRequired
+Rate limiting disabled for unit tests
+    bootstrap_test.go:31: initial=true supplied=false: authorization=true
+    bootstrap_test.go:34: initial=true: status=200, want 401
+    bootstrap_test.go:31: initial=true supplied=true: authorization=true
+    bootstrap_test.go:34: initial=true: status=200, want 401
+Rate limiting disabled for unit tests
+--- FAIL: TestSEC010ProofRequired (0.00s)
+=== RUN   TestSEC010InitialSetupRequiresAuthorization
+    security_red_test.go:21: SEC-010: unauthenticated initial setup reaches configuration handler
+--- FAIL: TestSEC010InitialSetupRequiresAuthorization (0.00s)
+FAIL
+FAIL	github.com/forceu/gokapi/internal/configuration/setup	0.008s
+FAIL

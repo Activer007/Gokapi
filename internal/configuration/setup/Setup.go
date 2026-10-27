@@ -20,6 +20,8 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -55,6 +57,10 @@ var isInitialSetup = true
 var credentialUsername string
 var credentialPassword string
 var credentialAWSTest string
+var credentialFile string
+var setupComplete atomic.Bool
+var setupResultMu sync.Mutex
+var setupOriginProtection http.CrossOriginProtection
 
 // debugDisableAuth can be set to true for testing purposes. It will disable the
 // password requirement for accessing the setup page
@@ -64,13 +70,6 @@ const debugDisableAuth = false
 func RunIfFirstStart() {
 	if !configuration.Exists() {
 		isInitialSetup = true
-		credentialAWSTest = helper.GenerateRandomString(10)
-		fmt.Println()
-		fmt.Println("###################################################################")
-		fmt.Println("Use the following password for testing the AWS configuration:")
-		fmt.Println("Password:  " + credentialAWSTest)
-		fmt.Println("###################################################################")
-		fmt.Println()
 		startSetupWebserver()
 	}
 }
@@ -78,29 +77,57 @@ func RunIfFirstStart() {
 // RunConfigModification starts a blocking webserver for reconfiguration setup
 func RunConfigModification() {
 	isInitialSetup = false
-	credentialUsername = helper.GenerateRandomString(6)
-	credentialPassword = helper.GenerateRandomString(10)
-	fmt.Println()
-	fmt.Println("###################################################################")
-	fmt.Println("Use the following credentials for modifying the configuration:")
-	fmt.Println("Username: " + credentialUsername)
-	fmt.Println("Password: " + credentialPassword)
-	fmt.Println("###################################################################")
-	fmt.Println()
 	startSetupWebserver()
 }
 
-// basicAuth adds authentication middleware used for reconfiguration setup
+// prepareSetupCredentials creates a fresh, process-local proof. Only its path
+// is printed; the password must not enter container/service logs or URLs.
+func prepareSetupCredentials() error {
+	dir := environment.New().ConfigDir
+	if err := os.MkdirAll(dir, 0700); err != nil {
+		return err
+	}
+	f, err := os.CreateTemp(dir, ".setup-credential-")
+	if err != nil {
+		return err
+	}
+	password := helper.GenerateRandomString(32)
+	if _, err = io.WriteString(f, password+"\n"); err != nil {
+		_ = f.Close()
+		_ = os.Remove(f.Name())
+		return err
+	}
+	if err = f.Close(); err != nil {
+		_ = os.Remove(f.Name())
+		return err
+	}
+	credentialUsername, credentialPassword = "setup", password
+	credentialAWSTest, credentialFile = password, f.Name()
+	setupComplete.Store(false)
+	return nil
+}
+
+func removeSetupCredential() {
+	if err := os.Remove(credentialFile); err != nil && !errors.Is(err, os.ErrNotExist) {
+		log.Printf("Unable to remove expired setup credential file: %v", err)
+	}
+}
+
+// basicAuth authenticates both first installation and reconfiguration.
 func basicAuth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// No auth required on initial setup
-		if isInitialSetup || debugDisableAuth {
+		w.Header().Set("Cache-Control", "no-store")
+		if err := setupOriginProtection.Check(r); err != nil {
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+		if debugDisableAuth {
 			next.ServeHTTP(w, r)
 			return
 		}
 
 		enteredUser, enteredPw, ok := r.BasicAuth()
-		if ok {
+		if ok && credentialUsername != "" && credentialPassword != "" && !setupComplete.Load() {
 			ratelimiter.WaitOnSetupLogin()
 			usernameMatch := helper.IsEqualStringConstantTime(strings.ToLower(enteredUser), strings.ToLower(credentialUsername))
 			passwordMatch := helper.IsEqualStringConstantTime(enteredPw, credentialPassword)
@@ -109,12 +136,19 @@ func basicAuth(next http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 		}
-		w.Header().Set("WWW-Authenticate", `Basic realm="Please enter the credentials shown in the console output", charset="UTF-8"`)
+		w.Header().Set("WWW-Authenticate", `Basic realm="Gokapi setup: use username setup and the local credential file", charset="UTF-8"`)
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 	}
 }
 
 func startSetupWebserver() {
+	if err := prepareSetupCredentials(); err != nil {
+		log.Fatalf("Unable to prepare setup credentials: %v", err)
+	}
+	defer removeSetupCredential()
+	fmt.Println("Setup username: setup")
+	fmt.Println("Read the setup password from the local file:", credentialFile)
+	fmt.Println("Use a local browser, an SSH tunnel, or a trusted HTTPS proxy for setup.")
 	port := strconv.Itoa(environment.New().WebserverPort)
 	webserverDir, _ := fs.Sub(webserverDirEmb, "static")
 
@@ -126,7 +160,7 @@ func startSetupWebserver() {
 	mux.HandleFunc("/setup/testaws", basicAuth(handleTestAws))
 
 	srv = http.Server{
-		Addr:         ":" + port,
+		Addr:         setupListenAddress(port, environment.IsDockerInstance()),
 		ReadTimeout:  2 * time.Minute,
 		WriteTimeout: 2 * time.Minute,
 		Handler:      mux,
@@ -136,9 +170,9 @@ func startSetupWebserver() {
 		fmt.Println("Authentication is disabled by debug flag. Setup only accessible by localhost")
 		fmt.Println("Please open http://127.0.0.1:" + port + "/setup to setup Gokapi.")
 	} else {
-		fmt.Println("Please open http://" + resolveHostIp() + ":" + port + "/setup to setup Gokapi.")
+		fmt.Println("Please open http://127.0.0.1:" + port + "/setup to setup Gokapi.")
 	}
-	listener, err := net.Listen("tcp", ":"+port)
+	listener, err := net.Listen("tcp", srv.Addr)
 	if err != nil {
 		if isErrorAddressAlreadyInUse(err) {
 			fmt.Println("This port is already in use. Use parameter -p or env variable GOKAPI_PORT to change the port.")
@@ -149,6 +183,13 @@ func startSetupWebserver() {
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("Setup Webserver: %v", err)
 	}
+}
+
+func setupListenAddress(port string, docker bool) string {
+	if docker && !debugDisableAuth {
+		return ":" + port // Host publication should bind 127.0.0.1.
+	}
+	return net.JoinHostPort("127.0.0.1", port)
 }
 
 func isErrorAddressAlreadyInUse(err error) bool {
@@ -802,6 +843,19 @@ func handleShowMaintenance(w http.ResponseWriter, r *http.Request) {
 
 // Handling of /setupResult
 func handleResult(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.Header().Set("Allow", http.MethodPost)
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// A second request may already have passed authentication when the first
+	// request commits. Serialize commits and consume the proof only on success.
+	setupResultMu.Lock()
+	defer setupResultMu.Unlock()
+	if setupComplete.Load() {
+		http.Error(w, "Setup already completed", http.StatusConflict)
+		return
+	}
 	setupResult, err := inputToJsonForm(r)
 	if err != nil {
 		outputError(w, err)
@@ -814,11 +868,13 @@ func handleResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	configuration.LoadFromSetup(newConfig, cloudSettings, e2eConfig, authInfo.PasswordInternalAuth)
+	setupComplete.Store(true)
+	removeSetupCredential()
 	w.WriteHeader(200)
 	_, _ = w.Write([]byte("{ \"result\": \"OK\"}"))
 	go func() {
 		time.Sleep(1500 * time.Millisecond)
-		err = srv.Shutdown(context.Background())
+		err := srv.Shutdown(context.Background())
 		if err != nil {
 			fmt.Println(err)
 		}

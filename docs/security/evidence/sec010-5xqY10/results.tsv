@@ -1,0 +1,7 @@
+environment	0
+generate	0
+sec010	1
+awsmock	1
+noaws	1
+integration	1
+setup-race	1

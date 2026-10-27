@@ -49,6 +49,8 @@ docker run --rm \
 
 Then visit ``http://localhost:53842/setup`` and follow the setup wizard.
 
+Fork builds containing SEC-010 require username `setup` and the password from the local credential file whose path is printed at startup. Native setup binds to `127.0.0.1`; use an SSH tunnel for a VPS. See [this fork's installation instructions](docs/setup.rst). The upstream image above does not include fork-only changes; no image has been published by this fork yet.
+
 
 
 ## Screenshots

@@ -120,7 +120,19 @@ Execute the binary from the command line or by double-clicking it.
 Initial Setup
 *****************************
 
-On the first start, Gokapi creates a configuration file and opens a setup wizard. Open ``http://localhost:53842/setup`` in your browser (adjust the host and port as needed) and work through the steps below.
+On the first start of this fork, Gokapi opens an authenticated setup wizard. Configuration is saved only after a successful submission. Use username ``setup`` and the password in the local ``.setup-credential-*`` file whose path is printed at startup. The password itself is never printed in service/container logs. Read that exact file as the process user (for Docker, use ``docker exec -it <container> cat <printed-path>``). Do not put this password in a URL, share it, or record it in logs.
+
+Open ``http://127.0.0.1:53842/setup`` in your browser. Native setup listens only on IPv4 loopback. For a VPS, keep setup running and open an SSH tunnel from your workstation:
+
+.. code-block:: bash
+
+   ssh -N -L 53842:127.0.0.1:53842 user@vps
+
+Then browse the same local URL. Docker still listens on its container interface so port mapping works; publish the host port with ``-p 127.0.0.1:53842:53842``. A separate proxy container can reach the container port on a private network; preserve the external Host and browser Origin, and use HTTPS. Do not expose setup over public plain HTTP.
+
+Each setup start creates a fresh proof in a new owner-only file (0600 on Linux). Failed validation can be retried with the same proof. A successful save revokes it immediately and deletes the file; already-authenticated requests cannot save a second configuration. A restart requires the new file, including after an interrupted installation. A stale file left by a crash is not accepted. Existing config files skip initial setup entirely.
+
+These instructions apply to builds of this fork containing SEC-010; the upstream ``f0rc3/gokapi`` images shown elsewhere on this page do not contain fork-only changes. This fork has not published a new image.
 
 If you need to change the port before running setup, set ``GOKAPI_PORT`` — see :ref:`envvar`.
 
@@ -339,7 +351,7 @@ The encryption key can be stored in the configuration file (convenient, lower se
 Changing Configuration
 *****************************
 
-To change settings after the initial setup (e.g. password, storage backend, authentication method), run Gokapi with ``--reconfigure``. A temporary random username and password are printed to the console for accessing the configuration page.
+To change settings after the initial setup (e.g. password, storage backend, authentication method), run Gokapi with ``--reconfigure``. Use username ``setup`` and the fresh local credential file printed by this run, following the same local browser/SSH tunnel procedure as initial setup. The old proof and previously cached browser password no longer work. No password is printed in the console.
 
 Native:
 
