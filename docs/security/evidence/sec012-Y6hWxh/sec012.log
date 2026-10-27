@@ -1,0 +1,32 @@
+Binding webserver to 127.0.0.1:53843
+Webserver can be accessed at http://127.0.0.1:53843/admin
+Press CTRL+C to stop Gokapi
+Rate limiting disabled for unit tests
+=== RUN   TestSEC012FileCookieTransport
+    security_cookie_test.go:38: public URL https://files.example.invalid/: Secure=false HttpOnly=true SameSite=3
+--- FAIL: TestSEC012FileCookieTransport (0.00s)
+=== RUN   TestSEC012PasswordChangeRevokesSessions
+    security_cookie_test.go:63: old session survives password change: sec012-current
+    security_cookie_test.go:63: old session survives password change: sec012-other-device
+    security_cookie_test.go:67: password change must require a fresh login
+--- FAIL: TestSEC012PasswordChangeRevokesSessions (0.16s)
+FAIL
+FAIL	github.com/forceu/gokapi/internal/webserver	1.281s
+=== RUN   TestSEC012SessionCookieTransport
+    security_cookie_test.go:33: public URL https://files.example.invalid/: Secure=false HttpOnly=true SameSite=2
+    security_cookie_test.go:33: public URL https://files.example.invalid/: Secure=false HttpOnly=true SameSite=2
+--- FAIL: TestSEC012SessionCookieTransport (0.00s)
+=== RUN   TestSEC012HTTPSCookieRequiresSecure
+    security_red_test.go:21: SEC-012: HTTPS session cookie lacks Secure
+--- FAIL: TestSEC012HTTPSCookieRequiresSecure (0.00s)
+FAIL
+FAIL	github.com/forceu/gokapi/internal/webserver/authentication/sessionmanager	0.115s
+=== RUN   TestSEC012CallbackCookieTransport
+    security_cookie_test.go:31: public URL https://files.example.invalid/: Secure=false HttpOnly=true SameSite=2
+--- FAIL: TestSEC012CallbackCookieTransport (0.00s)
+FAIL
+FAIL	github.com/forceu/gokapi/internal/webserver/authentication/oauth	0.121s
+testing: warning: no tests to run
+PASS
+ok  	github.com/forceu/gokapi/internal/test/securityfixture	0.004s [no tests to run]
+FAIL

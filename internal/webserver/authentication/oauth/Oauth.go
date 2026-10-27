@@ -139,6 +139,7 @@ func setCallbackCookie(w http.ResponseWriter, value string) {
 		Value:    value,
 		MaxAge:   int(time.Hour.Seconds()),
 		HttpOnly: true,
+		Secure:   configuration.UsesHTTPS(),
 		SameSite: http.SameSiteLaxMode,
 	}
 	http.SetCookie(w, c)

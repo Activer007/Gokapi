@@ -176,6 +176,9 @@ Webserver
 * **Redirection URL** — where users are sent when they open the root URL without a valid download link.
 
 .. note::
+   In fork builds containing SEC-012, set **Public Facing URL** to the real external ``https://`` URL when TLS terminates at a reverse proxy. Session, download-password and OAuth callback cookies then use Secure even if the backend uses HTTP. Explicit local HTTP development remains supported. Forwarding headers do not override this setting. Existing deployments must revoke old sessions in a controlled maintenance/reconfiguration window and sign in again, since existing browser cookies cannot be updated retroactively. See ``docs/security/ADR-002-COOKIE-AND-PASSWORD-ROLLOUT.md`` for upgrade and rollback steps.
+
+.. note::
    If you enable filename-in-URL together with end-to-end encryption, the filename is appended client-side after decryption and is therefore visible in the URL. This may be a privacy concern for sensitive filenames. You can disable the option, or simply edit the filename in the URL — Gokapi ignores it and always serves the correct file.
 
 .. _setup_authentication:
@@ -189,6 +192,8 @@ Username / Password
 """"""""""""""""""""
 
 The default method. All users authenticate with a username and password. You will be asked to create the initial admin credentials in the next step.
+
+In fork builds containing SEC-012, a successful web password change signs out all sessions belonging to that user and requires a new login.
 
 OAuth2 / OpenID Connect
 """"""""""""""""""""""""""

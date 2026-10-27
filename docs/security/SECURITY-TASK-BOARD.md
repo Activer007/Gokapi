@@ -26,9 +26,9 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 
 | ID | 优先级 / 分类 | 状态与风险 | 依赖 / 下一项 Gate / 最小 PR 范围 |
 | --- | --- | --- | --- |
-| SEC-010 | P0 CONFIRMED_CODE | M1 已实跑RED→GREEN：本地证明、回环监听、单次保存与同源保护 | [PR #3](https://github.com/Activer007/Gokapi/pull/3)；基线0b72099；ADR-001；TEST-REPORT记录全部回归；最终CI/合并状态见PR，Docker实机Gate仍归SEC-011 |
+| SEC-010 | P0 CONFIRMED_CODE | M1 已合并，RED→GREEN：本地证明、回环监听、单次保存与同源保护 | [PR #3](https://github.com/Activer007/Gokapi/pull/3)；合并c1e0ee2；ADR-001；本地与CI通过，Docker实机Gate仍归SEC-011 |
 | SEC-011 | P0 CONFIRMED_CODE | 默认镜像未 USER；实际部署 uid VALIDATE | 001 → Docker G1 BLOCKED；先 fork 部署文档/非 root 示例，旧卷迁移独立，不自动 chown |
-| SEC-012 | P0 CONFIRMED_CODE + HISTORICAL_FIXED | Cookie Secure 缺口；Argon2id 仅 master 已修 | 003 → G1/G2/G3；先 Cookie 独立 PR，再会话策略/迁移评审；不能重做 #384；OIDC Lax 兼容必须覆盖 |
+| SEC-012 | P0 CONFIRMED_CODE + HISTORICAL_FIXED | M1 本地RED→GREEN；三类Cookie、网页改密注销、HTTP/TLS代理回调、SQLite/Redis旧密码真实登录迁移 | 基线c1e0ee2；ADR-002；generate/官方三组/定向race通过；PR待创建，远端CI待验；浏览器/冷恢复仍为023/063 Gate，不重复实现#384 |
 | SEC-013 | P0 CONFIRMED_CODE | Header/CF 信任入口，前提是模式开启且源站直连 | 002/003 → G1；仅可信 peer 判定及配置兼容；不把日志来源伪造等同已证实账户接管 |
 | SEC-014 | P0 验证 / P1 调优，CONFIRMED_CODE | 长全局超时，等待使用 Background；DoS 强度 VALIDATE | 003 → G1；先取消上下文或头超时一个子项，保留上传/SSE 正例 |
 | SEC-020 | P0 HISTORICAL_FIXED / VALIDATE | 既有越权公告已修；集中策略只是方案，未证明需重构 | 003 → G1/G2；先补动作矩阵；仅遇到实证不一致才抽最小共同策略 |

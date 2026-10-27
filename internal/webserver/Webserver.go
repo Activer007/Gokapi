@@ -346,7 +346,9 @@ func changePassword(w http.ResponseWriter, r *http.Request) {
 			user.Password = pwHash
 			user.ResetPassword = false
 			database.SaveUser(user, false)
-			redirect(w, r, "admin")
+			database.DeleteAllSessionsByUser(user.Id)
+			sessionmanager.LogoutSession(w, r)
+			redirect(w, r, "login")
 			return
 		}
 	}
@@ -1149,6 +1151,7 @@ func writeFilePwCookie(w http.ResponseWriter, file models.File) {
 		Value:    downloadPasswordToken.Generate(file.Id),
 		Expires:  time.Now().Add(5 * time.Minute),
 		HttpOnly: true,
+		Secure:   configuration.UsesHTTPS(),
 		SameSite: http.SameSiteStrictMode,
 	})
 }

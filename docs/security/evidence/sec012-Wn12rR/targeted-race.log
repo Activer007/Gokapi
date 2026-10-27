@@ -1,0 +1,9 @@
+ok  	github.com/forceu/gokapi/internal/webserver	2.610s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/sessionmanager	1.166s
+--- FAIL: TestSEC012CallbackThroughProxy (0.38s)
+    --- FAIL: TestSEC012CallbackThroughProxy/https-proxy (0.22s)
+        security_callback_test.go:145: session cookie HTTP transport policy is incorrect
+FAIL
+FAIL	github.com/forceu/gokapi/internal/webserver/authentication/oauth	0.549s
+ok  	github.com/forceu/gokapi/internal/test/securityfixture	1.984s
+FAIL
