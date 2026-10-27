@@ -275,3 +275,5 @@ go test ./... -count=1 -tags=test,noaws,integration
 M1逐项复核：SEC-010未授权初始化、SEC-012 Cookie/HTTP与TLS回调/旧密码迁移、SEC-013代理矩阵、SEC-014慢头/取消/大文件/SSE、SEC-011真实非root容器Gate均已有对应实跑证据。第5项“短时管理请求与长时文件传输”目前只证明头/空闲阶段分离，尚无独立管理handler执行预算；继续做SEC-014范围核验，M1暂不标完成。
 
 提交前Python AST、bash -n、git diff --check、文档相对链接校验通过；本轮新增证据常见私钥/GitHub Token/AWS访问Key/Authorization/session Cookie模式扫描无匹配（有限扫描，非全仓秘密审计）。测试脚本自审核对了容器ID/卷标签清理范围、安装前日志范围、镜像复用来源标注、固定端口和匿名重启就绪检查。
+
+[PR #7](https://github.com/Activer007/Gokapi/pull/7)初始提交5e611a211b050b91084a716935be863bfe7e835a；远端diff已自审并记录COMMENT，非独立审批。提交后用默认git archive HEAD读取dockerentry.sh字节，确认无CR、LF属性生效。本次后续仅补PR/审查记录，最终head CI成功后合并，动态状态以PR checks为准。
