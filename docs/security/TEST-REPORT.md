@@ -203,3 +203,37 @@ go test -race ./internal/logging ./internal/environment ./internal/webserver/aut
 仅为现有Header正例设置可信RemoteAddr；不删弱化负例。未更改数据库、密码哈希、OIDC账户关联、文件内容/删除、API或界面。普通三组继续包含SEC-010安装与SEC-012回调/迁移回归；Docker配置模拟不等于真实容器网络/非root上传下载。浏览器、真实容器、全仓race、govulncheck本轮NOT_RUN；无依赖修改，原vet告警保留。环境与代理迁移/回滚见[ADR-003](ADR-003-TRUSTED-PROXY-BOUNDARY.md)，M1剩余SEC-011/014未完成。
 
 [PR #5](https://github.com/Activer007/Gokapi/pull/5)初始提交 `86d9afd5591f17df3c6718b73ff42b8aa8cf3575`；远端diff已自审并记录COMMENT，非独立审批。后续只补PR链接与本说明。提交前gofmt、bash -n、diff --check及文档相对链接检查通过；本轮新增证据/fixture的常见私钥、GitHub Token、AWS访问Key模式扫描无匹配（非全仓秘密审计）。8pVkpv与yJt6Pn的overlay hash完全一致。最终head的CI及合并结果以PR checks为准，合并前必须核实成功。
+
+SEC-013合并核实：PR #5最终head `7b1153489bccdb0aa09ee79898e024dff0790847`，CI [40545422637](https://github.com/Activer007/Gokapi/actions/runs/40545422637)和[40545415672](https://github.com/Activer007/Gokapi/actions/runs/40545415672)成功，包含generate及官方四组。合并为 `138642c72ea481a2b63d2ed5e1aac071de34a01d`，本地master已核对同步。
+
+## M1 / SEC-014 请求阶段与取消
+
+2026-10-28，基线 `138642c72ea481a2b63d2ed5e1aac071de34a01d`，WSL Ubuntu-24.04 / Go1.26.0 linux/amd64。`run-sec014.sh` 在新git archive副本叠加清单文件并记录hash；合成账号、文件、HTTP服务只存在于隔离副本。原用户计划目录未复制或提交。
+
+| 命令 / 证据 | 真实结果 |
+| --- | --- |
+| `bash docs/security/tools/run-sec014.sh --red`，[sec014-Xtpzsv](evidence/sec014-Xtpzsv/results.tsv) | generate PASS；目标FAIL：取消请求仍等约1秒，128查询留下128协程；主服务和安装服务不完整头到7秒客户端截止仍未关闭。均为实际断言RED |
+| 首次修复完整回归，[sec014-4tudQI](evidence/sec014-4tudQI/results.tsv) | generate、SEC014、awsmock、noaws、integration、定向race全部PASS；包括五类等待、HTTP断线、主/安装慢头及大文件/SSE |
+| 审查增补API取消与修正测试清理后，[sec014-NVbGZp](evidence/sec014-NVbGZp/results.tsv) | generate PASS；目标/三组/race FAIL：新增API正常对照Key缺少ApiPermView，正例被拒绝。属于测试夹具错误，不是安全RED；改为独立合成Key并保留权限检查 |
+| 最终完整回归，[sec014-TTDznp](evidence/sec014-TTDznp/results.tsv) | environment、generate、SEC014、awsmock、noaws、integration、定向race全部PASS，脚本退出0；生产与测试文件对应overlay.sha256 |
+
+实际命令（各次.command.txt/.log保留，早期目标包列表不同，以原文件为准）：
+
+```sh
+go generate ./...
+go test ./internal/webserver/ratelimiter ./internal/webserver ./internal/webserver/api ./internal/configuration/setup -count=1 -tags=test,noaws -run 'TestSEC014|TestIntegration' -v
+go test ./... -parallel 8 -count=1 -tags=test,awsmock
+go test ./... -parallel 8 -count=1 -tags=test,noaws
+go test ./... -count=1 -tags=test,noaws,integration
+go test -race ./internal/webserver/ratelimiter ./internal/webserver ./internal/webserver/api ./internal/configuration/setup -count=1 -tags=test,noaws -run TestSEC014
+```
+
+不变量覆盖：五类限流的未取消正例/耗尽后等待/取消返回，真实HTTP断线取消处理器；取消登录、API Key、bootstrap证明不继续授权；128次查询常驻协程增长有界；真实TCP慢头在主/安装服务约5秒被关闭。原安装证明及重配流程继续通过。目标race仅TestSEC014，不包含整个安装集成测试或全仓。
+
+长传输正例通过真实/api/files/add上传16,896,000字节，超过fixture 10MiB multipart内存阈值，中途暂停6秒，再经/downloadFile匿名下载并核对字节数及SHA-256；在同一SSE连接收取上传暂停之后的事件。测试仅清理自身元数据，TestMain清除隔离文件目录，不启动全局异步GC；生产测试内容的协程退出前必等待结束。此测试不等同真实S3、100GB、E2E浏览器或生产吞吐验收。
+
+兼容/回滚见[ADR-004](ADR-004-HTTP-PHASE-AND-CANCELLATION.md)：仅内部限流签名和HTTP阶段期限改变，公开API、数据、身份、存储格式不变。IdleTimeout=60秒已核实配置，专门60秒空闲连接实测NOT_RUN；真实反代、容器、全仓race、govulncheck亦NOT_RUN，无依赖变化；原vet告警保留。M1非root容器Gate仍待SEC-011，未发布。
+
+提交前检查：WSL /usr/bin/go 为 go1.26.0 linux/amd64，gofmt、bash -n、git diff --check通过；新增证据常见私钥/GitHub Token/AWS访问Key模式扫描无匹配（有限模式扫描，不是全仓秘密审计）。Windows PATH无go；首次格式检查误指定不存在的/usr/local/go/bin/go后，改用既有/usr/bin/go完成检查，未影响已记录的测试。
+
+[PR #6](https://github.com/Activer007/Gokapi/pull/6)初始提交 8defad1a80046b156cf662de6ce8d9e659f45429；远端diff已自审并记录COMMENT，非独立审批。审查修正测试清理与API正例夹具；本次后续提交只补PR链接与审查说明。最终head的CI通过后方可合并，动态结果以PR checks为准。

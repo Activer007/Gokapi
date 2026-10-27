@@ -1,0 +1,4 @@
+ok  	github.com/forceu/gokapi/internal/webserver/ratelimiter	1.254s
+ok  	github.com/forceu/gokapi/internal/webserver	13.805s
+ok  	github.com/forceu/gokapi/internal/webserver/api	1.371s
+ok  	github.com/forceu/gokapi/internal/configuration/setup	1.026s

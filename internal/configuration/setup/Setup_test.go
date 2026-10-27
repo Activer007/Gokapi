@@ -1,6 +1,7 @@
 package setup
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/base64"
@@ -361,6 +362,29 @@ func TestIntegration(t *testing.T) {
 	test.FileDoesNotExist(t, "test/config.json")
 	go RunIfFirstStart()
 	waitForServer(t, true)
+	t.Run("SEC014SlowSetupHeader", func(t *testing.T) {
+		conn, err := net.DialTimeout("tcp", "127.0.0.1:53842", time.Second)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer conn.Close()
+		if err := conn.SetDeadline(time.Now().Add(7 * time.Second)); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := fmt.Fprint(conn, "GET /setup/start HTTP/1.1\r\nHost: localhost\r\nX-Slow: "); err != nil {
+			t.Fatal(err)
+		}
+		resp, err := http.ReadResponse(bufio.NewReader(conn), nil)
+		if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+			t.Fatal("setup header outlived the short header deadline")
+		}
+		if err == nil {
+			defer resp.Body.Close()
+			if resp.StatusCode < 400 {
+				t.Fatal("incomplete setup request reached handler")
+			}
+		}
+	})
 	proof, err := os.ReadFile(credentialFile)
 	test.IsNil(t, err)
 	initialAuth := []test.Header{{Name: "Authorization", Value: "Basic " + base64.StdEncoding.EncodeToString([]byte("setup:"+strings.TrimSpace(string(proof))))}}

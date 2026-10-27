@@ -1,0 +1,62 @@
+?   	github.com/forceu/gokapi/cmd/cli-uploader	[no test files]
+?   	github.com/forceu/gokapi/cmd/cli-uploader/cliapi	[no test files]
+?   	github.com/forceu/gokapi/cmd/cli-uploader/cliconfig	[no test files]
+?   	github.com/forceu/gokapi/cmd/cli-uploader/cliconstants	[no test files]
+?   	github.com/forceu/gokapi/cmd/cli-uploader/cliflags	[no test files]
+?   	github.com/forceu/gokapi/cmd/demoData	[no test files]
+ok  	github.com/forceu/gokapi/cmd/gokapi	0.450s
+ok  	github.com/forceu/gokapi/internal/configuration	2.249s
+ok  	github.com/forceu/gokapi/internal/configuration/cloudconfig	0.453s
+ok  	github.com/forceu/gokapi/internal/configuration/configupgrade	0.431s
+ok  	github.com/forceu/gokapi/internal/configuration/database	0.789s
+ok  	github.com/forceu/gokapi/internal/configuration/database/dbabstraction	0.020s
+ok  	github.com/forceu/gokapi/internal/configuration/database/dbcache	0.021s
+ok  	github.com/forceu/gokapi/internal/configuration/database/migration	0.612s
+ok  	github.com/forceu/gokapi/internal/configuration/database/provider/redis	2.484s
+ok  	github.com/forceu/gokapi/internal/configuration/database/provider/sqlite	1.822s
+ok  	github.com/forceu/gokapi/internal/configuration/setup	25.058s
+ok  	github.com/forceu/gokapi/internal/encryption	18.466s
+ok  	github.com/forceu/gokapi/internal/encryption/end2end	0.014s
+ok  	github.com/forceu/gokapi/internal/environment	0.018s
+?   	github.com/forceu/gokapi/internal/environment/deprecation	[no test files]
+ok  	github.com/forceu/gokapi/internal/environment/flagparser	0.008s
+ok  	github.com/forceu/gokapi/internal/helper	0.014s
+?   	github.com/forceu/gokapi/internal/helper/systemd	[no test files]
+ok  	github.com/forceu/gokapi/internal/logging	1.316s
+?   	github.com/forceu/gokapi/internal/logging/serverstats	[no test files]
+ok  	github.com/forceu/gokapi/internal/models	0.018s
+ok  	github.com/forceu/gokapi/internal/storage	4.523s
+ok  	github.com/forceu/gokapi/internal/storage/chunking	0.628s
+ok  	github.com/forceu/gokapi/internal/storage/chunking/chunkreservation	0.008s
+?   	github.com/forceu/gokapi/internal/storage/filerequest	[no test files]
+ok  	github.com/forceu/gokapi/internal/storage/filesystem	0.006s
+ok  	github.com/forceu/gokapi/internal/storage/filesystem/interfaces	0.004s [no tests to run]
+ok  	github.com/forceu/gokapi/internal/storage/filesystem/localstorage	0.008s
+ok  	github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem	0.007s
+?   	github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem/aws	[no test files]
+?   	github.com/forceu/gokapi/internal/storage/presign	[no test files]
+ok  	github.com/forceu/gokapi/internal/storage/processingstatus	0.007s
+ok  	github.com/forceu/gokapi/internal/storage/processingstatus/pstatusdb	0.008s
+ok  	github.com/forceu/gokapi/internal/test	2.175s
+ok  	github.com/forceu/gokapi/internal/test/securityfixture	2.308s
+ok  	github.com/forceu/gokapi/internal/test/testconfiguration	0.456s
+ok  	github.com/forceu/gokapi/internal/webserver	13.838s
+ok  	github.com/forceu/gokapi/internal/webserver/api	4.357s
+ok  	github.com/forceu/gokapi/internal/webserver/api/mutex/apimutex	0.006s
+ok  	github.com/forceu/gokapi/internal/webserver/api/mutex/e2emutex	0.006s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication	0.905s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/csrftoken	0.009s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/downloadPasswordToken	0.012s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/oauth	1.336s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/sessionmanager	0.293s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/tokengeneration	0.260s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/users	0.266s
+ok  	github.com/forceu/gokapi/internal/webserver/downloadstatus	0.011s
+?   	github.com/forceu/gokapi/internal/webserver/errorHandling	[no test files]
+?   	github.com/forceu/gokapi/internal/webserver/errorHandling/errorcodes	[no test files]
+ok  	github.com/forceu/gokapi/internal/webserver/favicon	0.061s
+ok  	github.com/forceu/gokapi/internal/webserver/fileupload	0.474s
+ok  	github.com/forceu/gokapi/internal/webserver/headers	0.012s
+ok  	github.com/forceu/gokapi/internal/webserver/ratelimiter	0.285s
+ok  	github.com/forceu/gokapi/internal/webserver/sse	0.524s
+ok  	github.com/forceu/gokapi/internal/webserver/ssl	0.174s

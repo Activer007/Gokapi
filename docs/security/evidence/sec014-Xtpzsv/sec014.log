@@ -1,0 +1,37 @@
+=== RUN   TestSEC014CancelledWait
+    security_bounds_test.go:28: canceled request remains queued in limiter
+--- FAIL: TestSEC014CancelledWait (1.00s)
+=== RUN   TestSEC014CleanupGoroutinesBounded
+    security_bounds_test.go:45: 128 lookups retained 128 goroutines; expected one cleaner
+--- FAIL: TestSEC014CleanupGoroutinesBounded (0.05s)
+FAIL
+FAIL	github.com/forceu/gokapi/internal/webserver/ratelimiter	1.056s
+Binding webserver to 127.0.0.1:53843
+Webserver can be accessed at http://127.0.0.1:53843/admin
+Press CTRL+C to stop Gokapi
+Rate limiting disabled for unit tests
+=== RUN   TestSEC014SlowHeader
+    security_bounds_test.go:28: incomplete header outlived the short header deadline
+--- FAIL: TestSEC014SlowHeader (7.01s)
+FAIL
+FAIL	github.com/forceu/gokapi/internal/webserver	8.079s
+=== RUN   TestIntegration
+Setup username: setup
+Read the setup password from the local file: test/.setup-credential-861464002
+Use a local browser, an SSH tunnel, or a trusted HTTPS proxy for setup.
+Please open http://127.0.0.1:53842/setup to setup Gokapi.
+=== RUN   TestIntegration/SEC014SlowSetupHeader
+    Setup_test.go:379: setup header outlived the short header deadline
+Setup username: setup
+Read the setup password from the local file: test/.setup-credential-2411157068
+Use a local browser, an SSH tunnel, or a trusted HTTPS proxy for setup.
+Please open http://127.0.0.1:53842/setup to setup Gokapi.
+Setup username: setup
+Read the setup password from the local file: test/.setup-credential-2498462849
+Use a local browser, an SSH tunnel, or a trusted HTTPS proxy for setup.
+Please open http://127.0.0.1:53842/setup to setup Gokapi.
+--- FAIL: TestIntegration (11.99s)
+    --- FAIL: TestIntegration/SEC014SlowSetupHeader (7.01s)
+FAIL
+FAIL	github.com/forceu/gokapi/internal/configuration/setup	12.004s
+FAIL

@@ -1,0 +1,79 @@
+?   	github.com/forceu/gokapi/cmd/cli-uploader	[no test files]
+?   	github.com/forceu/gokapi/cmd/cli-uploader/cliapi	[no test files]
+?   	github.com/forceu/gokapi/cmd/cli-uploader/cliconfig	[no test files]
+?   	github.com/forceu/gokapi/cmd/cli-uploader/cliconstants	[no test files]
+?   	github.com/forceu/gokapi/cmd/cli-uploader/cliflags	[no test files]
+?   	github.com/forceu/gokapi/cmd/demoData	[no test files]
+?   	github.com/forceu/gokapi/cmd/gokapi	[no test files]
+ok  	github.com/forceu/gokapi/internal/configuration	2.043s
+ok  	github.com/forceu/gokapi/internal/configuration/cloudconfig	0.337s
+ok  	github.com/forceu/gokapi/internal/configuration/configupgrade	0.305s
+ok  	github.com/forceu/gokapi/internal/configuration/database	0.636s
+ok  	github.com/forceu/gokapi/internal/configuration/database/dbabstraction	0.019s
+ok  	github.com/forceu/gokapi/internal/configuration/database/dbcache	0.008s
+ok  	github.com/forceu/gokapi/internal/configuration/database/migration	0.464s
+ok  	github.com/forceu/gokapi/internal/configuration/database/provider/redis	2.685s
+ok  	github.com/forceu/gokapi/internal/configuration/database/provider/sqlite	2.058s
+ok  	github.com/forceu/gokapi/internal/configuration/setup	24.723s
+ok  	github.com/forceu/gokapi/internal/encryption	17.776s
+ok  	github.com/forceu/gokapi/internal/encryption/end2end	0.007s
+ok  	github.com/forceu/gokapi/internal/environment	0.007s
+?   	github.com/forceu/gokapi/internal/environment/deprecation	[no test files]
+ok  	github.com/forceu/gokapi/internal/environment/flagparser	0.008s
+ok  	github.com/forceu/gokapi/internal/helper	0.011s
+?   	github.com/forceu/gokapi/internal/helper/systemd	[no test files]
+ok  	github.com/forceu/gokapi/internal/logging	1.287s
+?   	github.com/forceu/gokapi/internal/logging/serverstats	[no test files]
+ok  	github.com/forceu/gokapi/internal/models	0.010s
+ok  	github.com/forceu/gokapi/internal/storage	4.648s
+ok  	github.com/forceu/gokapi/internal/storage/chunking	0.508s
+ok  	github.com/forceu/gokapi/internal/storage/chunking/chunkreservation	0.004s
+?   	github.com/forceu/gokapi/internal/storage/filerequest	[no test files]
+ok  	github.com/forceu/gokapi/internal/storage/filesystem	0.005s
+ok  	github.com/forceu/gokapi/internal/storage/filesystem/interfaces	0.004s [no tests to run]
+ok  	github.com/forceu/gokapi/internal/storage/filesystem/localstorage	0.008s
+ok  	github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem	0.005s
+?   	github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem/aws	[no test files]
+?   	github.com/forceu/gokapi/internal/storage/presign	[no test files]
+ok  	github.com/forceu/gokapi/internal/storage/processingstatus	0.005s
+ok  	github.com/forceu/gokapi/internal/storage/processingstatus/pstatusdb	0.006s
+ok  	github.com/forceu/gokapi/internal/test	2.180s
+ok  	github.com/forceu/gokapi/internal/test/securityfixture	2.352s
+ok  	github.com/forceu/gokapi/internal/test/testconfiguration	0.597s
+?   	github.com/forceu/gokapi/internal/webserver	[no test files]
+Rate limiting disabled for unit tests
+Warning, cannot check file awsTest1234567890123: AWS not supported in this build
+Warning, cannot check file awsTest1234567890123: AWS not supported in this build
+Warning, cannot check file awsTest1234567890123: AWS not supported in this build
+Warning, cannot check file awsTest1234567890123: AWS not supported in this build
+Warning, cannot check file awsTest1234567890123: AWS not supported in this build
+Warning, cannot check file awsTest1234567890123: AWS not supported in this build
+Warning, cannot check file awsTest1234567890123: AWS not supported in this build
+Warning, cannot check file awsTest1234567890123: AWS not supported in this build
+Warning, cannot check file awsTest1234567890123: AWS not supported in this build
+Warning, cannot check file awsTest1234567890123: AWS not supported in this build
+Warning, cannot check file awsTest1234567890123: AWS not supported in this build
+Warning, cannot check file awsTest1234567890123: AWS not supported in this build
+--- FAIL: TestSEC014CancelledAPIKeyDoesNotAuthorize (0.00s)
+    security_bounds_test.go:18: control API key was rejected
+FAIL
+FAIL	github.com/forceu/gokapi/internal/webserver/api	4.261s
+ok  	github.com/forceu/gokapi/internal/webserver/api/mutex/apimutex	0.019s
+ok  	github.com/forceu/gokapi/internal/webserver/api/mutex/e2emutex	0.017s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication	1.033s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/csrftoken	0.014s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/downloadPasswordToken	0.013s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/oauth	1.544s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/sessionmanager	0.376s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/tokengeneration	0.317s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/users	0.307s
+ok  	github.com/forceu/gokapi/internal/webserver/downloadstatus	0.007s
+?   	github.com/forceu/gokapi/internal/webserver/errorHandling	[no test files]
+?   	github.com/forceu/gokapi/internal/webserver/errorHandling/errorcodes	[no test files]
+ok  	github.com/forceu/gokapi/internal/webserver/favicon	0.042s
+ok  	github.com/forceu/gokapi/internal/webserver/fileupload	0.447s
+ok  	github.com/forceu/gokapi/internal/webserver/headers	0.008s
+ok  	github.com/forceu/gokapi/internal/webserver/ratelimiter	0.260s
+ok  	github.com/forceu/gokapi/internal/webserver/sse	0.489s
+ok  	github.com/forceu/gokapi/internal/webserver/ssl	0.243s
+FAIL

@@ -1,0 +1,55 @@
+=== RUN   TestSEC014CancelledWait
+--- PASS: TestSEC014CancelledWait (0.00s)
+=== RUN   TestSEC014AllWaitsCancel
+=== RUN   TestSEC014AllWaitsCancel/login
+=== RUN   TestSEC014AllWaitsCancel/setup
+=== RUN   TestSEC014AllWaitsCancel/api
+=== RUN   TestSEC014AllWaitsCancel/download-password
+=== RUN   TestSEC014AllWaitsCancel/failed-id
+--- PASS: TestSEC014AllWaitsCancel (0.15s)
+    --- PASS: TestSEC014AllWaitsCancel/login (0.03s)
+    --- PASS: TestSEC014AllWaitsCancel/setup (0.03s)
+    --- PASS: TestSEC014AllWaitsCancel/api (0.03s)
+    --- PASS: TestSEC014AllWaitsCancel/download-password (0.03s)
+    --- PASS: TestSEC014AllWaitsCancel/failed-id (0.03s)
+=== RUN   TestSEC014HTTPDisconnectCancelsWait
+--- PASS: TestSEC014HTTPDisconnectCancelsWait (0.04s)
+=== RUN   TestSEC014CleanupGoroutinesBounded
+--- PASS: TestSEC014CleanupGoroutinesBounded (0.05s)
+PASS
+ok  	github.com/forceu/gokapi/internal/webserver/ratelimiter	0.244s
+Binding webserver to 127.0.0.1:53843
+Webserver can be accessed at http://127.0.0.1:53843/admin
+Press CTRL+C to stop Gokapi
+Rate limiting disabled for unit tests
+=== RUN   TestSEC014SlowHeader
+--- PASS: TestSEC014SlowHeader (5.00s)
+=== RUN   TestSEC014CancelledLoginDoesNotAuthenticate
+--- PASS: TestSEC014CancelledLoginDoesNotAuthenticate (0.00s)
+=== RUN   TestSEC014LargeUploadAndSSE
+--- PASS: TestSEC014LargeUploadAndSSE (6.21s)
+PASS
+Warning, cannot check file awsTest1234567890123: AWS not supported in this build
+ok  	github.com/forceu/gokapi/internal/webserver	12.285s
+=== RUN   TestIntegration
+Setup username: setup
+Read the setup password from the local file: test/.setup-credential-2526926871
+Use a local browser, an SSH tunnel, or a trusted HTTPS proxy for setup.
+Please open http://127.0.0.1:53842/setup to setup Gokapi.
+=== RUN   TestIntegration/SEC014SlowSetupHeader
+Setup username: setup
+Read the setup password from the local file: test/.setup-credential-579595133
+Use a local browser, an SSH tunnel, or a trusted HTTPS proxy for setup.
+Please open http://127.0.0.1:53842/setup to setup Gokapi.
+Setup username: setup
+Read the setup password from the local file: test/.setup-credential-4239795271
+Use a local browser, an SSH tunnel, or a trusted HTTPS proxy for setup.
+Please open http://127.0.0.1:53842/setup to setup Gokapi.
+--- PASS: TestIntegration (9.99s)
+    --- PASS: TestIntegration/SEC014SlowSetupHeader (5.01s)
+=== RUN   TestSEC014CancelledProofDoesNotProceed
+Rate limiting disabled for unit tests
+Rate limiting disabled for unit tests
+--- PASS: TestSEC014CancelledProofDoesNotProceed (0.00s)
+PASS
+ok  	github.com/forceu/gokapi/internal/configuration/setup	10.002s
