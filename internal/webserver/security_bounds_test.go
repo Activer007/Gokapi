@@ -68,7 +68,7 @@ func TestSEC014CancelledLoginDoesNotAuthenticate(t *testing.T) {
 // Exercise actual multipart storage and public download, beyond the configured
 // 10 MiB in-memory threshold, while the request body spans the header deadline.
 func TestSEC014LargeUploadAndSSE(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 80*time.Second)
 	defer cancel()
 	sseReq, _ := http.NewRequestWithContext(ctx, "GET", "http://127.0.0.1:53843/uploadStatus", nil)
 	sseReq.AddCookie(&http.Cookie{Name: "session_token", Value: "validsession"})
@@ -108,7 +108,7 @@ func TestSEC014LargeUploadAndSSE(t *testing.T) {
 		for i := 0; err == nil && i < copies; i++ {
 			if i == copies/2 {
 				select {
-				case <-time.After(6 * time.Second):
+				case <-time.After(31 * time.Second):
 				case <-ctx.Done():
 					err = ctx.Err()
 				}

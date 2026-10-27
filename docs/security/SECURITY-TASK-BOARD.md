@@ -27,10 +27,10 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | ID | 优先级 / 分类 | 状态与风险 | 依赖 / 下一项 Gate / 最小 PR 范围 |
 | --- | --- | --- | --- |
 | SEC-010 | P0 CONFIRMED_CODE | M1 已合并，RED→GREEN：本地证明、回环监听、单次保存与同源保护 | [PR #3](https://github.com/Activer007/Gokapi/pull/3)；合并c1e0ee2；ADR-001；本地与CI通过，Docker实机Gate仍归SEC-011 |
-| SEC-011 | P0 CONFIRMED_CODE / HISTORICAL_FIXED | RED→GREEN：显式非root Compose、权限负例、真实初始化/上传/下载/重启持久化 | [PR #7](https://github.com/Activer007/Gokapi/pull/7)；基线462c5d5；ADR-005；本地镜像和容器Gate通过，远端diff已自审；默认镜像USER保持root；最终CI/合并以PR为准，旧生产卷迁移NOT_RUN |
+| SEC-011 | P0 CONFIRMED_CODE / HISTORICAL_FIXED | RED→GREEN：显式非root Compose、权限负例、真实初始化/上传/下载/重启持久化 | [PR #7](https://github.com/Activer007/Gokapi/pull/7)；合并863fdb5；ADR-005；本地镜像/容器Gate与最终CI通过；默认镜像USER保持root，旧生产卷迁移NOT_RUN |
 | SEC-012 | P0 CONFIRMED_CODE + HISTORICAL_FIXED | M1 已合并，三类Cookie、网页改密注销、HTTP/TLS代理回调、SQLite/Redis旧密码真实登录迁移 | [PR #4](https://github.com/Activer007/Gokapi/pull/4)；合并7200526；ADR-002；本地回归及最终CI通过；原删除延迟断言一次失败保留；浏览器/冷恢复仍为023/063 Gate |
 | SEC-013 | P0 CONFIRMED_CODE | M1 已合并：共享直接peer检查、CF/XFF严格解析、Docker网段显式选择 | [PR #5](https://github.com/Activer007/Gokapi/pull/5)；合并138642c；ADR-003；本地及最终CI通过，真实容器网络Gate仍归011 |
-| SEC-014 | P0 CONFIRMED_CODE / P1 调优 | 已实跑RED→GREEN：取消等待、清理协程有界、主服务/安装慢头关闭；长正文/SSE正例通过 | [PR #6](https://github.com/Activer007/Gokapi/pull/6)已合并462c5d5；ADR-004；本地及最终CI通过；统一短管理handler预算仍待M1范围核验；100GB/真实代理负载仍VALIDATE |
+| SEC-014 | P0 CONFIRMED_CODE / P1 调优 | RED→GREEN：取消等待、清理协程有界、慢头、30秒管理I/O/Context、OIDC取消；长正文/SSE正例通过 | [PR #6](https://github.com/Activer007/Gokapi/pull/6)已合并462c5d5；补充[PR #8](https://github.com/Activer007/Gokapi/pull/8)，代码4bc1fc3，本地三组/定向race及最新镜像非rootGate PASS；ADR-004；最终CI/合并以PR为准；100GB/真实代理负载仍VALIDATE |
 | SEC-020 | P0 HISTORICAL_FIXED / VALIDATE | 既有越权公告已修；集中策略只是方案，未证明需重构 | 003 → G1/G2；先补动作矩阵；仅遇到实证不一致才抽最小共同策略 |
 | SEC-021 | P0 HISTORICAL_FIXED / VALIDATE | 历史降权/临时 token 已修；所有撤销路径仍需矩阵 | 020 → G1；降权/删除/重置后的即时权限交集，不改无关用户 UI |
 | SEC-022 | P0 企业场景 VALIDATE | 邮箱关联、issuer/sub/claims 完整策略未验证 | 003/020 → G1/G3；先模拟 IdP + 完整回调，证实后才设计账户迁移 ADR；参考 #435，不冒称漏洞 |
@@ -62,3 +62,7 @@ PR 均为 **Activer007/Gokapi ← codex/...**。SEC-062 的先决发布保护已
 5. P0 资源任务：SEC-031 明确合同 → SEC-030 预算 → SEC-032 跨路径边界。P1 顺序为 062 构建/扫描 → 014 调优 → 050/051 → 060/061 → 042/052/063，052 可按证据升级。
 
 每项修复 PR 描述只包含必要问题、行为、测试与兼容信息；未知可利用问题的具体复现不发布到公开 fork PR。提交前再次确认目标 remote、diff、生成变更及秘密扫描。不得借 M0 混入 React/Next、PostgreSQL、数据库重构或真实物理删除。
+
+## M1验收状态（2026-10-28）
+
+六项要求的代码、测试、限制和兼容决策逐项映射于[TEST-REPORT的M1审计](TEST-REPORT.md#m1-逐项验收审计)。最新代码4bc1fc3的完整本地Go回归、定向race和重建镜像的非root初始化/上传/下载/重启Gate均PASS；SEC-010/011/012/013及SEC-014首项PR已合并，最后补充PR #8以最终checks及合并记录为准。该结论不清空本看板其他P0/P1，也不代表G4发布完成。当前尚未部署，所有操作仅在本fork和隔离测试副本中完成。

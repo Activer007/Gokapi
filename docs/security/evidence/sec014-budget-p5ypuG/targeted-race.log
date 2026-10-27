@@ -1,0 +1,4 @@
+ok  	github.com/forceu/gokapi/internal/webserver	68.846s
+ok  	github.com/forceu/gokapi/internal/webserver/api	1.214s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/oauth	1.821s
+ok  	github.com/forceu/gokapi/internal/webserver/requestbudget	1.416s

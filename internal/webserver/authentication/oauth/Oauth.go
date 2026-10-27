@@ -106,15 +106,24 @@ func HandlerCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	oauth2Token, err := config.Exchange(ctx, r.URL.Query().Get("code"))
+	oauth2Token, err := config.Exchange(r.Context(), r.URL.Query().Get("code"))
 	if err != nil {
+		if r.Context().Err() != nil {
+			return
+		}
 		errorHandling.RedirectToOAuthErrorPage(w, r, "Failed to exchange token", err)
 		return
 	}
 
-	userInfo, err := provider.UserInfo(ctx, oauth2.StaticTokenSource(oauth2Token))
+	userInfo, err := provider.UserInfo(r.Context(), oauth2.StaticTokenSource(oauth2Token))
 	if err != nil {
+		if r.Context().Err() != nil {
+			return
+		}
 		errorHandling.RedirectToOAuthErrorPage(w, r, "Failed to get user info", err)
+		return
+	}
+	if r.Context().Err() != nil {
 		return
 	}
 	if userInfo.Email == "" {

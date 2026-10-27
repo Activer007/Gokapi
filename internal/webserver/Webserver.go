@@ -144,7 +144,7 @@ func Start() {
 		IdleTimeout:       time.Minute,
 		ReadTimeout:       timeOutWebserverRead,
 		WriteTimeout:      timeOutWebserverWrite,
-		Handler:           mux,
+		Handler:           withManagementBudget(mux, managementBudget),
 	}
 	infoMessage := "Webserver can be accessed at " + configuration.Get().ServerUrl + "admin\nPress CTRL+C to stop Gokapi"
 	if strings.Contains(configuration.Get().ServerUrl, "127.0.0.1") {

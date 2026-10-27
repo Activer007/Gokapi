@@ -21,6 +21,7 @@ type apiRoute struct {
 	IsFileRequestApi bool                 // True if the endpoint is used for public uploads
 	AdminOnly        bool                 // True if the endpoint requires admin/superadmin permissions
 	NoJsonResponse   bool                 // True if the endpoint does not always return a JSON response
+	LongTransfer     bool                 // Preserve file-transfer I/O budgets (including chunk assembly)
 	ApiPerm          models.ApiPermission // Required permission to access the endpoint
 	RequestParser    requestParser        // Parser for the supplied parameters
 	execution        apiFunc              // Execution function for the endpoint
@@ -47,6 +48,7 @@ var routes = []apiRoute{
 	},
 	{
 		Url:            "/files/download/",
+		LongTransfer:   true,
 		ApiPerm:        models.ApiPermDownload,
 		execution:      apiDownloadSingle,
 		NoJsonResponse: true,
@@ -55,6 +57,7 @@ var routes = []apiRoute{
 	},
 	{
 		Url:            "/files/downloadzip",
+		LongTransfer:   true,
 		ApiPerm:        models.ApiPermDownload,
 		NoJsonResponse: true,
 		execution:      apiDownloadZip,
@@ -82,18 +85,21 @@ var routes = []apiRoute{
 	},
 	{
 		Url:           "/chunk/add",
+		LongTransfer:  true,
 		ApiPerm:       models.ApiPermUpload,
 		execution:     apiChunkAdd,
 		RequestParser: &paramChunkAdd{},
 	},
 	{
 		Url:           "/chunk/complete",
+		LongTransfer:  true,
 		ApiPerm:       models.ApiPermUpload,
 		execution:     apiChunkComplete,
 		RequestParser: &paramChunkComplete{},
 	},
 	{
 		Url:           "/files/add",
+		LongTransfer:  true,
 		ApiPerm:       models.ApiPermUpload,
 		execution:     apiUploadFile,
 		RequestParser: &paramFilesAdd{},
@@ -209,6 +215,7 @@ var routes = []apiRoute{
 	},
 	{
 		Url:              "/uploadrequest/chunk/add",
+		LongTransfer:     true,
 		ApiPerm:          models.ApiPermNone,
 		execution:        apiChunkUploadRequestAdd,
 		IsFileRequestApi: true,
@@ -216,6 +223,7 @@ var routes = []apiRoute{
 	},
 	{
 		Url:              "/uploadrequest/chunk/complete",
+		LongTransfer:     true,
 		ApiPerm:          models.ApiPermNone,
 		IsFileRequestApi: true,
 		execution:        apiChunkUploadRequestComplete,
@@ -295,6 +303,13 @@ func getRouting(requestUrl string) (apiRoute, bool) {
 		}
 	}
 	return apiRoute{}, false
+}
+
+// UsesTransferBudget uses the same matcher as Process. This is only a resource
+// policy; API key, user, ownership and File Request authorization are unchanged.
+func UsesTransferBudget(r *http.Request) bool {
+	route, ok := getRouting(parseRequestUrl(r))
+	return ok && route.LongTransfer
 }
 
 type requestParser interface {

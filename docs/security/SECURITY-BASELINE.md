@@ -37,6 +37,10 @@ M1/SEC-014（2026-10-28）基线 `138642c72ea481a2b63d2ed5e1aac071de34a01d`，�
 
 ## 分类规则
 
+M1收尾证据（2026-10-28）：本fork [PR #8](https://github.com/Activer007/Gokapi/pull/8)代码 `4bc1fc3c8a86c1bc39d6ce92ef2e4db7474280df` 已通过完整本地三组及定向race，并重新归档构建镜像、通过真实非root初始化/上传下载/重启验收；源与镜像摘要、M1六项要求逐项审计见TEST-REPORT。最终PR合并状态以GitHub为准。尚未部署或发布，不能把本地image ID等同可复现发布或生产恢复证明。
+
+M1/SEC-014管理预算补充（2026-10-28）：基线 `863fdb5442e8709e1639dfaa50ea26232eff7ec4`（本fork PR #7合并）；本地master仅保留用户计划目录，分支codex/sec-014-management-budget，remote仅Activer007/Gokapi；WSL Go1.26.0。CONFIRMED_CODE：管理路由没有独立正文/响应预算，OAuth回调Exchange/UserInfo使用全局Background；隔离RED证明/login慢正文超过35秒、取消回调仍联系Token端点。上游open timeout PR只读检索无结果，未找到同项待合并修复；检查README/setup/advanced、Webserver/API路由、OAuth与既有测试、SECURITY及已有公告快照。新增30秒管理I/O/Context预算与精确长传输例外，OIDC仅改取消传递，不改变账户身份绑定。正式版本/Argon2id沿用已核实历史差异，不重复重写。详见ADR-004补充、TEST-REPORT和PR动态状态；不声明新的CVE或全局CPU/存储强制取消。
+
 M1/SEC-011（2026-10-28）基线 `462c5d57dc428ccedb352b2c84c4367331687872`（PR #6合并）；E:\LHA\Gokapi，origin仅Activer007/Gokapi，分支codex/sec-011-nonroot-compose，用户计划目录保留。Docker Desktop4.55.0 / Engine29.1.3 linux/amd64、Compose2.40.3；Windows Python3.13；WSL Go1.26.0。镜像按既有Dockerfile的Go1.26.2-alpine构建。CONFIRMED_CODE：镜像默认root、默认Compose无user，旧DOCKER_NONROOT递归改权限；HISTORICAL_FIXED：已有--user支持及迁移说明。检查README/setup/advanced、两份Dockerfile/entrypoint/Compose、设置解析和HTTP上传测试；上游open non-root PR为空，docker关键词返回#435/#414/#415均无相同修复，历史issues #325/#285/#298已讨论权限；未向上游提交任何内容。新增显式非root配置及真实本地存储/SQLite容器验证，默认镜像USER不变。归档构建遇Windows CRLF shebang失效，新增LF属性并显式关闭archive换行转换。最终镜像ID、完整失败与GREEN证据见TEST-REPORT。原M0镜像BLOCKED是历史记录，本轮已完成本地镜像构建及非rootGate；仍未部署VPS或发布镜像。
 
 - **CONFIRMED_CODE**：该 SHA 的代码足以证明与目标安全不变量的差距；不自动等于已证明的远程利用或新 CVE。
