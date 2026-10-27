@@ -51,6 +51,8 @@ Then visit ``http://localhost:53842/setup`` and follow the setup wizard.
 
 Fork builds containing SEC-010 require username `setup` and the password from the local credential file whose path is printed at startup. Native setup binds to `127.0.0.1`; use an SSH tunnel for a VPS. See [this fork's installation instructions](docs/setup.rst). The upstream image above does not include fork-only changes; no image has been published by this fork yet.
 
+Before upgrading to fork builds containing SEC-013, explicitly configure the reverse proxy IP/CIDR in `GOKAPI_TRUSTED_PROXIES`. Header authentication and client IP headers require a trusted immediate peer; automatic trust of the entire Docker subnet is disabled by default. See [proxy migration and rollback](docs/security/ADR-003-TRUSTED-PROXY-BOUNDARY.md).
+
 
 
 ## Screenshots

@@ -31,6 +31,8 @@ SEC-062 [PR #1](https://github.com/Activer007/Gokapi/pull/1) 已合并，提交 
 
 SEC-003 保持测试与证据范围，补强了 File Request Key 与普通 Key 的双向类型边界，并通过隔离 mutation 验证断言有效；修正证据脚本失败时仍返回成功的退出码。重新检索上游 open PR，相关 #422、#428、#436 不包含该测试基线或发布保护；未移植其改动。生产授权、删除、数据格式均不变。原始 M0 快照与日志不改写，后续测试和 Gate 以 TEST-REPORT 的 PR 审查增补为准。
 
+M1/SEC-013（2026-10-28）基线 `7200526486d7a4b317043fe7056e6d279e1c92f3`，即本 fork PR #4 合并提交。本地 E:\LHA\Gokapi、Go1.26.0 linux/amd64（WSL）、分支codex/sec-013-trusted-proxies，唯一remote仍为Activer007/Gokapi，保留原计划目录。CONFIRMED_CODE：CF先于peer检查、Header Auth无peer限制、Docker自动信任网段默认开启；隔离RED已验证。已检查Logging/Authentication/Environment及既有测试、README、setup/advanced/troubleshooting/SECURITY；只读检索上游open proxy PR返回#361/#428/#437，分别是URL、S3 mock、密码拒绝日志，不是本项修复；CF头issue检索返回#209/#69的历史代理配置讨论，未见相同待合并补丁。沿用公开公告表，不把部署前提下的防御测试命名为新的CVE。共享peer策略及默认值迁移见[ADR-003](ADR-003-TRUSTED-PROXY-BOUNDARY.md)；Docker模式测试不代表真实容器网络验证，M1仍待SEC-011/014。
+
 ## 分类规则
 
 - **CONFIRMED_CODE**：该 SHA 的代码足以证明与目标安全不变量的差距；不自动等于已证明的远程利用或新 CVE。

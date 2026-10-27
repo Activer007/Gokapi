@@ -253,6 +253,8 @@ Use this only if your reverse proxy handles authentication (e.g. Authelia or Aut
 
 Enter the header key that contains the username (e.g. ``Remote-User`` for Authelia, ``X-authentik-username`` for Authentik) and the username of the admin account.
 
+Fork builds containing SEC-013 accept this header only from an immediate connection listed in ``GOKAPI_TRUSTED_PROXIES``. Configure the proxy's actual outgoing IP or a dedicated trusted CIDR, including ``::1`` if using IPv6 loopback. The proxy must authenticate users and overwrite incoming identity headers. Restrict the backend port to that proxy; forwarding headers cannot make a direct client trusted. Duplicate username headers are rejected before account lookup or creation.
+
 If *Only allow already existing users to log in* is enabled, new usernames coming from the proxy will be rejected until an account is created through the UI.
 
 Disabled / Access Restriction
@@ -390,7 +392,11 @@ Required proxy settings:
 
 If your proxy's outgoing IP is not ``127.0.0.1``, add it to ``GOKAPI_TRUSTED_PROXIES`` — see :ref:`availenvvar`.
 
-If Gokapi is behind Cloudflare, set ``GOKAPI_USE_CLOUDFLARE=true``.
+If Gokapi is behind Cloudflare, set ``GOKAPI_USE_CLOUDFLARE=true``. In fork builds containing SEC-013, ``CF-Connecting-IP`` is accepted only from a trusted immediate peer and must contain one valid IP. For direct Cloudflare connections, explicitly maintain its official IP ranges in the trust list and restrict origin access. If a local proxy forwards Cloudflare traffic, trust that proxy and ensure it removes CF headers from non-Cloudflare requests.
+
+Fork builds containing SEC-013 disable automatic trust of the whole Docker subnet by default. Configure the proxy IP explicitly before upgrading. ``GOKAPI_DISABLE_DOCKER_TRUSTED_PROXY=false`` retains the old subnet-wide trust as an explicit compatibility option and trusts every member for identity headers too. Prefer a fixed proxy IP or a dedicated network containing only trusted peers. See ``docs/security/ADR-003-TRUSTED-PROXY-BOUNDARY.md`` for migration and rollback.
+
+X-Forwarded-For is processed from right to left through trusted proxies. A malformed hop falls back to the connection address; X-Real-IP is used only when X-Forwarded-For is absent. Proxies must overwrite or correctly append these headers.
 
 .. note::
    Cloudflare's free plan limits upload chunks to 100 MB. If you use Cloudflare, keep ``GOKAPI_CHUNK_SIZE_MB`` at or below 100.

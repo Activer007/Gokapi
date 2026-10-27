@@ -52,7 +52,7 @@ Gokapi always shows the wrong client IP / logs show 127.0.0.1
 
 Multiple IPs and subnets are comma-separated: ``10.0.0.1,192.168.1.0/24``. See :ref:`availenvvar` for details.
 
-If Gokapi is behind Cloudflare, set ``GOKAPI_USE_CLOUDFLARE=true`` instead.
+If Gokapi is behind Cloudflare, also set ``GOKAPI_USE_CLOUDFLARE=true``. Fork builds containing SEC-013 still require the immediate proxy to be explicitly trusted; the option alone does not trust incoming CF headers. See the Reverse Proxy section in :ref:`setup` for direct Cloudflare versus local proxy configuration.
 
 
 Uploads fail when using Cloudflare (free plan)

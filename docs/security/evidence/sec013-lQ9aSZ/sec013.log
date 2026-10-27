@@ -1,0 +1,90 @@
+=== RUN   TestSEC013ProxyIPBoundary
+=== RUN   TestSEC013ProxyIPBoundary/direct-cf
+    security_proxy_test.go:53: got "203.0.113.5", want "198.51.100.9"
+=== RUN   TestSEC013ProxyIPBoundary/direct-forwarded
+=== RUN   TestSEC013ProxyIPBoundary/trusted-cf
+=== RUN   TestSEC013ProxyIPBoundary/invalid-cf
+    security_proxy_test.go:53: got "not-an-ip", want "127.0.0.1"
+=== RUN   TestSEC013ProxyIPBoundary/duplicate-cf
+    security_proxy_test.go:53: got "203.0.113.5", want "127.0.0.1"
+=== RUN   TestSEC013ProxyIPBoundary/disabled-cf
+=== RUN   TestSEC013ProxyIPBoundary/trusted-real-ip
+=== RUN   TestSEC013ProxyIPBoundary/duplicate-real-ip
+    security_proxy_test.go:53: got "203.0.113.5", want "127.0.0.1"
+=== RUN   TestSEC013ProxyIPBoundary/multihop
+=== RUN   TestSEC013ProxyIPBoundary/untrusted-boundary
+=== RUN   TestSEC013ProxyIPBoundary/multiple-lines
+    security_proxy_test.go:53: got "192.0.2.99", want "198.51.100.9"
+=== RUN   TestSEC013ProxyIPBoundary/malformed-hop
+    security_proxy_test.go:53: got "203.0.113.5", want "127.0.0.1"
+=== RUN   TestSEC013ProxyIPBoundary/empty-hop
+    security_proxy_test.go:53: got "203.0.113.5", want "127.0.0.1"
+=== RUN   TestSEC013ProxyIPBoundary/all-trusted-chain
+    security_proxy_test.go:53: got "192.0.2.99", want "10.0.0.2"
+=== RUN   TestSEC013ProxyIPBoundary/ipv6-proxy
+=== RUN   TestSEC013ProxyIPBoundary/ipv6-direct
+    security_proxy_test.go:53: got "203.0.113.5", want "2001:db8:2::9"
+=== RUN   TestSEC013ProxyIPBoundary/docker-explicit-peer
+=== RUN   TestSEC013ProxyIPBoundary/docker-other-peer
+    security_proxy_test.go:53: got "203.0.113.5", want "172.18.0.3"
+=== RUN   TestSEC013ProxyIPBoundary/invalid-peer
+    security_proxy_test.go:53: got "203.0.113.5", want "invalid"
+--- FAIL: TestSEC013ProxyIPBoundary (0.00s)
+    --- FAIL: TestSEC013ProxyIPBoundary/direct-cf (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/direct-forwarded (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/trusted-cf (0.00s)
+    --- FAIL: TestSEC013ProxyIPBoundary/invalid-cf (0.00s)
+    --- FAIL: TestSEC013ProxyIPBoundary/duplicate-cf (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/disabled-cf (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/trusted-real-ip (0.00s)
+    --- FAIL: TestSEC013ProxyIPBoundary/duplicate-real-ip (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/multihop (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/untrusted-boundary (0.00s)
+    --- FAIL: TestSEC013ProxyIPBoundary/multiple-lines (0.00s)
+    --- FAIL: TestSEC013ProxyIPBoundary/malformed-hop (0.00s)
+    --- FAIL: TestSEC013ProxyIPBoundary/empty-hop (0.00s)
+    --- FAIL: TestSEC013ProxyIPBoundary/all-trusted-chain (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/ipv6-proxy (0.00s)
+    --- FAIL: TestSEC013ProxyIPBoundary/ipv6-direct (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/docker-explicit-peer (0.00s)
+    --- FAIL: TestSEC013ProxyIPBoundary/docker-other-peer (0.00s)
+    --- FAIL: TestSEC013ProxyIPBoundary/invalid-peer (0.00s)
+FAIL
+FAIL	github.com/forceu/gokapi/internal/logging	0.090s
+=== RUN   TestSEC013DockerTrustRequiresOptIn
+    security_proxy_test.go:16: Docker subnet is implicitly trusted by default
+--- FAIL: TestSEC013DockerTrustRequiresOptIn (0.00s)
+FAIL
+FAIL	github.com/forceu/gokapi/internal/environment	0.002s
+=== RUN   TestSEC013HeaderAuthenticationPeer
+=== RUN   TestSEC013HeaderAuthenticationPeer/direct
+    security_proxy_test.go:48: authenticated=true, want false
+=== RUN   TestSEC013HeaderAuthenticationPeer/trusted
+=== RUN   TestSEC013HeaderAuthenticationPeer/missing
+=== RUN   TestSEC013HeaderAuthenticationPeer/duplicate
+    security_proxy_test.go:48: authenticated=true, want false
+=== RUN   TestSEC013HeaderAuthenticationPeer/unregistered
+=== RUN   TestSEC013HeaderAuthenticationPeer/ipv6-loopback
+=== RUN   TestSEC013HeaderAuthenticationPeer/ipv6-cidr
+=== RUN   TestSEC013HeaderAuthenticationPeer/ipv6-direct
+    security_proxy_test.go:48: authenticated=true, want false
+=== RUN   TestSEC013HeaderAuthenticationPeer/docker-proxy
+=== RUN   TestSEC013HeaderAuthenticationPeer/docker-neighbor
+    security_proxy_test.go:48: authenticated=true, want false
+=== RUN   TestSEC013HeaderAuthenticationPeer/invalid-peer
+    security_proxy_test.go:48: authenticated=true, want false
+--- FAIL: TestSEC013HeaderAuthenticationPeer (0.00s)
+    --- FAIL: TestSEC013HeaderAuthenticationPeer/direct (0.00s)
+    --- PASS: TestSEC013HeaderAuthenticationPeer/trusted (0.00s)
+    --- PASS: TestSEC013HeaderAuthenticationPeer/missing (0.00s)
+    --- FAIL: TestSEC013HeaderAuthenticationPeer/duplicate (0.00s)
+    --- PASS: TestSEC013HeaderAuthenticationPeer/unregistered (0.00s)
+    --- PASS: TestSEC013HeaderAuthenticationPeer/ipv6-loopback (0.00s)
+    --- PASS: TestSEC013HeaderAuthenticationPeer/ipv6-cidr (0.00s)
+    --- FAIL: TestSEC013HeaderAuthenticationPeer/ipv6-direct (0.00s)
+    --- PASS: TestSEC013HeaderAuthenticationPeer/docker-proxy (0.00s)
+    --- FAIL: TestSEC013HeaderAuthenticationPeer/docker-neighbor (0.00s)
+    --- FAIL: TestSEC013HeaderAuthenticationPeer/invalid-peer (0.00s)
+FAIL
+FAIL	github.com/forceu/gokapi/internal/webserver/authentication	0.091s
+FAIL

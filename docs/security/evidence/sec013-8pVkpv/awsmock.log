@@ -1,0 +1,80 @@
+?   	github.com/forceu/gokapi/cmd/cli-uploader	[no test files]
+?   	github.com/forceu/gokapi/cmd/cli-uploader/cliapi	[no test files]
+?   	github.com/forceu/gokapi/cmd/cli-uploader/cliconfig	[no test files]
+?   	github.com/forceu/gokapi/cmd/cli-uploader/cliconstants	[no test files]
+?   	github.com/forceu/gokapi/cmd/cli-uploader/cliflags	[no test files]
+?   	github.com/forceu/gokapi/cmd/demoData	[no test files]
+ok  	github.com/forceu/gokapi/cmd/gokapi	0.386s
+ok  	github.com/forceu/gokapi/internal/configuration	2.037s
+ok  	github.com/forceu/gokapi/internal/configuration/cloudconfig	0.385s
+ok  	github.com/forceu/gokapi/internal/configuration/configupgrade	0.397s
+ok  	github.com/forceu/gokapi/internal/configuration/database	0.785s
+ok  	github.com/forceu/gokapi/internal/configuration/database/dbabstraction	0.012s
+ok  	github.com/forceu/gokapi/internal/configuration/database/dbcache	0.012s
+ok  	github.com/forceu/gokapi/internal/configuration/database/migration	0.614s
+ok  	github.com/forceu/gokapi/internal/configuration/database/provider/redis	2.625s
+ok  	github.com/forceu/gokapi/internal/configuration/database/provider/sqlite	2.267s
+ok  	github.com/forceu/gokapi/internal/configuration/setup	23.883s
+ok  	github.com/forceu/gokapi/internal/encryption	21.120s
+ok  	github.com/forceu/gokapi/internal/encryption/end2end	0.012s
+ok  	github.com/forceu/gokapi/internal/environment	0.008s
+?   	github.com/forceu/gokapi/internal/environment/deprecation	[no test files]
+ok  	github.com/forceu/gokapi/internal/environment/flagparser	0.009s
+ok  	github.com/forceu/gokapi/internal/helper	0.015s
+?   	github.com/forceu/gokapi/internal/helper/systemd	[no test files]
+ok  	github.com/forceu/gokapi/internal/logging	1.371s
+?   	github.com/forceu/gokapi/internal/logging/serverstats	[no test files]
+ok  	github.com/forceu/gokapi/internal/models	0.012s
+ok  	github.com/forceu/gokapi/internal/storage	10.068s
+ok  	github.com/forceu/gokapi/internal/storage/chunking	0.611s
+ok  	github.com/forceu/gokapi/internal/storage/chunking/chunkreservation	0.006s
+?   	github.com/forceu/gokapi/internal/storage/filerequest	[no test files]
+ok  	github.com/forceu/gokapi/internal/storage/filesystem	0.005s
+ok  	github.com/forceu/gokapi/internal/storage/filesystem/interfaces	0.005s [no tests to run]
+ok  	github.com/forceu/gokapi/internal/storage/filesystem/localstorage	0.006s
+ok  	github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem	0.007s
+?   	github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem/aws	[no test files]
+?   	github.com/forceu/gokapi/internal/storage/presign	[no test files]
+ok  	github.com/forceu/gokapi/internal/storage/processingstatus	0.007s
+ok  	github.com/forceu/gokapi/internal/storage/processingstatus/pstatusdb	0.007s
+ok  	github.com/forceu/gokapi/internal/test	2.178s
+ok  	github.com/forceu/gokapi/internal/test/securityfixture	2.414s
+ok  	github.com/forceu/gokapi/internal/test/testconfiguration	0.408s
+ok  	github.com/forceu/gokapi/internal/webserver	2.719s
+Rate limiting disabled for unit tests
+Warning, cannot check file awsTest1234567890123: invalid credentials / invalid bucket / invalid region
+Warning, cannot check file awsTest1234567890123: invalid credentials / invalid bucket / invalid region
+Warning, cannot check file awsTest1234567890123: invalid credentials / invalid bucket / invalid region
+Warning, cannot check file awsTest1234567890123: invalid credentials / invalid bucket / invalid region
+--- FAIL: TestDeleteFile (1.24s)
+    Api_test.go:1108: Assertion failed, got: true, want: false.
+Warning, cannot check file awsTest1234567890123: invalid credentials / invalid bucket / invalid region
+Warning, cannot check file awsTest1234567890123: invalid credentials / invalid bucket / invalid region
+Warning, cannot check file awsTest1234567890123: invalid credentials / invalid bucket / invalid region
+Warning, cannot check file awsTest1234567890123: invalid credentials / invalid bucket / invalid region
+Warning, cannot check file awsTest1234567890123: invalid credentials / invalid bucket / invalid region
+Warning, cannot check file awsTest1234567890123: invalid credentials / invalid bucket / invalid region
+Warning, cannot check file awsTest1234567890123: invalid credentials / invalid bucket / invalid region
+Warning, cannot check file awsTest1234567890123: invalid credentials / invalid bucket / invalid region
+Warning, cannot check file awsTest1234567890123: invalid credentials / invalid bucket / invalid region
+FAIL
+FAIL	github.com/forceu/gokapi/internal/webserver/api	6.033s
+ok  	github.com/forceu/gokapi/internal/webserver/api/mutex/apimutex	0.008s
+ok  	github.com/forceu/gokapi/internal/webserver/api/mutex/e2emutex	0.004s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication	0.902s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/csrftoken	0.009s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/downloadPasswordToken	0.006s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/oauth	1.503s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/sessionmanager	0.529s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/tokengeneration	0.463s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/users	0.471s
+ok  	github.com/forceu/gokapi/internal/webserver/downloadstatus	0.008s
+?   	github.com/forceu/gokapi/internal/webserver/errorHandling	[no test files]
+?   	github.com/forceu/gokapi/internal/webserver/errorHandling/errorcodes	[no test files]
+ok  	github.com/forceu/gokapi/internal/webserver/favicon	0.051s
+ok  	github.com/forceu/gokapi/internal/webserver/fileupload	0.552s
+ok  	github.com/forceu/gokapi/internal/webserver/headers	0.011s
+?   	github.com/forceu/gokapi/internal/webserver/ratelimiter	[no test files]
+ok  	github.com/forceu/gokapi/internal/webserver/sse	0.600s
+ok  	github.com/forceu/gokapi/internal/webserver/ssl	0.350s
+FAIL
