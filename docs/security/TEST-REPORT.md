@@ -235,3 +235,5 @@ go test -race ./internal/webserver/ratelimiter ./internal/webserver ./internal/w
 兼容/回滚见[ADR-004](ADR-004-HTTP-PHASE-AND-CANCELLATION.md)：仅内部限流签名和HTTP阶段期限改变，公开API、数据、身份、存储格式不变。IdleTimeout=60秒已核实配置，专门60秒空闲连接实测NOT_RUN；真实反代、容器、全仓race、govulncheck亦NOT_RUN，无依赖变化；原vet告警保留。M1非root容器Gate仍待SEC-011，未发布。
 
 提交前检查：WSL /usr/bin/go 为 go1.26.0 linux/amd64，gofmt、bash -n、git diff --check通过；新增证据常见私钥/GitHub Token/AWS访问Key模式扫描无匹配（有限模式扫描，不是全仓秘密审计）。Windows PATH无go；首次格式检查误指定不存在的/usr/local/go/bin/go后，改用既有/usr/bin/go完成检查，未影响已记录的测试。
+
+[PR #6](https://github.com/Activer007/Gokapi/pull/6)初始提交 8defad1a80046b156cf662de6ce8d9e659f45429；远端diff已自审并记录COMMENT，非独立审批。审查修正测试清理与API正例夹具；本次后续提交只补PR链接与审查说明。最终head的CI通过后方可合并，动态结果以PR checks为准。
