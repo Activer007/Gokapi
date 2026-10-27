@@ -18,7 +18,7 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | --- | --- | --- | --- | --- |
 | SEC-001 | P0 | M0 基线完成，发布 Gate 保留 | HEAD/tag/master/module/Docker 声明、公开 PR/公告快照；用户确认尚未部署，部署 digest 不适用；镜像构建 BLOCKED | 随 SEC-003 作为必要证据，不能标记已发布 |
 | SEC-002 | P0 | 文档完成 | THREAT-MODEL 的参与者/边界/不变量；每个 P0 有前提、代码引用和可编写 RED | 随 SEC-003 作为测试合同 |
-| SEC-003 | P0 | 夹具与实跑记录完成，审查补强 | 三用户、多种 Token、会话、File Request、去重/密码/过期文件、S3 故障、签名 IdP；SQLite/Redis 与 race；opt-in RED；双向凭据类型 mutation | codex/sec-003-security-baseline；合并记录见本 fork PR |
+| SEC-003 | P0 | 夹具与实跑记录完成，审查补强 | 三用户、多种 Token、会话、File Request、去重/密码/过期文件、S3 故障、签名 IdP；SQLite/Redis 与 race；opt-in RED；双向凭据类型 mutation | [PR #2](https://github.com/Activer007/Gokapi/pull/2)；最新 CI、审查与合并状态以 PR 为准 |
 
 ## 后续任务
 
