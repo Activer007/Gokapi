@@ -171,3 +171,5 @@ HTTPS代理测试使用example.com主机语义，transport禁用代理并强制�
 SEC-012原M0 opt-in RED现迁入默认test组；SEC-040仍需显式security_red。依赖未变，govulncheck及全仓race本轮NOT_RUN，原有vet告警未修复。更新环境事实：Windows已安装Docker CLI29.1.3，但Docker Desktop Linux引擎命名管道不存在、WSL无Docker CLI/socket；镜像/非root容器Gate仍BLOCKED，不再笼统称整台机器没安装Docker。
 
 兼容/发布/回滚详见[ADR-002](ADR-002-COOKIE-AND-PASSWORD-ROLLOUT.md)。本项无schema、身份或文件格式变化；旧Cookie需要维护窗口注销再登录，降回v2.2.4必须恢复配套备份。测试/PR通过不等于已发布镜像或M1全部完成。
+
+[PR #4](https://github.com/Activer007/Gokapi/pull/4) 创建于本 fork，初始提交 `f780a84f9e3ed59b8c2a560f48167724c3c890d8`。远端diff已逐项自审并记录COMMENT，不冒充独立审批；后续仅补PR链接和本说明。提交前gofmt、bash -n、diff --check和文档相对链接校验通过，新增证据及fixture的常见私钥/GitHub Token/AWS访问Key模式扫描无匹配；这是有限模式扫描，非全仓秘密审计。合并必须等待最终head的远端CI通过，动态结果以PR checks为准。
