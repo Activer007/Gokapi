@@ -1271,7 +1271,9 @@ func apiUploadRequestListSingle(w http.ResponseWriter, r requestParser, user mod
 
 func isAuthorisedForApi(r *http.Request, routing apiRoute) (models.User, models.ApiKey, bool) {
 	keyId := r.Header.Get("apikey")
-	ratelimiter.WaitOnApiAuthentication(logging.GetIpAddress(r))
+	if err := ratelimiter.WaitOnApiAuthentication(r.Context(), logging.GetIpAddress(r)); err != nil {
+		return models.User{}, models.ApiKey{}, false
+	}
 	user, apiKey, ok := isValidApiKey(keyId, true, routing.ApiPerm)
 	if !ok {
 		return models.User{}, models.ApiKey{}, false

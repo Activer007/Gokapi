@@ -390,6 +390,8 @@ Required proxy settings:
 * **Maximum request body size** — set high enough for your largest expected upload.
 * **Forwarded headers** — pass ``X-Real-IP`` and ``X-Forwarded-For`` so Gokapi sees the real client IP.
 
+Fork builds containing SEC-014 allow five seconds to receive complete HTTP request headers and close idle keep-alive connections after one minute. These limits apply to setup as well. They do not replace the main server's two-hour request-body and twelve-hour response limits, or the existing SSE lifetime. Proxies should forward headers promptly and retain appropriate file-transfer timeouts. Disconnected requests leave authentication rate-limit queues; already-running storage operations are not automatically rolled back.
+
 If your proxy's outgoing IP is not ``127.0.0.1``, add it to ``GOKAPI_TRUSTED_PROXIES`` — see :ref:`availenvvar`.
 
 If Gokapi is behind Cloudflare, set ``GOKAPI_USE_CLOUDFLARE=true``. In fork builds containing SEC-013, ``CF-Connecting-IP`` is accepted only from a trusted immediate peer and must contain one valid IP. For direct Cloudflare connections, explicitly maintain its official IP ranges in the trust list and restrict origin access. If a local proxy forwards Cloudflare traffic, trust that proxy and ensure it removes CF headers from non-Cloudflare requests.

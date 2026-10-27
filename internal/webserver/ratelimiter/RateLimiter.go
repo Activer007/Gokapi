@@ -48,33 +48,33 @@ func newLimiter() *store {
 
 // WaitOnLogin blocks the current goroutine until the rate limiter allows a request
 // Three attempts without limiting, thereafter one attempt every 3 seconds
-func WaitOnLogin(ip string) {
-	_ = failedLoginLimiter.Get(ip, 1, 9).WaitN(context.Background(), 3)
+func WaitOnLogin(ctx context.Context, ip string) error {
+	return failedLoginLimiter.Get(ip, 1, 9).WaitN(ctx, 3)
 }
 
 // WaitOnSetupLogin blocks the current goroutine until the rate limiter allows a request
 // Three attempts without limiting, thereafter one attempt every 1 second
-func WaitOnSetupLogin() {
-	_ = failedSetupLogin.Get("setup", 1, 15).WaitN(context.Background(), 1)
+func WaitOnSetupLogin(ctx context.Context) error {
+	return failedSetupLogin.Get("setup", 1, 15).WaitN(ctx, 1)
 }
 
 // WaitOnApiAuthentication blocks the current goroutine until the rate limiter allows a request
 // 200 attempts without limiting, thereafter one attempt every second
-func WaitOnApiAuthentication(ip string) {
-	_ = failedApiKeyLimiter.Get(ip, 1, 200).WaitN(context.Background(), 1)
+func WaitOnApiAuthentication(ctx context.Context, ip string) error {
+	return failedApiKeyLimiter.Get(ip, 1, 200).WaitN(ctx, 1)
 }
 
 // WaitOnDownloadPassword blocks the current goroutine until the rate limiter allows a request
 // Ten attempts without limiting, thereafter one attempt every 2 seconds
-func WaitOnDownloadPassword(ip string) {
-	_ = failedDownloadPasswordLimiter.Get(ip, 1, 20).WaitN(context.Background(), 2)
+func WaitOnDownloadPassword(ctx context.Context, ip string) error {
+	return failedDownloadPasswordLimiter.Get(ip, 1, 20).WaitN(ctx, 2)
 }
 
 // WaitOnFailedId blocks the current goroutine until the rate limiter allows a request
 // Ten failed attempts without limiting, thereafter one attempt every second
-func WaitOnFailedId(r *http.Request) {
+func WaitOnFailedId(r *http.Request) error {
 	ip := logging.GetIpAddress(r)
-	_ = failedIdLimiter.Get(ip, 1, 10).Wait(context.Background())
+	return failedIdLimiter.Get(ip, 1, 10).Wait(r.Context())
 }
 
 // IsAllowedNewUuid returns true if a new uuid is not rate-limited
@@ -106,8 +106,8 @@ func (s *store) Get(key string, r rate.Limit, burst int) *rate.Limiter {
 
 // StartCleanup starts a goroutine that continuously cleans up old entries from the store
 func (s *store) StartCleanup(maxIdle time.Duration) {
-	go s.cleanupOnce.Do(
-		func() {
+	s.cleanupOnce.Do(func() {
+		go func() {
 			ticker := time.NewTicker(30 * time.Minute)
 			for range ticker.C {
 				now := time.Now()
@@ -119,5 +119,6 @@ func (s *store) StartCleanup(maxIdle time.Duration) {
 				}
 				s.mu.Unlock()
 			}
-		})
+		}()
+	})
 }

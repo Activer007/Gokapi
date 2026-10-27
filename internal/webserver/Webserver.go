@@ -139,10 +139,12 @@ func Start() {
 
 	fmt.Println("Binding webserver to " + configuration.Get().Port)
 	srv = http.Server{
-		Addr:         configuration.Get().Port,
-		ReadTimeout:  timeOutWebserverRead,
-		WriteTimeout: timeOutWebserverWrite,
-		Handler:      mux,
+		Addr:              configuration.Get().Port,
+		ReadHeaderTimeout: 5 * time.Second,
+		IdleTimeout:       time.Minute,
+		ReadTimeout:       timeOutWebserverRead,
+		WriteTimeout:      timeOutWebserverWrite,
+		Handler:           mux,
 	}
 	infoMessage := "Webserver can be accessed at " + configuration.Get().ServerUrl + "admin\nPress CTRL+C to stop Gokapi"
 	if strings.Contains(configuration.Get().ServerUrl, "127.0.0.1") {
@@ -229,7 +231,9 @@ func redirect(w http.ResponseWriter, r *http.Request, url string) {
 }
 
 func redirectOnIncorrectId(w http.ResponseWriter, r *http.Request, url string) {
-	ratelimiter.WaitOnFailedId(r)
+	if err := ratelimiter.WaitOnFailedId(r); err != nil {
+		return
+	}
 	redirect(w, r, url)
 }
 
@@ -516,7 +520,9 @@ func showLogin(w http.ResponseWriter, r *http.Request) {
 	failedCsrf := false
 	if pw != "" && user != "" {
 		ip := logging.GetIpAddress(r)
-		ratelimiter.WaitOnLogin(ip)
+		if err := ratelimiter.WaitOnLogin(r.Context(), ip); err != nil {
+			return
+		}
 		retrievedUser, validCredentials, validCsfr := authentication.IsCorrectUsernameAndPassword(user, pw, csfr)
 		if validCredentials {
 			logging.LogValidLogin(user)
@@ -601,7 +607,9 @@ func showDownload(w http.ResponseWriter, r *http.Request) {
 		}
 
 		ip := logging.GetIpAddress(r)
-		ratelimiter.WaitOnDownloadPassword(ip)
+		if err := ratelimiter.WaitOnDownloadPassword(r.Context(), ip); err != nil {
+			return
+		}
 
 		isValid, isLegacy := configuration.VerifyPassword(enteredPassword, file.PasswordHash, configuration.Get().Authentication.SaltFiles)
 		if isValid {

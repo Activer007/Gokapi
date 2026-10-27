@@ -1,0 +1,9 @@
+ok  	github.com/forceu/gokapi/internal/webserver/ratelimiter	1.252s
+ok  	github.com/forceu/gokapi/internal/webserver	13.533s
+Rate limiting disabled for unit tests
+--- FAIL: TestSEC014CancelledAPIKeyDoesNotAuthorize (0.00s)
+    security_bounds_test.go:18: control API key was rejected
+FAIL
+FAIL	github.com/forceu/gokapi/internal/webserver/api	0.179s
+ok  	github.com/forceu/gokapi/internal/configuration/setup	1.026s
+FAIL

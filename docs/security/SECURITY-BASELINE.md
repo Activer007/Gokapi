@@ -33,6 +33,8 @@ SEC-003 保持测试与证据范围，补强了 File Request Key 与普通 Key �
 
 M1/SEC-013（2026-10-28）基线 `7200526486d7a4b317043fe7056e6d279e1c92f3`，即本 fork PR #4 合并提交。本地 E:\LHA\Gokapi、Go1.26.0 linux/amd64（WSL）、分支codex/sec-013-trusted-proxies，唯一remote仍为Activer007/Gokapi，保留原计划目录。CONFIRMED_CODE：CF先于peer检查、Header Auth无peer限制、Docker自动信任网段默认开启；隔离RED已验证。已检查Logging/Authentication/Environment及既有测试、README、setup/advanced/troubleshooting/SECURITY；只读检索上游open proxy PR返回#361/#428/#437，分别是URL、S3 mock、密码拒绝日志，不是本项修复；CF头issue检索返回#209/#69的历史代理配置讨论，未见相同待合并补丁。沿用公开公告表，不把部署前提下的防御测试命名为新的CVE。共享peer策略及默认值迁移见[ADR-003](ADR-003-TRUSTED-PROXY-BOUNDARY.md)；Docker模式测试不代表真实容器网络验证，M1仍待SEC-011/014。
 
+M1/SEC-014（2026-10-28）基线 `138642c72ea481a2b63d2ed5e1aac071de34a01d`，本 fork PR #5 已合并；本地master干净（除用户原计划目录）、remote仅Activer007/Gokapi，工作分支codex/sec-014-request-bounds。CONFIRMED_CODE：限流Wait使用Background、清理Once回调不返回、HTTP缺少独立头期限；隔离RED分别证明取消后等待、128查询遗留128协程、两处服务慢头超过7秒。检查README/docs、Webserver/Setup/Api/RateLimiter、既有安装/上传/SSE测试；上游open PR的ratelimiter及timeout检索均无结果，未发现相同待合并修复。沿用公告快照，未声明新的CVE或外部部署利用。修复与兼容边界见[ADR-004](ADR-004-HTTP-PHASE-AND-CANCELLATION.md)，Docker非rootGate仍须SEC-011。
+
 ## 分类规则
 
 - **CONFIRMED_CODE**：该 SHA 的代码足以证明与目标安全不变量的差距；不自动等于已证明的远程利用或新 CVE。

@@ -128,7 +128,9 @@ func basicAuth(next http.HandlerFunc) http.HandlerFunc {
 
 		enteredUser, enteredPw, ok := r.BasicAuth()
 		if ok && credentialUsername != "" && credentialPassword != "" && !setupComplete.Load() {
-			ratelimiter.WaitOnSetupLogin()
+			if err := ratelimiter.WaitOnSetupLogin(r.Context()); err != nil {
+				return
+			}
 			usernameMatch := helper.IsEqualStringConstantTime(strings.ToLower(enteredUser), strings.ToLower(credentialUsername))
 			passwordMatch := helper.IsEqualStringConstantTime(enteredPw, credentialPassword)
 			if usernameMatch && passwordMatch {
@@ -160,10 +162,12 @@ func startSetupWebserver() {
 	mux.HandleFunc("/setup/testaws", basicAuth(handleTestAws))
 
 	srv = http.Server{
-		Addr:         setupListenAddress(port, environment.IsDockerInstance()),
-		ReadTimeout:  2 * time.Minute,
-		WriteTimeout: 2 * time.Minute,
-		Handler:      mux,
+		Addr:              setupListenAddress(port, environment.IsDockerInstance()),
+		ReadHeaderTimeout: 5 * time.Second,
+		IdleTimeout:       time.Minute,
+		ReadTimeout:       2 * time.Minute,
+		WriteTimeout:      2 * time.Minute,
+		Handler:           mux,
 	}
 	if debugDisableAuth {
 		srv.Addr = "127.0.0.1:" + port
@@ -932,7 +936,9 @@ func handleTestAws(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if isInitialSetup {
-		ratelimiter.WaitOnSetupLogin()
+		if err := ratelimiter.WaitOnSetupLogin(r.Context()); err != nil {
+			return
+		}
 		if t.SetupPassword == "" || subtle.ConstantTimeCompare([]byte(t.SetupPassword), []byte(credentialAWSTest)) != 1 {
 			w.WriteHeader(http.StatusUnauthorized)
 			_ = json.NewEncoder(w).Encode(awsTestResponse{
