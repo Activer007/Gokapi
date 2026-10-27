@@ -201,3 +201,5 @@ go test -race ./internal/logging ./internal/environment ./internal/webserver/aut
 覆盖：不可信peer不能改变来源IP或通过Header Auth；CF/X-Real-IP重复/非法值被拒绝；多行XFF保留顺序、可信链从右向左到首个不可信跳点、畸形链退回peer、全可信链取最左端；IPv6回环/CIDR；Docker单代理地址/邻居拒绝/明确CIDR内外边界；默认不自动授信网段，显式旧选项仍可解析。Header已注册用户通过、未知用户拒绝、缺失/重复头拒绝，自动注册模式下未授权请求不创建用户。真实回环HTTP相同请求在未配置peer时返回401、显式配置后204及正确IP。
 
 仅为现有Header正例设置可信RemoteAddr；不删弱化负例。未更改数据库、密码哈希、OIDC账户关联、文件内容/删除、API或界面。普通三组继续包含SEC-010安装与SEC-012回调/迁移回归；Docker配置模拟不等于真实容器网络/非root上传下载。浏览器、真实容器、全仓race、govulncheck本轮NOT_RUN；无依赖修改，原vet告警保留。环境与代理迁移/回滚见[ADR-003](ADR-003-TRUSTED-PROXY-BOUNDARY.md)，M1剩余SEC-011/014未完成。
+
+[PR #5](https://github.com/Activer007/Gokapi/pull/5)初始提交 `86d9afd5591f17df3c6718b73ff42b8aa8cf3575`；远端diff已自审并记录COMMENT，非独立审批。后续只补PR链接与本说明。提交前gofmt、bash -n、diff --check及文档相对链接检查通过；本轮新增证据/fixture的常见私钥、GitHub Token、AWS访问Key模式扫描无匹配（非全仓秘密审计）。8pVkpv与yJt6Pn的overlay hash完全一致。最终head的CI及合并结果以PR checks为准，合并前必须核实成功。
