@@ -3,6 +3,7 @@ package setup
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -194,6 +195,7 @@ func TestError(t *testing.T) {
 }
 
 func TestBasicAuth(t *testing.T) {
+	setupComplete.Store(false)
 	isAuth := false
 	continueFunc := func(w http.ResponseWriter, r *http.Request) {
 		isAuth = true
@@ -202,7 +204,7 @@ func TestBasicAuth(t *testing.T) {
 	w, r := test.GetRecorder("GET", "/setup", nil, nil, nil)
 	isInitialSetup = true
 	basicAuth(continueFunc).ServeHTTP(w, r)
-	test.IsEqualBool(t, isAuth, true)
+	test.IsEqualBool(t, isAuth, false)
 
 	isAuth = false
 	isInitialSetup = false
@@ -322,8 +324,8 @@ func TestRunConfigModification(t *testing.T) {
 		finish <- true
 	}()
 	RunConfigModification()
-	test.IsEqualInt(t, len(credentialUsername), 6)
-	test.IsEqualInt(t, len(credentialPassword), 10)
+	test.IsEqualString(t, credentialUsername, "setup")
+	test.IsEqualInt(t, len(credentialPassword), 32)
 	isInitialSetup = true
 	<-finish
 }
@@ -359,6 +361,16 @@ func TestIntegration(t *testing.T) {
 	test.FileDoesNotExist(t, "test/config.json")
 	go RunIfFirstStart()
 	waitForServer(t, true)
+	proof, err := os.ReadFile(credentialFile)
+	test.IsNil(t, err)
+	initialAuth := []test.Header{{Name: "Authorization", Value: "Basic " + base64.StdEncoding.EncodeToString([]byte("setup:"+strings.TrimSpace(string(proof))))}}
+	unauthorizedInput := createInputInternalAuth()
+	// A real installation request without the local proof must not write config.
+	test.HttpPageResultJson(t, test.HttpTestConfig{
+		Url: "http://localhost:53842/setup/setupResult", Method: "POST", ResultCode: 401,
+		Body: strings.NewReader(unauthorizedInput.toJson()),
+	})
+	test.FileDoesNotExist(t, "test/config.json")
 
 	test.HttpPageResult(t, test.HttpTestConfig{
 		Url:             "http://localhost:53842/admin",
@@ -372,6 +384,7 @@ func TestIntegration(t *testing.T) {
 		Url:             "http://localhost:53842/setup/start",
 		IsHtml:          false,
 		RequiredContent: []string{"Thank you for choosing Gokapi"},
+		Headers:         initialAuth,
 		Method:          "GET",
 		ResultCode:      200,
 	})
@@ -382,6 +395,7 @@ func TestIntegration(t *testing.T) {
 		IsHtml:          false,
 		Method:          "POST",
 		PostValues:      nil,
+		Headers:         initialAuth,
 		ResultCode:      500,
 	})
 
@@ -394,6 +408,14 @@ func TestIntegration(t *testing.T) {
 		Method:          "POST",
 		ResultCode:      200,
 		Body:            strings.NewReader(setupVals.toJson()),
+		Headers:         initialAuth,
+	})
+	test.FileDoesNotExist(t, credentialFile)
+	replayInput := createInputHeaderAuth()
+	// The successful installation consumes the proof before the server stops.
+	test.HttpPageResultJson(t, test.HttpTestConfig{
+		Url: "http://localhost:53842/setup/setupResult", Method: "POST", ResultCode: 401,
+		Headers: initialAuth, Body: strings.NewReader(replayInput.toJson()),
 	})
 
 	waitForServer(t, false)

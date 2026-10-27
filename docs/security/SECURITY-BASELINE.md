@@ -23,6 +23,8 @@
 
 ## 本 fork PR 审查增补
 
+M1/SEC-010 当前基线为 `0b72099243e091eec4eb053154c46ce3dbf2fd7a`（本 fork PR #2）。2026-10-27重新确认原有首次放行与通配监听为 CONFIRMED_CODE；重新检索上游 open setup PR，#418/#422/#423/#424/#438不包含同样的初始化证明修复。实现与兼容决策见 [ADR-001](ADR-001-BOOTSTRAP-PROOF.md)，RED和回归见 TEST-REPORT。后续 SEC-011/012/013/014 仍未完成；M1 整体 Gate 尚未通过。
+
 SEC-062 [PR #1](https://github.com/Activer007/Gokapi/pull/1) 已合并，提交 `1f47d1d91eda7da2098d2820c1633f88942f19f4`；这是 SEC-003 的分支基线。五个继承发布 job 均以仓库全名判断，只在 Forceu/Gokapi 执行，因此即使解除 fork 关系，Activer007/Gokapi 也不会向继承的 registry 发布。测试 workflow 改用 go.mod 指定的 Go 版本。GitHub CI [40529619817](https://github.com/Activer007/Gokapi/actions/runs/40529619817) 通过；逐文件自审已记录，未冒充独立审批。
 
 SEC-003 保持测试与证据范围，补强了 File Request Key 与普通 Key 的双向类型边界，并通过隔离 mutation 验证断言有效；修正证据脚本失败时仍返回成功的退出码。重新检索上游 open PR，相关 #422、#428、#436 不包含该测试基线或发布保护；未移植其改动。生产授权、删除、数据格式均不变。原始 M0 快照与日志不改写，后续测试和 Gate 以 TEST-REPORT 的 PR 审查增补为准。

@@ -501,7 +501,7 @@ function TestAWS(button, isManual) {
     button.disabled = true;
 {{ if .IsInitialSetup }}
     if (sessionStorage.getItem("awstestpw") == null || sessionStorage.getItem("awstestpw") == "") {
-        let pw = window.prompt("To test the AWS connection, a password is required.\nPlease enter the password that is displayed in the console output.", "");
+        let pw = window.prompt("To test the AWS connection, enter the setup password from the local credential file.", "");
         if (pw == "" || pw == null) {
     	    button.disabled = false;
             return;
@@ -535,7 +535,7 @@ function TestAWS(button, isManual) {
                     break;
                 case 401:
                     sessionStorage.setItem("awstestpw", "");
-                    alert("Incorrect AWS Test Password.\nPlease enter the password that is displayed in the console output.");
+                    alert("Incorrect AWS Test Password.\nPlease enter the setup password from the local credential file.");
                     break;
                 default:
                     const errorMessage = response.result || "An unexpected error occurred";

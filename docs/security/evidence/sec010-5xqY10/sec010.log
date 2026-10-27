@@ -1,0 +1,5 @@
+# github.com/forceu/gokapi/internal/configuration/setup [github.com/forceu/gokapi/internal/configuration/setup.test]
+internal/configuration/setup/Setup_test.go:370:53: cannot call pointer method toJson on setupValues
+internal/configuration/setup/Setup_test.go:416:73: cannot call pointer method toJson on setupValues
+FAIL	github.com/forceu/gokapi/internal/configuration/setup [build failed]
+FAIL

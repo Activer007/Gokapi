@@ -1,0 +1,14 @@
+=== RUN   TestSEC010ProofRequired
+Rate limiting disabled for unit tests
+Rate limiting disabled for unit tests
+--- PASS: TestSEC010ProofRequired (0.00s)
+=== RUN   TestSEC010CredentialLifecycle
+--- PASS: TestSEC010CredentialLifecycle (0.00s)
+=== RUN   TestSEC010ListenBoundary
+--- PASS: TestSEC010ListenBoundary (0.00s)
+=== RUN   TestSEC010CompletedCommitRejectsConcurrentReplay
+--- PASS: TestSEC010CompletedCommitRejectsConcurrentReplay (0.00s)
+=== RUN   TestSEC010InitialSetupRequiresAuthorization
+--- PASS: TestSEC010InitialSetupRequiresAuthorization (0.00s)
+PASS
+ok  	github.com/forceu/gokapi/internal/configuration/setup	0.009s
