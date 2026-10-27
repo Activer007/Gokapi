@@ -37,6 +37,8 @@ M1/SEC-014（2026-10-28）基线 `138642c72ea481a2b63d2ed5e1aac071de34a01d`，�
 
 ## 分类规则
 
+M1/SEC-011（2026-10-28）基线 `462c5d57dc428ccedb352b2c84c4367331687872`（PR #6合并）；E:\LHA\Gokapi，origin仅Activer007/Gokapi，分支codex/sec-011-nonroot-compose，用户计划目录保留。Docker Desktop4.55.0 / Engine29.1.3 linux/amd64、Compose2.40.3；Windows Python3.13；WSL Go1.26.0。镜像按既有Dockerfile的Go1.26.2-alpine构建。CONFIRMED_CODE：镜像默认root、默认Compose无user，旧DOCKER_NONROOT递归改权限；HISTORICAL_FIXED：已有--user支持及迁移说明。检查README/setup/advanced、两份Dockerfile/entrypoint/Compose、设置解析和HTTP上传测试；上游open non-root PR为空，docker关键词返回#435/#414/#415均无相同修复，历史issues #325/#285/#298已讨论权限；未向上游提交任何内容。新增显式非root配置及真实本地存储/SQLite容器验证，默认镜像USER不变。归档构建遇Windows CRLF shebang失效，新增LF属性并显式关闭archive换行转换。最终镜像ID、完整失败与GREEN证据见TEST-REPORT。原M0镜像BLOCKED是历史记录，本轮已完成本地镜像构建及非rootGate；仍未部署VPS或发布镜像。
+
 - **CONFIRMED_CODE**：该 SHA 的代码足以证明与目标安全不变量的差距；不自动等于已证明的远程利用或新 CVE。
 - **VALIDATE**：风险前提、协议行为、并发结果或部署暴露面仍需实验。失败测试设计不等于失败测试已执行。
 - **HISTORICAL_FIXED**：公告标明已修或相关修复已进入当前 SHA；仍需回归。须另注明 stable 是否包含。

@@ -1,0 +1,116 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load remote build context
+#1 DONE 0.8s
+
+#1 [internal] load remote build context
+#1 DONE 0.8s
+
+#2 copy /context /
+#2 DONE 0.1s
+
+#3 [internal] load metadata for docker.io/library/alpine:3.23
+#3 DONE 2.1s
+
+#4 [internal] load metadata for docker.io/library/golang:1.26.2-alpine
+#4 DONE 2.2s
+
+#5 [build_base 1/4] FROM docker.io/library/golang:1.26.2-alpine@sha256:f85330846cde1e57ca9ec309382da3b8e6ae3ab943d2739500e08c86393a21b1
+#5 resolve docker.io/library/golang:1.26.2-alpine@sha256:f85330846cde1e57ca9ec309382da3b8e6ae3ab943d2739500e08c86393a21b1 0.0s done
+#5 DONE 0.0s
+
+#6 [stage-1 1/6] FROM docker.io/library/alpine:3.23@sha256:ff7f0c727dd796aa36787bfcd9a64bf35a6ce72a73451b3359fde849b6703d63
+#6 resolve docker.io/library/alpine:3.23@sha256:ff7f0c727dd796aa36787bfcd9a64bf35a6ce72a73451b3359fde849b6703d63 0.0s done
+#6 DONE 0.0s
+
+#7 [stage-1 2/6] RUN addgroup -S gokapi && adduser -S gokapi -G gokapi
+#7 CACHED
+
+#8 [stage-1 3/6] RUN apk update && apk add --no-cache su-exec tini ca-certificates curl tzdata && 	 mkdir /app && touch /app/.isdocker
+#8 CACHED
+
+#9 [build_base 2/4] RUN mkdir /compile && apk update && apk add --no-cache git
+#9 CACHED
+
+#10 [stage-1 4/6] COPY dockerentry.sh /app/run.sh
+#10 DONE 0.1s
+
+#11 [build_base 3/4] COPY . /compile
+#11 DONE 0.1s
+
+#12 [build_base 4/4] RUN cd /compile && go generate ./... && CGO_ENABLED=0 go build -ldflags="-s -w -X 'github.com/forceu/gokapi/internal/environment.IsDocker=true' -X 'github.com/forceu/gokapi/internal/environment.Builder=Project Docker File' -X 'github.com/forceu/gokapi/internal/environment.BuildTime=$(date)'" -o /compile/gokapi github.com/forceu/gokapi/cmd/gokapi
+#12 0.486 go: downloading github.com/schollz/progressbar/v3 v3.19.1
+#12 0.492 go: downloading modernc.org/sqlite v1.58.0
+#12 0.500 go: downloading github.com/aws/aws-sdk-go v1.55.8
+#12 0.502 go: downloading github.com/caarlos0/env/v6 v6.10.1
+#12 0.508 go: downloading gopkg.in/yaml.v3 v3.0.1
+#12 0.519 go: downloading github.com/shirou/gopsutil/v4 v4.26.8
+#12 0.520 go: downloading golang.org/x/term v0.46.0
+#12 0.521 go: downloading github.com/gomodule/redigo v1.9.3
+#12 0.523 go: downloading github.com/jinzhu/copier v0.4.0
+#12 0.527 go: downloading golang.org/x/crypto v0.57.0
+#12 0.603 go: downloading github.com/NYTimes/gziphandler v1.1.1
+#12 0.672 go: downloading github.com/coreos/go-oidc/v3 v3.21.0
+#12 3.189 go: downloading github.com/Kodeworks/golang-image-ico v0.0.0-20141118225523-73f0f4cfade9
+#12 3.189 go: downloading golang.org/x/oauth2 v0.37.0
+#12 3.190 go: downloading golang.org/x/time v0.16.0
+#12 3.190 go: downloading golang.org/x/image v0.46.0
+#12 3.194 go: downloading github.com/secure-io/sio-go v0.3.1
+#12 3.360 go: downloading github.com/go-jose/go-jose/v4 v4.1.4
+#12 3.753 go: downloading golang.org/x/sys v0.48.0
+#12 3.758 go: downloading github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
+#12 3.763 go: downloading github.com/rivo/uniseg v0.4.7
+#12 3.764 go: downloading github.com/tklauser/go-sysconf v0.4.0
+#12 5.022 go: downloading github.com/tklauser/numcpus v0.12.0
+#12 18.34 go: downloading modernc.org/libc v1.75.7
+#12 23.56 go: downloading github.com/jmespath/go-jmespath v0.4.0
+#12 24.50 go: downloading modernc.org/memory v1.12.1
+#12 24.50 go: downloading github.com/google/uuid v1.6.0
+#12 24.50 go: downloading modernc.org/mathutil v1.7.1
+#12 24.50 go: downloading github.com/dustin/go-humanize v1.0.1
+#12 24.87 go: downloading github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec
+#12 27.88 Updated API version in openapi.json
+#12 27.88 Updated version template
+#12 27.88 Updated minify go file
+#12 27.88 Updated API version template
+#12 27.89 go: downloading golang.org/x/exp v0.0.0-20260908205506-85c1c2202aba
+#12 30.87 Updated protected URLs variable
+#12 31.34 Updated environment variables documentation
+#12 31.67 Updated API parsing
+#12 37.60 Compiled Downloader WASM module
+#12 38.10 Compiled E2E WASM module
+#12 38.57 Copied wasm_exec.js
+#12 38.57 Copied go.mod
+#12 38.57 Copied openapi.json
+#12 38.58 go: downloading github.com/tdewolff/minify/v2 v2.24.17
+#12 42.47 go: downloading github.com/tdewolff/parse/v2 v2.8.16
+#12 46.80 Minified Main CSS
+#12 46.80 Minified Admin JS
+#12 46.80 Minified Admin E2E JS
+#12 46.80 Minified Download E2E JS
+#12 46.80 Minified Streamsaver JS
+#12 46.80 Minified SSE Worker JS
+#12 46.80 Minified wasm_exec JS
+#12 46.80 Minified Public functions JS
+#12 46.81 Minified Public upload JS
+#12 DONE 61.9s
+
+#13 [stage-1 5/6] COPY --from=build_base /compile/gokapi /app/gokapi
+#13 DONE 0.1s
+
+#14 [stage-1 6/6] WORKDIR /app
+#14 DONE 0.0s
+
+#15 exporting to image
+#15 exporting layers
+#15 exporting layers 1.7s done
+#15 exporting manifest sha256:a5dfffc5a385f9f3b21a3bbe433fc99cbd2dad6554aaf4dd7d3d8f9ac383f958 done
+#15 exporting config sha256:faf5ec8fa0c63b65417965a0ecd6ba0ae09c431e795f4a8566d59add876938d1 0.0s done
+#15 exporting attestation manifest sha256:510957b7d786e56d5bef75391dda68c3fdd19099610998c45d614aeda33a972a 0.0s done
+#15 exporting manifest list sha256:b02c4a679762bf466dba15f831d36236347e4eea071cea3386c500e536a00c50 done
+#15 naming to docker.io/library/gokapi-sec011:462c5d57dc42 done
+#15 unpacking to docker.io/library/gokapi-sec011:462c5d57dc42
+#15 unpacking to docker.io/library/gokapi-sec011:462c5d57dc42 0.3s done
+#15 DONE 2.1s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/f3cktib99gm7a4f9eq06niozc

@@ -1,0 +1,5 @@
+compose-explicit-nonroot	PASS
+compose-loopback-publication	PASS
+compose-no-legacy-chown	PASS
+archive-image-build	PASS
+failure	KeyError: details withheld

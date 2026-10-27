@@ -237,3 +237,43 @@ go test -race ./internal/webserver/ratelimiter ./internal/webserver ./internal/w
 提交前检查：WSL /usr/bin/go 为 go1.26.0 linux/amd64，gofmt、bash -n、git diff --check通过；新增证据常见私钥/GitHub Token/AWS访问Key模式扫描无匹配（有限模式扫描，不是全仓秘密审计）。Windows PATH无go；首次格式检查误指定不存在的/usr/local/go/bin/go后，改用既有/usr/bin/go完成检查，未影响已记录的测试。
 
 [PR #6](https://github.com/Activer007/Gokapi/pull/6)初始提交 8defad1a80046b156cf662de6ce8d9e659f45429；远端diff已自审并记录COMMENT，非独立审批。审查修正测试清理与API正例夹具；本次后续提交只补PR链接与审查说明。最终head的CI通过后方可合并，动态结果以PR checks为准。
+
+SEC-014合并核实：PR #6最终head 99da9bbb0c2c7c9d58e8a9c0bbc68b9a16a5ae00，两条CI [40549566906](https://github.com/Activer007/Gokapi/actions/runs/40549566906) / [40549557374](https://github.com/Activer007/Gokapi/actions/runs/40549557374)均成功，日志含generate和官方四组；合并462c5d57dc428ccedb352b2c84c4367331687872。本地已同步。警告仅Node20 action运行时和ubuntu-latest迁移，未混入本项升级。
+
+## M1 / SEC-011 非 root Compose
+
+基线462c5d57dc428ccedb352b2c84c4367331687872，2026-10-28。Docker Desktop4.55.0 / Engine29.1.3 linux/amd64，Compose2.40.3，Windows Python3.13；Go回归在WSL Ubuntu24.04/Go1.26.0运行。实际镜像沿用Dockerfile内Go1.26.2-alpine / Alpine3.23。本地构建，不发布、不操作已有生产数据。
+
+| 命令/证据 | 真实结果 |
+| --- | --- |
+| `python docs/security/tools/run-sec011.py --red`，[2brmsc02](evidence/sec011-2brmsc02/results.tsv) | FAIL（有效RED）：继承Compose缺少显式非root用户 |
+| 首次构建，[fs_cy7nf](evidence/sec011-fs_cy7nf/results.tsv) | FAIL：Docker Hub匿名认证地址连接超时，尚未进入应用构建 |
+| 使用已有本机代理重试，[nhb1_0ll](evidence/sec011-nhb1_0ll/results.tsv) | 构建PASS；脚本FAIL于Docker省略空User字段，修正读取默认值；非安全RED |
+| [0x48knwb](evidence/sec011-0x48knwb/results.tsv) / [74ktp7l3](evidence/sec011-74ktp7l3/results.tsv) | FAIL：entrypoint无法执行；后者保留安装前日志。镜像内shebang含CRLF，Git原对象为LF；Windows归档转换导致，不是权限负例通过 |
+| 关闭archive换行转换重新构建，[pm9ov6yg](evidence/sec011-pm9ov6yg/results.tsv) | 镜像/错误属主拒绝/属主不变/非root身份/证明0600/未授权不写配置PASS；合法安装FAIL于夹具缺少既有API要求的未启用OAuth及enc_pw字段，补全夹具，未改认证实现 |
+| [scudb4a0](evidence/sec011-scudb4a0/results.tsv) | 初始化/登录/上传/下载SHA256 PASS；重启容器健康，但Docker随机主机端口从32794变32795，等待旧端口失败。确认根因后中断本轮等待，按精确容器ID及卷标签清理；不计为持久化PASS |
+| 最终 `python docs/security/tools/run-sec011.py --image gokapi-sec011:462c5d57dc42`，[bqfn7tyx](evidence/sec011-bqfn7tyx/results.tsv) | 全部PASS、退出0：使用固定空闲端口和匿名readiness；真实容器权限、初始化、上传/下载、重启持久化与已有配置跳过bootstrap通过；最终清理检查未残留测试容器/卷/网络 |
+| `bash docs/security/tools/run-sec011-go.sh`，[Ce9VCG](evidence/sec011-go-Ce9VCG/results.tsv) | environment、generate、awsmock、noaws、integration全部PASS、退出0 |
+
+Windows命令显式选择已安装的Docker CLI；成功构建重试仅对子进程设置HTTP_PROXY/HTTPS_PROXY为既有localhost:1080，不改全局网络或Docker配置。一次诊断命令因可能打印完整代理URL被自动审批拒绝，未执行；改为只显示host/port后通过，无凭据输出。初始Docker引擎未启动，已后台启动；WSL无docker.sock，因此容器测试通过Windows CLI完成。
+
+构建输入为 `git -c core.autocrlf=false archive HEAD` tar，经stdin送入 `docker build --progress=plain -t gokapi-sec011:462c5d57dc42 -`。成功修正构建记录在pm9ov6yg/build.log和archive.sha256；最终复用同一不可变image ID `sha256:b02c4a679762bf466dba15f831d36236347e4eea071cea3386c500e536a00c50`，见两次image.json。Docker镜像默认User仍空/root；实际Compose应用进程四个UID均10001，GID10001，根FS只读、cap_drop ALL/no-new-privileges生效。二进制-v显示2.2.5-dev、Go1.26.2、linux/amd64、IsDocker=true；archive构建不含.git，二进制Git Commit为None，源对应关系由archive/hash/runner建立，不能宣称二进制自带可复现来源证明。
+
+使用真实Compose文件（只注入本轮镜像/UID/GID/随机卷名/空闲端口），全新外部Linux命名卷最初root-owned；应用未能创建证明且卷属主不变。测试helper仅对两个仍为空的卷根目录chown/chmod，无递归；随后证明文件0600，未授权设置401且无config，合法设置和登录成功。经会话获得上传临时Token，上传147,456字节合成文件，再匿名下载校验SHA256；重启后字节仍一致、没有新bootstrap文件。凭据与分享ID仅在内存中，证据不保存HTTP响应或认证后日志。
+
+Go回归真实命令：
+
+```sh
+go generate ./...
+go test ./... -parallel 8 -count=1 -tags=test,awsmock
+go test ./... -parallel 8 -count=1 -tags=test,noaws
+go test ./... -count=1 -tags=test,noaws,integration
+```
+
+本项无Go并发/依赖变更，新增-race和govulncheck为NOT_RUN；既有SEC-014定向race记录保持有效，原有vet告警未修。默认镜像USER、原Compose、数据库和文件格式不变；只新增独立profile、entrypoint LF属性和测试/文档。兼容、旧卷副本迁移及回滚见ADR-005。真实旧卷迁移、rootless Docker、SELinux、真实Redis/S3容器和浏览器E2E为NOT_RUN。基础镜像digest固定、发布签名仍归SEC-062，不把本地image ID当成发布完成。
+
+M1逐项复核：SEC-010未授权初始化、SEC-012 Cookie/HTTP与TLS回调/旧密码迁移、SEC-013代理矩阵、SEC-014慢头/取消/大文件/SSE、SEC-011真实非root容器Gate均已有对应实跑证据。第5项“短时管理请求与长时文件传输”目前只证明头/空闲阶段分离，尚无独立管理handler执行预算；继续做SEC-014范围核验，M1暂不标完成。
+
+提交前Python AST、bash -n、git diff --check、文档相对链接校验通过；本轮新增证据常见私钥/GitHub Token/AWS访问Key/Authorization/session Cookie模式扫描无匹配（有限扫描，非全仓秘密审计）。测试脚本自审核对了容器ID/卷标签清理范围、安装前日志范围、镜像复用来源标注、固定端口和匿名重启就绪检查。
+
+[PR #7](https://github.com/Activer007/Gokapi/pull/7)初始提交5e611a211b050b91084a716935be863bfe7e835a；远端diff已自审并记录COMMENT，非独立审批。提交后用默认git archive HEAD读取dockerentry.sh字节，确认无CR、LF属性生效。本次后续仅补PR/审查记录，最终head CI成功后合并，动态状态以PR checks为准。

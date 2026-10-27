@@ -27,10 +27,10 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | ID | 优先级 / 分类 | 状态与风险 | 依赖 / 下一项 Gate / 最小 PR 范围 |
 | --- | --- | --- | --- |
 | SEC-010 | P0 CONFIRMED_CODE | M1 已合并，RED→GREEN：本地证明、回环监听、单次保存与同源保护 | [PR #3](https://github.com/Activer007/Gokapi/pull/3)；合并c1e0ee2；ADR-001；本地与CI通过，Docker实机Gate仍归SEC-011 |
-| SEC-011 | P0 CONFIRMED_CODE | 默认镜像未 USER；实际部署 uid VALIDATE | 001 → Docker G1 BLOCKED；先 fork 部署文档/非 root 示例，旧卷迁移独立，不自动 chown |
+| SEC-011 | P0 CONFIRMED_CODE / HISTORICAL_FIXED | RED→GREEN：显式非root Compose、权限负例、真实初始化/上传/下载/重启持久化 | [PR #7](https://github.com/Activer007/Gokapi/pull/7)；基线462c5d5；ADR-005；本地镜像和容器Gate通过，远端diff已自审；默认镜像USER保持root；最终CI/合并以PR为准，旧生产卷迁移NOT_RUN |
 | SEC-012 | P0 CONFIRMED_CODE + HISTORICAL_FIXED | M1 已合并，三类Cookie、网页改密注销、HTTP/TLS代理回调、SQLite/Redis旧密码真实登录迁移 | [PR #4](https://github.com/Activer007/Gokapi/pull/4)；合并7200526；ADR-002；本地回归及最终CI通过；原删除延迟断言一次失败保留；浏览器/冷恢复仍为023/063 Gate |
 | SEC-013 | P0 CONFIRMED_CODE | M1 已合并：共享直接peer检查、CF/XFF严格解析、Docker网段显式选择 | [PR #5](https://github.com/Activer007/Gokapi/pull/5)；合并138642c；ADR-003；本地及最终CI通过，真实容器网络Gate仍归011 |
-| SEC-014 | P0 CONFIRMED_CODE / P1 调优 | 已实跑RED→GREEN：取消等待、清理协程有界、主服务/安装慢头关闭；长正文/SSE正例通过 | [PR #6](https://github.com/Activer007/Gokapi/pull/6)；基线138642c；ADR-004；本地三组与定向race通过，远端diff已自审；最终CI/合并以PR为准；100GB/真实代理负载仍VALIDATE |
+| SEC-014 | P0 CONFIRMED_CODE / P1 调优 | 已实跑RED→GREEN：取消等待、清理协程有界、主服务/安装慢头关闭；长正文/SSE正例通过 | [PR #6](https://github.com/Activer007/Gokapi/pull/6)已合并462c5d5；ADR-004；本地及最终CI通过；统一短管理handler预算仍待M1范围核验；100GB/真实代理负载仍VALIDATE |
 | SEC-020 | P0 HISTORICAL_FIXED / VALIDATE | 既有越权公告已修；集中策略只是方案，未证明需重构 | 003 → G1/G2；先补动作矩阵；仅遇到实证不一致才抽最小共同策略 |
 | SEC-021 | P0 HISTORICAL_FIXED / VALIDATE | 历史降权/临时 token 已修；所有撤销路径仍需矩阵 | 020 → G1；降权/删除/重置后的即时权限交集，不改无关用户 UI |
 | SEC-022 | P0 企业场景 VALIDATE | 邮箱关联、issuer/sub/claims 完整策略未验证 | 003/020 → G1/G3；先模拟 IdP + 完整回调，证实后才设计账户迁移 ADR；参考 #435，不冒称漏洞 |
