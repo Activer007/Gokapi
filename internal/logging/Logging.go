@@ -423,49 +423,53 @@ func isTrustedProxy(ip net.IP) bool {
 	return false
 }
 
-// GetIpAddress returns the IP address of the requester
-func GetIpAddress(r *http.Request) string {
-
-	if useCloudflare {
-		cfIp := r.Header.Get("CF-Connecting-IP")
-		if cfIp != "" {
-			return cfIp
-		}
-	}
-
+func peerIP(r *http.Request) string {
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		ip = r.RemoteAddr
 	}
+	return ip
+}
 
-	// Clean up if it is an IPv6 zone
-	netIP := net.ParseIP(ip)
+// IsTrustedProxy checks only the immediate connection address, never a header.
+// Logging.Init must have loaded the operator's proxy configuration first.
+func IsTrustedProxy(r *http.Request) bool {
+	ip := net.ParseIP(peerIP(r))
+	return ip != nil && isTrustedProxy(ip)
+}
 
-	// Check if the immediate connector is a Trusted Proxy and if yes, use their header for IP
-	// Otherwise this returns the actual IP used for the connection
-	if netIP != nil && isTrustedProxy(netIP) {
-
-		// Check X-Forwarded-For
-		// Ideally, use the last IP in the list if a proxy appends to it
-		xff := r.Header.Get("X-FORWARDED-FOR")
-		if xff != "" {
-			ips := strings.Split(xff, ",")
-			// Iterate from right to left, skip trusted proxies
-			for i := len(ips) - 1; i >= 0; i-- {
-				ipXff := strings.TrimSpace(ips[i])
-				parsedIP := net.ParseIP(ipXff)
-				if parsedIP != nil && !isTrustedProxy(parsedIP) {
-					return ipXff
-				}
+// GetIpAddress returns the client IP established by the trusted proxy chain.
+func GetIpAddress(r *http.Request) string {
+	peer := peerIP(r)
+	if !IsTrustedProxy(r) {
+		return peer
+	}
+	if useCloudflare && len(r.Header.Values("CF-Connecting-IP")) != 0 {
+		return singleForwardedIP(r.Header.Values("CF-Connecting-IP"), peer)
+	}
+	if values := r.Header.Values("X-Forwarded-For"); len(values) != 0 {
+		// Multiple field lines form one ordered list. Stop at the first
+		// untrusted hop; malformed hops must not be skipped to reach a claim.
+		ips := strings.Split(strings.Join(values, ","), ",")
+		for i := len(ips) - 1; i >= 0; i-- {
+			ip := net.ParseIP(strings.TrimSpace(ips[i]))
+			if ip == nil {
+				return peer
+			}
+			if !isTrustedProxy(ip) || i == 0 {
+				return ip.String()
 			}
 		}
+		return peer
+	}
+	return singleForwardedIP(r.Header.Values("X-Real-IP"), peer)
+}
 
-		// Fallback to X-Real-Ip if XFF fails
-		xri := r.Header.Get("X-REAL-IP")
-		if net.ParseIP(xri) != nil {
-			return xri
+func singleForwardedIP(values []string, fallback string) string {
+	if len(values) == 1 {
+		if ip := net.ParseIP(strings.TrimSpace(values[0])); ip != nil {
+			return ip.String()
 		}
 	}
-
-	return ip
+	return fallback
 }

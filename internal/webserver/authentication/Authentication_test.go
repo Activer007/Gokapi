@@ -141,6 +141,7 @@ func testAuthSession(t *testing.T) {
 
 func testAuthHeader(t *testing.T) {
 	w, r := test.GetRecorder("GET", "/", nil, nil, nil)
+	r.RemoteAddr = "127.0.0.1:9000"
 	Init(modelHeader)
 	_, ok, err := IsAuthenticated(w, r)
 	test.IsEqualBool(t, ok, false)
@@ -149,6 +150,7 @@ func testAuthHeader(t *testing.T) {
 		Name:  "testHeader",
 		Value: "testUser",
 	}}, nil)
+	r.RemoteAddr = "127.0.0.1:9000"
 
 	user, ok, err := IsAuthenticated(w, r)
 	test.IsEqualString(t, user.Name, "testuser")
@@ -159,6 +161,7 @@ func testAuthHeader(t *testing.T) {
 		Name:  "testHeader",
 		Value: "testUser",
 	}}, nil)
+	r.RemoteAddr = "127.0.0.1:9000"
 	_, ok, err = IsAuthenticated(w, r)
 	test.IsNil(t, err)
 	test.IsEqualBool(t, ok, true)
@@ -166,6 +169,7 @@ func testAuthHeader(t *testing.T) {
 		Name:  "testHeader",
 		Value: "otherUser2",
 	}}, nil)
+	r.RemoteAddr = "127.0.0.1:9000"
 	_, ok, _ = IsAuthenticated(w, r)
 	test.IsEqualBool(t, ok, false)
 	authSettings.OnlyRegisteredUsers = false

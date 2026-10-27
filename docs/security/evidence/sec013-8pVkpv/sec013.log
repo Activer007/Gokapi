@@ -1,0 +1,80 @@
+=== RUN   TestSEC013ProxyIPBoundary
+=== RUN   TestSEC013ProxyIPBoundary/direct-cf
+=== RUN   TestSEC013ProxyIPBoundary/direct-forwarded
+=== RUN   TestSEC013ProxyIPBoundary/trusted-cf
+=== RUN   TestSEC013ProxyIPBoundary/invalid-cf
+=== RUN   TestSEC013ProxyIPBoundary/duplicate-cf
+=== RUN   TestSEC013ProxyIPBoundary/disabled-cf
+=== RUN   TestSEC013ProxyIPBoundary/trusted-real-ip
+=== RUN   TestSEC013ProxyIPBoundary/duplicate-real-ip
+=== RUN   TestSEC013ProxyIPBoundary/multihop
+=== RUN   TestSEC013ProxyIPBoundary/untrusted-boundary
+=== RUN   TestSEC013ProxyIPBoundary/multiple-lines
+=== RUN   TestSEC013ProxyIPBoundary/malformed-hop
+=== RUN   TestSEC013ProxyIPBoundary/empty-hop
+=== RUN   TestSEC013ProxyIPBoundary/all-trusted-chain
+=== RUN   TestSEC013ProxyIPBoundary/ipv6-proxy
+=== RUN   TestSEC013ProxyIPBoundary/ipv6-direct
+=== RUN   TestSEC013ProxyIPBoundary/docker-explicit-peer
+=== RUN   TestSEC013ProxyIPBoundary/docker-other-peer
+=== RUN   TestSEC013ProxyIPBoundary/invalid-peer
+--- PASS: TestSEC013ProxyIPBoundary (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/direct-cf (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/direct-forwarded (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/trusted-cf (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/invalid-cf (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/duplicate-cf (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/disabled-cf (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/trusted-real-ip (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/duplicate-real-ip (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/multihop (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/untrusted-boundary (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/multiple-lines (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/malformed-hop (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/empty-hop (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/all-trusted-chain (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/ipv6-proxy (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/ipv6-direct (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/docker-explicit-peer (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/docker-other-peer (0.00s)
+    --- PASS: TestSEC013ProxyIPBoundary/invalid-peer (0.00s)
+=== RUN   TestSEC013DockerProxyConfiguration
+--- PASS: TestSEC013DockerProxyConfiguration (0.00s)
+PASS
+ok  	github.com/forceu/gokapi/internal/logging	0.082s
+=== RUN   TestSEC013DockerTrustRequiresOptIn
+--- PASS: TestSEC013DockerTrustRequiresOptIn (0.00s)
+PASS
+ok  	github.com/forceu/gokapi/internal/environment	0.004s
+=== RUN   TestSEC013HeaderAuthenticationPeer
+=== RUN   TestSEC013HeaderAuthenticationPeer/direct
+=== RUN   TestSEC013HeaderAuthenticationPeer/trusted
+=== RUN   TestSEC013HeaderAuthenticationPeer/missing
+=== RUN   TestSEC013HeaderAuthenticationPeer/duplicate
+=== RUN   TestSEC013HeaderAuthenticationPeer/unregistered
+=== RUN   TestSEC013HeaderAuthenticationPeer/ipv6-loopback
+=== RUN   TestSEC013HeaderAuthenticationPeer/ipv6-cidr
+=== RUN   TestSEC013HeaderAuthenticationPeer/ipv6-direct
+=== RUN   TestSEC013HeaderAuthenticationPeer/docker-proxy
+=== RUN   TestSEC013HeaderAuthenticationPeer/docker-neighbor
+=== RUN   TestSEC013HeaderAuthenticationPeer/invalid-peer
+--- PASS: TestSEC013HeaderAuthenticationPeer (0.00s)
+    --- PASS: TestSEC013HeaderAuthenticationPeer/direct (0.00s)
+    --- PASS: TestSEC013HeaderAuthenticationPeer/trusted (0.00s)
+    --- PASS: TestSEC013HeaderAuthenticationPeer/missing (0.00s)
+    --- PASS: TestSEC013HeaderAuthenticationPeer/duplicate (0.00s)
+    --- PASS: TestSEC013HeaderAuthenticationPeer/unregistered (0.00s)
+    --- PASS: TestSEC013HeaderAuthenticationPeer/ipv6-loopback (0.00s)
+    --- PASS: TestSEC013HeaderAuthenticationPeer/ipv6-cidr (0.00s)
+    --- PASS: TestSEC013HeaderAuthenticationPeer/ipv6-direct (0.00s)
+    --- PASS: TestSEC013HeaderAuthenticationPeer/docker-proxy (0.00s)
+    --- PASS: TestSEC013HeaderAuthenticationPeer/docker-neighbor (0.00s)
+    --- PASS: TestSEC013HeaderAuthenticationPeer/invalid-peer (0.00s)
+=== RUN   TestSEC013HeaderAuthenticationHTTP
+=== RUN   TestSEC013HeaderAuthenticationHTTP/direct
+=== RUN   TestSEC013HeaderAuthenticationHTTP/configured-proxy
+--- PASS: TestSEC013HeaderAuthenticationHTTP (0.05s)
+    --- PASS: TestSEC013HeaderAuthenticationHTTP/direct (0.04s)
+    --- PASS: TestSEC013HeaderAuthenticationHTTP/configured-proxy (0.02s)
+PASS
+ok  	github.com/forceu/gokapi/internal/webserver/authentication	0.135s

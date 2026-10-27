@@ -14,6 +14,7 @@ import (
 	"github.com/forceu/gokapi/internal/configuration"
 	"github.com/forceu/gokapi/internal/configuration/database"
 	"github.com/forceu/gokapi/internal/helper"
+	"github.com/forceu/gokapi/internal/logging"
 	"github.com/forceu/gokapi/internal/models"
 	"github.com/forceu/gokapi/internal/webserver/authentication/csrftoken"
 	"github.com/forceu/gokapi/internal/webserver/authentication/sessionmanager"
@@ -127,14 +128,17 @@ func IsAuthenticated(w http.ResponseWriter, r *http.Request) (models.User, bool,
 
 // isGrantedHeader returns true if the user was authenticated by a proxy header if enabled
 func isGrantedHeader(r *http.Request) (models.User, bool, error) {
+	if !logging.IsTrustedProxy(r) {
+		return models.User{}, false, errors.New("header authentication requires a trusted proxy")
+	}
 	if authSettings.HeaderKey == "" {
 		return models.User{}, false, errors.New("header key is not set")
 	}
-	userName := r.Header.Get(authSettings.HeaderKey)
-	if userName == "" {
+	values := r.Header.Values(authSettings.HeaderKey)
+	if len(values) != 1 || values[0] == "" {
 		return models.User{}, false, errors.New("header key is not set or empty")
 	}
-	return getOrCreateUser(userName)
+	return getOrCreateUser(values[0])
 }
 
 func matchesWithWildcard(pattern, input string) (bool, error) {

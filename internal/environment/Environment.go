@@ -34,8 +34,8 @@ type Environment struct {
 	DisableApiMenu bool `env:"DISABLE_API_MENU" envDefault:"false"`
 	// Disables the CORS check on startup and during setup, if set to true
 	DisableCorsCheck bool `env:"DISABLE_CORS_CHECK" envDefault:"false"`
-	// Disables automatically adding Docker subnet to trusted proxies, if set to true
-	DisableDockerTrustedProxy bool `env:"DISABLE_DOCKER_TRUSTED_PROXY" envDefault:"false"`
+	// Disables automatic Docker subnet trust by default; false is a legacy opt-in.
+	DisableDockerTrustedProxy bool `env:"DISABLE_DOCKER_TRUSTED_PROXY" envDefault:"true"`
 	// Sets the size of chunks that are uploaded in MB
 	ChunkSizeMB int `env:"CHUNK_SIZE_MB" envDefault:"45" onlyPositive:"true" persistent:"true"`
 	// Sets the length of the download IDs

@@ -173,3 +173,31 @@ SEC-012原M0 opt-in RED现迁入默认test组；SEC-040仍需显式security_red�
 兼容/发布/回滚详见[ADR-002](ADR-002-COOKIE-AND-PASSWORD-ROLLOUT.md)。本项无schema、身份或文件格式变化；旧Cookie需要维护窗口注销再登录，降回v2.2.4必须恢复配套备份。测试/PR通过不等于已发布镜像或M1全部完成。
 
 [PR #4](https://github.com/Activer007/Gokapi/pull/4) 创建于本 fork，初始提交 `f780a84f9e3ed59b8c2a560f48167724c3c890d8`。远端diff已逐项自审并记录COMMENT，不冒充独立审批；后续仅补PR链接和本说明。提交前gofmt、bash -n、diff --check和文档相对链接校验通过，新增证据及fixture的常见私钥/GitHub Token/AWS访问Key模式扫描无匹配；这是有限模式扫描，非全仓秘密审计。合并必须等待最终head的远端CI通过，动态结果以PR checks为准。
+
+SEC-012合并核实：PR #4最终head `bb2008ff755482f877d668c42902bb32c445fa3d`，合并提交 `7200526486d7a4b317043fe7056e6d279e1c92f3`。CI [40542126888](https://github.com/Activer007/Gokapi/actions/runs/40542126888)首轮通过；[40542116738](https://github.com/Activer007/Gokapi/actions/runs/40542116738)首轮FAIL于原有TestDeleteFile/Api_test.go:1108，固定200ms+900ms后记录仍存在；同SHA重跑通过，失败attempt及PR审查评论保留。两条最终CI均执行生成和官方四组，不能记成首次全绿或宣称删除问题已修。
+
+## M1 / SEC-013 可信代理
+
+2026-10-28，基线 `7200526486d7a4b317043fe7056e6d279e1c92f3`；WSL Ubuntu-24.04 / Go1.26.0 linux/amd64，PowerShell工作树。`run-sec013.sh` 从HEAD新建archive临时副本，仅叠加清单中的生产/测试文件，记录hash及脚本hash；没有生产配置/数据。测试非并行，完成后恢复环境和包级配置。
+
+| 命令 / 证据 | 真实结果 |
+| --- | --- |
+| `bash docs/security/tools/run-sec013.sh --red`，[sec013-lQ9aSZ](evidence/sec013-lQ9aSZ/results.tsv) | generate PASS；SEC013 FAIL，直接peer/CF/畸形与多行代理头、Header Auth、默认Docker网段信任出现预期断言失败；可信正例通过，是有效RED |
+| 首次修复完整回归，[sec013-QkoMZC](evidence/sec013-QkoMZC/results.tsv) | generate、SEC013、awsmock、noaws、integration、定向race全部PASS |
+| 增补真实HTTP与Docker模式断言后，[sec013-8pVkpv](evidence/sec013-8pVkpv/results.tsv) | generate、SEC013、noaws、integration、定向race PASS；awsmock FAIL仅原有TestDeleteFile/Api_test.go:1108，延迟记录仍存在，未改该生产实现/断言；原因仍VALIDATE |
+| 只重跑失败组：`bash docs/security/tools/run-sec013.sh --awsmock`，[sec013-yJt6Pn](evidence/sec013-yJt6Pn/results.tsv) | 新隔离副本generate及awsmock PASS，退出0；与8pVkpv叠加源码/测试hash相同，原失败保留。最终三组均已通过，不声称删除抖动已修 |
+
+真实命令：
+
+```sh
+go generate ./...
+go test ./internal/logging ./internal/environment ./internal/webserver/authentication -count=1 -tags=test,noaws -run TestSEC013 -v
+go test ./... -parallel 8 -count=1 -tags=test,awsmock
+go test ./... -parallel 8 -count=1 -tags=test,noaws
+go test ./... -count=1 -tags=test,noaws,integration
+go test -race ./internal/logging ./internal/environment ./internal/webserver/authentication -count=1 -tags=test,noaws -run TestSEC013
+```
+
+覆盖：不可信peer不能改变来源IP或通过Header Auth；CF/X-Real-IP重复/非法值被拒绝；多行XFF保留顺序、可信链从右向左到首个不可信跳点、畸形链退回peer、全可信链取最左端；IPv6回环/CIDR；Docker单代理地址/邻居拒绝/明确CIDR内外边界；默认不自动授信网段，显式旧选项仍可解析。Header已注册用户通过、未知用户拒绝、缺失/重复头拒绝，自动注册模式下未授权请求不创建用户。真实回环HTTP相同请求在未配置peer时返回401、显式配置后204及正确IP。
+
+仅为现有Header正例设置可信RemoteAddr；不删弱化负例。未更改数据库、密码哈希、OIDC账户关联、文件内容/删除、API或界面。普通三组继续包含SEC-010安装与SEC-012回调/迁移回归；Docker配置模拟不等于真实容器网络/非root上传下载。浏览器、真实容器、全仓race、govulncheck本轮NOT_RUN；无依赖修改，原vet告警保留。环境与代理迁移/回滚见[ADR-003](ADR-003-TRUSTED-PROXY-BOUNDARY.md)，M1剩余SEC-011/014未完成。

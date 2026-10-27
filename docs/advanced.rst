@@ -86,7 +86,7 @@ Available environment variables
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 | GOKAPI_DISABLE_CORS_CHECK           | Disables the CORS check on startup and during setup, if set to true                    | No              | false                       |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
-| GOKAPI_DISABLE_DOCKER_TRUSTED_PROXY | Disables automatically adding Docker subnet to trusted proxies, if set to true         | No              | false                       |
+| GOKAPI_DISABLE_DOCKER_TRUSTED_PROXY | Disables automatically adding Docker subnet to trusted proxies, if set to true         | No              | true (fork SEC-013)         |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 | GOKAPI_ENABLE_HOTLINK_VIDEOS        | Allow hotlinking of videos. Note: Due to buffering, playing a video might count as     | No              | false                       |
 |                                     |                                                                                        |                 |                             |
@@ -134,15 +134,15 @@ Available environment variables
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 | GOKAPI_PORT                         | Sets the webserver port                                                                | Yes             | 53842                       |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
-| GOKAPI_TRUSTED_PROXIES              | Sets a list of trusted proxies. If set, the webserver will trust the IP addresses sent | No              | 127.0.0.1                   |
+| GOKAPI_TRUSTED_PROXIES              | Trusts these peers for client IP and Header Authentication (fork SEC-013)              | No              | 127.0.0.1                   |
 |                                     |                                                                                        |                 |                             |
-|                                     | by these proxies with the X-Forwarded-For and X-REAL-IP header                         |                 |                             |
+|                                     | Covers X-Forwarded-For, X-Real-IP and enabled CF-Connecting-IP                         |                 |                             |
 |                                     |                                                                                        |                 |                             |
 |                                     | List is comma separated; entries can be fixed IPs ("10.0.0.1, 10.0.0.2")               |                 |                             |
 |                                     |                                                                                        |                 |                             |
 |                                     | and subnets ("10.0.0.0/24")                                                            |                 |                             |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
-| GOKAPI_USE_CLOUDFLARE               | Set this to true if you are using Cloudflare                                           | No              | false                       |
+| GOKAPI_USE_CLOUDFLARE               | Uses CF-Connecting-IP from trusted peers only (fork SEC-013)                           | No              | false                       |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 | TMPDIR                              | Sets the path which contains temporary files                                           | No              | Non-Docker: Default OS path |
 |                                     |                                                                                        |                 |                             |
