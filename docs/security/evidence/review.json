@@ -1,0 +1,7 @@
+{
+  "relativeLinks": "PASS",
+  "broken": [],
+  "knownSecretPatterns": "NO_MATCH",
+  "scope": "New docs/security and security fixture files only; synthetic values are intentional",
+  "trackedDiff": []
+}

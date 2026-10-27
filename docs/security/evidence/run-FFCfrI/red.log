@@ -1,0 +1,14 @@
+# github.com/forceu/gokapi/internal/test/securityfixture_test [github.com/forceu/gokapi/internal/test/securityfixture.test]
+internal/test/securityfixture/deletion_red_test.go:29:20: not enough arguments in call to database.SaveUser
+	have (models.User)
+	want (models.User, bool)
+--- FAIL: TestSEC010InitialSetupRequiresAuthorization (0.00s)
+    security_red_test.go:21: SEC-010: unauthenticated initial setup reaches configuration handler
+FAIL
+FAIL	github.com/forceu/gokapi/internal/configuration/setup	0.005s
+--- FAIL: TestSEC012HTTPSCookieRequiresSecure (0.00s)
+    security_red_test.go:21: SEC-012: HTTPS session cookie lacks Secure
+FAIL
+FAIL	github.com/forceu/gokapi/internal/webserver/authentication/sessionmanager	0.068s
+FAIL	github.com/forceu/gokapi/internal/test/securityfixture [build failed]
+FAIL

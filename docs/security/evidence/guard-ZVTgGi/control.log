@@ -1,0 +1,47 @@
+=== RUN   TestM0ActorBoundaries
+Rate limiting disabled for unit tests
+=== RUN   TestM0ActorBoundaries/sqlite
+=== RUN   TestM0ActorBoundaries/sqlite/anonymous
+=== RUN   TestM0ActorBoundaries/sqlite/owner
+=== RUN   TestM0ActorBoundaries/sqlite/admin
+=== RUN   TestM0ActorBoundaries/sqlite/cross-owner
+=== RUN   TestM0ActorBoundaries/sqlite/shared-blob-is-not-authority
+=== RUN   TestM0ActorBoundaries/sqlite/temporary
+=== RUN   TestM0ActorBoundaries/sqlite/expired-key
+=== RUN   TestM0ActorBoundaries/sqlite/request-key-on-management
+=== RUN   TestM0ActorBoundaries/sqlite/ordinary-key-on-request-route
+=== RUN   TestM0ActorBoundaries/redis
+Unable to check if Redis has persistence enabled.
+=== RUN   TestM0ActorBoundaries/redis/anonymous
+=== RUN   TestM0ActorBoundaries/redis/owner
+=== RUN   TestM0ActorBoundaries/redis/admin
+=== RUN   TestM0ActorBoundaries/redis/cross-owner
+=== RUN   TestM0ActorBoundaries/redis/shared-blob-is-not-authority
+=== RUN   TestM0ActorBoundaries/redis/temporary
+=== RUN   TestM0ActorBoundaries/redis/expired-key
+=== RUN   TestM0ActorBoundaries/redis/request-key-on-management
+=== RUN   TestM0ActorBoundaries/redis/ordinary-key-on-request-route
+Rate limiting disabled for unit tests
+--- PASS: TestM0ActorBoundaries (0.37s)
+    --- PASS: TestM0ActorBoundaries/sqlite (0.17s)
+        --- PASS: TestM0ActorBoundaries/sqlite/anonymous (0.00s)
+        --- PASS: TestM0ActorBoundaries/sqlite/owner (0.00s)
+        --- PASS: TestM0ActorBoundaries/sqlite/admin (0.00s)
+        --- PASS: TestM0ActorBoundaries/sqlite/cross-owner (0.00s)
+        --- PASS: TestM0ActorBoundaries/sqlite/shared-blob-is-not-authority (0.00s)
+        --- PASS: TestM0ActorBoundaries/sqlite/temporary (0.00s)
+        --- PASS: TestM0ActorBoundaries/sqlite/expired-key (0.00s)
+        --- PASS: TestM0ActorBoundaries/sqlite/request-key-on-management (0.00s)
+        --- PASS: TestM0ActorBoundaries/sqlite/ordinary-key-on-request-route (0.00s)
+    --- PASS: TestM0ActorBoundaries/redis (0.13s)
+        --- PASS: TestM0ActorBoundaries/redis/anonymous (0.00s)
+        --- PASS: TestM0ActorBoundaries/redis/owner (0.00s)
+        --- PASS: TestM0ActorBoundaries/redis/admin (0.00s)
+        --- PASS: TestM0ActorBoundaries/redis/cross-owner (0.00s)
+        --- PASS: TestM0ActorBoundaries/redis/shared-blob-is-not-authority (0.00s)
+        --- PASS: TestM0ActorBoundaries/redis/temporary (0.00s)
+        --- PASS: TestM0ActorBoundaries/redis/expired-key (0.00s)
+        --- PASS: TestM0ActorBoundaries/redis/request-key-on-management (0.00s)
+        --- PASS: TestM0ActorBoundaries/redis/ordinary-key-on-request-route (0.00s)
+PASS
+ok  	github.com/forceu/gokapi/internal/test/securityfixture	0.376s

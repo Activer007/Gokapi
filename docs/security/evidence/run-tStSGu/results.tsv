@@ -1,0 +1,6 @@
+environment	0
+generate	0
+awsmock	1
+noaws	1
+integration	1
+vet	1

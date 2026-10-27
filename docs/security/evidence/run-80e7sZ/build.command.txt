@@ -1,0 +1,1 @@
+go build -o ./gokapi-m0 ./cmd/gokapi
