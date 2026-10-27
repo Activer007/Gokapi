@@ -1,0 +1,57 @@
+Binding webserver to 127.0.0.1:53843
+Webserver can be accessed at http://127.0.0.1:53843/admin
+Press CTRL+C to stop Gokapi
+Rate limiting disabled for unit tests
+=== RUN   TestSEC014SlowHeader
+--- PASS: TestSEC014SlowHeader (5.00s)
+=== RUN   TestSEC014CancelledLoginDoesNotAuthenticate
+--- PASS: TestSEC014CancelledLoginDoesNotAuthenticate (0.00s)
+=== RUN   TestSEC014LargeUploadAndSSE
+--- PASS: TestSEC014LargeUploadAndSSE (31.23s)
+=== RUN   TestSEC014ManagementSlowBody
+Invalid form data sent to server for /login
+read tcp 127.0.0.1:53843->127.0.0.1:48348: i/o timeout
+--- PASS: TestSEC014ManagementSlowBody (30.03s)
+=== RUN   TestSEC014RouteBudgetMatrix
+--- PASS: TestSEC014RouteBudgetMatrix (0.00s)
+=== RUN   TestSEC014BudgetDoesNotLeakAcrossKeepAlive
+--- PASS: TestSEC014BudgetDoesNotLeakAcrossKeepAlive (0.17s)
+PASS
+ok  	github.com/forceu/gokapi/internal/webserver	67.542s
+Rate limiting disabled for unit tests
+=== RUN   TestSEC014CancelledAPIKeyDoesNotAuthorize
+--- PASS: TestSEC014CancelledAPIKeyDoesNotAuthorize (0.01s)
+=== RUN   TestSEC014APIBudgetMatrix
+--- PASS: TestSEC014APIBudgetMatrix (0.00s)
+PASS
+ok  	github.com/forceu/gokapi/internal/webserver/api	0.126s
+=== RUN   TestSEC014CanceledCallbackDoesNotExchange
+--- PASS: TestSEC014CanceledCallbackDoesNotExchange (0.06s)
+=== RUN   TestSEC014CallbackDeadlineReachesProvider
+=== RUN   TestSEC014CallbackDeadlineReachesProvider/token
+=== RUN   TestSEC014CallbackDeadlineReachesProvider/userinfo
+--- PASS: TestSEC014CallbackDeadlineReachesProvider (0.35s)
+    --- PASS: TestSEC014CallbackDeadlineReachesProvider/token (0.18s)
+    --- PASS: TestSEC014CallbackDeadlineReachesProvider/userinfo (0.17s)
+=== RUN   TestSEC012CallbackThroughProxy
+=== RUN   TestSEC012CallbackThroughProxy/http-development
+=== RUN   TestSEC012CallbackThroughProxy/https-proxy
+--- PASS: TestSEC012CallbackThroughProxy (0.16s)
+    --- PASS: TestSEC012CallbackThroughProxy/http-development (0.07s)
+    --- PASS: TestSEC012CallbackThroughProxy/https-proxy (0.09s)
+=== RUN   TestSEC012CallbackCookieTransport
+--- PASS: TestSEC012CallbackCookieTransport (0.00s)
+PASS
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/oauth	0.673s
+=== RUN   TestSEC014BudgetContext
+--- PASS: TestSEC014BudgetContext (0.02s)
+=== RUN   TestSEC014BudgetSlowRead
+=== RUN   TestSEC014BudgetSlowRead/http1
+=== RUN   TestSEC014BudgetSlowRead/http2
+--- PASS: TestSEC014BudgetSlowRead (0.28s)
+    --- PASS: TestSEC014BudgetSlowRead/http1 (0.14s)
+    --- PASS: TestSEC014BudgetSlowRead/http2 (0.14s)
+=== RUN   TestSEC014BudgetSlowWrite
+--- PASS: TestSEC014BudgetSlowWrite (0.12s)
+PASS
+ok  	github.com/forceu/gokapi/internal/webserver/requestbudget	0.415s

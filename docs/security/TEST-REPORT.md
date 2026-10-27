@@ -277,3 +277,32 @@ M1逐项复核：SEC-010未授权初始化、SEC-012 Cookie/HTTP与TLS回调/旧
 提交前Python AST、bash -n、git diff --check、文档相对链接校验通过；本轮新增证据常见私钥/GitHub Token/AWS访问Key/Authorization/session Cookie模式扫描无匹配（有限扫描，非全仓秘密审计）。测试脚本自审核对了容器ID/卷标签清理范围、安装前日志范围、镜像复用来源标注、固定端口和匿名重启就绪检查。
 
 [PR #7](https://github.com/Activer007/Gokapi/pull/7)初始提交5e611a211b050b91084a716935be863bfe7e835a；远端diff已自审并记录COMMENT，非独立审批。提交后用默认git archive HEAD读取dockerentry.sh字节，确认无CR、LF属性生效。本次后续仅补PR/审查记录，最终head CI成功后合并，动态状态以PR checks为准。
+
+SEC-011合并核实：PR #7最终head ccb7c7aac44dd90037e1f653110b45a15a2b22e8，CI [40553793808](https://github.com/Activer007/Gokapi/actions/runs/40553793808) / [40553783138](https://github.com/Activer007/Gokapi/actions/runs/40553783138)成功，含generate与官方四组；合并863fdb5442e8709e1639dfaa50ea26232eff7ec4，本地master已核实同步。
+
+## M1 / SEC-014 管理请求预算补充
+
+基线863fdb5442e8709e1639dfaa50ea26232eff7ec4；2026-10-28；WSL Ubuntu24.04 / Go1.26.0 linux/amd64。run-sec014-budget.sh在新archive副本叠加明确清单，记录源码/runner hash，使用合成账号/IdP/文件；不操作生产数据。
+
+| 命令/证据 | 真实结果 |
+| --- | --- |
+| `bash docs/security/tools/run-sec014-budget.sh --red`，[jvpaI0](evidence/sec014-budget-jvpaI0/results.tsv) | generate PASS；目标FAIL：完整头后的/login正文超过35秒仍等待；已取消回调仍联系Token端点。原HTTP/TLS回调正例PASS，有效RED |
+| 首次完整执行，[p5ypuG](evidence/sec014-budget-p5ypuG/results.tsv) | generate、目标、三组、定向race各命令均PASS；但运行中的shell文件被修改，收尾读偏移错乱，额外命令125及语法错误，整轮FAIL/退出1。保留原results、额外命令日志与说明，不能称整轮通过 |
+| 最终完整重跑，[DJeLeh](evidence/sec014-budget-DJeLeh/results.tsv) | environment、generate、目标、awsmock、noaws、integration、定向race全部PASS，脚本退出0。脚本整个run_suite函数在执行前解析；测试审查补强了回调协程清理和慢正文最短等待断言 |
+
+真实命令：
+
+```sh
+go generate ./...
+go test ./internal/webserver ./internal/webserver/api ./internal/webserver/authentication/oauth ./internal/webserver/requestbudget -count=1 -tags=test,noaws -run 'TestSEC014|TestSEC012Callback' -v
+go test ./... -parallel 8 -count=1 -tags=test,awsmock
+go test ./... -parallel 8 -count=1 -tags=test,noaws
+go test ./... -count=1 -tags=test,noaws,integration
+go test -race ./internal/webserver ./internal/webserver/api ./internal/webserver/authentication/oauth ./internal/webserver/requestbudget -count=1 -tags=test,noaws -run 'TestSEC014|TestSEC012Callback'
+```
+
+覆盖：真实应用/login慢正文在约30秒结束，未发会话；管理/传输页面与全部API路由分类，错误路径不获得传输预算；HTTP/1和真实协商HTTP/2慢读退出；不读取响应的TCP客户端不能使管理写阻塞超过预算；正常管理请求后同一keep-alive连接仍完成超出短预算的文件响应，PathValue保留。IdP Token/UserInfo两个阶段的真实HTTP连接随请求deadline断开，取消回调不兑换、不授予会话，HTTP/TLS反代回调仍正常。实际16,896,000字节multipart上传暂停31秒，SSE同连接继续接收事件，下载长度/SHA256一致。
+
+不是强制抢占：预算约束网络I/O及响应Context的调用，已开始且不响应Context的CPU/DB/存储工作可能继续，不自动撤销写入、不保证特定超时状态码。没有新增后台处理器或响应缓存；权限判断、公开HTTP路径、schema、密码、OIDC身份关联和物理删除不变。安装服务原2分钟预算保留。补充兼容与回滚见ADR-004。全仓race、govulncheck、100GB/真实代理负载/浏览器/生产冷恢复本轮NOT_RUN；无依赖修改，原vet问题仍在。
+
+提交前gofmt、bash -n、diff --check、文档相对链接通过；新增证据常见私钥/GitHub Token/AWS访问Key/Authorization/session Cookie模式无匹配（有限扫描）。只读上游timeout PR检索无结果。默认镜像USER仍root，完整Go回归继续覆盖SEC-010安装/重配、SEC-012 Cookie/旧密码、SEC-013代理边界；本轮提交后的最终镜像尚待重建并复跑SEC-011，合并以最终PR checks为准。
