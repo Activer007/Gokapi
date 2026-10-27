@@ -1,0 +1,8 @@
+compose-explicit-nonroot	PASS
+compose-loopback-publication	PASS
+compose-no-legacy-chown	PASS
+image-default-user	root (unchanged)
+fresh-GOKAPI_DATA_VOLUME	PASS
+fresh-GOKAPI_CONFIG_VOLUME	PASS
+container-created	PASS
+failure	AssertionError: wrong-owner-startup-rejected

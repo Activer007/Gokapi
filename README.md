@@ -53,6 +53,8 @@ Fork builds containing SEC-010 require username `setup` and the password from th
 
 Before upgrading to fork builds containing SEC-013, explicitly configure the reverse proxy IP/CIDR in `GOKAPI_TRUSTED_PROXIES`. Header authentication and client IP headers require a trusted immediate peer; automatic trust of the entire Docker subnet is disabled by default. See [proxy migration and rollback](docs/security/ADR-003-TRUSTED-PROXY-BOUNDARY.md).
 
+For an explicit non-root deployment of this fork, use [docker-compose.nonroot.yaml](docker-compose.nonroot.yaml) with the [fresh-volume preparation instructions](docs/setup.rst) and a locally built/tested fork image. The original image default user is unchanged; existing volumes require a copy-and-verify migration, not automatic recursive permission changes. See [ADR-005](docs/security/ADR-005-NONROOT-COMPOSE.md).
+
 
 
 ## Screenshots

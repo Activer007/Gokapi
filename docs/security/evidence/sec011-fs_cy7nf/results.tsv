@@ -1,0 +1,4 @@
+compose-explicit-nonroot	PASS
+compose-loopback-publication	PASS
+compose-no-legacy-chown	PASS
+failure	AssertionError: archive-image-build

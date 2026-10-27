@@ -1,0 +1,1 @@
+{"Status": "exited", "Running": false, "Paused": false, "Restarting": false, "OOMKilled": false, "Dead": false, "Pid": 0, "ExitCode": 127, "Error": "", "StartedAt": "2026-10-27T17:35:17.70573931Z", "FinishedAt": "2026-10-27T17:35:17.888997107Z", "Health": {"Status": "unhealthy", "FailingStreak": 0, "Log": []}}

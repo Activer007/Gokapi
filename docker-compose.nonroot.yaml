@@ -1,0 +1,30 @@
+# Standalone opt-in profile for this fork. Prepare fresh volumes first; see docs/setup.rst.
+# Require an explicitly selected local build or immutable image reference.
+services:
+  gokapi:
+    image: ${GOKAPI_IMAGE:?Set GOKAPI_IMAGE to your tested fork image}
+    user: "${GOKAPI_UID:-10001}:${GOKAPI_GID:-10001}"
+    ports:
+      - "127.0.0.1:${GOKAPI_PORT:-53842}:53842"
+    environment:
+      TZ: UTC
+      DOCKER_NONROOT: "false"
+      GOKAPI_CONFIG_DIR: /app/config
+      GOKAPI_DATA_DIR: /app/data
+      GOKAPI_DISABLE_DOCKER_TRUSTED_PROXY: "true"
+    volumes:
+      - data:/app/data
+      - config:/app/config
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+volumes:
+  data:
+    external: true
+    name: ${GOKAPI_DATA_VOLUME:?Set GOKAPI_DATA_VOLUME to your prepared data volume}
+  config:
+    external: true
+    name: ${GOKAPI_CONFIG_VOLUME:?Set GOKAPI_CONFIG_VOLUME to your prepared config volume}

@@ -110,6 +110,50 @@ The ``gokapi-data`` and ``gokapi-config`` folders are created automatically in t
 
 By default the container restarts automatically on boot (``restart: always``). Change to ``restart: unless-stopped`` if you only want automatic restart after a crash.
 
+Fork non-root Compose (SEC-011)
+"""""""""""""""""""""""""""""""
+
+``docker-compose.nonroot.yaml`` is a standalone, opt-in profile for this fork. It starts the application and entrypoint as UID/GID ``10001:10001``, disables the legacy recursive permission-changing entrypoint, and publishes only on host loopback. The image default user and the original Compose file remain unchanged. The upstream ``f0rc3/gokapi`` image does not contain this fork's changes.
+
+For a **new installation**, build your reviewed checkout and prepare two **new, empty** named volumes. These Linux shell commands refuse existing volume names. Use different names if they already exist; never substitute production volumes into the preparation helper.
+
+.. code-block:: bash
+
+   set -euo pipefail
+   export GOKAPI_IMAGE=gokapi-local:sec011
+   export GOKAPI_UID=10001 GOKAPI_GID=10001
+   export GOKAPI_DATA_VOLUME=gokapi-sec011-data
+   export GOKAPI_CONFIG_VOLUME=gokapi-sec011-config
+   git -c core.autocrlf=false archive HEAD | docker build -t "$GOKAPI_IMAGE" -
+
+   if docker volume inspect "$GOKAPI_DATA_VOLUME" >/dev/null 2>&1 || \
+      docker volume inspect "$GOKAPI_CONFIG_VOLUME" >/dev/null 2>&1; then
+       echo 'Choose fresh volume names; existing volumes require a migration plan.'
+       exit 1
+   fi
+   docker volume create "$GOKAPI_DATA_VOLUME"
+   docker volume create "$GOKAPI_CONFIG_VOLUME"
+   docker run --rm --user 0:0 --entrypoint sh \
+     -v "$GOKAPI_DATA_VOLUME:/fixture/data" \
+     -v "$GOKAPI_CONFIG_VOLUME:/fixture/config" \
+     "$GOKAPI_IMAGE" -ec '
+       test -z "$(ls -A /fixture/data)"
+       test -z "$(ls -A /fixture/config)"
+       chown 10001:10001 /fixture/data /fixture/config
+       chmod 700 /fixture/data /fixture/config
+     '
+   docker compose -f docker-compose.nonroot.yaml up -d --pull never
+
+The one-time helper runs as root only to prepare the two empty volume directory entries; it does not recurse. The service itself starts as the selected non-root user. If choosing different numeric IDs, change both the helper and Compose variables consistently; neither ID may be zero. Save the image ID and chosen settings with your deployment records. For distributed releases, use a tested digest from your own image namespace; this fork has not published an image.
+
+Keep these exports in a private deployment environment file if needed and pass it explicitly with ``--env-file``. It needs image, UID/GID and volume names, not passwords. The profile does not import the original ``.env`` into the container. Add required Redis/S3/proxy settings explicitly in your deployment configuration; never enable ``DOCKER_NONROOT=true`` with this profile. Configure trusted proxy addresses according to the reverse proxy section.
+
+Read the bootstrap proof as described below using ``docker compose -f docker-compose.nonroot.yaml exec gokapi ...`` and the exact printed file path. Choose a SQLite path within the config volume, such as ``/app/config/gokapi.sqlite``. The image filesystem is read-only; data, logs and temporary uploads remain writable under ``/app/data``. Port ``53842`` is published on loopback by default; ``GOKAPI_PORT`` changes the host port. Use HTTPS or an SSH tunnel for remote setup.
+
+The volumes are external: Compose refuses missing volumes and ``down`` retains them. Back up config/DB, data and encryption keys together. The existing ``docker --user`` bind-mount example remains supported, but Linux directories must already be owned and writable by that numeric user; Windows bind-mount permissions do not prove Linux volume permissions.
+
+For **existing data**, stop writes, record the old image/UID/mounts, and take a consistent backup. Copy to independent volumes or directories, inspect the copies, and adjust ownership there only after verifying paths and contents. Do not use the fresh-volume helper on old data. Test login, upload, download and restart against the copy before switching. Roll back to the old image and original mounts only after accounting for writes made after the switch. See ``docs/security/ADR-005-NONROOT-COMPOSE.md`` for compatibility limits; old password-format rollback also requires ADR-002.
+
 Native Deployment
 """""""""""""""""
 

@@ -1,0 +1,187 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load remote build context
+#1 DONE 0.8s
+
+#1 [internal] load remote build context
+#1 CACHED
+
+#2 copy /context /
+#2 CACHED
+
+#3 [internal] load metadata for docker.io/library/alpine:3.23
+#3 DONE 3.8s
+
+#4 [internal] load metadata for docker.io/library/golang:1.26.2-alpine
+#4 DONE 3.8s
+
+#5 [build_base 1/4] FROM docker.io/library/golang:1.26.2-alpine@sha256:f85330846cde1e57ca9ec309382da3b8e6ae3ab943d2739500e08c86393a21b1
+#5 resolve docker.io/library/golang:1.26.2-alpine@sha256:f85330846cde1e57ca9ec309382da3b8e6ae3ab943d2739500e08c86393a21b1 0.0s done
+#5 DONE 0.1s
+
+#6 [stage-1 1/6] FROM docker.io/library/alpine:3.23@sha256:ff7f0c727dd796aa36787bfcd9a64bf35a6ce72a73451b3359fde849b6703d63
+#6 resolve docker.io/library/alpine:3.23@sha256:ff7f0c727dd796aa36787bfcd9a64bf35a6ce72a73451b3359fde849b6703d63 0.0s done
+#6 sha256:5e9b4a97f6395abf54a5c584be133078deb2295e280dd0b9e77638874d07b637 0B / 3.85MB 0.2s
+#6 sha256:5e9b4a97f6395abf54a5c584be133078deb2295e280dd0b9e77638874d07b637 1.05MB / 3.85MB 2.0s
+#6 sha256:5e9b4a97f6395abf54a5c584be133078deb2295e280dd0b9e77638874d07b637 2.10MB / 3.85MB 2.7s
+#6 sha256:5e9b4a97f6395abf54a5c584be133078deb2295e280dd0b9e77638874d07b637 3.15MB / 3.85MB 2.9s
+#6 sha256:5e9b4a97f6395abf54a5c584be133078deb2295e280dd0b9e77638874d07b637 3.85MB / 3.85MB 3.1s done
+#6 extracting sha256:5e9b4a97f6395abf54a5c584be133078deb2295e280dd0b9e77638874d07b637 0.1s done
+#6 DONE 3.2s
+
+#7 [stage-1 2/6] RUN addgroup -S gokapi && adduser -S gokapi -G gokapi
+#7 DONE 0.3s
+
+#8 [stage-1 3/6] RUN apk update && apk add --no-cache su-exec tini ca-certificates curl tzdata && 	 mkdir /app && touch /app/.isdocker
+#8 4.440 v3.23.7-21-g6e7e52d7b40 [https://dl-cdn.alpinelinux.org/alpine/v3.23/main]
+#8 4.440 v3.23.7-15-g4446b327304 [https://dl-cdn.alpinelinux.org/alpine/v3.23/community]
+#8 4.440 OK: 27586 distinct packages available
+#8 ...
+
+#5 [build_base 1/4] FROM docker.io/library/golang:1.26.2-alpine@sha256:f85330846cde1e57ca9ec309382da3b8e6ae3ab943d2739500e08c86393a21b1
+#5 sha256:973f1b4898e9c2c22c54ff9d1bc2e2d45d59d4c2e53c60281dde84ef43df4c79 126B / 126B 0.4s done
+#5 sha256:b55da06e3b41084804b2e5dbba71d35d26478b19ba8055d07a393cae22e9935f 19.92MB / 67.22MB 8.6s
+#5 sha256:4c3aca1499f06ff02939c8f744463049feecb3965f1319b86b5e91790a9631e6 290.24kB / 290.24kB 2.2s done
+#5 extracting sha256:4c3aca1499f06ff02939c8f744463049feecb3965f1319b86b5e91790a9631e6 0.1s done
+#5 sha256:b55da06e3b41084804b2e5dbba71d35d26478b19ba8055d07a393cae22e9935f 24.12MB / 67.22MB 9.9s
+#5 ...
+
+#8 [stage-1 3/6] RUN apk update && apk add --no-cache su-exec tini ca-certificates curl tzdata && 	 mkdir /app && touch /app/.isdocker
+#8 7.207 ( 1/13) Installing ca-certificates (20261020-r0)
+#8 7.393 ( 2/13) Installing brotli-libs (1.2.1-r0)
+#8 7.610 ( 3/13) Installing c-ares (1.34.9-r0)
+#8 8.039 ( 4/13) Installing libunistring (1.4.1-r0)
+#8 8.275 ( 5/13) Installing libidn2 (2.3.8-r0)
+#8 8.470 ( 6/13) Installing nghttp2-libs (1.69.0-r0)
+#8 8.888 ( 7/13) Installing libpsl (0.21.5-r3)
+#8 9.069 ( 8/13) Installing zstd-libs (1.5.7-r2)
+#8 9.311 ( 9/13) Installing libcurl (8.23.0-r0)
+#8 9.565 (10/13) Installing curl (8.23.0-r0)
+#8 9.773 (11/13) Installing su-exec (0.3-r0)
+#8 9.953 (12/13) Installing tini (0.19.0-r3)
+#8 10.13 (13/13) Installing tzdata (2026e-r0)
+#8 10.35 Executing busybox-1.37.0-r30.trigger
+#8 10.36 Executing ca-certificates-20261020-r0.trigger
+#8 10.38 OK: 13.7 MiB in 29 packages
+#8 DONE 10.4s
+
+#9 [stage-1 4/6] COPY dockerentry.sh /app/run.sh
+#9 DONE 0.0s
+
+#5 [build_base 1/4] FROM docker.io/library/golang:1.26.2-alpine@sha256:f85330846cde1e57ca9ec309382da3b8e6ae3ab943d2739500e08c86393a21b1
+#5 sha256:b55da06e3b41084804b2e5dbba71d35d26478b19ba8055d07a393cae22e9935f 36.70MB / 67.22MB 14.0s
+#5 sha256:b55da06e3b41084804b2e5dbba71d35d26478b19ba8055d07a393cae22e9935f 41.94MB / 67.22MB 15.3s
+#5 sha256:b55da06e3b41084804b2e5dbba71d35d26478b19ba8055d07a393cae22e9935f 47.19MB / 67.22MB 16.7s
+#5 sha256:b55da06e3b41084804b2e5dbba71d35d26478b19ba8055d07a393cae22e9935f 51.38MB / 67.22MB 18.0s
+#5 sha256:b55da06e3b41084804b2e5dbba71d35d26478b19ba8055d07a393cae22e9935f 55.57MB / 67.22MB 19.2s
+#5 sha256:b55da06e3b41084804b2e5dbba71d35d26478b19ba8055d07a393cae22e9935f 59.77MB / 67.22MB 20.3s
+#5 sha256:b55da06e3b41084804b2e5dbba71d35d26478b19ba8055d07a393cae22e9935f 63.96MB / 67.22MB 21.0s
+#5 sha256:b55da06e3b41084804b2e5dbba71d35d26478b19ba8055d07a393cae22e9935f 67.22MB / 67.22MB 22.3s done
+#5 extracting sha256:b55da06e3b41084804b2e5dbba71d35d26478b19ba8055d07a393cae22e9935f
+#5 extracting sha256:b55da06e3b41084804b2e5dbba71d35d26478b19ba8055d07a393cae22e9935f 1.8s done
+#5 DONE 24.2s
+
+#5 [build_base 1/4] FROM docker.io/library/golang:1.26.2-alpine@sha256:f85330846cde1e57ca9ec309382da3b8e6ae3ab943d2739500e08c86393a21b1
+#5 extracting sha256:973f1b4898e9c2c22c54ff9d1bc2e2d45d59d4c2e53c60281dde84ef43df4c79 0.0s done
+#5 extracting sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1 0.0s done
+#5 DONE 24.2s
+
+#10 [build_base 2/4] RUN mkdir /compile && apk update && apk add --no-cache git
+#10 3.582 v3.23.7-21-g6e7e52d7b40 [https://dl-cdn.alpinelinux.org/alpine/v3.23/main]
+#10 3.582 v3.23.7-15-g4446b327304 [https://dl-cdn.alpinelinux.org/alpine/v3.23/community]
+#10 3.582 OK: 27596 distinct packages available
+#10 8.102 ( 1/12) Installing brotli-libs (1.2.1-r0)
+#10 8.760 ( 2/12) Installing c-ares (1.34.9-r0)
+#10 8.968 ( 3/12) Installing libunistring (1.4.1-r0)
+#10 9.510 ( 4/12) Installing libidn2 (2.3.8-r0)
+#10 9.717 ( 5/12) Installing nghttp2-libs (1.69.0-r0)
+#10 10.11 ( 6/12) Installing libpsl (0.21.5-r3)
+#10 10.30 ( 7/12) Installing zstd-libs (1.5.7-r2)
+#10 10.81 ( 8/12) Installing libcurl (8.23.0-r0)
+#10 11.09 ( 9/12) Installing libexpat (2.9.0-r0)
+#10 11.50 (10/12) Installing pcre2 (10.49-r0)
+#10 11.77 (11/12) Installing git (2.52.0-r0)
+#10 13.13 (12/12) Installing git-init-template (2.52.0-r0)
+#10 13.30 Executing busybox-1.37.0-r30.trigger
+#10 13.31 OK: 20.5 MiB in 29 packages
+#10 DONE 13.5s
+
+#11 [build_base 3/4] COPY . /compile
+#11 DONE 0.1s
+
+#12 [build_base 4/4] RUN cd /compile && go generate ./... && CGO_ENABLED=0 go build -ldflags="-s -w -X 'github.com/forceu/gokapi/internal/environment.IsDocker=true' -X 'github.com/forceu/gokapi/internal/environment.Builder=Project Docker File' -X 'github.com/forceu/gokapi/internal/environment.BuildTime=$(date)'" -o /compile/gokapi github.com/forceu/gokapi/cmd/gokapi
+#12 0.179 go: downloading modernc.org/sqlite v1.58.0
+#12 0.179 go: downloading github.com/caarlos0/env/v6 v6.10.1
+#12 0.180 go: downloading github.com/secure-io/sio-go v0.3.1
+#12 0.184 go: downloading golang.org/x/term v0.46.0
+#12 0.184 go: downloading github.com/schollz/progressbar/v3 v3.19.1
+#12 0.184 go: downloading golang.org/x/crypto v0.57.0
+#12 0.185 go: downloading github.com/aws/aws-sdk-go v1.55.8
+#12 0.186 go: downloading gopkg.in/yaml.v3 v3.0.1
+#12 0.188 go: downloading github.com/gomodule/redigo v1.9.3
+#12 0.189 go: downloading github.com/shirou/gopsutil/v4 v4.26.8
+#12 0.190 go: downloading github.com/jinzhu/copier v0.4.0
+#12 3.601 go: downloading github.com/NYTimes/gziphandler v1.1.1
+#12 3.619 go: downloading github.com/coreos/go-oidc/v3 v3.21.0
+#12 3.725 go: downloading github.com/Kodeworks/golang-image-ico v0.0.0-20141118225523-73f0f4cfade9
+#12 3.725 go: downloading golang.org/x/time v0.16.0
+#12 3.725 go: downloading golang.org/x/oauth2 v0.37.0
+#12 3.728 go: downloading golang.org/x/image v0.46.0
+#12 5.019 go: downloading github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
+#12 5.019 go: downloading golang.org/x/sys v0.48.0
+#12 5.019 go: downloading github.com/rivo/uniseg v0.4.7
+#12 5.019 go: downloading github.com/tklauser/go-sysconf v0.4.0
+#12 5.024 go: downloading github.com/go-jose/go-jose/v4 v4.1.4
+#12 5.945 go: downloading github.com/tklauser/numcpus v0.12.0
+#12 21.53 go: downloading modernc.org/libc v1.75.7
+#12 30.14 go: downloading github.com/jmespath/go-jmespath v0.4.0
+#12 32.42 go: downloading modernc.org/mathutil v1.7.1
+#12 32.42 go: downloading modernc.org/memory v1.12.1
+#12 32.42 go: downloading github.com/dustin/go-humanize v1.0.1
+#12 32.42 go: downloading github.com/google/uuid v1.6.0
+#12 32.80 go: downloading github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec
+#12 35.72 Updated API version in openapi.json
+#12 35.72 Updated version template
+#12 35.72 Updated minify go file
+#12 35.72 Updated API version template
+#12 35.74 go: downloading golang.org/x/exp v0.0.0-20260908205506-85c1c2202aba
+#12 38.49 Updated protected URLs variable
+#12 38.88 Updated environment variables documentation
+#12 39.16 Updated API parsing
+#12 44.66 Compiled Downloader WASM module
+#12 45.02 Compiled E2E WASM module
+#12 45.39 Copied wasm_exec.js
+#12 45.39 Copied go.mod
+#12 45.39 Copied openapi.json
+#12 45.39 go: downloading github.com/tdewolff/minify/v2 v2.24.17
+#12 49.42 go: downloading github.com/tdewolff/parse/v2 v2.8.16
+#12 52.95 Minified Main CSS
+#12 52.96 Minified Admin JS
+#12 52.96 Minified Admin E2E JS
+#12 52.96 Minified Download E2E JS
+#12 52.96 Minified Streamsaver JS
+#12 52.96 Minified SSE Worker JS
+#12 52.96 Minified wasm_exec JS
+#12 52.96 Minified Public functions JS
+#12 52.96 Minified Public upload JS
+#12 DONE 66.1s
+
+#13 [stage-1 5/6] COPY --from=build_base /compile/gokapi /app/gokapi
+#13 DONE 0.1s
+
+#14 [stage-1 6/6] WORKDIR /app
+#14 DONE 0.0s
+
+#15 exporting to image
+#15 exporting layers
+#15 exporting layers 1.7s done
+#15 exporting manifest sha256:755f1a2a7869f2dd3a08f8d154c128f11d18ad7cf6f425070f1cb35ee5cc7438 done
+#15 exporting config sha256:5f9dd6f0c7530bad3a4be8d8443d3d9d53a79279107a141ce3e6c7797e1fbcfb done
+#15 exporting attestation manifest sha256:efa31b250fab2925d410bb81af4eebe62b2668782f31cc94dacac2f770f711d8 0.0s done
+#15 exporting manifest list sha256:893f63ce9412d3c6df6a7bc77785aa54ec26a77e29ec4784db26e5d91fa8c9ab 0.0s done
+#15 naming to docker.io/library/gokapi-sec011:462c5d57dc42 done
+#15 unpacking to docker.io/library/gokapi-sec011:462c5d57dc42
+#15 unpacking to docker.io/library/gokapi-sec011:462c5d57dc42 0.4s done
+#15 DONE 2.2s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/e3qv2ot48b50tgqf951sg1znb

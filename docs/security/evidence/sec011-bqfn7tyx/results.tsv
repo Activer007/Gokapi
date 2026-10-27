@@ -1,0 +1,25 @@
+compose-explicit-nonroot	PASS
+compose-loopback-publication	PASS
+compose-no-legacy-chown	PASS
+image-default-user	root (unchanged)
+fresh-GOKAPI_DATA_VOLUME	PASS
+fresh-GOKAPI_CONFIG_VOLUME	PASS
+container-created	PASS
+wrong-owner-startup-rejected	PASS
+wrong-owner-not-mutated	PASS
+runtime-loopback-publication	PASS
+runtime-uid	PASS
+runtime-gid	PASS
+application-process-uid	PASS
+runtime-privilege-restrictions	PASS
+bootstrap-proof-owner-only	PASS
+setup-without-proof-denied	PASS
+unauthorized-no-config	PASS
+authorized-setup	PASS
+nonroot-login	PASS
+upload-token	PASS
+nonroot-upload	PASS
+nonroot-download-sha256	PASS
+restart-persistent-download	PASS
+existing-config-no-new-bootstrap	PASS
+gate	PASS (local storage / SQLite / real Docker)
