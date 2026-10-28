@@ -197,3 +197,5 @@ SEC-030纯计算：在SEC-031提交bfd4998上新增uploadquota，按metadata逻�
 2026-10-29 SEC-030持久基础，起点357670c：SQLite16/Redis9增加有界预约账本，当前metadata现算used，事务/CAS检验所有范围并原子提交完成metadata。CONFIRMED_CODE范围及证据见[ADR-014](ADR-014-DURABLE-UPLOAD-RESERVATIONS.md)/TEST-REPORT；没有接入HTTP上传或启用默认额度。旧MaxSize不重释；迁库拒绝活动预约、非空应用目标及部分损坏状态。VALIDATE：真实I/O、策略接入、启动恢复、共享blob物理清理与1–2GB峰值，不能从数据库合同扩大成端到端不耗尽承诺。
 
 2026-10-29 SEC-062测试监听隔离，基线4ad1255：PR #17已合并，PR头CI通过，但合并后CI40726798576两次因setup首次绑定53842失败，不能记为合并后PASS。CONFIRMED_CODE：占住旧端口的隔离合同可复现启动失败；动态持有listener修复及相关race已通过。CI占用者未识别，临时端口范围冲突仅为VALIDATE。此项不是新安全漏洞，未改变生产端口、权限、数据库或上传策略；完整结果见TEST-REPORT。
+
+SEC-030接收增量，基线f4ce5db：[ADR-015](ADR-015-BOUNDED-UPLOAD-RECEPTION.md)记录已接入四类真实上传入口的单进程接收槽、字节/字段/正文边界与自有spool恢复。CONFIRMED_CODE：隔离10/50门控、未知长度、实际HTTP取消及加密工作描述符合同先RED再修复。未据内部资源用例声称未知可利用漏洞。VALIDATE：持久上传总账接线、异步完成/完整区间、共享blob和完整M3大文件矩阵；本地2GiB尝试因WSL只读/服务E_UNEXPECTED失败，后续远端结果以TEST-REPORT及PR为准。PR #18主分支CI40734115453已核实PASS。

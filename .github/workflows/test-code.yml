@@ -23,4 +23,18 @@ jobs:
       - run: go test ./... -parallel 8 -count=1 --tags=test,noaws
       - run: go test ./... --tags=test,noaws,integration -count=1
       - run: GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1
+      - name: Receiver contracts with race
+        run: go test -race ./internal/environment ./internal/storage ./internal/storage/uploadreceive ./internal/webserver/fileupload ./internal/webserver/api -count=1 -tags=test,noaws -run 'TestSEC030Receive|TestSEC031UploadSizeSemantics|TestReceive|TestSpool'
+      - name: Record receiver source hashes
+        run: |
+          git ls-files -- internal/environment internal/storage/uploadreceive internal/storage/FileServing.go internal/storage/security_receive_storage_test.go internal/webserver/fileupload internal/webserver/api internal/webserver/Webserver.go internal/webserver/errorHandling/errorcodes | grep -E '\.go$' | LC_ALL=C sort | xargs sha256sum
+      - name: Opt-in large upload validation
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          df -h "$RUNNER_TEMP"
+          if ! bash docs/security/tools/run-sec030-receiver.sh large; then
+            tail -n 80 docs/security/evidence/sec030-receiver-*.secret/large.log
+            exit 1
+          fi
+          grep RECEIVE_METRIC docs/security/evidence/sec030-receiver-*.secret/large.log
 

@@ -175,7 +175,11 @@ func getFileUploadRecorder(addChunkInfo bool) *http.Request {
 		w.WriteField("dzuuid", "randomchunkuuid")
 	}
 	writer, _ := w.CreateFormFile("file", "testFile")
-	io.WriteString(writer, "testContent")
+	content := "testContent"
+	if addChunkInfo {
+		content += "xx"
+	} // match the declared 13-byte last chunk
+	io.WriteString(writer, content)
 	w.Close()
 	r := httptest.NewRequest("POST", "/upload", &b)
 	r.Header.Set("Content-Type", w.FormDataContentType())

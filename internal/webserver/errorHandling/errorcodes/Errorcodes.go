@@ -41,4 +41,6 @@ const (
 	UnsupportedFile
 	// ResourceCanNotBeEdited is returned when a resource cannot be edited
 	ResourceCanNotBeEdited
+	// UploadBusy is transient backpressure before reading an upload body.
+	UploadBusy
 )

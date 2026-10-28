@@ -109,3 +109,5 @@ SEC-030计算PR仅交付Measure/CanReserve及测试，没有启用额度。独�
 2026-10-29持久预约基础：[PR #17](https://github.com/Activer007/Gokapi/pull/17)，代码e018d58，起点357670c，SQLite16/Redis9；有界账本/幂等/完成metadata原子提交、独立连接争额和离线迁移预检已实现，本地生成/合同/三组全量/相关race PASS，最终CI/合并以PR为准。TEST-REPORT及ADR-014记录证据。下一P0仍为策略及普通/整文件/公开上传入口、正向metadata变更、实际I/O清理和启动恢复；未知长度/异常分块、1–2GB峰值全部保持OPEN。基础层不等于生产额度已经启用。
 
 SEC-062测试可靠性增量，[PR #18](https://github.com/Activer007/Gokapi/pull/18)，代码691238b，基线4ad1255：PR #17已合并；合并后CI40726798576 attempt1/noaws、attempt2/integration均因setup固定53842首次监听冲突失败，保留原始证据，不继续盲重跑。隔离占端口RED确认后改用持有的动态listener；生产默认net.Listen不变，保存配置/认证等原断言保留。最终393FfY占配置端口合同/生成/setup/相关race/三组全量全部PASS，见TEST-REPORT；PR审查及合并后CI仍按实际记录。M3运行时额度/清理/性能Gate不因此关闭。
+
+SEC-030接收增量，起点f4ce5db、codex/sec-030-bounded-receiver：真实四类入口已共用有界receiver；槽/字节/字段/ownedspool、失败清理与重启、实际payload末块检查及小文件堆上限已实现，见ADR-015/TEST-REPORT。本地环境/入口目标及相关race通过，首轮混合fixture失败保留；1GiB实传通过，2GiB遇本机WSL只读/E_UNEXPECTED，远端全量/大文件/审查/合并Gate待实际验证。仍OPEN：ADR-014持久ID接线、用户/请求累计/在途、正向metadata、chunk完整区间、异步完成与完整恢复；不缩小M3目标。

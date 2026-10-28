@@ -122,3 +122,5 @@ SEC-030计算边界：非法/负数/溢出不产生可用容量或部分快照�
 SEC-030持久基础：快照、容量判断和预约/完成metadata在同一SQLite事务或Redis WATCH/EXEC中提交；过期不释放尚未清理的资源。满账本仍可确认清理，终态回执有有限期限和数量。迁移不能丢活动状态或混入目标遗留认证数据。CleanupConfirmed只是可信内部断言，实际清理/恢复和入口当前策略仍待接入；见[ADR-014](ADR-014-DURABLE-UPLOAD-RESERVATIONS.md)。
 
 SEC-062测试环境不变量：setup的真实HTTP回归不能依赖固定空闲端口；操作系统分配的listener从分配至Serve始终被持有，每轮启动/结束有同步，延迟关闭只作用于本轮服务器。主动占住旧53842时仍须验证原认证、一次性证明、重放和慢请求头边界；不能用重跑或跳过断言冒充通过。生产监听策略保持不变，其他固定端口夹具仍需按实际证据验证。
+
+SEC-030接收边界：file-first尚未知稳定上传ID时，正文读取前也必须先取有限接收槽；每批数据在写spool前原子取得有限字节预算，未知/低报HTTP长度不能绕过。Close或delete未确认时不还字节，重启先核对自有marker/普通payload，未知项不删。该receiver只管理可信DataDir中的独占暂存目录；不能将其保证扩大到持久chunk/metadata总量、共享blob或多进程，见[ADR-015](ADR-015-BOUNDED-UPLOAD-RECEPTION.md)。

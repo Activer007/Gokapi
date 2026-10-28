@@ -459,14 +459,17 @@ type chunkParams interface {
 }
 
 func processNewChunk(w http.ResponseWriter, request chunkParams, maxFileSizeMb int, filerequestId string, userId int) (int, int, string) {
-	maxUpload := int64(maxFileSizeMb) * 1024 * 1024
-	if request.GetRequest().ContentLength > maxUpload {
-		return http.StatusBadRequest, errorcodes.FileTooLarge, storage.ErrorFileTooLarge.Error()
+	maxUpload, err := fileupload.MaxUploadBytes(maxFileSizeMb)
+	if err != nil {
+		return http.StatusBadRequest, errorcodes.FileTooLarge, err.Error()
 	}
-	request.GetRequest().Body = http.MaxBytesReader(w, request.GetRequest().Body, maxUpload)
 	errCode, err := fileupload.ProcessNewChunk(w, request.GetRequest(), true, filerequestId, userId, maxUpload)
 	if err != nil {
-		return http.StatusBadRequest, errCode, err.Error()
+		status := fileupload.ReceiveErrorStatus(err)
+		if status == http.StatusTooManyRequests {
+			w.Header().Set("Retry-After", "1")
+		}
+		return status, errCode, err.Error()
 	}
 	return http.StatusOK, 0, ""
 }
@@ -704,16 +707,13 @@ func apiUploadFile(w http.ResponseWriter, r requestParser, user models.User, _ m
 	if !ok {
 		panic("invalid parameter passed")
 	}
-	maxUpload := int64(configuration.Get().MaxFileSizeMB) * 1024 * 1024
-	if request.Request.ContentLength > maxUpload {
-		sendError(w, http.StatusBadRequest, errorcodes.FileTooLarge, storage.ErrorFileTooLarge.Error())
-		return
-	}
-
-	request.Request.Body = http.MaxBytesReader(w, request.Request.Body, maxUpload)
 	err := fileupload.ProcessCompleteFile(w, request.Request, user.Id, configuration.Get().MaxMemory)
 	if err != nil {
-		sendError(w, http.StatusBadRequest, errorcodes.UnspecifiedError, err.Error())
+		status := fileupload.ReceiveErrorStatus(err)
+		if status == http.StatusTooManyRequests {
+			w.Header().Set("Retry-After", "1")
+		}
+		sendError(w, status, fileupload.ReceiveErrorCode(err, errorcodes.UnspecifiedError), err.Error())
 		return
 	}
 }

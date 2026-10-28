@@ -673,3 +673,19 @@ CI在原generate之后串行增加同一脚本--occupied，只执行环境/编�
 最终393FfY九项全部PASS(0)：environment/compile/occupied-port/generate/setup/race/awsmock/noaws/integration；[公开结果](evidence/sec062-setup-listener-393FfY/results.tsv)、[三份编译源码哈希](evidence/sec062-setup-listener-393FfY/source.sha256)及[运行器哈希](evidence/sec062-setup-listener-393FfY/runner.sha256)。Go输入与当前规范字节/Git index、runner与实际运行哈希均逐项一致。静态复审未见剩余阻塞；这不是独立人工批准。原始日志/中间失败保留相应.secret目录；用户未跟踪计划和deployment目录未暂存。
 
 提交691238bf6d6f9faf6c7b5f76d166da6288a410b6；自己的[PR #18](https://github.com/Activer007/Gokapi/pull/18)承载本增量。后续只补PR链接的文档提交不改变上述Go/runner哈希；远端checks、合并和主分支CI必须另按实际状态核实，不能从本地PASS推断。
+
+## SEC-030 真实上传接收准入（2026-10-29）
+
+起点f4ce5db，Windows PowerShell / WSL Ubuntu-24.04、Go1.26.0 linux/amd64；仅归档副本/合成临时数据，用户plan及deployment未跟踪目录未纳入。设计、接收目录升级/回滚及剩余边界见[ADR-015](ADR-015-BOUNDED-UPLOAD-RECEPTION.md)。四类入口共用receiver，保持认证先于正文；未接入持久chunk/metadata总额度，不宣称M3已完成。
+
+先失败合同：`bash docs/security/tools/run-sec030-receiver.sh red-policy`的6NrjZ8，环境0、contract1（严格配置桩允许非法值/回显值的断言失败）；`... red-entry`的hHKIGZ，环境0、contract1，旧入口10/50全部读取正文而非限4，未知长度正常末块被拒，已知长度的文件先/后两个对照PASS；`... red-storage`的wVRynQ，环境0、contract1，9MiB加密工作文件保留已经unlink的明文描述符，修为删除前显式Close。均是隔离资源合同，不自动升级为可利用漏洞声明。
+
+原有夹具修正：声明13字节的chunk只写11字节，改为实际13；保留服务器实际payload/剩余范围判断。旧SEC031的正文开销/未知长度拒绝改为正例，仍检查payload超单文件上限拒绝、无chunk/blob及ownedroot仅有marker。每provider/每根接收合同独立子进程，不能为测试切目录而放松单Pool/DataDir约束。首次联测QrWd7P生成0，目标/race1，失败为fixture多次换DataDir及本地pipe未关闭，随后修正；没有取消服务器端校验。
+
+`... target`的gCpjEk：environment/generate/contract/race全部0，覆盖环境、整文件工作描述符、混合入口10/50、未知长度/字段顺序、真实HTTP取消/断线和SEC031双provider路由。该次统一filter未匹配核心包TestReceive/TestSpool，输出明确为no-tests；核心包另有完整target/race PASS（core-agent/verified），不能把空包绿色当核心race覆盖。运行器及CI现补全filter。之后新增Close结果不确定的sticky保留及EIO注入合同，尚未由该旧本地PASS覆盖。
+
+实际大文件命令：`bash docs/security/tools/run-sec030-receiver.sh large`，irDnxt的environment/generate为0、large为1。真实HTTP chunked/file-first的1GiB明文上传及读回SHA256通过：7.448s、137.49MiB/s、堆峰值3071232B、RSS峰值24100864B、表观暂存峰值2146041891B、已分配峰值2146054144B。2GiB加密阶段因WSL根文件系统返回read-only而失败并触发旧storage错误路径，不能记PASS；后续WSL启动返回E_UNEXPECTED。Windows检查D盘剩余0、E盘约100GB；未确定根挂载失败的全部因果，不自动重启/修复宿主或删除他人数据。
+
+上述本地命令的原始输出和逐文件编译hash保留相应.secret目录。环境agent先前CR包装失败/路径转换NOT_RUN均未当通过，最终该agent环境全包独立运行退出0。当前本地全仓awsmock/noaws/integration、纠正后的完整filter、Close不确定及新增兼容合同的最终本地验证为BLOCKED/NOT_RUN（WSL服务故障），后续由GitHub临时runner执行，以真实远端记录补充；不能抹去本地失败。Windows原生Go、govulncheck（依赖未改）、真实Redis/AOF/RDB、真实S3、生产迁移/恢复、完整M3多路径1–2GiB矩阵仍NOT_RUN。
+
+远端workflow保留生成及四组全量，新增完整接收合同race和受测源码hash；手动workflow_dispatch额外运行1GiB明文/2GiB加密HTTP、读回hash、吞吐/heap/RSS/暂存采样。大文件使用单独security_large tag，不加入默认Go suite。所有远端Gate尚需观察实际完成，不能从本地1GiB结果推导2GiB、S3或完整上传总量已通过。

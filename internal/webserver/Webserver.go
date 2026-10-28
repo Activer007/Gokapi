@@ -10,6 +10,7 @@ import (
 	"crypto/subtle"
 	"embed"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"html/template"
@@ -1016,14 +1017,22 @@ func uploadChunk(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
-	maxUpload := int64(configuration.Get().MaxFileSizeMB) * 1024 * 1024
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	if r.ContentLength > maxUpload {
-		responseError(w, storage.ErrorFileTooLarge)
+	maxUpload, err := fileupload.MaxUploadBytes(configuration.Get().MaxFileSizeMB)
+	if err != nil {
+		responseError(w, err)
 		return
 	}
-	r.Body = http.MaxBytesReader(w, r.Body, maxUpload)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	_, err = fileupload.ProcessNewChunk(w, r, false, "", user.Id, maxUpload)
+	if err != nil && fileupload.ReceiveErrorStatus(err) != http.StatusBadRequest {
+		status := fileupload.ReceiveErrorStatus(err)
+		if status == http.StatusTooManyRequests {
+			w.Header().Set("Retry-After", "1")
+		}
+		w.WriteHeader(status)
+		_ = json.NewEncoder(w).Encode(map[string]string{"Result": "error", "ErrorMessage": err.Error()})
+		return
+	}
 	responseError(w, err)
 }
 

@@ -549,15 +549,38 @@ If you have not completed the Gokapi setup yet, you can set all the values menti
 +========================================+=============================+==========================+=========+
 | Chunk size for uploads                 | GOKAPI_CHUNK_SIZE_MB        | ChunkSize                | 45      |
 +----------------------------------------+-----------------------------+--------------------------+---------+
-| Maximum size for chunks or whole files | GOKAPI_MAX_MEMORY_UPLOAD    | MaxMemory                | 50      |
+| Legacy upload memory preference        | GOKAPI_MAX_MEMORY_UPLOAD    | MaxMemory                | 50      |
 |                                        |                             |                          |         |
-| to store in RAM during upload          |                             |                          |         |
+| bounded by reception rules below       |                             |                          |         |
 +----------------------------------------+-----------------------------+--------------------------+---------+
 | Parallel uploads per file              | GOKAPI_MAX_PARALLEL_UPLOADS | MaxParallelUploads       | 3       |
 +----------------------------------------+-----------------------------+--------------------------+---------+
 
 
 
+
+.. _uploadreceptionlimits:
+
+Upload reception limits
+=======================
+
+``GOKAPI_UPLOAD_BODY_SLOTS`` (default ``4``, range 1--64) limits concurrent
+upload bodies across the web UI, ordinary API and File Requests. A busy receiver
+returns HTTP 429 with ``Retry-After: 1``. ``GOKAPI_UPLOAD_RECEIVE_MB`` defaults to
+``12288`` MiB and bounds transient receipt/whole-file processing reservations.
+Both settings are strict positive integers, are read at process startup and
+require a restart. They remain environment settings after initial setup.
+
+Files are streamed into the private ``DataDir/.gokapi-receive-v1`` spool. Failed
+cleanup retains its reservation; startup validates its ownership marker before
+cleaning only its own payloads. Use a single process and a real DataDir directory.
+The receiver accepts file-first multipart and unknown HTTP Content-Length;
+the payload limit is separate from at most 1 MiB of multipart overhead. Small
+whole-file processing buffers are capped at 8 MiB even if MaxMemory is larger.
+
+These limits cover reception and synchronous whole-file processing; persistent
+chunks and cumulative user/File Request quotas require their separate upload
+accounting. They do not make multiple Gokapi processes sharing a DataDir safe.
 
 .. _autodeployment:
 
