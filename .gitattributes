@@ -31,3 +31,5 @@ internal/webserver/security_form_cookie_test.go text eol=lf
 internal/webserver/authentication/csrftoken/security_binding_test.go text eol=lf
 internal/webserver/api/security_capability_test.go text eol=lf
 internal/webserver/security_public_capability_test.go text eol=lf
+internal/webserver/api/security_upload_semantics_test.go text eol=lf
+internal/uploadquota/*.go text eol=lf
