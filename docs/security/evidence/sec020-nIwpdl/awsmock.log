@@ -1,0 +1,150 @@
+?   	github.com/forceu/gokapi/cmd/cli-uploader	[no test files]
+?   	github.com/forceu/gokapi/cmd/cli-uploader/cliapi	[no test files]
+?   	github.com/forceu/gokapi/cmd/cli-uploader/cliconfig	[no test files]
+?   	github.com/forceu/gokapi/cmd/cli-uploader/cliconstants	[no test files]
+?   	github.com/forceu/gokapi/cmd/cli-uploader/cliflags	[no test files]
+?   	github.com/forceu/gokapi/cmd/demoData	[no test files]
+ok  	github.com/forceu/gokapi/cmd/gokapi	0.348s
+ok  	github.com/forceu/gokapi/internal/authorization	0.004s
+ok  	github.com/forceu/gokapi/internal/configuration	2.088s
+ok  	github.com/forceu/gokapi/internal/configuration/cloudconfig	0.333s
+ok  	github.com/forceu/gokapi/internal/configuration/configupgrade	0.346s
+ok  	github.com/forceu/gokapi/internal/configuration/database	0.835s
+ok  	github.com/forceu/gokapi/internal/configuration/database/dbabstraction	0.021s
+ok  	github.com/forceu/gokapi/internal/configuration/database/dbcache	0.017s
+ok  	github.com/forceu/gokapi/internal/configuration/database/migration	0.611s
+ok  	github.com/forceu/gokapi/internal/configuration/database/provider/redis	2.698s
+ok  	github.com/forceu/gokapi/internal/configuration/database/provider/sqlite	1.891s
+ok  	github.com/forceu/gokapi/internal/configuration/setup	27.419s
+ok  	github.com/forceu/gokapi/internal/encryption	19.640s
+ok  	github.com/forceu/gokapi/internal/encryption/end2end	0.012s
+ok  	github.com/forceu/gokapi/internal/environment	0.014s
+?   	github.com/forceu/gokapi/internal/environment/deprecation	[no test files]
+ok  	github.com/forceu/gokapi/internal/environment/flagparser	0.009s
+ok  	github.com/forceu/gokapi/internal/helper	0.009s
+?   	github.com/forceu/gokapi/internal/helper/systemd	[no test files]
+ok  	github.com/forceu/gokapi/internal/logging	1.310s
+?   	github.com/forceu/gokapi/internal/logging/serverstats	[no test files]
+ok  	github.com/forceu/gokapi/internal/models	0.008s
+ok  	github.com/forceu/gokapi/internal/storage	9.620s
+ok  	github.com/forceu/gokapi/internal/storage/chunking	0.620s
+ok  	github.com/forceu/gokapi/internal/storage/chunking/chunkreservation	0.009s
+?   	github.com/forceu/gokapi/internal/storage/filerequest	[no test files]
+ok  	github.com/forceu/gokapi/internal/storage/filesystem	0.012s
+ok  	github.com/forceu/gokapi/internal/storage/filesystem/interfaces	0.004s [no tests to run]
+ok  	github.com/forceu/gokapi/internal/storage/filesystem/localstorage	0.007s
+ok  	github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem	0.005s
+?   	github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem/aws	[no test files]
+?   	github.com/forceu/gokapi/internal/storage/presign	[no test files]
+ok  	github.com/forceu/gokapi/internal/storage/processingstatus	0.009s
+ok  	github.com/forceu/gokapi/internal/storage/processingstatus/pstatusdb	0.008s
+ok  	github.com/forceu/gokapi/internal/test	2.182s
+ok  	github.com/forceu/gokapi/internal/test/securityfixture	12.511s
+ok  	github.com/forceu/gokapi/internal/test/testconfiguration	0.442s
+ok  	github.com/forceu/gokapi/internal/webserver	68.853s
+Rate limiting disabled for unit tests
+--- FAIL: TestUserCreate (0.13s)
+    Api_test.go:326: Assertion failed, GOT: {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2}, WANT: {"id":103,"name":"1234","permissions":0,"userLevel":2,"lastOnline":0,"resetPassword":false}.
+    Api_test.go:345: Assertion failed, got: 401, want: 400.
+    Api_test.go:345: Assertion failed, GOT: {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2}, WANT: {"Result":"error","ErrorMessage":"header username is required","ErrorCode":4}.
+    Api_test.go:345: Assertion failed, got: 401, want: 400.
+    Api_test.go:345: Assertion failed, GOT: {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2}, WANT: {"Result":"error","ErrorMessage":"header username is required","ErrorCode":4}.
+    Api_test.go:345: Assertion failed, got: 401, want: 400.
+    Api_test.go:345: Assertion failed, GOT: {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2}, WANT: {"Result":"error","ErrorMessage":"Invalid username provided.","ErrorCode":6}.
+    Api_test.go:345: Assertion failed, got: 401, want: 409.
+    Api_test.go:345: Assertion failed, GOT: {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2}, WANT: {"Result":"error","ErrorMessage":"User already exists.","ErrorCode":7}.
+--- FAIL: TestUserChangeRank (0.13s)
+    Api_test.go:358: Assertion failed, got: 401, want: 400.
+    Api_test.go:358: Assertion failed, GOT: {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2}, WANT: {"Result":"error","ErrorMessage":"header userid is required","ErrorCode":4}.
+    Api_test.go:358: Assertion failed, got: 401, want: 400.
+    Api_test.go:358: Assertion failed, GOT: {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2}, WANT: {"Result":"error","ErrorMessage":"header userid is required","ErrorCode":4}.
+    Api_test.go:358: Assertion failed, got: 401, want: 404.
+    Api_test.go:358: Assertion failed, GOT: {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2}, WANT: {"Result":"error","ErrorMessage":"Invalid user id provided.","ErrorCode":5}.
+    Api_test.go:358: Assertion failed, got: 401, want: 400.
+    Api_test.go:358: Assertion failed, GOT: {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2}, WANT: {"Result":"error","ErrorMessage":"invalid value in header userid supplied","ErrorCode":4}.
+    Api_test.go:358: Assertion failed, got: 401, want: 400.
+    Api_test.go:358: Assertion failed, got: &{401 map[Cache-Control:[no-store] Content-Type:[application/json; charset=UTF-8]] {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2} false 0x3c322c1a750 map[Cache-Control:[no-store] Content-Type:[application/json; charset=UTF-8]] true} 
+         want: [{"Result":"error","ErrorMessage":"Cannot modify yourself","ErrorCode":19} {"Result":"error","ErrorMessage":"Cannot delete yourself","ErrorCode":19} {"Result":"error","ErrorMessage":"Cannot reset password of yourself","ErrorCode":19}].
+        
+    Api_test.go:358: Assertion failed, got: 401, want: 400.
+    Api_test.go:358: Assertion failed, got: &{401 map[Cache-Control:[no-store] Content-Type:[application/json; charset=UTF-8]] {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2} false 0x3c322c1aa20 map[Cache-Control:[no-store] Content-Type:[application/json; charset=UTF-8]] true} 
+         want: [{"Result":"error","ErrorMessage":"Cannot modify super admin","ErrorCode":19} {"Result":"error","ErrorMessage":"Cannot delete super admin","ErrorCode":19} {"Result":"error","ErrorMessage":"Cannot reset password of super admin","ErrorCode":19}].
+        
+    Api_test.go:377: Assertion failed, got: 401, want: 400.
+    Api_test.go:377: Assertion failed, GOT: {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2}, WANT: {"Result":"error","ErrorMessage":"header newRank is required","ErrorCode":4}.
+    Api_test.go:377: Assertion failed, got: 401, want: 400.
+    Api_test.go:377: Assertion failed, GOT: {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2}, WANT: {"Result":"error","ErrorMessage":"header newRank is required","ErrorCode":4}.
+    Api_test.go:377: Assertion failed, got: 401, want: 400.
+    Api_test.go:377: Assertion failed, GOT: {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2}, WANT: {"Result":"error","ErrorMessage":"invalid rank","ErrorCode":4}.
+    Api_test.go:390: Assertion failed, got: 401, want: 200.
+    Api_test.go:393: Assertion failed, not equal: 1 and 2
+    Api_test.go:402: Assertion failed, got: 401, want: 400.
+    Api_test.go:405: Assertion failed, not equal: 1 and 2
+    Api_test.go:418: Assertion failed, got: 401, want: 200.
+--- FAIL: TestUserDelete (0.13s)
+    Api_test.go:434: Assertion failed, got: 401, want: 400.
+    Api_test.go:434: Assertion failed, GOT: {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2}, WANT: {"Result":"error","ErrorMessage":"header userid is required","ErrorCode":4}.
+    Api_test.go:434: Assertion failed, got: 401, want: 400.
+    Api_test.go:434: Assertion failed, GOT: {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2}, WANT: {"Result":"error","ErrorMessage":"header userid is required","ErrorCode":4}.
+    Api_test.go:434: Assertion failed, got: 401, want: 404.
+    Api_test.go:434: Assertion failed, GOT: {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2}, WANT: {"Result":"error","ErrorMessage":"Invalid user id provided.","ErrorCode":5}.
+    Api_test.go:434: Assertion failed, got: 401, want: 400.
+    Api_test.go:434: Assertion failed, GOT: {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2}, WANT: {"Result":"error","ErrorMessage":"invalid value in header userid supplied","ErrorCode":4}.
+    Api_test.go:434: Assertion failed, got: 401, want: 400.
+    Api_test.go:434: Assertion failed, got: &{401 map[Cache-Control:[no-store] Content-Type:[application/json; charset=UTF-8]] {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2} false 0x3c322c74bd0 map[Cache-Control:[no-store] Content-Type:[application/json; charset=UTF-8]] true} 
+         want: [{"Result":"error","ErrorMessage":"Cannot modify yourself","ErrorCode":19} {"Result":"error","ErrorMessage":"Cannot delete yourself","ErrorCode":19} {"Result":"error","ErrorMessage":"Cannot reset password of yourself","ErrorCode":19}].
+        
+    Api_test.go:434: Assertion failed, got: 401, want: 400.
+    Api_test.go:434: Assertion failed, got: &{401 map[Cache-Control:[no-store] Content-Type:[application/json; charset=UTF-8]] {"Result":"error","ErrorMessage":"Unauthorized","ErrorCode":2} false 0x3c322c74ea0 map[Cache-Control:[no-store] Content-Type:[application/json; charset=UTF-8]] true} 
+         want: [{"Result":"error","ErrorMessage":"Cannot modify super admin","ErrorCode":19} {"Result":"error","ErrorMessage":"Cannot delete super admin","ErrorCode":19} {"Result":"error","ErrorMessage":"Cannot reset password of super admin","ErrorCode":19}].
+        
+    Api_test.go:507: Assertion failed, got: 401, want: 200.
+    Api_test.go:509: Assertion failed, got: true, want: false.
+    Api_test.go:511: Assertion failed, got: true, want: false.
+    Api_test.go:513: Assertion failed, got: true, want: false.
+    Api_test.go:515: Assertion failed, got: true, want: false.
+    Api_test.go:520: Assertion failed, got: true, want: false.
+panic: constraint failed: UNIQUE constraint failed: Users.Name (2067) [recovered, repanicked]
+
+goroutine 12 [running]:
+testing.tRunner.func1.2({0xb2a1a0, 0x3c322c8c348})
+	/home/activer/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.26.0.linux-amd64/src/testing/testing.go:1974 +0x232
+testing.tRunner.func1()
+	/home/activer/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.26.0.linux-amd64/src/testing/testing.go:1977 +0x349
+panic({0xb2a1a0?, 0x3c322c8c348?})
+	/home/activer/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.26.0.linux-amd64/src/runtime/panic.go:860 +0x13a
+github.com/forceu/gokapi/internal/helper.Check(...)
+	/tmp/gokapi-sec020-XryX7Y/internal/helper/OS.go:67
+github.com/forceu/gokapi/internal/configuration/database/provider/sqlite.DatabaseProvider.SaveUser({0x3c322c697c0?}, {0x0, {0x3c322c6f668, 0x8}, 0x0, 0x1, 0x0, {0x0, 0x0}, 0x0}, ...)
+	/tmp/gokapi-sec020-XryX7Y/internal/configuration/database/provider/sqlite/users.go:91 +0x316
+github.com/forceu/gokapi/internal/configuration/database.SaveUser({0x0, {0x3c322c6f668, 0x8}, 0x0, 0x1, 0x0, {0x0, 0x0}, 0x0}, 0x1)
+	/tmp/gokapi-sec020-XryX7Y/internal/configuration/database/Database.go:285 +0xb9
+github.com/forceu/gokapi/internal/webserver/api.testDeleteUserCall(0x3c322a77d48, {0x3c322c36940, 0x1e}, 0x1)
+	/tmp/gokapi-sec020-XryX7Y/internal/webserver/api/Api_test.go:458 +0xa5
+github.com/forceu/gokapi/internal/webserver/api.TestUserDelete(0x3c322a77d48)
+	/tmp/gokapi-sec020-XryX7Y/internal/webserver/api/Api_test.go:436 +0x117
+testing.tRunner(0x3c322a77d48, 0xbe7828)
+	/home/activer/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.26.0.linux-amd64/src/testing/testing.go:2036 +0xea
+created by testing.(*T).Run in goroutine 1
+	/home/activer/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.26.0.linux-amd64/src/testing/testing.go:2101 +0x4c5
+FAIL	github.com/forceu/gokapi/internal/webserver/api	0.760s
+ok  	github.com/forceu/gokapi/internal/webserver/api/mutex/apimutex	0.010s
+ok  	github.com/forceu/gokapi/internal/webserver/api/mutex/e2emutex	0.005s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication	0.946s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/csrftoken	0.009s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/downloadPasswordToken	0.012s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/oauth	2.119s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/sessionmanager	0.371s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/tokengeneration	0.327s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/users	0.299s
+ok  	github.com/forceu/gokapi/internal/webserver/downloadstatus	0.008s
+?   	github.com/forceu/gokapi/internal/webserver/errorHandling	[no test files]
+?   	github.com/forceu/gokapi/internal/webserver/errorHandling/errorcodes	[no test files]
+ok  	github.com/forceu/gokapi/internal/webserver/favicon	0.049s
+ok  	github.com/forceu/gokapi/internal/webserver/fileupload	0.456s
+ok  	github.com/forceu/gokapi/internal/webserver/headers	0.009s
+ok  	github.com/forceu/gokapi/internal/webserver/ratelimiter	0.272s
+ok  	github.com/forceu/gokapi/internal/webserver/requestbudget	0.433s
+ok  	github.com/forceu/gokapi/internal/webserver/sse	0.506s
+ok  	github.com/forceu/gokapi/internal/webserver/ssl	0.241s
+FAIL

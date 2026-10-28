@@ -1,0 +1,39 @@
+# M2 访问控制合同
+
+基线：`c14e6c73a49a5d5a89d815cf4b660da25cc98d56`，2026-10-28。先记录合同及现状测试，再实施策略。下列“允许”均要求资源存在、未过期，凭据仍有效；表格不是测试通过声明。结果以TEST-REPORT为准。
+
+## 主体、权限与对象的交集
+
+管理API必须同时满足：当前数据库用户存在、Key未过期/撤销、凭据种类匹配、Key具有动作权限、用户当前具有对应权限、对象属于用户或具有该动作的跨所有者委托权限。角色本身不替代细粒度权限；管理员通常被赋予全部权限，但不能越过Key权限或超级管理员保护。未知动作默认拒绝。
+
+| 动作 | API Key位 | U1对自己的文件 | U1对U2文件的额外用户权限 | 匿名/公开File Request Token |
+| --- | --- | --- | --- | --- |
+| 列表/单条元数据 | View | 允许 | ListOtherUploads；列表过滤 | 管理API拒绝 |
+| 管理下载、ZIP、presign签发 | Download | 允许 | ListOtherUploads；ZIP每个成员都必须允许 | 管理API拒绝 |
+| 修改 | Edit | 允许 | EditOtherUploads | 拒绝 |
+| 复制 | Upload | 允许 | ListOtherUploads；复制品归调用者 | 拒绝 |
+| 替换目标 | Replace | ReplaceUploads | ReplaceUploads及ReplaceOtherUploads | 拒绝 |
+| 替换源 | Replace | 允许读取自有源 | ListOtherUploads | 拒绝 |
+| 替换时删除源 | Replace及Delete | 允许 | DeleteOtherUploads（仍须源读取、目标替换权限） | 拒绝 |
+| 恢复/删除 | Delete | 允许 | DeleteOtherUploads | 拒绝 |
+| 修改所有者 | Edit | 管理员且EditOtherUploads | 同左 | 拒绝 |
+| 用户管理 | ManageUsers | ManageUsers；保留不能改自身/超级管理员、不能授予自己没有的权限等限制 | 同左 | 拒绝 |
+| 审计读取 | ManageLogs | ManageLogs | 不适用 | 拒绝 |
+| 删除日志/重置统计 | ManageLogs | 管理员且ManageLogs | 不适用 | 拒绝 |
+
+永久Key、由会话生成的临时Key适用同一交集。正常降权通过现有API执行，既有会话和Key在下一次请求重新读取当前权限；已删除用户、已撤销/过期Key不能继续访问任何管理动作。另测试故障/并发遗留的旧权限Key，不把直接注入数据库的状态自动认定为可利用漏洞。已开始的请求与权限撤销的并发线性化需单独证明，不能用顺序测试冒充。
+
+## Capability 与File Request
+
+公开分享URL本身授予该文件的有限下载能力，不要求下载者拥有该文件；密码、到期、下载次数、待删状态及File Request文件不可公开下载的规则仍适用。不能将分享ID作为管理Key。公开File Request Token只能操作其绑定请求的上传/预约入口，不能进入普通管理API；普通Key也不能伪装该Token。
+
+短期presign通过授权管理API签发，消费入口当前要求登录。需验证消费时的用户/Key撤销、对象权限变化、一次性消费与ZIP逐成员检查，不能只证明签发时检查。文件分片UUID与所有者/请求绑定、异步任务同样属于M2授权边界；资源用量另归SEC-032。
+
+## 逐步交付与未完成范围
+
+- SEC-020：先覆盖超级管理员、管理员、U1/U2、永久/临时Key、会话换取Token、File Request Token、匿名者的逐动作矩阵及替换三重边界；再提取最小纯策略并复用入口。
+- SEC-021：真实降权/权限撤销/删用户/删Key、当前权限交集及异步/跨请求边界。无数据格式变化优先。
+- SEC-022：两个签名IdP、相同邮箱/不同subject、改邮箱、AD FS缺失email的真实回调；独立ADR记录issuer+sub迁移、备份及回滚。不采用上游#435跳过签名/audience验证的回退。
+- SEC-023：跨浏览器CSRF验证须包含真实浏览器/Origin/SameSite与OIDC正例；进程内token可移植只是一项事实，不能单独当作新增漏洞结论。
+
+矩阵测试禁止读写生产数据。删除负例必须验证元数据和文件未变；正例异步物理删除应在专门隔离测试中完成，不能泄漏后台清理到下一个数据库夹具。M2在上述各项都有直接证据之前保持未完成。

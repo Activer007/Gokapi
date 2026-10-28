@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/NYTimes/gziphandler"
+	"github.com/forceu/gokapi/internal/authorization"
 	"github.com/forceu/gokapi/internal/configuration"
 	"github.com/forceu/gokapi/internal/configuration/database"
 	"github.com/forceu/gokapi/internal/encryption"
@@ -433,7 +434,7 @@ func showUploadRequest(w http.ResponseWriter, r *http.Request) {
 	}
 	view := (&AdminView{}).convertGlobalConfig(ViewFileRequests, userId)
 
-	if !view.ActiveUser.HasPermissionCreateFileRequests() {
+	if !authorization.Authorize(view.ActiveUser, authorization.ManageFileRequests, 0) {
 		redirect(w, r, "admin")
 		return
 	}
@@ -467,7 +468,7 @@ func showUserAdmin(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	view := (&AdminView{}).convertGlobalConfig(ViewUsers, userId)
-	if !view.ActiveUser.HasPermissionManageUsers() || configuration.Get().Authentication.Method == models.AuthenticationDisabled {
+	if !authorization.Authorize(view.ActiveUser, authorization.ManageUsers, 0) || configuration.Get().Authentication.Method == models.AuthenticationDisabled {
 		redirect(w, r, "admin")
 		return
 	}
@@ -702,7 +703,7 @@ func showLogs(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	view := (&AdminView{}).convertGlobalConfig(ViewLogs, user)
-	if !view.ActiveUser.HasPermissionManageLogs() {
+	if !authorization.Authorize(view.ActiveUser, authorization.ManageLogs, 0) {
 		redirect(w, r, "admin")
 		return
 	}
@@ -836,7 +837,7 @@ func (u *AdminView) convertGlobalConfig(view int, user models.User) *AdminView {
 	switch view {
 	case ViewMain:
 		for _, element := range database.GetAllMetadata() {
-			if element.UserId != user.Id && !user.HasPermissionListOtherUploads() {
+			if !authorization.Authorize(user, authorization.ReadFile, element.UserId) {
 				continue
 			}
 			fileInfo, err := element.ToFileApiOutput(config.ServerUrl, config.IncludeFilename)
@@ -854,7 +855,7 @@ func (u *AdminView) convertGlobalConfig(view int, user models.User) *AdminView {
 				continue
 			}
 			if !apiKey.IsSystemKey && !apiKey.IsUploadRequestKey() {
-				if apiKey.UserId == user.Id || user.HasPermissionManageApi() {
+				if authorization.Authorize(user, authorization.ManageAPIKeys, apiKey.UserId) {
 					apiKeyList = append(apiKeyList, apiKey)
 				}
 			}
@@ -890,7 +891,7 @@ func (u *AdminView) convertGlobalConfig(view int, user models.User) *AdminView {
 			if !ok {
 				continue
 			}
-			if fileRequest.UserId != user.Id && !user.HasPermissionListOtherUploads() {
+			if !authorization.Authorize(user, authorization.ReadFile, fileRequest.UserId) {
 				continue
 			}
 			fileRequest.Files = sortMetaData(fileRequest.Files)

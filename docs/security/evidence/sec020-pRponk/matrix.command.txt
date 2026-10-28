@@ -1,0 +1,1 @@
+go test ./internal/test/securityfixture ./internal/authorization ./internal/webserver/api ./internal/webserver/authentication/tokengeneration -count=1 -tags=test,noaws -run TestSEC020|TestGenerate -v

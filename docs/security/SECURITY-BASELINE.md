@@ -114,3 +114,15 @@ M0 只增加文档、测试和入口脚本，不改公开 API、模板/WASM、�
 后续 master→stable 切换必须保留升级前 config/database/blob/E2E key 的配套快照。当前 master 的 schema 15/8 和 Argon2id 不能假设可由 v2.2.4 读取；回滚旧二进制要还原对应旧数据库/配置，而非强行降低版本号。
 
 镜像 Gate：隔离构建后保存源 SHA、生成文件差异、Go 版本、build tags、二进制 SHA256、镜像 ID/RepoDigest/平台、扫描结果；在实际部署机器只读比对 `gokapi -v` 和 `docker inspect` 的必要字段，不导出环境或 secrets。尚无 digest 的 latest 不算可复现发布。SEC-062 PR #1 已禁用本 fork 的继承发布 job；以后配置自己的发布目的地、镜像固定与扫描仍需独立 Gate。不要为回滚测试而撤销该保护。
+
+## M2 / SEC-020 增量基线（2026-10-28）
+
+本地路径 `E:\LHA\Gokapi`，分支 `codex/sec-020-authorization-matrix`，基线 `c14e6c73a49a5d5a89d815cf4b660da25cc98d56`；origin仅为Activer007/Gokapi。用户确认尚未部署，运行镜像/digest不适用；保留未跟踪的用户计划目录。WSL Ubuntu24.04，Go1.26.0 linux/amd64；Windows未安装Go。上游只读HEAD仍为a9c25d4，不能把2026-10-27历史快照当作自动更新的版本结论。
+
+- **HISTORICAL_FIXED**：当前替换逻辑检查目标替换权、源读取权及可选删除源的Key/对象权限；临时Token签发及正常降权清理已有历史修复。对应公告见上表。新测试保留这些边界。
+- **CONFIRMED_CODE**：基线API入口读取当前用户，但四类管理/替换权限依赖Key位；隔离库注入“用户已撤权、Key仍保留旧位”时，16个请求返回200而目标为401。这是故障状态防御性RED，不等同于已证明外部可利用的新漏洞。新纯策略在每次API入口检查当前用户与Key交集，并集中对象授权规则。
+- **VALIDATE**：真实撤销并发、presign消费、公开分享、分片/异步任务、OIDC稳定身份及跨浏览器CSRF仍属M2后续Gate。此次管理矩阵不代表M2全部完成。
+
+已检索README、usage/advanced文档、SECURITY.md、关键实现和现有测试；上游19项开放PR与相关Issues的只读清单见[m2-upstream.json](evidence/m2-upstream.json)。未发现同一集中策略的待合并修复；#435的OIDC回退不能直接采用，#419的旧内容回收不属于本PR。不会向上游提交PR或修改上游设置。
+
+兼容：保留HTTP路由、正常请求的状态码/错误结构、页面/WASM、SQLite/Redis格式、存储与删除流程；无依赖、schema、密码或OIDC身份迁移。无效用户/未知权限默认拒绝，遗留超额Key在使用时返回原有401 Unauthorized。回滚只需撤销本SEC-020代码/测试提交，无数据转换；回滚会恢复旧的Key权限判断，不能视为同等安全。当前无生产数据操作，重大身份/删除方案另设ADR。

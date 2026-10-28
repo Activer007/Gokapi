@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/forceu/gokapi/internal/authorization"
 	"github.com/forceu/gokapi/internal/configuration"
 	"github.com/forceu/gokapi/internal/configuration/database"
 	"github.com/forceu/gokapi/internal/encryption"
@@ -92,7 +93,7 @@ func apiEditFile(w http.ResponseWriter, r requestParser, user models.User, _ mod
 		sendError(w, http.StatusNotFound, errorcodes.NotFound, "Invalid file ID provided.")
 		return
 	}
-	if file.UserId != user.Id && !user.HasPermission(models.UserPermEditOtherUploads) {
+	if !authorization.Authorize(user, authorization.EditFile, file.UserId) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to edit file.")
 		return
 	}
@@ -161,7 +162,7 @@ func apiDeleteKey(w http.ResponseWriter, r requestParser, user models.User, _ mo
 		sendError(w, http.StatusNotFound, errorcodes.NotFound, "Invalid key ID provided.")
 		return
 	}
-	if apiKeyOwner.Id != user.Id && !user.HasPermission(models.UserPermManageApiKeys) {
+	if !authorization.Authorize(user, authorization.ManageAPIKeys, apiKeyOwner.Id) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to delete this API key")
 		return
 	}
@@ -181,34 +182,14 @@ func apiModifyApiKey(w http.ResponseWriter, r requestParser, user models.User, _
 		sendError(w, http.StatusNotFound, errorcodes.NotFound, "Invalid key ID provided.")
 		return
 	}
-	if apiKeyOwner.Id != user.Id && !user.HasPermission(models.UserPermManageApiKeys) {
+	if !authorization.Authorize(user, authorization.ManageAPIKeys, apiKeyOwner.Id) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to delete this API key")
 		return
 	}
 
-	switch request.Permission {
-	case models.ApiPermReplace:
-		if !apiKeyOwner.HasPermissionReplace() {
-			sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "Insufficient user permission for owner to set this API permission")
-			return
-		}
-	case models.ApiPermManageUsers:
-		if !apiKeyOwner.HasPermissionManageUsers() {
-			sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "Insufficient user permission for owner to set this API permission")
-			return
-		}
-	case models.ApiPermManageLogs:
-		if !apiKeyOwner.HasPermissionManageLogs() {
-			sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "Insufficient user permission for owner to set this API permission")
-			return
-		}
-	case models.ApiPermManageFileRequests:
-		if !apiKeyOwner.HasPermissionCreateFileRequests() {
-			sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "Insufficient user permission for owner to set this API permission")
-			return
-		}
-	default:
-		// do nothing
+	if !authorization.CanGrantAPI(apiKeyOwner, request.Permission) {
+		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "Insufficient user permission for owner to set this API permission")
+		return
 	}
 	if request.GrantPermission && !apiKey.HasPermission(request.Permission) {
 		apiKey.GrantPermission(request.Permission)
@@ -295,7 +276,7 @@ func apiChangeFriendlyName(w http.ResponseWriter, r requestParser, user models.U
 		sendError(w, http.StatusNotFound, errorcodes.NotFound, "Invalid key ID provided.")
 		return
 	}
-	if ownerApiKey.Id != user.Id && !user.HasPermission(models.UserPermManageApiKeys) {
+	if !authorization.Authorize(user, authorization.ManageAPIKeys, ownerApiKey.Id) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to edit this API key")
 		return
 	}
@@ -335,7 +316,7 @@ func apiDeleteFile(w http.ResponseWriter, r requestParser, user models.User, _ m
 		sendError(w, http.StatusNotFound, errorcodes.NotFound, "Invalid file ID provided.")
 		return
 	}
-	if file.UserId != user.Id && !user.HasPermission(models.UserPermDeleteOtherUploads) {
+	if !authorization.Authorize(user, authorization.DeleteFile, file.UserId) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to delete this file")
 		return
 	}
@@ -357,7 +338,7 @@ func apiRestoreFile(w http.ResponseWriter, r requestParser, user models.User, _ 
 		sendError(w, http.StatusNotFound, errorcodes.NotFound, "Invalid file ID provided or file has already been deleted.")
 		return
 	}
-	if file.UserId != user.Id && !user.HasPermission(models.UserPermDeleteOtherUploads) {
+	if !authorization.Authorize(user, authorization.DeleteFile, file.UserId) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to restore this file")
 		return
 	}
@@ -584,7 +565,7 @@ func getFilesForUser(user models.User, includeUploadRequests, onlyEndToEndEncryp
 		if onlyEndToEndEncryptedFiles && !element.Encryption.IsEndToEndEncrypted {
 			continue
 		}
-		if element.UserId == user.Id || user.HasPermission(models.UserPermListOtherUploads) {
+		if authorization.Authorize(user, authorization.ReadFile, element.UserId) {
 			if !storage.IsExpiredFile(element, timeNow) {
 				file, err := element.ToFileApiOutput(config.ServerUrl, config.IncludeFilename)
 				helper.Check(err)
@@ -605,7 +586,7 @@ func apiListSingle(w http.ResponseWriter, r requestParser, user models.User, _ m
 		sendError(w, http.StatusNotFound, errorcodes.NotFound, "File not found")
 		return
 	}
-	if file.UserId != user.Id && !user.HasPermission(models.UserPermListOtherUploads) {
+	if !authorization.Authorize(user, authorization.ReadFile, file.UserId) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to view file")
 		return
 	}
@@ -665,7 +646,7 @@ func checkDownloadAllowed(fileId string, user models.User) (models.File, int, in
 	if !ok {
 		return models.File{}, http.StatusNotFound, errorcodes.NotFound, "file not found"
 	}
-	if file.UserId != user.Id && !user.HasPermission(models.UserPermListOtherUploads) {
+	if !authorization.Authorize(user, authorization.ReadFile, file.UserId) {
 		return models.File{}, http.StatusUnauthorized, errorcodes.NoPermission, "no permission to download file"
 	}
 	return file, 0, 0, ""
@@ -718,7 +699,7 @@ func apiDuplicateFile(w http.ResponseWriter, r requestParser, user models.User, 
 		sendError(w, http.StatusNotFound, errorcodes.NotFound, "Invalid id provided.")
 		return
 	}
-	if file.UserId != user.Id && !user.HasPermission(models.UserPermListOtherUploads) {
+	if !authorization.Authorize(user, authorization.ReadFile, file.UserId) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to duplicate this file")
 		return
 	}
@@ -753,7 +734,7 @@ func apiChangeFileOwner(w http.ResponseWriter, r requestParser, user models.User
 		sendError(w, http.StatusNotFound, errorcodes.NotFound, "Invalid id provided.")
 		return
 	}
-	if !user.HasPermission(models.UserPermEditOtherUploads) {
+	if !authorization.Authorize(user, authorization.ChangeFileOwner, file.UserId) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to edit this file")
 		return
 	}
@@ -777,7 +758,7 @@ func apiReplaceFile(w http.ResponseWriter, r requestParser, user models.User, ap
 		sendError(w, http.StatusNotFound, errorcodes.NotFound, "Invalid id provided.")
 		return
 	}
-	if fileOriginal.UserId != user.Id && !user.HasPermission(models.UserPermReplaceOtherUploads) {
+	if !authorization.Authorize(user, authorization.ReplaceFile, fileOriginal.UserId) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to replace this file")
 		return
 	}
@@ -791,14 +772,14 @@ func apiReplaceFile(w http.ResponseWriter, r requestParser, user models.User, ap
 		sendError(w, http.StatusNotFound, errorcodes.NotFound, "Invalid id provided.")
 		return
 	}
-	if fileNewContent.UserId != user.Id && !user.HasPermission(models.UserPermListOtherUploads) {
+	if !authorization.Authorize(user, authorization.ReadFile, fileNewContent.UserId) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to duplicate this file")
 		return
 	}
 
 	if request.DeleteNewFile &&
 		(!apikey.HasPermissionDelete() ||
-			(fileNewContent.UserId != user.Id && !user.HasPermission(models.UserPermDeleteOtherUploads))) {
+			!authorization.Authorize(user, authorization.DeleteFile, fileNewContent.UserId)) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to delete original file")
 		return
 	}
@@ -1145,7 +1126,7 @@ func apiURequestDelete(w http.ResponseWriter, r requestParser, user models.User,
 		sendError(w, http.StatusNotFound, errorcodes.NotFound, "FileRequest does not exist with the given ID")
 		return
 	}
-	if uploadRequest.UserId != user.Id && !user.HasPermission(models.UserPermDeleteOtherUploads) {
+	if !authorization.Authorize(user, authorization.DeleteFile, uploadRequest.UserId) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to delete this upload request")
 		return
 	}
@@ -1196,7 +1177,7 @@ func apiURequestSave(w http.ResponseWriter, r requestParser, user models.User, _
 			sendError(w, http.StatusNotFound, errorcodes.NotFound, "FileRequest does not exist with the given ID")
 			return
 		}
-		if uploadRequest.UserId != user.Id && !user.HasPermission(models.UserPermEditOtherUploads) {
+		if !authorization.Authorize(user, authorization.EditFile, uploadRequest.UserId) {
 			sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to edit this upload request")
 			return
 		}
@@ -1240,7 +1221,7 @@ func apiURequestSave(w http.ResponseWriter, r requestParser, user models.User, _
 func apiUploadRequestList(w http.ResponseWriter, _ requestParser, user models.User, _ models.ApiKey) {
 	userRequests := make([]models.FileRequest, 0)
 	for _, request := range filerequest.GetAll() {
-		if request.UserId == user.Id || user.HasPermission(models.UserPermListOtherUploads) {
+		if authorization.Authorize(user, authorization.ReadFile, request.UserId) {
 			userRequests = append(userRequests, request)
 		}
 	}
@@ -1260,7 +1241,7 @@ func apiUploadRequestListSingle(w http.ResponseWriter, r requestParser, user mod
 		sendError(w, http.StatusNotFound, errorcodes.NotFound, "FileRequest does not exist with the given ID")
 		return
 	}
-	if uploadRequest.UserId != user.Id && !user.HasPermission(models.UserPermListOtherUploads) {
+	if !authorization.Authorize(user, authorization.ReadFile, uploadRequest.UserId) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to show this upload request")
 		return
 	}
@@ -1328,7 +1309,7 @@ func isValidApiKey(key string, modifyTime bool, requiredPermissionApiKey models.
 			return models.User{}, models.ApiKey{}, false
 		}
 		user, ok := database.GetUser(savedKey.UserId)
-		if !ok {
+		if !ok || !authorization.CanUseAPI(user, savedKey, requiredPermissionApiKey) {
 			return models.User{}, models.ApiKey{}, false
 		}
 		return user, savedKey, true

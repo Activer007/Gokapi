@@ -325,3 +325,42 @@ go test -race ./internal/webserver ./internal/webserver/api ./internal/webserver
 | 6. SHA-1/Argon2id版本差异及迁移 | HISTORICAL_FIXED：稳定版v2.2.4为SHA-1，开发线已有上游#384 Argon2id；[legacy_migration_test.go](../../internal/test/securityfixture/legacy_migration_test.go)真实登录路径验证错密不变、正确登录升级、SQLite/miniredis重连、原记录恢复。最新三组PASS，无重复算法改写 | ADR-002给出停写、一致备份、保留salt、升级验收和回滚条件；旧二进制全量冷恢复及真实Redis持久化NOT_RUN，归SEC-063 |
 
 M1所需实现、RED→GREEN、本地回归、兼容方案和最新镜像Gate均有记录。发布G4仍未完成：未部署VPS、未发布镜像，基础镜像digest固定/签名、govulncheck及完整冷恢复仍待后续任务。下一轮P0优先SEC-040删除故障恢复及SEC-020/021权限撤销矩阵，随后SEC-030/031/032资源额度；P1推进SEC-062可复现发布与SEC-063冷恢复。未知疑点保持VALIDATE，不升级为漏洞结论。
+
+## M2 / SEC-020 管理授权矩阵与纯策略
+
+2026-10-28，基线c14e6c73a49a5d5a89d815cf4b660da25cc98d56，WSL Ubuntu24.04、Go1.26.0 linux/amd64。Windows无Go；WSL普通沙箱访问被系统拒绝，授权执行后可运行。`run-sec020.sh`在新建/tmp archive中覆盖显式源码清单，记录HEAD、overlay及runner SHA256；测试仅使用临时SQLite、miniredis及合成blob/身份。未操作生产数据或用户计划目录。
+
+| 执行 / 证据 | 真实结果 |
+| --- | --- |
+| 初始现状矩阵 [jwGxkS](evidence/sec020-jwGxkS/results.tsv) | generate和已有对象/凭据矩阵PASS；尚无当前用户交集RED |
+| 防御性RED [awBQ84](evidence/sec020-awBQ84/results.tsv) | generate PASS，目标FAIL；SQLite/Redis、永久/临时Key、四个入口合计16个旧权限状态返回200而期望401。直接注入数据库故障状态，不宣称外部可利用 |
+| 策略后目标 [pRponk](evidence/sec020-pRponk/results.tsv) | generate、矩阵及签发回归PASS |
+| 首次完整 [nIwpdl](evidence/sec020-nIwpdl/results.tsv) | generate/矩阵/定向race PASS；awsmock/noaws/integration FAIL。旧API测试只给Key位、未给用户管理位，导致401及后续夹具唯一键冲突；失败原样保留 |
+| 修正夹具 [rlDEHT](evidence/sec020-rlDEHT/results.tsv) | generate、矩阵、API全量PASS。只按动作授予测试用户相应位并Cleanup恢复，未放宽生产策略或删除原拒绝断言 |
+| 最终完整 [BS2VtP](evidence/sec020-BS2VtP/results.tsv) | environment、generate、矩阵、API全量、awsmock、noaws、integration、定向race全部PASS，脚本退出0；源码与runner摘要见同目录 |
+
+真实命令（最终完整执行见后续记录）：
+
+```sh
+go generate ./...
+go test ./internal/test/securityfixture ./internal/authorization ./internal/webserver/api ./internal/webserver/authentication/tokengeneration -count=1 -tags=test,noaws -run 'TestSEC020|TestGenerate' -v
+go test ./internal/webserver/api -count=1 -tags=test,noaws
+go test ./... -parallel 8 -count=1 -tags=test,awsmock
+go test ./... -parallel 8 -count=1 -tags=test,noaws
+go test ./... -count=1 -tags=test,noaws,integration
+go test -race ./internal/test/securityfixture ./internal/authorization ./internal/webserver/api ./internal/webserver/authentication/tokengeneration -count=1 -tags=test,noaws -run 'TestSEC020|TestGenerate'
+```
+
+矩阵覆盖超级管理员/管理员/U1/U2的永久、临时、会话生成Token，以及匿名、File Request、过期/撤销Key、已删除用户状态的12类管理动作；检查拒绝后元数据/blob不变、列表过滤、下载/ZIP字节、presign签发范围、修改/替换/复制/恢复结果。两种provider覆盖替换目标、源读取、可选源删除的11组合，包括不同所有者共享blob。全路由反向凭据类型测试确保普通Key和File Request Key不能互换；纯策略验证未知动作/权限、无效主体及委托撤销。
+
+范围限制：新矩阵的允许物理删除分支明确SKIP，原API删除正例随全量回归执行，不能替代异步撤销/生命周期Gate。session-token走真实sessionmanager和Generate，但不模拟浏览器；已撤销/已删除状态不代表真实撤销并发已验证。公开分享、presign消费、混合ZIP成员、分片UUID、File Request上传、在途请求撤权、OIDC绑定及跨浏览器CSRF仍为后续专项Gate。全仓race、真实Redis/S3、govulncheck本项NOT_RUN；无依赖改动，既有vet限制不在本PR修复。
+
+兼容与回滚：公开API/错误结构、SQLite/Redis数据格式、页面/WASM、OIDC/密码与物理删除不改；不需要数据迁移。回滚SEC-020提交即可恢复旧授权行为，但同时失去本次当前用户交集检查。纯策略不产生缓存、数据库连接或后台任务，不是新的身份系统，因此不新增架构ADR；SEC-022身份迁移另立ADR。
+
+RED复现方式：在新临时目录展开 `git -c core.autocrlf=false archive c14e6c73a49a5d5a89d815cf4b660da25cc98d56`，仅复制本PR的 `internal/test/securityfixture/authorization_matrix_test.go`，先运行 `go generate ./...`，再运行 `go test ./internal/test/securityfixture -count=1 -tags=test,noaws -run TestSEC020CurrentPermissionIntersection -v`；预期退出1，16项401期望失败。不得在真实数据库运行。GREEN使用 `bash docs/security/tools/run-sec020.sh`，其archive/显式overlay及摘要记录实际被测内容。
+
+提交前diff --check通过；新增证据常见私钥/GitHub Token/AWS访问Key/Authorization/session Cookie模式无匹配（有限扫描）。代码自审核对对象策略等价性、四种用户权限映射、既有超级管理员/角色限制和凭据类型门禁；修正了旧API夹具授权前提。PR最终head和CI仍需提交后核实，自审不称为独立审批。
+
+环境检查补充：WSL对Windows工作树运行 `git diff --check` 因两端core.autocrlf不同，把既有CRLF文件报告为尾随空白，退出1；该命令短暂持有index.lock使首次commit失败。等待其正常退出后锁自动释放，未删除锁或修改文件。Windows原生 `git diff --cached --check` PASS；最终overlay全部SHA256一致，构建始终使用LF archive隔离副本。
+
+[PR #9](https://github.com/Activer007/Gokapi/pull/9)已在本fork创建，代码提交a83366a80bc551c65fcde47e943a13df62f159fe。已读取远端patch并提交COMMENT自审，未作为独立审批；未发现本PR范围的阻塞项。后续提交仅更新PR/审查记录，生产和测试源码与BS2VtP摘要一致；最终CI成功后才合并，动态状态见PR checks。M2继续保持未完成。
