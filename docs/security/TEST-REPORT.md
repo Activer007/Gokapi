@@ -572,3 +572,9 @@ go test -race ./internal/webserver/api ./internal/webserver/fileupload ./interna
 未修改依赖，govulncheck NOT_RUN；真实 Redis/S3、实际浏览器、全仓 race、多实例、全部同用户并发交错及异步存储失败注入 NOT_RUN。缺少已授权分片的异步入口已测试拒绝，合法异步完成已测试；不声称覆盖全部异步失败流程。ADR-012 记录兼容与回滚。
 
 公开提取验证：`bash docs/security/tools/run-sec032-managed.sh --target` 的 smTgmQ environment/generate/scope 均 PASS(0)，不带 security_private。14 个公开 Go 文件与最终全量/race 的输入 SHA256 一致。git diff --check、有限秘密模式扫描均 PASS。完整评估和两个详细请求测试不在发布树中。
+
+## M2 收尾审计验证
+
+代码基线 3a9627c，与 64de3b7 的 `git diff --exit-code` 通过；九个必需前序合并为祖先、五个私密评估不是公开祖先。实际重读九份最终结果表均为全 0；公开源与最终完整验证保持一致。合并后 [CI 40697431982](https://github.com/Activer007/Gokapi/actions/runs/40697431982) success，生成和四组 Go 测试通过。重新核对私密浏览器观测、OIDC 现状/RED 与 ADR、会话 HTTP 及上传合同的证据范围；不重述为本轮重新执行浏览器或真实服务。
+
+本轮仅文档修改：运行相对链接/引用文件校验、证据/祖先核对、`git diff --check` 和有限秘密模式扫描。Go 生成/本地全量/race/govulncheck 本轮 NOT_RUN，按 M2-GOAL 复用已核实代码 Gate，文档 PR 的 CI 按配置执行。审计详见 [M2-COMPLETION-AUDIT](M2-COMPLETION-AUDIT.md)；此结论不包含任何生产迁移/部署或全部后续安全阶段。
