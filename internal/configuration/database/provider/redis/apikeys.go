@@ -63,7 +63,7 @@ func (p DatabaseProvider) SaveApiKey(apikey models.ApiKey) {
 
 // UpdateTimeApiKey writes the content of LastUsage to the database
 func (p DatabaseProvider) UpdateTimeApiKey(apikey models.ApiKey) {
-	p.SaveApiKey(apikey)
+	p.updateUsage(prefixApiKeys+apikey.Id, "LastUsed", apikey.LastUsed)
 }
 
 // DeleteApiKey deletes an API key with the given ID

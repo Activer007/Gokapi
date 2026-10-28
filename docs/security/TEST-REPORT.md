@@ -364,3 +364,33 @@ RED复现方式：在新临时目录展开 `git -c core.autocrlf=false archive c
 环境检查补充：WSL对Windows工作树运行 `git diff --check` 因两端core.autocrlf不同，把既有CRLF文件报告为尾随空白，退出1；该命令短暂持有index.lock使首次commit失败。等待其正常退出后锁自动释放，未删除锁或修改文件。Windows原生 `git diff --cached --check` PASS；最终overlay全部SHA256一致，构建始终使用LF archive隔离副本。
 
 [PR #9](https://github.com/Activer007/Gokapi/pull/9)已在本fork创建，代码提交a83366a80bc551c65fcde47e943a13df62f159fe。已读取远端patch并提交COMMENT自审，未作为独立审批；未发现本PR范围的阻塞项。后续提交仅更新PR/审查记录，生产和测试源码与BS2VtP摘要一致；最终CI成功后才合并，动态状态见PR checks。M2继续保持未完成。
+
+SEC-020合并核实：PR #9最终head c29148819087698dcc1f2fbd7fdb00bd31ddd98b，CI [40641638222](https://github.com/Activer007/Gokapi/actions/runs/40641638222) / [40641632183](https://github.com/Activer007/Gokapi/actions/runs/40641632183)均成功，生成及四组测试全部通过。合并bf5918e69827b75b5321acc37efd66f4b7e1b498，本地master同步且tree与已审查head一致。CI提示现有Actions Node20弃用及ubuntu-latest迁移，留待SEC-062固定构建环境。
+
+## M2 / SEC-021 撤销与使用记录合同
+
+基线bf5918e69827b75b5321acc37efd66f4b7e1b498；2026-10-28；Windows PowerShell + WSL Ubuntu24.04，Go1.26.0 linux/amd64。`run-sec021.sh --red`固定该基线、仅覆盖新测试；正常模式叠加显式源码/测试清单到新/tmp archive。每次记录runner/overlay摘要、命令、日志及退出码。普通沙箱WSL仍E_ACCESSDENIED，授权后执行；只使用合成身份、临时SQLite/miniredis和临时blob。上游只读检索见[sec021-upstream.json](evidence/sec021-upstream.json)。
+
+| 执行 / 证据 | 真实结果 |
+| --- | --- |
+| 首轮RED [TKYSMd](evidence/sec021-TKYSMd/results.tsv) | generate PASS；Redis使用记录合同FAIL；删Key API子项另有测试夹具PublicId长度错误导致404，不能当作产品RED |
+| 修正夹具后RED [aANPSX](evidence/sec021-aANPSX/results.tsv) | generate PASS；真实API撤销8组PASS；SQLite使用记录合同PASS；Redis非时间字段/TTL、删除后更新、并发删除子项FAIL，符合目标RED |
+| 首轮修复完整 [guHGIc](evidence/sec021-guHGIc/results.tsv) | 目标PASS；三组及相关完整race命令FAIL，原因均为旧Redis TestApiKeys要求更新时间重建已删除Key。无race检测报告；命令本身仍计FAIL，记录保留 |
+| 最终完整 [e8JIMf](evidence/sec021-e8JIMf/results.tsv) | environment、generate、补强目标、awsmock、noaws、integration及fixture/SQLite/Redis全包race均PASS，脚本退出0 |
+
+旧Redis测试已按新的provider合同改为删除后不重建，并保留对现存Key正常更新时间的正例。随后补强真实撤销后的元数据/下载/ZIP/presign签发/修改/替换/复制/恢复/删除与列表过滤；混合所有者ZIP两种输入顺序及presign整体拒绝。会话测试用synctest等待自身异步使用记录协程完成，并预热30秒使用记录缓存，使无关后台DB工作不会跨越fixture生命周期；不用于证明会话期限/浏览器行为。
+
+真实命令：
+
+```sh
+go generate ./...
+go test ./internal/test/securityfixture -count=1 -tags=test,noaws -run TestSEC021 -v
+go test ./... -parallel 8 -count=1 -tags=test,awsmock
+go test ./... -parallel 8 -count=1 -tags=test,noaws
+go test ./... -count=1 -tags=test,noaws,integration
+go test -race ./internal/test/securityfixture ./internal/configuration/database/provider/redis ./internal/configuration/database/provider/sqlite -count=1 -tags=test,noaws
+```
+
+兼容：仅修改Redis的LastUsed/LastOnline写入，原子地检查存在后更新时间字段，不改变权限、所有者、TTL及其他字段；SQLite保持原实现。Lua以KEYS/ARGV传参，prefix不插入脚本文本。自定义ACL需允许EVAL/EVALSHA/EXISTS/HSET；此轮没有真实Redis/ACL环境，NOT_RUN。无schema、依赖、身份ID、密码、OIDC、API、页面/WASM或物理删除修改，无数据迁移；回滚本提交即可恢复旧行为，也会恢复旧的使用记录写入风险。无新重大架构方案，不新增ADR。
+
+证明范围：provider延迟快照及同步屏障并发；真实管理API的顺序撤销与当前会话权限；混合ZIP成员。没有构造完整外部HTTP利用链，不把provider RED扩大为漏洞利用结论。全仓race、govulncheck、真实Redis/S3、自定义ACL、生产数据修复为NOT_RUN。presign消费、分片/File Request跨请求授权、异步任务、并发会话续期、并发Key签发/权限修改、OIDC与浏览器CSRF仍为M2开放Gate。

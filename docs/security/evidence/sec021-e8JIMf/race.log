@@ -1,0 +1,3 @@
+ok  	github.com/forceu/gokapi/internal/test/securityfixture	12.702s
+ok  	github.com/forceu/gokapi/internal/configuration/database/provider/redis	1.463s
+ok  	github.com/forceu/gokapi/internal/configuration/database/provider/sqlite	1.953s

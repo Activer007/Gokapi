@@ -1,0 +1,56 @@
+{
+  "checked": "2026-10-28",
+  "base": "bf5918e69827b75b5321acc37efd66f4b7e1b498",
+  "queries": [
+    "repo:Forceu/Gokapi is:pr redis",
+    "repo:Forceu/Gokapi is:issue redis"
+  ],
+  "pullRequests": [
+    {
+      "title": "Add MariaDB and PostgreSQL database provider support",
+      "url": "https://github.com/Forceu/Gokapi/pull/423"
+    },
+    {
+      "title": "Add Redis support / make database location and provider selectable in setup",
+      "url": "https://github.com/Forceu/Gokapi/pull/180"
+    },
+    {
+      "title": "Rename JSON and Redis key for AwsBucket to 'Bucket'",
+      "url": "https://github.com/Forceu/Gokapi/pull/245"
+    },
+    {
+      "title": "Fix for bucket being unset in Redis and file configuration",
+      "url": "https://github.com/Forceu/Gokapi/pull/243"
+    }
+  ],
+  "issues": [
+    {
+      "title": "[Feature Discussion] PostgreSQL database provider support",
+      "url": "https://github.com/Forceu/Gokapi/issues/413"
+    },
+    {
+      "title": "Database alternative",
+      "url": "https://github.com/Forceu/Gokapi/issues/264"
+    },
+    {
+      "title": "Infinite Redirect Loop with Cloudflare caching",
+      "url": "https://github.com/Forceu/Gokapi/issues/209"
+    },
+    {
+      "title": "Add redis support",
+      "url": "https://github.com/Forceu/Gokapi/issues/179"
+    },
+    {
+      "title": "Bug: Gokapi crashes if OIDC returns null in groups",
+      "url": "https://github.com/Forceu/Gokapi/issues/198"
+    },
+    {
+      "title": "[Bug] TZ Environment Variable Not Working in Docker",
+      "url": "https://github.com/Forceu/Gokapi/issues/185"
+    },
+    {
+      "title": "Feature Request: Sqlite config backend",
+      "url": "https://github.com/Forceu/Gokapi/issues/39"
+    }
+  ]
+}

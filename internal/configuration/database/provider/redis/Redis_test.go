@@ -237,9 +237,14 @@ func TestApiKeys(t *testing.T) {
 
 	newKey.LastUsed = 10
 	dbInstance.UpdateTimeApiKey(newKey)
+	_, ok = dbInstance.GetApiKey("newkey")
+	test.IsEqualBool(t, ok, false) // Usage telemetry cannot recreate a deleted key.
+	dbInstance.SaveApiKey(newKey)
+	newKey.LastUsed = 11
+	dbInstance.UpdateTimeApiKey(newKey)
 	key, ok := dbInstance.GetApiKey("newkey")
 	test.IsEqualBool(t, ok, true)
-	test.IsEqualBool(t, key.LastUsed == 10, true)
+	test.IsEqualBool(t, key.LastUsed == 11, true)
 
 	dbInstance.SaveApiKey(models.ApiKey{
 		Id:       "publicTest",
