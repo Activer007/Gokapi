@@ -26,3 +26,6 @@ internal/configuration/database/provider/redis/usage.go text eol=lf
 internal/webserver/security_presign_test.go text eol=lf
 internal/storage/presign/presign_test.go text eol=lf
 internal/storage/chunking/chunkreservation/security_scope_test.go text eol=lf
+internal/webserver/BrowserCsrf.go text eol=lf
+internal/webserver/security_form_cookie_test.go text eol=lf
+internal/webserver/authentication/csrftoken/security_binding_test.go text eol=lf

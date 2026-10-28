@@ -289,7 +289,16 @@ func isGrantedSession(w http.ResponseWriter, r *http.Request) (models.User, bool
 // Second return value is false if CSRF token is invalid, true otherwise
 // Migrates legacy passwords to the new format
 func IsCorrectUsernameAndPassword(username, password, userCsrfToken string) (models.User, bool, bool) {
-	if !csrftoken.IsValid(csrftoken.TypeLogin, userCsrfToken) {
+	return checkUsernameAndPassword(username, password, csrftoken.IsValid(csrftoken.TypeLogin, userCsrfToken))
+}
+
+// IsCorrectUsernameAndPasswordForBrowser requires the login form's browser context.
+func IsCorrectUsernameAndPasswordForBrowser(username, password, userCsrfToken, binding string) (models.User, bool, bool) {
+	return checkUsernameAndPassword(username, password, csrftoken.IsValidBound(csrftoken.TypeLogin, userCsrfToken, binding))
+}
+
+func checkUsernameAndPassword(username, password string, validCsrf bool) (models.User, bool, bool) {
+	if !validCsrf {
 		return models.User{}, false, false
 	}
 	user, ok := database.GetUserByName(username)

@@ -60,10 +60,11 @@ func TestSEC012PasswordChangeRevokesSessions(t *testing.T) {
 	if _, exists := database.GetSession("sec012-current"); !exists {
 		t.Fatal("invalid form revoked session")
 	}
-	form := url.Values{"newpw": {"synthetic-new-password-123"}, "csrf-token": {csrftoken.Generate(csrftoken.TypeLogin)}}
+	form := url.Values{"newpw": {"synthetic-new-password-123"}, "csrf-token": {csrftoken.GenerateBound(csrftoken.TypePasswordChange, sec023LegacyTestBinding)}}
 	r := httptest.NewRequest(http.MethodPost, "/changePassword", strings.NewReader(form.Encode()))
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	r.AddCookie(&http.Cookie{Name: "session_token", Value: "sec012-current"})
+	r.AddCookie(&http.Cookie{Name: browserCSRFCookieName(), Value: sec023LegacyTestBinding})
 	w := httptest.NewRecorder()
 	changePassword(w, authentication.SetUserInRequest(r, user))
 	got, ok := database.GetUser(user.Id)

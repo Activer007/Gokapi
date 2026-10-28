@@ -1,0 +1,8 @@
+environment	0
+generate	0
+context	0
+awsmock	0
+noaws	0
+integration	0
+race	0
+handler-race	0
