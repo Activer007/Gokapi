@@ -117,3 +117,5 @@ P0 SEC-062追加已公开标准库公告核验：Go1.26.0复现基线不能等�
 SEC-030接收层最终代码ff7497b：[PR CI40751200410](https://github.com/Activer007/Gokapi/actions/runs/40751200410)及[完整手动CI40751191903](https://github.com/Activer007/Gokapi/actions/runs/40751191903)全部PASS，含生成、占端口合同、四组全仓、相关race及真实1GiB明文/2GiB加密HTTP读回。43份实际源码hash逐项匹配，见[最终证据](evidence/sec030-receiver-ff7497b/README.md)；之后仅补文档，不改变代码/运行器/workflow。合并及主分支结果以PR实际记录为准。M3继续OPEN；外层认证/过期请求在进入receiver之前拒绝正文的传输行为仍VALIDATE，后续应先做隔离真实socket合同，不把槽满回归扩大为所有早期拒绝已获证明。
 
 SEC-062当前增量：基线cb5868c、codex/sec-062-patched-toolchain，官方确认Go1.26.10；五处模块/Docker compiler声明对齐，源/产物govulncheck固定v1.9.0且使用真实非零退出码，生成器/WASM/CLI构建及dispatch隔离Docker/历史扫描Gate。静态声明合同实际RED5项→GREEN，实际Go/Docker及扫描仍NOT_RUN，等远端证据；不将文本一致性称为标准库修复已经验证。M3累计预算/完整生命周期仍OPEN；原用户未跟踪目录不纳入提交。
+
+SEC-062工具链本增量Gate已通过：58d2cb5，[PR #20](https://github.com/Activer007/Gokapi/pull/20)，PR40763628844/推送40763619586/手动40763621734均SUCCESS，四组全仓/相关race/实际扫描、历史RED、三镜像构建和当前Go1.26.10的1–2GiB均获证据。只补最终文档后检查新PR CI，合并/主分支以PR真实记录为准。完整发布固定/OS扫描/跨平台/浏览器仍OPEN；下一P0回到SEC-030真实入口持久准入及正向metadata核算，随后SEC-032分块/异步/恢复。不得将此工具链闭环标成M3完成。

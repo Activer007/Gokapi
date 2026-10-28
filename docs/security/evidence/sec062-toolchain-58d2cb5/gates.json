@@ -1,0 +1,74 @@
+{
+  "commit": "58d2cb54acb64ce8f5b9f3bda41d75cb38e620d5",
+  "pr_ci": {
+    "id": 40763628844,
+    "conclusion": "success"
+  },
+  "push_ci": {
+    "id": 40763619586,
+    "conclusion": "success"
+  },
+  "manual_ci": {
+    "id": 40763621734,
+    "job": 123081807272,
+    "conclusion": "success"
+  },
+  "historical_commit": "cb5868c6d45d1a3f4fc163c74976c90c756ae8a8",
+  "historical_scanner_exit": 3,
+  "historical_target": "GO-2026-6609",
+  "checks": {
+    "current": [
+      "SEC062_RESULT environment 0",
+      "SEC062_RESULT policy 0",
+      "SEC062_RESULT scanner-install 0",
+      "SEC062_RESULT scanner-version 0",
+      "SEC062_RESULT scanner-buildinfo 0",
+      "SEC062_RESULT generate 0",
+      "SEC062_RESULT formatting 0",
+      "SEC062_RESULT source-default 0",
+      "SEC062_RESULT source-noaws 0",
+      "SEC062_RESULT wasm-source 0",
+      "SEC062_RESULT generator-build 0",
+      "SEC062_RESULT generator-buildinfo 0",
+      "SEC062_RESULT generator-binary-scan 0",
+      "SEC062_RESULT server-build 0",
+      "SEC062_RESULT cli-build 0",
+      "SEC062_RESULT gokapi-buildinfo 0",
+      "SEC062_RESULT gokapi-binary-scan 0",
+      "SEC062_RESULT gokapi-cli-buildinfo 0",
+      "SEC062_RESULT gokapi-cli-binary-scan 0"
+    ],
+    "historical": [
+      "SEC062_RESULT environment 0",
+      "SEC062_RESULT scanner-install 0",
+      "SEC062_RESULT scanner-version 0",
+      "SEC062_RESULT scanner-buildinfo 0",
+      "SEC062_RESULT historical-environment 0",
+      "SEC062_RESULT historical-generate 0",
+      "SEC062_RESULT historical-scan 3"
+    ],
+    "containers": [
+      "SEC062_RESULT environment 0",
+      "SEC062_RESULT policy 0",
+      "SEC062_RESULT docker-server 0",
+      "SEC062_RESULT docker-cli 0",
+      "SEC062_RESULT docker-builder 0",
+      "SEC062_RESULT builder-version 0",
+      "SEC062_RESULT server-buildinfo 0",
+      "SEC062_RESULT cli-buildinfo 0"
+    ]
+  },
+  "module_only_findings": [
+    "GO-2026-5932",
+    "GO-2022-0646",
+    "GO-2022-0635"
+  ],
+  "not_proven": [
+    "browser-WASM-interaction",
+    "image-OS-scan",
+    "all-build-matrix",
+    "real-Redis-S3",
+    "durable-runtime-quota",
+    "full-M3"
+  ]
+}

@@ -209,3 +209,7 @@ SEC-062工具链增量（2026-10-29），工作基线cb5868c：官方[release hi
 HISTORICAL_FIXED（Go上游）：[GO-2026-6609](https://pkg.go.dev/vuln/GO-2026-6609) Range CPU、[6603](https://pkg.go.dev/vuln/GO-2026-6603) H2 Trailer内存、[6611](https://pkg.go.dev/vuln/GO-2026-6611) H2 SETTINGS CPU已在1.26.9修复，[6089](https://pkg.go.dev/vuln/GO-2026-6089)未加密H2 preface超时在1.26.6修复，[6809](https://pkg.go.dev/vuln/GO-2026-6809) x509 denylist在1.26.10修复。CONFIRMED_CODE入口：静态FileServer/自定义ServeFile/本地ServeContent保留Range；UseSsl开启时采用默认ListenAndServeTLS。VALIDATE：实际H2协商/代理、出站TLS及系统根条件，不能仅从API名证明恶意负载可利用。当前没有显式启用h2c；旧x/net checksum不证明生产选择了该模块。没有执行高资源攻击负载或声明新未知漏洞。
 
 当前本地仅版本声明合同RED→GREEN；实际编译器、源码/产物扫描、Docker编译和新补丁大文件Gate须按TEST-REPORT的真实远端结果补充。WSL故障持续，不修复宿主；本地Go生成/测试/扫描NOT_RUN。工具链修补不能代替M3累计配额、持久chunk、异步/恢复。
+
+SEC-062当前代码58d2cb5已验证：[PR #20](https://github.com/Activer007/Gokapi/pull/20)的PR CI40763628844、推送40763619586及手动40763621734全部SUCCESS。CONFIRMED_CODE：实际Go1.26.10、固定govulncheck1.9.0、default/noaws/WASM源码及生成器/服务端/CLI二进制扫描退出0；旧cb5868c/Go1.26.0源码扫描实际退出3且含GO-2026-6609，构成已公开问题的历史RED。三个隔离Docker镜像构建及版本检查、当前compiler的1GiB明文/2GiB加密HTTP读回均通过。[公开证据](evidence/sec062-toolchain-58d2cb5/README.md)含44份源码、11份当前输入/harness、7份旧输入和6份生成产物hash；前三类按各自Git版本核对，生成产物仅记录runner实际hash，不误称Git文件。
+
+已知限制仍保留：扫描报告GO-2026-5932、GO-2022-0646/0635模块级公告，但当前选择的源码/产物未报告受影响可达调用；没有通过忽略列表消音，也不声称依赖无公告。当前安全构建Gate仅接受审查过的1.26.10，go.mod最低行不能替代其他Go分支的公告核验。镜像ID为runner本地结果，未发布、未固定全部base/action digest；本地Go/浏览器交互/新镜像运行验收/OS扫描/生产恢复仍NOT_RUN，M3额度/完整生命周期仍OPEN。
