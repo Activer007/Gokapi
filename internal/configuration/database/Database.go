@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/url"
@@ -13,6 +14,7 @@ import (
 	"github.com/forceu/gokapi/internal/configuration/database/dbcache"
 	"github.com/forceu/gokapi/internal/helper"
 	"github.com/forceu/gokapi/internal/models"
+	"github.com/forceu/gokapi/internal/uploadquota"
 )
 
 var db dbabstraction.Database
@@ -69,22 +71,80 @@ func ParseUrl(dbUrl string, mustExist bool) (models.DbConnection, error) {
 
 // Migrate copies a database to a new location
 func Migrate(configOld, configNew models.DbConnection) {
+	helper.Check(MigrateChecked(context.Background(), configOld, configNew))
+}
+
+// MigrateChecked is an offline copy into an empty current-version destination.
+// It preflights both stores before copying any records. A failed copy leaves the
+// source intact; its partial destination must be discarded before retrying.
+func MigrateChecked(ctx context.Context, configOld, configNew models.DbConnection) error {
+	if ctx == nil {
+		return uploadquota.ErrInvalid
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if configOld == configNew {
+		return uploadquota.ErrConflict
+	}
 	dbOld, err := dbabstraction.GetNew(configOld)
-	helper.Check(err)
+	if err != nil {
+		return err
+	}
+	defer dbOld.Close()
+	if dbOld.GetDbVersion() > dbOld.GetSchemaVersion() {
+		return uploadquota.ErrSchema
+	}
+	files := dbOld.GetAllMetadata()
+	if _, err := uploadquota.Measure(files); err != nil {
+		return fmt.Errorf("%w: invalid source metadata", uploadquota.ErrInvalid)
+	}
+	// Read even an older schema: a partial upgrade may already have live
+	// reservations. Only a genuinely absent old-format structure is empty.
+	ledger, err := dbOld.ReadUploadQuota(ctx)
+	if err != nil {
+		if dbOld.GetDbVersion() >= dbOld.GetSchemaVersion() || !errors.Is(err, uploadquota.ErrNotFound) {
+			return err
+		}
+		ledger = uploadquota.EmptyLedger()
+	}
+	if ledger.HasOutstanding() {
+		return uploadquota.ErrConflict
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	dbNew, err := dbabstraction.GetNew(configNew)
-	helper.Check(err)
+	if err != nil {
+		return err
+	}
+	defer dbNew.Close()
+	if dbNew.GetDbVersion() != dbNew.GetSchemaVersion() {
+		return uploadquota.ErrSchema
+	}
+	if err := dbNew.CheckEmptyForMigration(ctx); err != nil {
+		return err
+	}
 
 	apiKeys := dbOld.GetAllApiKeys()
 	for _, apiKey := range apiKeys {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
 		dbNew.SaveApiKey(apiKey)
 	}
 	users := dbOld.GetAllUsers()
 	for _, user := range users {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
 		dbNew.SaveUser(user, false)
 		dbNew.SaveEnd2EndInfo(dbOld.GetEnd2EndInfo(user.Id), user.Id)
 	}
-	files := dbOld.GetAllMetadata()
 	for _, file := range files {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
 		dbNew.SaveMetaData(file)
 		if file.HotlinkId != "" {
 			dbNew.SaveHotlink(file)
@@ -92,11 +152,24 @@ func Migrate(configOld, configNew models.DbConnection) {
 	}
 	requests := dbOld.GetAllFileRequests()
 	for _, request := range requests {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
 		dbNew.SaveFileRequest(request)
 	}
-	dbOld.Close()
-	dbNew.Close()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	return dbNew.ImportUploadQuota(ctx, ledger)
 }
+
+// ApplyUploadQuota delegates a server-owned command to the provider's atomic
+// reservation/metadata transaction. It does not admit an HTTP upload itself.
+func ApplyUploadQuota(ctx context.Context, change uploadquota.Change) (uploadquota.Reservation, error) {
+	return db.ApplyUploadQuota(ctx, change)
+}
+
+func ReadUploadQuota(ctx context.Context) (uploadquota.Ledger, error) { return db.ReadUploadQuota(ctx) }
 
 // RunGarbageCollection runs the databases GC
 func RunGarbageCollection() {

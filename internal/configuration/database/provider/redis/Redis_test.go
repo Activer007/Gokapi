@@ -41,7 +41,8 @@ func TestDatabaseProvider_Init(t *testing.T) {
 	instance.Close()
 	_, err = New(models.DbConnection{})
 	test.IsNotNil(t, err)
-	defer test.ExpectPanic(t)
+	// DialContext reports connection failures to the provider caller; the
+	// database startup facade remains responsible for aborting startup on error.
 	_, err = New(models.DbConnection{
 		RedisPrefix: "test_",
 		HostUrl:     "invalid:11",

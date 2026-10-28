@@ -622,3 +622,31 @@ go test ./... -count=1 -tags=test,noaws,integration
 相关race/govulncheck本PR NOT_RUN：没有共享并发状态或依赖修改。无schema迁移/上传接口改变；函数未接入，不能声称用户配额已强制执行或不会超卖。后续必须显式映射旧0=取消某层限制、处理Measure异常后拒绝准入；具体预算仍要在provider事务中与写入原子执行。
 
 最终62zgZb的environment/generate/calculation/awsmock/noaws/integration全部PASS(0)，目标覆盖100%语句；[公开结果](evidence/sec030-calculation-62zgZb/results.tsv)、[两个Go输入哈希](evidence/sec030-calculation-62zgZb/source.sha256)与当前文件逐项相符。相对链接/有限秘密模式/git diff --check PASS。前置SEC-031 [PR #15](https://github.com/Activer007/Gokapi/pull/15)已合并8019c61，CI40707671124 success，合并树与测试基线bfd4998一致。
+
+## M3 / SEC-030 持久预约基础（2026-10-28—29）
+
+基线357670c，分支codex/sec-030-durable-reservations；Windows PowerShell / WSL Ubuntu-24.04、Go1.26.0 linux/amd64。实际库/文件均为临时合成数据，未部署、未操作生产数据。数据库schema SQLite15→16、Redis8→9；设计/升级/回滚/边界见[ADR-014](ADR-014-DURABLE-UPLOAD-RESERVATIONS.md)。原用户计划目录未跟踪且未修改。
+
+严格先合同后实现：jJzTw2为纯状态桩RED，xPHhRM为SQLite/Redis provider桩RED，contract均退出1，失败为目标断言而非编译/启动。最小实现首轮yHxA0K仅两个provider的冲突错误分类失败；调整声明重放的检查顺序，保留声明校验。3C1RG0、0fhRPH目标生成/合同PASS。审查增加未绑定预约Bind后重放、不可达完成时间、读取上限、WATCH目标类型竞态、EXEC清理和严格迁移目标；新迁移预检s04pla中两个目标的孤立session拒绝合同RED，随后补齐全应用数据预检。均为本次开发合同，不称为现存可利用漏洞。
+
+最终命令：`bash docs/security/tools/run-sec030-reservations.sh`，在git archive副本叠加限定目录Go源码，规范CRLF为LF并记录实际编译的52份输入哈希。执行如下：
+
+```sh
+go version
+go generate ./...
+go test ./internal/uploadquota ./internal/test/securityfixture ./internal/configuration/database ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,noaws -run 'TestSEC030(Ledger|Durable|SQLite|Redis|Schema|Migration)' -v
+go test ./... -parallel 8 -count=1 -tags=test,awsmock
+go test ./... -parallel 8 -count=1 -tags=test,noaws
+go test ./... -count=1 -tags=test,noaws,integration
+go test -race ./internal/uploadquota ./internal/test/securityfixture ./internal/configuration/database ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,noaws -run 'TestSEC030(Ledger|Durable|SQLite|Redis|Schema|Migration)'
+```
+
+最终 b3lLSE 全部7项PASS(0)，[公开结果](evidence/sec030-reservations-b3lLSE/results.tsv)、[52份Go输入哈希](evidence/sec030-reservations-b3lLSE/source.sha256)已与当前规范源码逐项核实一致。基线源码及未覆盖路径来自指定HEAD，不拷贝部署配置。原始每项命令、日志、RED与中间失败在相应`.secret`目录保留。
+
+覆盖范围：双provider独立连接10/50争最后用户/request/实例字节、文件、在途、暂存额度；metadata现算、共享hash逻辑计量、大小绑定、唯一Claim/Commit与冲突；过期仍占额、可信清理确认、重连保持；4096/1024/256记录上限、分页、终态回收、JSON字段/版本/长度与精确int64；SQLite同连接回滚及单连接池复用；Redis真实WATCH事务被另一provider原始写入使失效后重算、错误类型竞态、非致命EXEC失败清理和逐项错误检查。Redis测试为miniredis，不冒称真实持久化认证。
+
+迁移/兼容：新库与旧schema升级保留数据和预约；SQLite VACUUM INTO合成一致备份恢复保留旧15模式及原16数据；两向SQL/Redis迁库保留干净回执、拒绝活动/待清理源、部分升级、未来版本、非空目标（含孤立认证/加密/统计数据）；旧格式源不被暗中升级。CLI新拒绝退出码3、原正例在全量通过。旧Migrate夹具补合法UserId，另设非法旧记录拒绝；Redis DialContext失败返回error，旧内部panic测试改为error断言，启动层仍拒绝失败连接。没有为通过测试移除服务端校验。
+
+NOT_RUN：真实Redis服务/AOF/RDB、旧二进制、生产迁移/恢复、全仓race、govulncheck（无依赖修改）、实际大文件/吞吐/峰值。HTTP/CLI上传尚未调用此预约原语；CleanupConfirmed不是删除成功证明，入口预算、正向metadata变更、I/O互斥、启动对账/物理清理和1–2GB验收继续OPEN，M3未完成。
+
+补记前轮私密现状观察：在cc5c1cd的未改动真实API上，SQLite/miniredis各10/50竞争MaxFiles=1，目标及定向race均退出0，每组恰好1个成功。生产认证限流保持，未用内部hook冻结快照；结论NOT_REPRODUCED，不证明所有调度原子。最初wrapper期待RED而返回1不是产品失败，第一次race启动器未启动Go为NOT_RUN，修正后实际race0；原始证据留在sec030-reservation-red.secret。本轮新的数据库合同RED与该现状观察分开，未将源码疑点升级为漏洞。

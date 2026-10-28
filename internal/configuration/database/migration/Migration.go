@@ -1,6 +1,7 @@
 package migration
 
 import (
+	"context"
 	"fmt"
 	"github.com/forceu/gokapi/internal/configuration/database"
 	"github.com/forceu/gokapi/internal/configuration/database/dbabstraction"
@@ -23,7 +24,11 @@ func Do(flags flagparser.MigrateFlags) {
 		return
 	}
 	fmt.Printf("Migrating %s database %s to %s database %s\n", getType(oldDb.Type), oldDb.HostUrl, getType(newDb.Type), newDb.HostUrl)
-	database.Migrate(oldDb, newDb)
+	if err := database.MigrateChecked(context.Background(), oldDb, newDb); err != nil {
+		fmt.Println("Migration rejected: " + err.Error())
+		osExit(3)
+		return
+	}
 }
 
 func getType(input int) string {
