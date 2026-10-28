@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -15,6 +16,7 @@ import (
 	"os"
 	"reflect"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -239,11 +241,8 @@ func TestInitialSetup(t *testing.T) {
 	testconfiguration.Create(false)
 	test.CompletesWithinTime(t, RunIfFirstStart, 3*time.Second)
 	testconfiguration.Delete()
-	go func() {
-		time.Sleep(1 * time.Second)
-		srv.Shutdown(context.Background())
-	}()
-	RunIfFirstStart()
+	server := startSetupTestServer(t, runIfFirstStart)
+	server.stop(t)
 	test.IsEqualBool(t, isInitialSetup, true)
 }
 
@@ -310,60 +309,219 @@ func TestRunConfigModification(t *testing.T) {
 	testconfiguration.Create(false)
 	credentialUsername = ""
 	credentialPassword = ""
-	finish := make(chan bool)
-	go func() {
-		waitForServer(t, true)
-		test.HttpPageResult(t, test.HttpTestConfig{
-			Url:             "http://localhost:53842/setup/start",
-			IsHtml:          false,
-			ExcludedContent: []string{"Gokapi Setup"},
-			Method:          "GET",
-			ResultCode:      401,
-		})
-		time.Sleep(1 * time.Second)
-		srv.Shutdown(context.Background())
-		finish <- true
-	}()
-	RunConfigModification()
+	server := startSetupTestServer(t, runConfigModification)
+	test.HttpPageResult(t, test.HttpTestConfig{
+		Url:             server.URL + "/setup/start",
+		IsHtml:          false,
+		ExcludedContent: []string{"Gokapi Setup"},
+		Method:          "GET",
+		ResultCode:      401,
+	})
+	server.stop(t)
 	test.IsEqualString(t, credentialUsername, "setup")
 	test.IsEqualInt(t, len(credentialPassword), 32)
 	isInitialSetup = true
-	<-finish
 }
 
-func waitForServer(t *testing.T, expectedRunning bool) bool {
-	const maxCount = 100
-	counter := 0
-	for counter < maxCount {
-		isRunning := isServerRunning(t)
-		if isRunning == expectedRunning {
-			return true
+type setupTestServer struct {
+	URL       string
+	addr      string
+	lifecycle *setupTestLifecycle
+}
+
+type setupTestReady struct {
+	listener net.Listener
+}
+
+// Cancellation owns the listener lifecycle, including a factory that returns
+// after readiness has timed out. No mutable global listener hook is restored.
+type setupTestLifecycle struct {
+	ctx    context.Context
+	cancel context.CancelFunc
+	ready  chan setupTestReady
+	done   chan struct{}
+	mu     sync.Mutex
+	server *http.Server
+}
+
+func newSetupTestLifecycle() *setupTestLifecycle {
+	ctx, cancel := context.WithCancel(context.Background())
+	return &setupTestLifecycle{ctx: ctx, cancel: cancel, ready: make(chan setupTestReady), done: make(chan struct{})}
+}
+
+func (lifecycle *setupTestLifecycle) listenerFactory(open func() (net.Listener, error)) setupListenerFactory {
+	return func(server *http.Server) (net.Listener, error) {
+		lifecycle.mu.Lock()
+		lifecycle.server = server
+		lifecycle.mu.Unlock()
+		listener, err := open()
+		if err != nil {
+			return nil, err
 		}
-		counter++
-		time.Sleep(100 * time.Millisecond)
+		// Check cancellation before publishing a late listener. Returning a
+		// closed listener to a closed server lets Serve exit normally.
+		if lifecycle.ctx.Err() != nil {
+			_ = listener.Close()
+			_ = server.Close()
+			return listener, nil
+		}
+		select {
+		case lifecycle.ready <- setupTestReady{listener: listener}:
+		case <-lifecycle.ctx.Done():
+			_ = listener.Close()
+			_ = server.Close()
+		}
+		return listener, nil
 	}
-	t.Fatalf("Timeout after 10 seconds")
-	return false
 }
 
-func isServerRunning(t *testing.T) bool {
-	client := &http.Client{
-		Timeout: 100 * time.Millisecond,
-	}
+func (lifecycle *setupTestLifecycle) waitStopped(t *testing.T) {
 	t.Helper()
-	req, err := http.NewRequest("GET", "http://localhost:53842/admin", nil)
-	test.IsNil(t, err)
-	_, err = client.Do(req)
+	select {
+	case <-lifecycle.done:
+	case <-time.After(10 * time.Second):
+		t.Fatal("setup completion timeout")
+	}
+}
+
+func (lifecycle *setupTestLifecycle) stop(t *testing.T) {
+	t.Helper()
+	lifecycle.cancel()
+	lifecycle.mu.Lock()
+	server := lifecycle.server
+	lifecycle.mu.Unlock()
+	if server != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := server.Shutdown(ctx); err != nil {
+			_ = server.Close()
+			t.Errorf("setup shutdown failed: %v", err)
+		}
+	}
+	lifecycle.waitStopped(t)
+}
+
+// The same allocated listener is handed to Serve. Cleanup is registered before
+// launch, and readiness/completion are synchronized separately for each cycle.
+func startSetupTestServer(t *testing.T, run func(setupListenerFactory)) *setupTestServer {
+	t.Helper()
+	lifecycle := newSetupTestLifecycle()
+	t.Cleanup(func() { lifecycle.stop(t) })
+	listen := lifecycle.listenerFactory(func() (net.Listener, error) { return net.Listen("tcp", "127.0.0.1:0") })
+	go func() { run(listen); close(lifecycle.done) }()
+	var current setupTestReady
+	select {
+	case current = <-lifecycle.ready:
+	case <-lifecycle.done:
+		t.Fatal("setup returned without allocating a listener")
+	case <-time.After(10 * time.Second):
+		lifecycle.cancel()
+		t.Fatal("setup listener readiness timeout")
+	}
+	server := &setupTestServer{URL: "http://" + current.listener.Addr().String(), addr: current.listener.Addr().String(), lifecycle: lifecycle}
+	deadline := time.NewTimer(10 * time.Second)
+	defer deadline.Stop()
+	tick := time.NewTicker(10 * time.Millisecond)
+	defer tick.Stop()
+	for !isServerRunning(t, server.URL) {
+		select {
+		case <-lifecycle.done:
+			t.Fatal("setup stopped before HTTP readiness")
+		case <-deadline.C:
+			lifecycle.cancel()
+			t.Fatal("setup HTTP readiness timeout")
+		case <-tick.C:
+		}
+	}
+	return server
+}
+
+func (server *setupTestServer) waitStopped(t *testing.T) { server.lifecycle.waitStopped(t) }
+func (server *setupTestServer) stop(t *testing.T)        { server.lifecycle.stop(t) }
+
+func TestSEC062LateListenerCleanup(t *testing.T) {
+	lifecycle := newSetupTestLifecycle()
+	// Register both cleanup actions before launch. Even an early test failure
+	// releases the synthetic gate before waiting for the serving goroutine.
+	t.Cleanup(func() { lifecycle.stop(t) })
+	entered, release := make(chan struct{}), make(chan struct{})
+	var releaseOnce sync.Once
+	openGate := func() { releaseOnce.Do(func() { close(release) }) }
+	t.Cleanup(openGate)
+	allocated := make(chan net.Listener, 1)
+	served := make(chan error, 1)
+	listen := lifecycle.listenerFactory(func() (net.Listener, error) {
+		close(entered)
+		<-release
+		listener, err := net.Listen("tcp", "127.0.0.1:0")
+		if err == nil {
+			allocated <- listener
+		}
+		return listener, err
+	})
+	go func() {
+		server := &http.Server{Handler: http.NotFoundHandler()}
+		listener, err := listen(server)
+		if err == nil {
+			err = server.Serve(listener)
+		}
+		served <- err
+		close(lifecycle.done)
+	}()
+	select {
+	case <-entered:
+	case <-time.After(3 * time.Second):
+		t.Fatal("delayed factory did not start")
+	}
+	// Model the readiness timeout/cancellation before the listener exists.
+	lifecycle.cancel()
+	openGate()
+	var listener net.Listener
+	select {
+	case listener = <-allocated:
+	case <-time.After(3 * time.Second):
+		t.Fatal("delayed listener was not allocated")
+	}
+	defer listener.Close()
+	select {
+	case err := <-served:
+		if !errors.Is(err, http.ErrServerClosed) {
+			t.Fatalf("cancelled Serve = %v", err)
+		}
+	case <-time.After(3 * time.Second):
+		t.Fatal("late listener left a serving goroutine")
+	}
+	// A deadline makes a leaked listener fail promptly rather than hanging
+	// the regression. A properly closed listener returns net.ErrClosed.
+	_ = listener.(*net.TCPListener).SetDeadline(time.Now())
+	if _, err := listener.Accept(); !errors.Is(err, net.ErrClosed) {
+		t.Fatalf("late listener was not closed: %v", err)
+	}
+	lifecycle.waitStopped(t)
+}
+
+func isServerRunning(t *testing.T, baseURL string) bool {
+	t.Helper()
+	client := &http.Client{Timeout: 100 * time.Millisecond}
+	req, err := http.NewRequest("GET", baseURL+"/admin", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	response, err := client.Do(req)
+	if err != nil {
+		return false
+	}
+	defer response.Body.Close()
+	_, err = io.Copy(io.Discard, response.Body)
 	return err == nil
 }
 
 func TestIntegration(t *testing.T) {
 	testconfiguration.Delete()
 	test.FileDoesNotExist(t, "test/config.json")
-	go RunIfFirstStart()
-	waitForServer(t, true)
+	server := startSetupTestServer(t, runIfFirstStart)
 	t.Run("SEC014SlowSetupHeader", func(t *testing.T) {
-		conn, err := net.DialTimeout("tcp", "127.0.0.1:53842", time.Second)
+		conn, err := net.DialTimeout("tcp", server.addr, time.Second)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -391,13 +549,13 @@ func TestIntegration(t *testing.T) {
 	unauthorizedInput := createInputInternalAuth()
 	// A real installation request without the local proof must not write config.
 	test.HttpPageResultJson(t, test.HttpTestConfig{
-		Url: "http://localhost:53842/setup/setupResult", Method: "POST", ResultCode: 401,
+		Url: server.URL + "/setup/setupResult", Method: "POST", ResultCode: 401,
 		Body: strings.NewReader(unauthorizedInput.toJson()),
 	})
 	test.FileDoesNotExist(t, "test/config.json")
 
 	test.HttpPageResult(t, test.HttpTestConfig{
-		Url:             "http://localhost:53842/admin",
+		Url:             server.URL + "/admin",
 		IsHtml:          false,
 		RequiredContent: []string{"Server is in maintenance mode"},
 		ExcludedContent: []string{"Downloads"},
@@ -405,7 +563,7 @@ func TestIntegration(t *testing.T) {
 		ResultCode:      200,
 	})
 	test.HttpPageResult(t, test.HttpTestConfig{
-		Url:             "http://localhost:53842/setup/start",
+		Url:             server.URL + "/setup/start",
 		IsHtml:          false,
 		RequiredContent: []string{"Thank you for choosing Gokapi"},
 		Headers:         initialAuth,
@@ -413,7 +571,7 @@ func TestIntegration(t *testing.T) {
 		ResultCode:      200,
 	})
 	test.HttpPostRequest(t, test.HttpTestConfig{
-		Url:             "http://localhost:53842/setup/setupResult",
+		Url:             server.URL + "/setup/setupResult",
 		ExcludedContent: []string{"\"result\": \"OK\""},
 		RequiredContent: []string{"\"result\": \"Error\""},
 		IsHtml:          false,
@@ -425,7 +583,7 @@ func TestIntegration(t *testing.T) {
 
 	setupVals := createInputInternalAuth()
 	test.HttpPageResultJson(t, test.HttpTestConfig{
-		Url:             "http://localhost:53842/setup/setupResult",
+		Url:             server.URL + "/setup/setupResult",
 		RequiredContent: []string{"\"result\": \"OK\""},
 		ExcludedContent: []string{"\"result\": \"Error\""},
 		IsHtml:          false,
@@ -438,11 +596,11 @@ func TestIntegration(t *testing.T) {
 	replayInput := createInputHeaderAuth()
 	// The successful installation consumes the proof before the server stops.
 	test.HttpPageResultJson(t, test.HttpTestConfig{
-		Url: "http://localhost:53842/setup/setupResult", Method: "POST", ResultCode: 401,
+		Url: server.URL + "/setup/setupResult", Method: "POST", ResultCode: 401,
 		Headers: initialAuth, Body: strings.NewReader(replayInput.toJson()),
 	})
 
-	waitForServer(t, false)
+	server.waitStopped(t)
 	test.FileExists(t, "test/config.json")
 	settings := configuration.Get()
 	test.IsEqualBool(t, settings.IncludeFilename, true)
@@ -471,15 +629,14 @@ func TestIntegration(t *testing.T) {
 	}
 	test.FileExists(t, "test/cloudconfig.yml")
 
-	go RunConfigModification()
-	waitForServer(t, true)
+	server = startSetupTestServer(t, runConfigModification)
 
 	credentialUsername = "test"
 	credentialPassword = "testpw"
 
 	setupInput := createInputHeaderAuth()
 	test.HttpPageResultJson(t, test.HttpTestConfig{
-		Url:             "http://localhost:53842/setup/start",
+		Url:             server.URL + "/setup/start",
 		RequiredContent: []string{"Unauthorized"},
 		ExcludedContent: []string{"\"result\":"},
 		IsHtml:          false,
@@ -488,7 +645,7 @@ func TestIntegration(t *testing.T) {
 		Body:            strings.NewReader(setupInput.toJson()),
 	})
 	test.HttpPageResultJson(t, test.HttpTestConfig{
-		Url:             "http://localhost:53842/setup/start",
+		Url:             server.URL + "/setup/start",
 		RequiredContent: []string{"You can now change the Gokapi configuration."},
 		ExcludedContent: []string{"Unauthorized"},
 		IsHtml:          false,
@@ -498,7 +655,7 @@ func TestIntegration(t *testing.T) {
 	})
 
 	test.HttpPageResultJson(t, test.HttpTestConfig{
-		Url:             "http://localhost:53842/setup/setupResult",
+		Url:             server.URL + "/setup/setupResult",
 		RequiredContent: []string{"Unauthorized"},
 		ExcludedContent: []string{"\"result\":"},
 		IsHtml:          false,
@@ -507,7 +664,7 @@ func TestIntegration(t *testing.T) {
 		Body:            strings.NewReader(setupInput.toJson()),
 	})
 	test.HttpPageResultJson(t, test.HttpTestConfig{
-		Url:             "http://localhost:53842/setup/setupResult",
+		Url:             server.URL + "/setup/setupResult",
 		RequiredContent: []string{"\"result\": \"OK\""},
 		ExcludedContent: []string{"\"result\": \"Error\""},
 		IsHtml:          false,
@@ -517,7 +674,7 @@ func TestIntegration(t *testing.T) {
 		Body:            strings.NewReader(setupInput.toJson()),
 	})
 
-	waitForServer(t, false)
+	server.waitStopped(t)
 
 	test.FileExists(t, "test/config.json")
 	settings = configuration.Get()
@@ -542,15 +699,14 @@ func TestIntegration(t *testing.T) {
 	}
 	test.FileDoesNotExist(t, "test/cloudconfig.yml")
 
-	go RunConfigModification()
-	waitForServer(t, true)
+	server = startSetupTestServer(t, runConfigModification)
 
 	credentialUsername = "test"
 	credentialPassword = "testpw"
 
 	setupInput = createInputOAuth()
 	test.HttpPageResultJson(t, test.HttpTestConfig{
-		Url:             "http://localhost:53842/setup/setupResult",
+		Url:             server.URL + "/setup/setupResult",
 		RequiredContent: []string{"\"result\": \"OK\""},
 		ExcludedContent: []string{"\"result\": \"Error\""},
 		IsHtml:          false,
@@ -560,7 +716,7 @@ func TestIntegration(t *testing.T) {
 		Body:            strings.NewReader(setupInput.toJson()),
 	})
 
-	waitForServer(t, false)
+	server.waitStopped(t)
 
 	test.IsEqualBool(t, settings.PicturesAlwaysLocal, true)
 	test.IsEqualBool(t, cconfig.Aws.ProxyDownload, false)
@@ -783,10 +939,13 @@ func createInputOAuth() setupValues {
 
 func TestIsErrorAddressAlreadyInUse(t *testing.T) {
 
-	l, err := net.Listen("tcp", "127.0.0.1:19888")
-	test.IsNil(t, err)
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer l.Close()
 	srv2 := http.Server{
-		Addr: ":19888",
+		Addr: l.Addr().String(),
 	}
 	httpError := make(chan error)
 	go func() {
@@ -801,5 +960,4 @@ func TestIsErrorAddressAlreadyInUse(t *testing.T) {
 	}
 	err = errors.New("other error")
 	test.IsEqualBool(t, isErrorAddressAlreadyInUse(err), false)
-	l.Close()
 }

@@ -52,7 +52,14 @@ var webserverDirEmb embed.FS
 //go:embed templates
 var templateFolderEmbedded embed.FS
 
-var srv http.Server
+// The listener factory is passed to one setup cycle, never installed globally.
+// Production keeps the configured address and net.Listen behavior.
+type setupListenerFactory func(*http.Server) (net.Listener, error)
+
+func listenSetup(server *http.Server) (net.Listener, error) {
+	return net.Listen("tcp", server.Addr)
+}
+
 var isInitialSetup = true
 var credentialUsername string
 var credentialPassword string
@@ -68,16 +75,24 @@ const debugDisableAuth = false
 
 // RunIfFirstStart checks if config files exist and if not start a blocking webserver for setup
 func RunIfFirstStart() {
+	runIfFirstStart(listenSetup)
+}
+
+func runIfFirstStart(listen setupListenerFactory) {
 	if !configuration.Exists() {
 		isInitialSetup = true
-		startSetupWebserver()
+		startSetupWebserver(listen)
 	}
 }
 
 // RunConfigModification starts a blocking webserver for reconfiguration setup
 func RunConfigModification() {
+	runConfigModification(listenSetup)
+}
+
+func runConfigModification(listen setupListenerFactory) {
 	isInitialSetup = false
-	startSetupWebserver()
+	startSetupWebserver(listen)
 }
 
 // prepareSetupCredentials creates a fresh, process-local proof. Only its path
@@ -143,7 +158,7 @@ func basicAuth(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func startSetupWebserver() {
+func startSetupWebserver(listen setupListenerFactory) {
 	if err := prepareSetupCredentials(); err != nil {
 		log.Fatalf("Unable to prepare setup credentials: %v", err)
 	}
@@ -153,37 +168,39 @@ func startSetupWebserver() {
 	fmt.Println("Use a local browser, an SSH tunnel, or a trusted HTTPS proxy for setup.")
 	port := strconv.Itoa(environment.New().WebserverPort)
 	webserverDir, _ := fs.Sub(webserverDirEmb, "static")
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", handleShowMaintenance)
-	mux.Handle("/setup/", http.FileServer(http.FS(webserverDir)))
-	mux.HandleFunc("/setup/start", basicAuth(handleShowSetup))
-	mux.HandleFunc("/setup/setupResult", basicAuth(handleResult))
-	mux.HandleFunc("/setup/testaws", basicAuth(handleTestAws))
-
-	srv = http.Server{
+	server := &http.Server{
 		Addr:              setupListenAddress(port, environment.IsDockerInstance()),
 		ReadHeaderTimeout: 5 * time.Second,
 		IdleTimeout:       time.Minute,
 		ReadTimeout:       2 * time.Minute,
 		WriteTimeout:      2 * time.Minute,
-		Handler:           mux,
 	}
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", handleShowMaintenance)
+	mux.Handle("/setup/", http.FileServer(http.FS(webserverDir)))
+	mux.HandleFunc("/setup/start", basicAuth(handleShowSetup))
+	mux.HandleFunc("/setup/setupResult", basicAuth(func(w http.ResponseWriter, r *http.Request) {
+		handleResult(w, r, server)
+	}))
+	mux.HandleFunc("/setup/testaws", basicAuth(handleTestAws))
+
+	server.Handler = mux
 	if debugDisableAuth {
-		srv.Addr = "127.0.0.1:" + port
+		server.Addr = "127.0.0.1:" + port
 		fmt.Println("Authentication is disabled by debug flag. Setup only accessible by localhost")
 		fmt.Println("Please open http://127.0.0.1:" + port + "/setup to setup Gokapi.")
 	} else {
 		fmt.Println("Please open http://127.0.0.1:" + port + "/setup to setup Gokapi.")
 	}
-	listener, err := net.Listen("tcp", srv.Addr)
+	listener, err := listen(server)
 	if err != nil {
 		if isErrorAddressAlreadyInUse(err) {
 			fmt.Println("This port is already in use. Use parameter -p or env variable GOKAPI_PORT to change the port.")
 		}
 		log.Fatalf("Setup Webserver: %v", err)
 	}
-	err = srv.Serve(listener)
+	err = server.Serve(listener)
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("Setup Webserver: %v", err)
 	}
@@ -846,7 +863,7 @@ func handleShowMaintenance(w http.ResponseWriter, r *http.Request) {
 }
 
 // Handling of /setupResult
-func handleResult(w http.ResponseWriter, r *http.Request) {
+func handleResult(w http.ResponseWriter, r *http.Request, server *http.Server) {
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", http.MethodPost)
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -878,7 +895,7 @@ func handleResult(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte("{ \"result\": \"OK\"}"))
 	go func() {
 		time.Sleep(1500 * time.Millisecond)
-		err := srv.Shutdown(context.Background())
+		err := server.Shutdown(context.Background())
 		if err != nil {
 			fmt.Println(err)
 		}

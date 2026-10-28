@@ -146,7 +146,7 @@ func TestSEC010SafeMethodCannotCommit(t *testing.T) {
 	setupComplete.Store(false)
 	t.Cleanup(func() { setupComplete.Store(previous) })
 	w := httptest.NewRecorder()
-	handleResult(w, httptest.NewRequest(http.MethodGet, "/setup/setupResult", nil))
+	handleResult(w, httptest.NewRequest(http.MethodGet, "/setup/setupResult", nil), new(http.Server))
 	if w.Code != http.StatusMethodNotAllowed {
 		t.Errorf("GET status=%d, want 405", w.Code)
 	}
@@ -162,7 +162,7 @@ func TestSEC010CompletedCommitRejectsConcurrentReplay(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			w := httptest.NewRecorder()
-			handleResult(w, httptest.NewRequest(http.MethodPost, "/setup/setupResult", nil))
+			handleResult(w, httptest.NewRequest(http.MethodPost, "/setup/setupResult", nil), new(http.Server))
 			if w.Code != http.StatusConflict {
 				t.Errorf("in-flight replay: status=%d", w.Code)
 			}

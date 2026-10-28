@@ -107,3 +107,5 @@ SEC-020/021/023/032 在用户修订范围内的代码 Gate 已完成，基线 3a
 SEC-030计算PR仅交付Measure/CanReserve及测试，没有启用额度。独立源码审查未见阻塞，保留“旧0=无限制显式转换、异常metadata失败关闭”接入要求。事务、普通/FileRequest入口、物理预算、重启和流式性能继续OPEN，不能以计算单测覆盖率关闭M3。
 
 2026-10-29持久预约基础：[PR #17](https://github.com/Activer007/Gokapi/pull/17)，代码e018d58，起点357670c，SQLite16/Redis9；有界账本/幂等/完成metadata原子提交、独立连接争额和离线迁移预检已实现，本地生成/合同/三组全量/相关race PASS，最终CI/合并以PR为准。TEST-REPORT及ADR-014记录证据。下一P0仍为策略及普通/整文件/公开上传入口、正向metadata变更、实际I/O清理和启动恢复；未知长度/异常分块、1–2GB峰值全部保持OPEN。基础层不等于生产额度已经启用。
+
+SEC-062测试可靠性增量，基线4ad1255：PR #17已合并；合并后CI40726798576 attempt1/noaws、attempt2/integration均因setup固定53842首次监听冲突失败，保留原始证据，不继续盲重跑。隔离占端口RED确认后改用持有的动态listener；生产默认net.Listen不变，保存配置/认证等原断言保留。最终393FfY占配置端口合同/生成/setup/相关race/三组全量全部PASS，见TEST-REPORT；PR审查及合并后CI仍按实际记录。M3运行时额度/清理/性能Gate不因此关闭。
