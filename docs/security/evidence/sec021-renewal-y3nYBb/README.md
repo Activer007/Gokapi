@@ -1,0 +1,3 @@
+# SEC-021 validation summary
+
+Baseline aff864aa48a77fc795ad91d2f3a4381b8d5afe59 plus the source.sha256 files. Raw logs and private HTTP assessment remain in ignored/private storage. Final y3nYBb: generate, targeted contract, awsmock, noaws, integration and related race all exit 0. Mutation lF3Ig0: expected go exit 1, four completed assertion failures, verified runner exit 0. Initial full pMknYF: noaws failed because another test process held the legacy fixed Redis port; serial rerun passed. Earlier harness failures remain documented in TEST-REPORT/private assessment, not overwritten. The private HTTP test was additionally included in targeted/race validation; it is excluded from the public release. No real services or production data used.

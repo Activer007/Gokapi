@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/forceu/gokapi/internal/configuration/database/dbabstraction"
 	"github.com/forceu/gokapi/internal/configuration/database/dbcache"
@@ -233,6 +235,11 @@ func GetDownloadsRemaining(id string) int {
 
 // Session Section
 
+// Session mutations are coordinated within this process. Reads may precede a
+// revocation; renewal must therefore compare the stored record under this lock.
+// This is not a coordination protocol for multiple Gokapi processes.
+var sessionMutation sync.Mutex
+
 // GetSession returns the session with the given ID or false if not a valid ID
 func GetSession(id string) (models.Session, bool) {
 	return db.GetSession(id)
@@ -240,21 +247,49 @@ func GetSession(id string) (models.Session, bool) {
 
 // SaveSession stores the given session. After the expiry passed, it will be deleted automatically
 func SaveSession(id string, session models.Session) {
+	sessionMutation.Lock()
+	defer sessionMutation.Unlock()
 	db.SaveSession(id, session)
+}
+
+// RotateSession replaces an unchanged, live session at most once. Revocation
+// and rotation share the same critical section for both supported providers.
+func RotateSession(id, replacementID string, expected, replacement models.Session) bool {
+	sessionMutation.Lock()
+	defer sessionMutation.Unlock()
+	current, ok := db.GetSession(id)
+	if !ok || current != expected || current.ValidUntil < time.Now().Unix() ||
+		replacementID == "" || replacementID == id || replacement.UserId != current.UserId {
+		return false
+	}
+	if _, exists := db.GetSession(replacementID); exists {
+		return false
+	}
+	// Remove the old credential first: a storage failure must not leave two
+	// usable credentials. The caller issues a cookie only after success.
+	db.DeleteSession(id)
+	db.SaveSession(replacementID, replacement)
+	return true
 }
 
 // DeleteSession deletes a session with the given ID
 func DeleteSession(id string) {
+	sessionMutation.Lock()
+	defer sessionMutation.Unlock()
 	db.DeleteSession(id)
 }
 
 // DeleteAllSessions logs all users out
 func DeleteAllSessions() {
+	sessionMutation.Lock()
+	defer sessionMutation.Unlock()
 	db.DeleteAllSessions()
 }
 
 // DeleteAllSessionsByUser logs the specific users out
 func DeleteAllSessionsByUser(userId int) {
+	sessionMutation.Lock()
+	defer sessionMutation.Unlock()
 	db.DeleteAllSessionsByUser(userId)
 }
 

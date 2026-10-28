@@ -165,3 +165,9 @@ VALIDATE：完整分片/完成/在途及异步任务授权、会话续期/Key �
 ## 2026-10-28 用户修订 M2 部署范围
 
 用户确认个人/可信小团队、单 VPS 单进程，公网下载者和 File Request 上传者仍不可信。已复核 User.go 的三角色/9 用户权限位、ApiKey.go 的10动作位、Policy.go 纯策略和 API 当前权限检查。CONFIRMED_CODE：现有实现无需新增权限引擎；VALIDATE：单进程会话续期/撤销及 File Request add/complete 收尾。目标调整见 [M2-GOAL](M2-GOAL.md)，不删除既有测试，不把延期标成已修复。代码仍为 79a0480；本轮仅改文档，尚未部署。
+
+## SEC-021 单进程续期增量
+
+基线 aff864aa48a77fc795ad91d2f3a4381b8d5afe59；Windows 工作区、WSL Ubuntu-24.04、Go 1.26.0 linux/amd64。CONFIRMED_CODE：隔离会话合同及受控 HTTP 认证交错证明旧续期路径不满足已完成撤销合同；最小修复在门面协调会话变更并条件替换，未修改 provider/schema。详细复现保留私密，不能据此声称生产被利用。HISTORICAL_FIXED：此前 API 权限交集、使用记录和管理 presign 修复保留。VALIDATE：真实 Redis/浏览器、多实例、会话家族、完整登录验证与新会话创建交错；M2 中 File Request add/complete 和最终审计仍开放。
+
+已复核 README、advanced/changelog、SECURITY.md、会话及撤销调用者和既有测试；只读检索上游 session Issues/PR、开放 PR 与公开安全公告，未发现同范围待合并修复。开放 #435 为 OIDC claims 兼容，#436 为 File Request 前端默认额度，均非本次续期修复。只写自己的仓库及未公开审查入口。

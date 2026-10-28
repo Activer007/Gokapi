@@ -40,7 +40,7 @@ func IsValidSession(w http.ResponseWriter, r *http.Request, isOauth bool, OAuthR
 }
 
 // useSession checks if a session is still valid. It Changes the session string
-// if it has been used for more than an hour to limit session hijacking
+// if it has been used for more than twelve hours to limit session hijacking
 // Returns true if session is still valid
 // Returns false if session is invalid (and deletes it)
 func useSession(w http.ResponseWriter, id string, session models.Session, isOauth bool, OAuthRecheckInterval int) bool {
@@ -49,28 +49,34 @@ func useSession(w http.ResponseWriter, id string, session models.Session, isOaut
 		return false
 	}
 	if session.RenewAt < time.Now().Unix() {
-		CreateSession(w, isOauth, OAuthRecheckInterval, session.UserId)
-		database.DeleteSession(id)
+		replacementID, replacement := buildSession(isOauth, OAuthRecheckInterval, session.UserId)
+		if !database.RotateSession(id, replacementID, session, replacement) {
+			return false
+		}
+		writeSessionCookie(w, replacementID, time.Unix(replacement.ValidUntil, 0))
 	}
 	go database.UpdateUserLastOnline(session.UserId)
 	return true
 }
 
 // CreateSession creates a new session - called after login with correct username / password
-// If sessions parameter is nil, it will be loaded from config
 func CreateSession(w http.ResponseWriter, isOauth bool, OAuthRecheckInterval int, userId int) {
+	sessionString, session := buildSession(isOauth, OAuthRecheckInterval, userId)
+	database.SaveSession(sessionString, session)
+	writeSessionCookie(w, sessionString, time.Unix(session.ValidUntil, 0))
+}
+
+func buildSession(isOauth bool, OAuthRecheckInterval int, userId int) (string, models.Session) {
 	timeExpiry := time.Now().Add(cookieLifeAdmin)
 	if isOauth {
 		timeExpiry = time.Now().Add(time.Duration(OAuthRecheckInterval) * time.Hour)
 	}
 
-	sessionString := helper.GenerateRandomString(lengthSessionId)
-	database.SaveSession(sessionString, models.Session{
+	return helper.GenerateRandomString(lengthSessionId), models.Session{
 		RenewAt:    time.Now().Add(12 * time.Hour).Unix(),
 		ValidUntil: timeExpiry.Unix(),
 		UserId:     userId,
-	})
-	writeSessionCookie(w, sessionString, timeExpiry)
+	}
 }
 
 // LogoutSession logs out user and deletes session

@@ -507,3 +507,26 @@ mutation 命令和原始退出码见相应 evidence 目录的 *.command.txt/resu
 ## 2026-10-28 M2 范围修订（纯文档）
 
 按用户确认更新 M2-GOAL 及基线/威胁模型/看板/矩阵引用；未改生产 Go、schema、API 或测试代码。检查文档目标存在、差异与秘密边界；本轮本地 go generate、全量 Go、race、govulncheck 为 NOT_RUN（纯文档，无需重复已验证代码）。上一代码基线 79a0480 的合并后 CI 40675833652 已核实 completed/success。旧私密评估保留在独立本地分支与未发布审查记录，未混入本目标修订提交。
+
+## SEC-021 单进程会话续期（2026-10-28）
+
+基线 aff864a，WSL Ubuntu-24.04 / Go 1.26.0 linux/amd64；源码归档至 /tmp，env -i，临时 SQLite 和 miniredis，原始日志留在忽略目录。最终 [y3nYBb](evidence/sec021-renewal-y3nYBb/results.tsv) 所有项退出 0；公开源码 SHA256 见同目录，不上传详细 HTTP 复现。
+
+实际命令：
+
+```sh
+go generate ./...
+go test ./internal/configuration/database ./internal/webserver/authentication/sessionmanager -count=1 -tags=test,noaws,security_private -run 'TestSEC021Session' -v
+go test ./... -parallel 8 -count=1 -tags=test,awsmock
+go test ./... -parallel 8 -count=1 -tags=test,noaws
+go test ./... -count=1 -tags=test,noaws,integration
+go test -race ./internal/configuration/database/... ./internal/webserver/authentication/sessionmanager -count=1 -tags=test,noaws,security_private
+```
+
+以上 PASS。security_private 额外选择仅保留在私密审查中的 HTTP 测试；公开必要回归不依赖该文件。14 个双 provider 会话状态子用例、4 个双 provider 撤销顺序子用例以及私密 HTTP 的 1 个正例/3 个撤销负例通过。普通 Cookie/OAuth 生命周期沿用既有测试。
+
+RED：XgK3yj 的原始实现合同失败，正例成立。隔离 mutation lF3Ig0 只移除用户/全局撤销协调，4 个预期断言完整失败（Go exit 1，验证脚本 exit 0）。失败记录：初次脚本 CRLF 无法启动；Id1pCn 辅助函数重名导致编译失败；apsDM1 测试时钟/互斥锁组合阻塞后终止；HD3XOr 故障注入首个断言成立但后续夹具残留阻塞，旧包装器 exit 0 不算有效通过；已增加清理和完整结束校验。首次全量 pMknYF 的 noaws 因上述 mutation 占用旧测试固定 Redis 端口而失败，其他项通过；最终串行全量全部通过。
+
+有限秘密模式扫描、git diff --check PASS。NOT_RUN：真实 Redis/S3、完整浏览器/生产网络、多实例、存储故障注入、全仓 race、govulncheck（无依赖修改）。无 schema/身份/密码算法/文件删除变更；兼容、先删旧后写新及回滚要求见 ADR-010。审查属于自审，不冒称独立批准；最终 PR/合并/CI 以远端为准。
+
+最小发布分支再次运行 `bash docs/security/tools/run-sec021-renewal.sh --target`：60mKPh 的 environment/generate/contract 均退出 0，公开合同使用 `-tags=test,noaws`。四个发布 Go 文件 SHA256 与最终全量/race 的 y3nYBb 完全一致；没有通过删除失败断言获得 GREEN。详细 HTTP 文件与私密评估文档不在发布提交中。
