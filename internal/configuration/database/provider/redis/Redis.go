@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -21,7 +22,7 @@ type DatabaseProvider struct {
 }
 
 // DatabaseSchemeVersion contains the version number to be expected from the current database. If lower, an upgrade will be performed
-const DatabaseSchemeVersion = 8
+const DatabaseSchemeVersion = 9
 
 // New returns an instance
 func New(dbConfig models.DbConnection) (DatabaseProvider, error) {
@@ -60,6 +61,9 @@ func (p DatabaseProvider) init(config models.DbConnection) (DatabaseProvider, er
 	// If DB version is 0, the DB is new and therefore set version to latest one.
 	// Otherwise, Upgrade() would be called after loading
 	if p.GetDbVersion() == 0 {
+		if err := p.initUploadQuota(); err != nil {
+			return DatabaseProvider{}, err
+		}
 		p.SetDbVersion(DatabaseSchemeVersion)
 	}
 	return p, nil
@@ -105,9 +109,16 @@ func newPool(config models.DbConnection) *redigo.Pool {
 			helper.Check(err)
 			return c, err
 		},
+		DialContext: func(ctx context.Context) (redigo.Conn, error) {
+			return redigo.DialContext(ctx, "tcp", config.HostUrl, getDialOptions(config)...)
+		},
 
 		TestOnBorrow: func(c redigo.Conn, t time.Time) error {
 			_, err := c.Do("PING")
+			return err
+		},
+		TestOnBorrowContext: func(ctx context.Context, c redigo.Conn, _ time.Time) error {
+			_, err := redigo.DoContext(c, ctx, "PING")
 			return err
 		},
 	}
@@ -161,6 +172,9 @@ func (p DatabaseProvider) Upgrade(currentDbVersion int) {
 	// < v2.2.5
 	if currentDbVersion < 8 {
 		p.DeleteAllSessions()
+	}
+	if currentDbVersion < 9 {
+		helper.Check(p.initUploadQuota())
 	}
 }
 

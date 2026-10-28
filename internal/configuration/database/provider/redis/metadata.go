@@ -2,6 +2,7 @@ package redis
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/gob"
 	"strings"
 
@@ -79,13 +80,41 @@ func (p DatabaseProvider) GetMetaDataById(id string) (models.File, bool) {
 func (p DatabaseProvider) SaveMetaData(file models.File) {
 	marshalledFile, err := marshalEncryptionInfo(file)
 	helper.Check(err)
-	p.setHashMap(p.buildArgs(prefixMetaData + file.Id).AddFlat(marshalledFile))
+	args := redigo.Args{}.Add(p.dbPrefix+prefixMetaData+file.Id, p.dbPrefix+keyMetadataRevision, rand.Text(), "save").AddFlat(marshalledFile)
+	conn := p.pool.Get()
+	defer conn.Close()
+	_, err = mutateMetadataWithRevision.Do(conn, args...)
+	helper.Check(err)
 }
 
 // DeleteMetaData deletes information about a file
 func (p DatabaseProvider) DeleteMetaData(id string) {
-	p.deleteKey(prefixMetaData + id)
+	conn := p.pool.Get()
+	defer conn.Close()
+	_, err := mutateMetadataWithRevision.Do(conn, p.dbPrefix+prefixMetaData+id, p.dbPrefix+keyMetadataRevision, rand.Text(), "delete")
+	helper.Check(err)
 }
+
+// Only metadata notification uses Lua; quota arithmetic remains checked int64
+// in Go. Change the opaque revision first. If a later write fails, WATCH users
+// conservatively retry; metadata can never change with an unchanged revision.
+var mutateMetadataWithRevision = redigo.NewScript(2, `
+local revisionType = redis.call('TYPE', KEYS[2]).ok
+if revisionType ~= 'none' and revisionType ~= 'string' then
+    return redis.error_reply('invalid metadata revision type')
+end
+if ARGV[2] == 'save' then
+    local metadataType = redis.call('TYPE', KEYS[1]).ok
+    if metadataType ~= 'none' and metadataType ~= 'hash' then
+        return redis.error_reply('invalid metadata type')
+    end
+end
+redis.call('SET', KEYS[2], ARGV[1])
+if ARGV[2] == 'delete' then
+    return redis.call('DEL', KEYS[1])
+end
+return redis.call('HMSET', KEYS[1], unpack(ARGV, 3))
+`)
 
 // IncreaseDownloadCount increases the download count of a file atomically
 func (p DatabaseProvider) IncreaseDownloadCount(id string, decreaseRemainingDownloads bool) {

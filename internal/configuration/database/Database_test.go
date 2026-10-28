@@ -460,7 +460,7 @@ func TestMigration(t *testing.T) {
 	}
 	dbOld, err := dbabstraction.GetNew(configSqlite)
 	test.IsNil(t, err)
-	testFile := models.File{Id: "file1234", HotlinkId: "hotlink123"}
+	testFile := models.File{Id: "file1234", HotlinkId: "hotlink123", UserId: 1}
 	dbOld.SaveMetaData(testFile)
 	dbOld.SaveHotlink(testFile)
 	dbOld.SaveApiKey(models.ApiKey{Id: "api123"})

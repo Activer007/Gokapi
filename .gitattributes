@@ -33,3 +33,6 @@ internal/webserver/api/security_capability_test.go text eol=lf
 internal/webserver/security_public_capability_test.go text eol=lf
 internal/webserver/api/security_upload_semantics_test.go text eol=lf
 internal/uploadquota/*.go text eol=lf
+internal/configuration/database/**/uploadquota.go text eol=lf
+internal/configuration/database/**/security_uploadquota_test.go text eol=lf
+internal/configuration/database/security_uploadquota_test.go text eol=lf

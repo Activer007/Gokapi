@@ -22,7 +22,7 @@ type DatabaseProvider struct {
 }
 
 // DatabaseSchemeVersion contains the version number to be expected from the current database. If lower, an upgrade will be performed
-const DatabaseSchemeVersion = 15
+const DatabaseSchemeVersion = 16
 
 // New returns an instance
 func New(dbConfig models.DbConnection) (DatabaseProvider, error) {
@@ -113,6 +113,9 @@ func (p DatabaseProvider) Upgrade(currentDbVersion int) {
 	// < v2.2.5
 	if currentDbVersion < 15 {
 		p.DeleteAllSessions()
+	}
+	if currentDbVersion < 16 {
+		helper.Check(p.initUploadQuota())
 	}
 }
 
@@ -269,6 +272,9 @@ func (p DatabaseProvider) createNewDatabase() error {
 			);`
 	err := p.rawSqlite(sqlStmt)
 	if err != nil {
+		return err
+	}
+	if err := p.initUploadQuota(); err != nil {
 		return err
 	}
 	p.SetDbVersion(DatabaseSchemeVersion)

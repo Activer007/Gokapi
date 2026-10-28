@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"bytes"
+	"context"
 	"database/sql"
 	"encoding/gob"
 	"errors"
@@ -107,6 +108,16 @@ func (p DatabaseProvider) GetMetaDataById(id string) (models.File, bool) {
 
 // SaveMetaData stores the metadata of a file to the disk
 func (p DatabaseProvider) SaveMetaData(file models.File) {
+	helper.Check(saveMetaData(context.Background(), p.sqliteDb, file))
+}
+
+type metadataExecer interface {
+	ExecContext(context.Context, string, ...any) (sql.Result, error)
+}
+
+// saveMetaData uses the supplied database or transaction connection. Quota
+// commits must not borrow a second connection from the provider's pool.
+func saveMetaData(ctx context.Context, exec metadataExecer, file models.File) error {
 	newData := schemaMetaData{
 		Id:                 file.Id,
 		Name:               file.Name,
@@ -136,10 +147,12 @@ func (p DatabaseProvider) SaveMetaData(file models.File) {
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
 	err := enc.Encode(file.Encryption)
-	helper.Check(err)
+	if err != nil {
+		return err
+	}
 	newData.Encryption = buf.Bytes()
 
-	_, err = p.sqliteDb.Exec(`INSERT OR REPLACE INTO FileMetaData (Id, Name, Size, SHA1, ExpireAt, SizeBytes, 
+	_, err = exec.ExecContext(ctx, `INSERT OR REPLACE INTO FileMetaData (Id, Name, Size, SHA1, ExpireAt, SizeBytes,
                                    DownloadsRemaining, DownloadCount, PasswordHash, HotlinkId, ContentType, AwsBucket, Encryption,
                                    UnlimitedDownloads, UnlimitedTime, UserId, UploadDate, PendingDeletion, UploadRequestId)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`,
@@ -147,7 +160,7 @@ func (p DatabaseProvider) SaveMetaData(file models.File) {
 		newData.DownloadsRemaining, newData.DownloadCount, newData.PasswordHash, newData.HotlinkId, newData.ContentType,
 		newData.AwsBucket, newData.Encryption, newData.UnlimitedDownloads, newData.UnlimitedTime, newData.UserId, newData.UploadDate,
 		newData.PendingDeletion, newData.UploadRequestId)
-	helper.Check(err)
+	return err
 }
 
 // IncreaseDownloadCount increases the download count of a file atomically

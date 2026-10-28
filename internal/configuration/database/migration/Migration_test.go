@@ -70,4 +70,7 @@ func TestMigration(t *testing.T) {
 	test.IsEqualBool(t, ok, true)
 	_, ok = database.GetMetaDataById("Wzol7LyY2QVczXynJtVo")
 	test.IsEqualBool(t, ok, true)
+	exitCode = 0
+	Do(flagparser.MigrateFlags{Source: dbUrl, Destination: dbUrl})
+	test.IsEqualInt(t, exitCode, 3)
 }

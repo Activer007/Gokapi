@@ -1,5 +1,5 @@
-// Package uploadquota calculates logical upload usage. It does not reserve
-// capacity or enforce limits at an upload entry point.
+// Package uploadquota supplies pure accounting and reservation transitions.
+// Providers persist them atomically; HTTP upload admission is a separate layer.
 package uploadquota
 
 import (

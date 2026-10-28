@@ -1,11 +1,13 @@
 package dbabstraction
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/forceu/gokapi/internal/configuration/database/provider/redis"
 	"github.com/forceu/gokapi/internal/configuration/database/provider/sqlite"
 	"github.com/forceu/gokapi/internal/models"
+	"github.com/forceu/gokapi/internal/uploadquota"
 )
 
 const (
@@ -17,6 +19,12 @@ const (
 
 // Database declares the required functions for a database connection
 type Database interface {
+	// Quota operations are internal transaction primitives. HTTP integration
+	// must authenticate the caller and confirm cleanup before releasing staging.
+	ApplyUploadQuota(context.Context, uploadquota.Change) (uploadquota.Reservation, error)
+	ReadUploadQuota(context.Context) (uploadquota.Ledger, error)
+	ImportUploadQuota(context.Context, uploadquota.Ledger) error
+	CheckEmptyForMigration(context.Context) error
 	// GetType returns identifier of the underlying interface
 	GetType() int
 
