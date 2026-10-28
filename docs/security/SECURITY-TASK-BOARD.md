@@ -38,7 +38,7 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | SEC-022 | P0 企业场景 VALIDATE | 已有私密双 IdP 评估和迁移建议；实际身份迁移延期，不阻塞内置登录参考部署 | 003/020 → G1/G3；先模拟 IdP + 完整回调，证实后才设计账户迁移 ADR；参考 #435，不冒称漏洞 |
 | SEC-023 | P0 HISTORICAL_FIXED / CONFIRMED_CODE | 表单上下文修复经私密 HTTP/浏览器 RED→GREEN 与三组/race 验证；最小发布集已合并 0d918a1，合并后四组 CI PASS | ADR-009；不改变 OIDC 链路，公开回归/限制见 TEST-REPORT |
 | SEC-030 | P0 CONFIRMED_CODE / VALIDATE | 当前 User 无累计额度字段，未见原子预算；资源耗尽需量化 | 003/020 → G1/G3；先计量语义与预约并发测试，按用户/实例分 PR；参考 issue #431 |
-| SEC-031 | P0 CONFIRMED_CODE / VALIDATE | 单文件实现 vs 总额文案；累计绕过未做攻击认定 | 003，语义定案后接 030 → G1/G3；连续/并发请求实测再选兼容方案；#436 先评审 |
+| SEC-031 | P0 CONFIRMED_CODE / VALIDATE | 双 provider 顺序实测确认 MaxSize 每文件；用户确认保留并新增累计限制，usage纠正；并发/累计预算未实施 | [M3语义](M3-UPLOAD-SEMANTICS.md)、ADR-013；#436仅页面默认值，非累计/事务修复；测试/PR Gate见下 |
 | SEC-032 | P0 CONFIRMED_CODE / VALIDATE | M2 上传授权验收通过：取消、File Request 完成、普通分片/进度隔离 | 50965ba / 3d93cdb / 3a9627c；ADR-007/011/012；资源预算与完整生命周期仍开放 |
 | SEC-040 | P0 CONFIRMED_CODE | 删除错误与元数据生命周期不一致；S3 RED | 003 → G1/G2/G3；先保留记录/传递错误/重试；复杂状态机后置；不把 #419 当相同修复 |
 | SEC-041 | P0 CONFIRMED_CODE + HISTORICAL_FIXED | 旧内容回收缺口与历史替换越权是两件事 | 020/040 → G1/G2/G3；先评审 [#419](https://github.com/Forceu/Gokapi/pull/419)，多引用与中断回滚；仅 fork 应用经验证的补丁 |
@@ -92,3 +92,14 @@ PR 均为 **Activer007/Gokapi ← codex/...**。SEC-062 的先决发布保护已
 SEC-020/021/023/032 在用户修订范围内的代码 Gate 已完成，基线 3a9627c，合并后 CI 40697431982 PASS。证据、跳过项、兼容与原始 A–E 映射见 [M2-COMPLETION-AUDIT](M2-COMPLETION-AUDIT.md)。SEC-022 的双 IdP 评估和 ADR 私密保存，实施继续延期。该收尾文档按独立 PR 审查/合并，不能把自审称为独立批准。
 
 后续 P0 为 SEC-031/030 上传计量/预算及 SEC-040/041 删除可恢复；每项仍先隔离 RED。P1 为发布清单/扫描及恢复演练等；没有开始部署、发布镜像、迁移 OIDC 或清理真实文件。
+
+## M3 上传资源阶段
+
+当前基线 e38b03f，用户确认个人/可信小团队和MaxSize兼容合同。SEC-031完成当前语义实测与文档校正；最终测试/审查/合并以TEST-REPORT和PR为准。以下全部是M3剩余Gate，未关闭：
+
+- SEC-030：纯逻辑用量/安全加法 → SQLite事务/Redis Lua预约、metadata提交一致性、重启恢复。
+- SEC-030：普通/API整文件/浏览器/FileRequest接入，用户和请求累计/在途额度、实例暂存/处理槽，有限默认值及旧数据迁移回滚。
+- SEC-032：实收字节、未知长度、极端offset/重复块/重放/断线/取消/过期统一；同步/异步完成有界且幂等。
+- 验收：10/50并发抢1额、加密/共享blob、失败最终恢复、API/CLI兼容；真实1–2GB流式正确性/吞吐和内存/暂存峰值。不能用顺序绿色或纯计算证明端到端不超卖。
+
+只向自有仓库提交；新未知可利用问题的详细证据仍走私密安全评估。

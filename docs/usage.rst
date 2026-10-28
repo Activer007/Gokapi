@@ -114,7 +114,7 @@ To create a new request, click the *Plus* icon at the top right. To modify an ex
    * - **Max Files**
      - Limit how many files users can upload to this link.
    * - **Max Size**
-     - Set a maximum total size (in MB) for the entire request.
+     - Set the maximum size of each file (in MiB, 1 MiB = 1024 x 1024 bytes).
    * - **Expiry**
      - Set a date after which the link will no longer function.
    * - **Notes**
@@ -122,7 +122,9 @@ To create a new request, click the *Plus* icon at the top right. To modify an ex
 
 
 .. note::
-   By default, non-admin users are limited to requesting up to 100 files with a maximum total size of 10 GB per File Request. To change or remove these limits, set ``GOKAPI_MAX_FILES_GUESTUPLOAD`` and ``GOKAPI_MAX_SIZE_GUESTUPLOAD``. See :ref:`availenvvar` for details.
+   By default, non-admin users can request up to 100 files, with a maximum size of 10240 MiB (10 GiB) for each file. ``Max Size`` and ``GOKAPI_MAX_SIZE_GUESTUPLOAD`` are per-file limits; they do not impose a cumulative byte quota on the request. The server's maximum file size also applies. To change these limits, set ``GOKAPI_MAX_FILES_GUESTUPLOAD`` and ``GOKAPI_MAX_SIZE_GUESTUPLOAD``. See :ref:`availenvvar` for details.
+
+   Upload limits currently apply to the entire multipart request body, including its protocol overhead. A file exactly at the configured size limit may therefore be rejected. Chunk uploads currently require a known request length. These are current implementation limits, not recommendations for client validation; the server enforces them.
 
 
 

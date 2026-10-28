@@ -112,3 +112,7 @@ Token 与 Cookie 不替代凭据、当前会话和对象授权；详细私密对
 ## M2 验收边界更新
 
 五条核心授权不变量按 [M2-GOAL](M2-GOAL.md) 的单进程语义完成验证，逐项证据见 [M2-COMPLETION-AUDIT](M2-COMPLETION-AUDIT.md)。已授权任务可结束；公开能力有其有限读取语义；普通上传的 UUID 只在当前用户域解释。此结论不覆盖多实例、OIDC 身份迁移、累计上传预算或可靠物理删除，相关威胁和后续 SEC-ID 保留。
+
+## M3 资源预算不变量
+
+用户确认 MaxSize 保持单文件语义、另增请求累计限制。每个metadata按当前所有者的可验证SizeBytes独立计逻辑用量，共享SHA1/加密/展示RealSize不能抵扣；实例暂存及最低磁盘余量独立约束。稳定上传ID的重复声明/完成须幂等，provider原子检验used+reserved+requested；取消/失败清理后释放，重启恢复先对账。HTTP正文/内存/异步处理并发有总界，未知长度仍按实收字节限制；正常1–2GB不整文件读内存。以上为待实施目标，不由SEC-031现状测试推出已实现；详见 [ADR-013](ADR-013-UPLOAD-BUDGETS.md)。
