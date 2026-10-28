@@ -343,7 +343,8 @@ func changePassword(w http.ResponseWriter, r *http.Request) {
 
 		pw := r.PostForm.Get("newpw")
 		csrf := r.PostForm.Get("csrf-token")
-		pwHash, ok, err = validateNewPassword(pw, user, csrf)
+		validCsrf := pw != "" && csrftoken.IsValidBound(csrftoken.TypePasswordChange, csrf, browserCSRFBinding(r))
+		pwHash, ok, err = validateNewPassword(pw, user, validCsrf)
 		if err != nil {
 			errMessage = firstLetterUpper(err.Error())
 		}
@@ -363,18 +364,18 @@ func changePassword(w http.ResponseWriter, r *http.Request) {
 			MinPasswordLength: configuration.GetEnvironment().MinLengthPassword,
 			ErrorMessage:      errMessage,
 			CustomContent:     customStaticInfo,
-			CsrfToken:         csrftoken.Generate(csrftoken.TypeLogin)})
+			CsrfToken:         newBrowserCSRF(w, r, csrftoken.TypePasswordChange)})
 	helper.CheckIgnoreTimeout(err)
 }
 
 // validateNewPassword validates the new password and returns the new password hash if the password is valid.
 // If the password is not valid, it returns an error message and an empty string.
 // If the password is valid, it returns the hash as a string and true.
-func validateNewPassword(newPassword string, user models.User, userCsrfToken string) (string, bool, error) {
+func validateNewPassword(newPassword string, user models.User, validCsrf bool) (string, bool, error) {
 	if len(newPassword) == 0 {
 		return user.Password, false, nil
 	}
-	if !csrftoken.IsValid(csrftoken.TypeLogin, userCsrfToken) {
+	if !validCsrf {
 		return "", false, errors.New("form was not submitted completely")
 	}
 	if len(newPassword) < configuration.GetEnvironment().MinLengthPassword {
@@ -524,7 +525,7 @@ func showLogin(w http.ResponseWriter, r *http.Request) {
 		if err := ratelimiter.WaitOnLogin(r.Context(), ip); err != nil {
 			return
 		}
-		retrievedUser, validCredentials, validCsfr := authentication.IsCorrectUsernameAndPassword(user, pw, csfr)
+		retrievedUser, validCredentials, validCsfr := authentication.IsCorrectUsernameAndPasswordForBrowser(user, pw, csfr, browserCSRFBinding(r))
 		if validCredentials {
 			logging.LogValidLogin(user)
 			sessionmanager.CreateSession(w, false, 0, retrievedUser.Id)
@@ -544,7 +545,7 @@ func showLogin(w http.ResponseWriter, r *http.Request) {
 		IsAdminView:   false,
 		PublicName:    configuration.Get().PublicName,
 		CustomContent: customStaticInfo,
-		CsrfToken:     csrftoken.Generate(csrftoken.TypeLogin),
+		CsrfToken:     newBrowserCSRF(w, r, csrftoken.TypeLogin),
 	})
 	helper.CheckIgnoreTimeout(err)
 }

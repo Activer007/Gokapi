@@ -53,9 +53,10 @@ func TestSEC014SlowHeader(t *testing.T) {
 func TestSEC014CancelledLoginDoesNotAuthenticate(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
-	form := url.Values{"username": {"user"}, "password": {"useruser"}, "csrf-token": {csrftoken.Generate(csrftoken.TypeLogin)}}
+	form := url.Values{"username": {"user"}, "password": {"useruser"}, "csrf-token": {csrftoken.GenerateBound(csrftoken.TypeLogin, sec023LegacyTestBinding)}}
 	r := httptest.NewRequest("POST", "/login", strings.NewReader(form.Encode())).WithContext(ctx)
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	r.AddCookie(&http.Cookie{Name: browserCSRFCookieName(), Value: sec023LegacyTestBinding})
 	w := httptest.NewRecorder()
 	showLogin(w, r)
 	for _, c := range w.Result().Cookies() {

@@ -450,3 +450,31 @@ go test -race ./internal/test/securityfixture ./internal/storage/chunking/chunkr
 无 schema/身份/加密迁移，删除失败响应变化及回滚见 ADR-007。全仓 race、真实 Redis/S3、浏览器、在途写入/完成与取消竞争、崩溃恢复、govulncheck 本项 NOT_RUN。M2 不因此完成。
 
 最终发布集验证：[sec032-cancel-BnrTRT](evidence/sec032-cancel-BnrTRT/results.tsv) 的 environment/generate/scope/awsmock/noaws/integration/race 均退出 0。源码与私密审查通过的生产修复及单元测试一致。完整 API 矩阵仍保存在私密记录，本公开 runner 不声称重跑该矩阵。有限秘密模式扫描、源码摘要与原生 git diff --check 检查通过后提交；自审不是独立审批。
+## M2 / SEC-023 最小发布集
+
+2026-10-28，WSL Ubuntu24.04 / Go1.26.0 linux/amd64；基线 50965ba978aa10972423cea782fab2d72e68cfd8。
+生产修复已在私密 HTTP/真实 Chrome 对照、TLS 代理、改密上下文及三组全量/相关 race 下通过。
+本公开分支从公开基线新建，不含详细复现测试、截图或私密提交历史。
+
+run-sec023-form.sh 在独立 /tmp archive 加显式 overlay 验证发布集并保存 HEAD/源码/runner SHA256、日志和退出码。
+公开新增测试覆盖 binding、用途、到期秒边界、32 并发单次消费、HTTP/HTTPS Cookie 属性和多标签页；
+既有登录/改密/OIDC 正例保留。它不声称重跑私密浏览器复现。真实命令如下，最终结果另列：
+
+```sh
+go generate ./...
+go test ./internal/webserver ./internal/webserver/authentication/csrftoken ./internal/webserver/authentication/oauth -count=1 -tags=test,noaws -run 'TestSEC023|TestSEC012|TestSEC014CancelledLogin' -v
+go test ./... -parallel 8 -count=1 -tags=test,awsmock
+go test ./... -parallel 8 -count=1 -tags=test,noaws
+go test ./... -count=1 -tags=test,noaws,integration
+go test -race ./internal/webserver/authentication/csrftoken ./internal/webserver/authentication/oauth -count=1 -tags=test,noaws
+go test -race ./internal/webserver -count=1 -tags=test,noaws -run 'TestSEC023|TestSEC012PasswordChange|TestSEC014CancelledLogin'
+```
+
+临时安全仓库合并前 CI 为 NOT_RUN；公告页合并会使变更进入公开父仓库，只可合并最小发布 PR。
+无需 schema/身份/密码算法迁移，旧表单刷新和回滚见 ADR-009。真实 Redis、多浏览器族、跨实例、旧会话跨站覆盖、
+Token 总量预算、生产部署、全仓 race、govulncheck 为 NOT_RUN。M2 其余权限矩阵/并发 Gate 不因此完成。
+
+最终最小发布集验证：[sec023-form-yZKclk](evidence/sec023-form-yZKclk/results.tsv) 的 environment/generate/context/awsmock/noaws/integration/race/handler-race 全部退出 0。
+overlay 摘要与完整日志的有限秘密模式检查通过；生产源码与私密审查通过版本一致。自审不是独立审批。
+公开证据目录只含命令、退出码、环境与源码/runner 摘要；原始日志保留本地忽略目录。
+验证后仅将 runner 的输出目录改为 .secret 后缀，防止未来原始日志误暂存；已运行的原始 runner 摘要保留。

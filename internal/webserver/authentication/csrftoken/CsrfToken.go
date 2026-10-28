@@ -1,6 +1,7 @@
 package csrftoken
 
 import (
+	"crypto/subtle"
 	"sync"
 	"time"
 
@@ -16,19 +17,34 @@ const ttl = 5 * time.Minute
 const (
 	TypeLogin    = iota
 	TypeApiToken // currently not used
+	TypePasswordChange
 )
 
 type csrfToken struct {
-	Type   int
-	Expiry int64
+	Type    int
+	Expiry  int64
+	Binding string
 }
 
 func Generate(tokenType int) string {
+	return generate(tokenType, "")
+}
+
+// GenerateBound issues a token for one browser context. Empty bindings fail closed.
+func GenerateBound(tokenType int, binding string) string {
+	if binding == "" {
+		return ""
+	}
+	return generate(tokenType, binding)
+}
+
+func generate(tokenType int, binding string) string {
 	token := helper.GenerateRandomString(20)
 	mutex.Lock()
 	tokens[token] = csrfToken{
-		Type:   tokenType,
-		Expiry: time.Now().Add(ttl).Unix(),
+		Type:    tokenType,
+		Expiry:  time.Now().Add(ttl).Unix(),
+		Binding: binding,
 	}
 	mutex.Unlock()
 
@@ -39,10 +55,24 @@ func Generate(tokenType int) string {
 }
 
 func IsValid(tokenType int, tokenId string) bool {
+	return isValid(tokenType, tokenId, "")
+}
+
+func IsValidBound(tokenType int, tokenId, binding string) bool {
+	if binding == "" {
+		return false
+	}
+	return isValid(tokenType, tokenId, binding)
+}
+
+func isValid(tokenType int, tokenId, binding string) bool {
 	mutex.Lock()
 	defer mutex.Unlock()
 	token, ok := tokens[tokenId]
 	if !ok {
+		return false
+	}
+	if subtle.ConstantTimeCompare([]byte(token.Binding), []byte(binding)) != 1 {
 		return false
 	}
 	delete(tokens, tokenId) //always deletes token, even if it was wrong type
