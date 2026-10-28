@@ -12,7 +12,7 @@ case "$mode" in
     red-policy) files=(internal/environment/Environment.go internal/environment/security_receive_policy_test.go) ;;
     red-entry) files=(internal/webserver/fileupload/security_receive_test.go) ;;
     red-storage) files=(internal/storage/security_receive_storage_test.go) ;;
-    *) mapfile -t files < <(git -C "$repo" ls-files --cached --others --exclude-standard -- internal/environment internal/webserver/fileupload internal/webserver/api internal/storage/uploadreceive internal/storage/FileServing.go internal/storage/security_receive_storage_test.go internal/webserver/Webserver.go internal/webserver/errorHandling/errorcodes | grep -E '\.go$' | sort -u) ;;
+    *) mapfile -t files < <(git -C "$repo" ls-files --cached --others --exclude-standard -- internal/environment internal/webserver/fileupload internal/webserver/api internal/storage/uploadreceive internal/storage/FileServing.go internal/storage/security_receive_storage_test.go internal/webserver/Webserver.go internal/webserver/Webserver_test.go internal/webserver/errorHandling/errorcodes | grep -E '\.go$' | sort -u) ;;
 esac
 for file in "${files[@]}"; do mkdir -p "$work/$(dirname "$file")"; sed 's/\r$//' "$repo/$file" > "$work/$file"; done
 (cd "$work" && sha256sum "${files[@]}") > "$out/source.sha256"

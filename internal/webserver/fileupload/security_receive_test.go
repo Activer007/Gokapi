@@ -266,6 +266,42 @@ func TestSEC030ReceiveFileFirstUnknownLengthLastChunk(t *testing.T) {
 	sec030ReceiveChunk(t, directory, true, true)
 }
 
+func TestSEC030ReceiveDeclaredTailMustMatchPayload(t *testing.T) {
+	if !sec030ReceiveChild(t) {
+		return
+	}
+	directory := sec030ReceiveDirectory(t)
+	id := rand.Text()
+	var body bytes.Buffer
+	form := multipart.NewWriter(&body)
+	part, err := form.CreateFormFile("file", "synthetic.bin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := io.WriteString(part, "testContent"); err != nil {
+		t.Fatal(err)
+	}
+	for _, field := range [][2]string{{"uuid", id}, {"filesize", "13"}, {"offset", "0"}} {
+		if err := form.WriteField(field[0], field[1]); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := form.Close(); err != nil {
+		t.Fatal(err)
+	}
+	request := httptest.NewRequest(http.MethodPost, "/api/chunk/add", &body)
+	request.Header.Set("Content-Type", form.FormDataContentType())
+	if _, err := ProcessNewChunk(httptest.NewRecorder(), request, true, "", 9130, 1024*1024); err == nil {
+		t.Fatal("11-byte payload was accepted as a complete 13-byte last chunk")
+	}
+	if _, err := os.Stat(filepath.Join(directory, "chunk-"+chunking.StorageID(id, 9130, ""))); !os.IsNotExist(err) {
+		t.Fatal("invalid last chunk allocated a persistent file")
+	}
+	if count := sec030ReceivePayloadCount(t, directory); count != 0 {
+		t.Fatal("invalid last chunk retained receive payload")
+	}
+}
+
 func TestSEC030ReceiveKnownLengthOrders(t *testing.T) {
 	if !sec030ReceiveChild(t) {
 		return

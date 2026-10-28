@@ -689,3 +689,5 @@ CI在原generate之后串行增加同一脚本--occupied，只执行环境/编�
 上述本地命令的原始输出和逐文件编译hash保留相应.secret目录。环境agent先前CR包装失败/路径转换NOT_RUN均未当通过，最终该agent环境全包独立运行退出0。当前本地全仓awsmock/noaws/integration、纠正后的完整filter、Close不确定及新增兼容合同的最终本地验证为BLOCKED/NOT_RUN（WSL服务故障），后续由GitHub临时runner执行，以真实远端记录补充；不能抹去本地失败。Windows原生Go、govulncheck（依赖未改）、真实Redis/AOF/RDB、真实S3、生产迁移/恢复、完整M3多路径1–2GiB矩阵仍NOT_RUN。
 
 远端workflow保留生成及四组全量，新增完整接收合同race和受测源码hash；手动workflow_dispatch额外运行1GiB明文/2GiB加密HTTP、读回hash、吞吐/heap/RSS/暂存采样。大文件使用单独security_large tag，不加入默认Go suite。所有远端Gate尚需观察实际完成，不能从本地1GiB结果推导2GiB、S3或完整上传总量已通过。
+
+代码d7ea1f4提交到自己的[草稿PR #19](https://github.com/Activer007/Gokapi/pull/19)。首次远端push40743890289的生成/占端口合同PASS，awsmock FAIL：旧TestPostUpload实际3字节却声明50，上传正确拒绝后原SSE scanner无截止等待至10分钟；另有原API非multipart错误文案兼容断言失败。修正网页夹具从真实stat长度填写两处声明并断言metadata字节，加30秒SSE context；补11/13字节错误末块拒绝回归，保留实际长度防线。非multipart返回原http.ErrNotMultipart以保留公开错误文案。原始失败保留，后续新提交另跑Gate，未通过缩弱服务端校验使旧错误数据成功。

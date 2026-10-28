@@ -94,7 +94,10 @@ func (p *Pool) Receive(w http.ResponseWriter, r *http.Request, dataDir string, m
 		}
 	}()
 	media, params, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
-	if err != nil || media != "multipart/form-data" || params["boundary"] == "" || len(params["boundary"]) > 70 {
+	if err != nil || media != "multipart/form-data" {
+		return nil, http.ErrNotMultipart // preserve the existing public API error
+	}
+	if params["boundary"] == "" || len(params["boundary"]) > 70 {
 		return nil, ErrInvalid
 	}
 	reader := &budgetReader{ctx: ctx, reader: http.MaxBytesReader(w, r.Body, maxBody), pool: p, lease: l, maxBody: maxBody, minFree: minFreeBytes}
