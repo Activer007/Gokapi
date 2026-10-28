@@ -394,3 +394,5 @@ go test -race ./internal/test/securityfixture ./internal/configuration/database/
 兼容：仅修改Redis的LastUsed/LastOnline写入，原子地检查存在后更新时间字段，不改变权限、所有者、TTL及其他字段；SQLite保持原实现。Lua以KEYS/ARGV传参，prefix不插入脚本文本。自定义ACL需允许EVAL/EVALSHA/EXISTS/HSET；此轮没有真实Redis/ACL环境，NOT_RUN。无schema、依赖、身份ID、密码、OIDC、API、页面/WASM或物理删除修改，无数据迁移；回滚本提交即可恢复旧行为，也会恢复旧的使用记录写入风险。无新重大架构方案，不新增ADR。
 
 证明范围：provider延迟快照及同步屏障并发；真实管理API的顺序撤销与当前会话权限；混合ZIP成员。没有构造完整外部HTTP利用链，不把provider RED扩大为漏洞利用结论。全仓race、govulncheck、真实Redis/S3、自定义ACL、生产数据修复为NOT_RUN。presign消费、分片/File Request跨请求授权、异步任务、并发会话续期、并发Key签发/权限修改、OIDC与浏览器CSRF仍为M2开放Gate。
+
+提交前源码overlay SHA256一致、文档相对链接、Windows原生diff --check通过；新增证据常见私钥/GitHub Token/AWS访问Key/Authorization/session Cookie模式无匹配（有限扫描）。[PR #10](https://github.com/Activer007/Gokapi/pull/10)代码提交6fefc889f9096b4dac224ea21ddb52193673ed8e；已读取远端patch并记录COMMENT自审，非独立审批。核对原子性、参数化key、TTL、正常更新正例、旧测试语义修正、会话夹具协程收尾及未覆盖边界；未发现本PR范围的阻塞项。后续提交只补PR与审查记录，代码/测试仍与e8JIMf摘要一致；最终head CI通过后才合并。
