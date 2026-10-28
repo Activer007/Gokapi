@@ -7,7 +7,7 @@ If you find a security vulnerability, please **do not** open a public issue. Ins
 
 ## Getting Started
 1. **Fork** the repository and clone it locally.
-2. Ensure you have **Go 1.25+** (or the version specified in `go.mod`) installed.
+2. Ensure you have the minimum Go version specified in `go.mod` (**1.26.10** for this reviewed checkout) installed.
 3. Install dependencies: `go mod download`.
 4. Create a new branch for your fix or feature: `git checkout -b feat/new-pr-name`.
 

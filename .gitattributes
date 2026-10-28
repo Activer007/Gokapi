@@ -48,3 +48,4 @@ internal/webserver/Webserver_test.go text eol=lf
 internal/webserver/api/Api.go text eol=lf
 internal/webserver/api/security_receive_large_test.go text eol=lf
 internal/webserver/fileupload/*.go text eol=lf
+internal/webserver/security_toolchain_range_test.go text eol=lf

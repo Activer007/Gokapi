@@ -52,7 +52,7 @@ Choose the binary that matches your system:
 Unstable version
 """"""""""""""""
 
-Only recommended if you are comfortable with the command line. Requires Go 1.25 or newer.
+Only recommended if you are comfortable with the command line. Requires at least the Go patch version in ``go.mod`` (1.26.10 for this reviewed checkout). Use the reviewed compiler and regenerate WASM and its matching runtime shim before building.
 
 .. code-block:: bash
 

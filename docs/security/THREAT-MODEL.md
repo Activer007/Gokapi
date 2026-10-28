@@ -126,3 +126,7 @@ SEC-062测试环境不变量：setup的真实HTTP回归不能依赖固定空闲�
 SEC-030接收边界：file-first尚未知稳定上传ID时，正文读取前也必须先取有限接收槽；每批数据在写spool前原子取得有限字节预算，未知/低报HTTP长度不能绕过。Close或delete未确认时不还字节，重启先核对自有marker/普通payload，未知项不删。该receiver只管理可信DataDir中的独占暂存目录；不能将其保证扩大到持久chunk/metadata总量、共享blob或多进程，见[ADR-015](ADR-015-BOUNDED-UPLOAD-RECEPTION.md)。
 
 接收层已验证范围以[ff7497b证据](evidence/sec030-receiver-ff7497b/README.md)为准：10/50混合入口竞争、未知长度、真实取消/断线、槽满HTTP/1拒绝、QP兼容及1–2GiB读回。认证/过期能力在receiver外提前拒绝的传输行为另列VALIDATE，尚无该类真实socket结论；不能由忙碌拒绝用例推导。持久chunk离开receiver后的资源、累计预算与完整恢复仍是待实现不变量。
+
+SEC-062构建不变量：接收器之前的标准库HTTP协议解析也必须使用已审查安全补丁；不能以handler槽/正文预算覆盖协议层资源风险。根模块、生成用模块和三个Go构建镜像声明一致，CI验证真实GOVERSION，产物BuildInfo记录编译器；扫描按实际生产default/noaws及生成器/服务端/CLI产物执行，发现已知漏洞或扫描失败必须使Gate失败，不能因JSON格式退出0误记PASS。补丁compiler改变后需重生成两个WASM及配套wasm_exec.js；生成成功不等于浏览器交互验收。此Gate不允许开启继承的上游发布任务，不触碰数据/密钥/schema。
+
+SEC-062证据边界更新：58d2cb5实际compiler/生产源码配置/独立构建产物扫描、有限Range兼容与1–2GiB流式验收已通过，见最终证据；历史负向扫描的退出3是预期RED，不能视为旧程序安全。新Docker镜像仅验证构建和BuildInfo；没有将此扩大成启动/非root/浏览器/真实S3或全发布扫描。模块级未调用公告继续记录，后续新增调用必须由扫描Gate拦截；不以静态分析绿色宣称任意动态路径安全。

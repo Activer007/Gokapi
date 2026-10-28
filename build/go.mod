@@ -1,6 +1,6 @@
 module github.com/forceu/gokapi
 
-go 1.26.0
+go 1.26.10
 
 require (
 	github.com/Kodeworks/golang-image-ico v0.0.0-20141118225523-73f0f4cfade9

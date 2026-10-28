@@ -725,3 +725,50 @@ go test ./internal/webserver/api -count=1 -tags=test,noaws,security_large -run T
 两个SHA256逐字节读回匹配。指标只代表该runner/路径，20ms磁盘采样不是所有瞬时峰值证明，不涵盖真实S3、浏览器WASM、全部chunk路径或生产负载。最后证据提交仅改docs，不改Go/运行器/workflow，随后PR CI独立检查；不能将ff7497b的大文件记录说成后续文档提交重新执行。
 
 本机2GiB失败及WSL E_UNEXPECTED仍为FAIL/BLOCKED，最终本地全量和补丁验证仍NOT_RUN；未重启/修复宿主。Windows原生Go、全仓race、govulncheck、真实Redis/S3、生产恢复仍NOT_RUN。SEC-062已公开Go公告的修补/可达性另设发布前P0 Gate。M3持久预算接线、正向metadata、完整区间、异步完成/恢复仍OPEN；外层认证早期拒绝传输行为仅VALIDATE，后续先写隔离socket合同。没有从接收层绿色推断整体防耗尽或已可安全发布。
+
+## SEC-062 已公开标准库修补与实际工具链 Gate（2026-10-29）
+
+基线cb5868c6d45d1a3f4fc163c74976c90c756ae8a8，E:/LHA/Gokapi，Windows PowerShell；无原生Go，WSL先前read-only/E_UNEXPECTED持续，本轮未再次启动或修复。保留原plan/deployment两个未跟踪目录。只读上游master仍a9c25d4，检索开放golang/toolchain/govulncheck/HTTP2 PR及Issues未见同范围待合并修复；官方Go发布及公告版本见SECURITY-BASELINE。该PR处理公开已修标准库，未复现高CPU/内存恶意负载，不新报漏洞。
+
+安全不变量先行：根/build模块、三个Go builder及实际编译器必须与审查过的1.26.10一致，真实产物需BuildInfo和扫描。实际本地执行 `python docs/security/tools/check-sec062-toolchain.py`，旧声明五项FAIL、退出1（policy-red.log），修改声明后同命令退出0（policy-green.log），明确actual compiler NOT_CHECKED。原始输出在sec062-toolchain-local.secret；这是配置策略合同RED，不冒充动态漏洞复现。无需新运行时/schema/依赖图重构，两个go.sum保持原字节。
+
+新增 `bash docs/security/tools/run-sec062-toolchain.sh scan` 在git archive隔离副本运行GOTOOLCHAIN=local、GOFLAGS=-mod=readonly，固定安装 `golang.org/x/vuln/cmd/govulncheck@v1.9.0` 到临时GOBIN，记录scanner版本/BuildInfo、输入hash、每条真实命令及退出码。普通文本输出保留漏洞非零状态；不用JSON格式的成功退出码伪装无漏洞。实际扫描default/noaws源码、单文件minifier生成器、CGO_ENABLED=0服务端/CLI产物；go generate重建WASM和匹配shim，产物SHA256留证。CI保留原生成/四组全仓/相关race，补实际compiler policy。
+
+手动workflow另运行historical模式：固定归档旧cb5868c，显式Go1.26.0生成与扫描，保存真实scanner非零结果，要求命中公开GO-2026-6609才承认历史RED。wrapper预期RED成功不等于旧源码无漏洞。containers模式只构建runner本地三个镜像，不push、不挂数据卷；复制临时容器中的server/CLI产物读取BuildInfo，builder读取go version。大文件Gate按原脚本1GiB明文/2GiB服务器加密实际HTTP重新执行。
+
+当前以上远端执行均NOT_RUN；本地Go生成/全仓/race/govulncheck/Docker仍NOT_RUN/BLOCKED。后续逐run补真实PASS/FAIL，不把本地Python结果当远端通过。无schema/密码哈希/加密格式变化；构建最低版本升至1.26.10，旧离线compiler将拒绝构建，auto环境可获取新版本。回滚二进制不改变既有数据格式，但旧compiler重新构建会恢复已知标准库风险。WASM浏览器交互、全仓race、真实Redis/S3、完整镜像digest固定/供应链扫描/生产恢复仍为独立Gate。
+
+审查补强：历史RED仅接受govulncheck漏洞退出码3且含目标ID，超时/执行失败不能转GREEN；实际归档inputs.sha256与当前harness.sha256分别记录。新增64B真实静态及带文件密码能力的本地下载Range兼容测试（200/HEAD/单Range/双Range/416及精确内容），没有高资源负载；纳入全仓和定向race。WASM另外按GOOS=js/GOARCH=wasm做源码扫描，浏览器交互仍NOT_RUN。当前新Go测试/gofmt/所有扫描均尚NOT_RUN，待真实远端结果。
+
+本地脚本语法：首次Git Bash被沙箱MSYS对象权限阻止，未解析脚本（BLOCKED）；随后仅提升bash -n读取权限，语法退出0，未启动WSL/Go。审查发现run辅助函数的全局name覆盖产物循环变量；隔离helper合同实际退出1，local name/code修复后同合同退出0（helper-red/green.log），不把运行器缺陷称产品漏洞。3686e28的手动CI40759379612因该已知缺陷取消，状态按GitHub实际保留；后续新提交独立验证，旧PR/推送CI不得冒充修复后通过。
+
+旧3686e28推送CI40759247121实际FAIL于toolchain gates：默认/noaws/WASM源码扫描均退出0，但生成器命名Go文件被govulncheck source mode拒绝（退出2），随后还有已修的循环变量导致错误产物路径。生成器目录有多个独立main，改为Go原生编译其实际minify可执行文件并binary扫描，不拼接虚构包。560862c的手动40760133832因同一已知source调用错误取消；这些失败/取消不计PASS。源码扫描同时报告未导入/未调用的openpgp及旧AWS S3 Crypto模块公告，不能简写为“依赖没有公告”，最终报告需保留模块级限制。
+
+第二个旧推送CI40760132130实际失败于go generate下载minify模块：proxy.golang.org HTTP/2 INTERNAL_ERROR，后续步骤未运行；未误归为生成器扫描错误，原日志second-failed.log保留。本轮进一步只读审查发现历史RED需要旧commit对象，checkout改为完整历史；格式检查改bash -ec，合成gofmt退出2控制证明旧bash -c误回0、新调用保留2，合同退出0。这是错误传播控制，不冒充运行了真实Go格式检查；真实格式化已由首轮远端退出0，最终仍随新CI验证。
+
+82d54dc手动CI40762083078：生成/四组全仓/相关race、实际Go1.26.10及全部源/产物扫描PASS，历史Go1.26.0扫描实际退出3且含6609、wrapper预期RED通过。其后Docker FAIL：mktemp随机目录名含大写，临时image repository名被Docker拒绝，构建尚未发生，大文件SKIPPED；原始final-attempt1.log保留。仅将临时image名转小写，并在任何build失败后停止后续容器操作，不改变应用、构建器版本或扫描判定；后续另跑真实构建。历史对象缺失另以本地no-checkout浅克隆归档实际RED128、unshallow后GREEN0验证，不操作原工作树数据。
+
+### SEC-062 最终代码 Gate：58d2cb5
+
+[PR CI40763628844](https://github.com/Activer007/Gokapi/actions/runs/40763628844)、[推送CI40763619586](https://github.com/Activer007/Gokapi/actions/runs/40763619586)及[手动CI40763621734](https://github.com/Activer007/Gokapi/actions/runs/40763621734)全部SUCCESS；手动job123081807272，head58d2cb54acb64ce8f5b9f3bda41d75cb38e620d5。GitHub ubuntu-latest/Linux amd64、Go1.26.10、GOTOOLCHAIN=local；govulncheck1.9.0，DB updated 2026-10-27 21:16:18 UTC。原有go generate、占配置端口合同、四组全仓awsmock/noaws/integration/awstest、相关race（含TestSEC062Range）全部PASS，实际命令保留workflow及脚本。新增完整真实命令为：
+
+```sh
+python3 docs/security/tools/check-sec062-toolchain.py --actual "$(go env GOVERSION)"
+bash docs/security/tools/run-sec062-toolchain.sh scan
+bash docs/security/tools/run-sec062-toolchain.sh historical
+bash docs/security/tools/run-sec062-toolchain.sh containers
+bash docs/security/tools/run-sec030-receiver.sh large
+```
+
+以上全部PASS。scan内default/noaws/WASM源码与minifier/server/CLI binary共6项扫描均0；生成器使用实际编译的独立可执行文件，不使用scanner不支持的命名Go文件source参数。historical先核实实际Go1.26.0、生成旧cb5868c，再扫描得真实退出3且含6609调用链，wrapper按预期RED通过；没有高资源攻击请求。输出中的GitHub漏洞annotations属于该历史负向合同，不能与当前Go1.26.10扫描混淆。源码和产物BuildInfo/最终返回码均已核实，不只看workflow绿色。
+
+三个Docker构建均0，builder go version及server/CLI BuildInfo都为1.26.10；[本地镜像ID](evidence/sec062-toolchain-58d2cb5/docker-images.txt)为runner结果，不是发布RepoDigest。只创建停止容器复制产物及执行builder go version，未挂数据/启动应用/推送镜像；新镜像运行/非root功能及OS扫描NOT_RUN，不能继承旧PR7成绩作为本次实跑。编译的WASM及匹配shim保留hash，浏览器交互NOT_RUN。
+
+| 当前compiler实际HTTP+读回 | 用时 / 吞吐 | heap / RSS峰值 | 暂存表观 / allocated峰值 |
+| --- | --- | --- | --- |
+| 1GiB明文 | 5.091s / 201.14MiB/s | 2988200B / 24260608B | 2147483683B / 2147487744B |
+| 2GiB服务器加密 | 15.956s / 128.35MiB/s | 3039736B / 24944640B | 6443121331B / 6443139072B |
+
+两个读回SHA256匹配；只代表该runner/路径，磁盘按20ms采样，不比较不同runner的速度优劣或声称覆盖所有瞬时峰值。[最终公开证据](evidence/sec062-toolchain-58d2cb5/README.md)的44份Go实际编译hash、11份current input/harness逐项与58d2cb5 Git blob匹配；7份旧输入匹配cb5868c；6份生成产物hash来自runner，不是Git源码。一次本地证据整理器曾将ignored WASM错当Git输入导致校验失败，未发布通过结论；改成明确输入白名单后逐项校验，生成hash与源码hash分开。
+
+扫描仍显示模块级GO-2026-5932（OpenPGP）、GO-2022-0646/0635（旧AWS S3 Crypto），受测配置未报告可达affected调用；本地Go源码检索也未导入openpgp/s3crypto，不将模块告警说成已修复。静态分析存在反射等限制；未加ignore或改动两份go.sum。最后仅补docs/evidence，无Go/运行器/workflow变更，新文档head PR CI另验。所有先前失败、取消、MSYS/WSL限制保留；本地Go全仓/race/govulncheck仍NOT_RUN。真实Redis/S3、全仓race、完整跨平台/浏览器/生产恢复和M3持久总量/区间/异步/恢复仍OPEN。
