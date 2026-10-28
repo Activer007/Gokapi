@@ -40,6 +40,9 @@ func (p DatabaseProvider) ApplyUploadQuota(ctx context.Context, change uploadquo
 			return err
 		}
 		if metadata != nil {
+			if err := saveQuotaHotlink(ctx, conn, *metadata); err != nil {
+				return err
+			}
 			if err := saveMetaData(ctx, conn, *metadata); err != nil {
 				return err
 			}
@@ -54,6 +57,27 @@ func (p DatabaseProvider) ApplyUploadQuota(ctx context.Context, change uploadquo
 		return uploadquota.Reservation{}, err
 	}
 	return record, nil
+}
+
+// saveQuotaHotlink shares the metadata/ledger transaction. An existing mapping
+// may belong to this file, but a different target must never be overwritten.
+func saveQuotaHotlink(ctx context.Context, conn *sql.Conn, file models.File) error {
+	if file.HotlinkId == "" {
+		return nil
+	}
+	var target string
+	err := conn.QueryRowContext(ctx, "SELECT FileId FROM Hotlinks WHERE Id = ?", file.HotlinkId).Scan(&target)
+	if errors.Is(err, sql.ErrNoRows) {
+		_, err = conn.ExecContext(ctx, "INSERT INTO Hotlinks (Id, FileId) VALUES (?, ?)", file.HotlinkId, file.Id)
+		return err
+	}
+	if err != nil {
+		return err
+	}
+	if target != file.Id {
+		return uploadquota.ErrConflict
+	}
+	return nil
 }
 
 // ReadUploadQuota returns the persisted quota ledger.

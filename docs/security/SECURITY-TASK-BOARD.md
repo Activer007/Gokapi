@@ -14,6 +14,16 @@
 
 G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BLOCKED 详见 [TEST-REPORT](TEST-REPORT.md)。本轮无生产行为改动，无需新增架构 ADR。
 
+## 当前 SEC-030 整文件增量：IN_PROGRESS
+
+工作基线710f4bf，范围仅 `/api/files/add` 的真实长度Reserve/Claim、同步处理、metadata/hotlink/回执Commit及明确清理后的暂存释放，见[ADR-016](ADR-016-WHOLE-UPLOAD-ADMISSION.md)。G1已取得历史隔离源码/新增桩合同的真实断言RED；G2最终目标/全仓/race、G3故障保持/回滚和G4证据整理仍在进行，不预填PR或合并结果。
+
+执行更正：SQLite旧并发夹具因空PublicId唯一列覆盖而401，不计为有效配额RED/GREEN；修订为唯一PublicId并回读所有Key，冻结基线重跑待补。Redis原基线两维10/50争额RED有效。首轮实现target中Redis竞争、双provider共享blobPASS，API整体FAIL；新增blob getter损坏编码/不可用provider合同也有真实FAIL，投影修复及完整GREEN仍待验，详见TEST-REPORT。不能通过删断言或放松认证修复夹具。
+
+本增量选择可配置的有限默认owner20GiB/1000文件/4在途、instance100GiB/5000文件/8在途、staging12GiB，不记为用户逐项批准；用户已确认MaxSize保留单文件并另增累计预算。新错误合同区分413/21永久额度与receiver429/20，不能用接收槽拒绝充当持久quota证明。
+
+仍OPEN的P0：整文件本轮完整验收；分片/File Request累计入口及兼容；复制/替换/所有者转移等正向metadata准入；发布后/不确定Commit的目标对账与可靠恢复。新路径失败保持charge且不删canonical，内部ID不提供跨HTTP幂等；无新schema不代表旧代码可安全理解这些活动记录。Windows便携Go1.26.10可供隔离Gate，WSL仍BLOCKED，不启动宿主修复。完整M3不能因此关闭。
+
 ## M0 交付
 
 | ID | 优先级 | 状态 | 证据与验收 | PR |
@@ -37,7 +47,7 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | SEC-021 | P0 HISTORICAL_FIXED / CONFIRMED_CODE | M2 验收通过：真实撤销、使用记录、presign 消费、单进程续期 | d599aab / 8377de4 / a65ecfe；ADR-006/010；多实例和会话家族明确延期 |
 | SEC-022 | P0 企业场景 VALIDATE | 已有私密双 IdP 评估和迁移建议；实际身份迁移延期，不阻塞内置登录参考部署 | 003/020 → G1/G3；先模拟 IdP + 完整回调，证实后才设计账户迁移 ADR；参考 #435，不冒称漏洞 |
 | SEC-023 | P0 HISTORICAL_FIXED / CONFIRMED_CODE | 表单上下文修复经私密 HTTP/浏览器 RED→GREEN 与三组/race 验证；最小发布集已合并 0d918a1，合并后四组 CI PASS | ADR-009；不改变 OIDC 链路，公开回归/限制见 TEST-REPORT |
-| SEC-030 | P0 CONFIRMED_CODE / VALIDATE | 计算、双provider持久预约基础及真实入口有界接收已实施；持久累计预算尚未接入上传 | [PR #16](https://github.com/Activer007/Gokapi/pull/16)/[#17](https://github.com/Activer007/Gokapi/pull/17)/[#19](https://github.com/Activer007/Gokapi/pull/19)、ADR-013/014/015；最新代码ff7497b四组全仓/相关race/1–2GiB远端PASS；M3剩余Gate如下 |
+| SEC-030 | P0 CONFIRMED_CODE / VALIDATE | 整文件API准入9db2542：Linux四组全仓/相关race/扫描/1–2GiB Gate通过；M3其他入口及恢复继续OPEN | [PR #21](https://github.com/Activer007/Gokapi/pull/21)，ADR-016/TEST-REPORT；既有PR16/17/19保留，最终文档head及合并结果另核实 |
 | SEC-031 | P0 CONFIRMED_CODE / VALIDATE | 双 provider 顺序实测确认 MaxSize 每文件；用户确认保留并新增累计限制，usage纠正；并发/累计预算未实施 | [PR #15](https://github.com/Activer007/Gokapi/pull/15)已合并8019c61、CI40707671124 PASS；[M3语义](M3-UPLOAD-SEMANTICS.md)、ADR-013；#436非累计/事务修复 |
 | SEC-032 | P0 CONFIRMED_CODE / VALIDATE | M2 上传授权验收通过：取消、File Request 完成、普通分片/进度隔离 | 50965ba / 3d93cdb / 3a9627c；ADR-007/011/012；资源预算与完整生命周期仍开放 |
 | SEC-040 | P0 CONFIRMED_CODE | 删除错误与元数据生命周期不一致；S3 RED | 003 → G1/G2/G3；先保留记录/传递错误/重试；复杂状态机后置；不把 #419 当相同修复 |

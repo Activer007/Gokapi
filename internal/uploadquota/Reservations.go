@@ -2,6 +2,7 @@ package uploadquota
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/forceu/gokapi/internal/models"
 )
@@ -18,8 +19,12 @@ const (
 )
 
 var (
-	ErrInvalid    = errors.New("invalid upload quota data")
-	ErrQuota      = errors.New("upload quota exceeded")
+	ErrInvalid = errors.New("invalid upload quota data")
+	ErrQuota   = errors.New("upload quota exceeded")
+	// These retain ErrQuota identity for callers that only need a capacity
+	// decision, while HTTP admission can distinguish temporary backpressure.
+	ErrActive     = fmt.Errorf("%w: active upload capacity", ErrQuota)
+	ErrStaging    = fmt.Errorf("%w: staging capacity", ErrQuota)
 	ErrConflict   = errors.New("upload reservation conflict")
 	ErrExpired    = errors.New("upload reservation expired")
 	ErrNotFound   = errors.New("upload reservation not found")

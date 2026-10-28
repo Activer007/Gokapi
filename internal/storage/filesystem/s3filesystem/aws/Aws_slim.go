@@ -3,6 +3,7 @@
 package aws
 
 import (
+	"context"
 	"errors"
 	"io"
 	"net/http"
@@ -43,6 +44,17 @@ func Upload(input io.Reader, file models.File) (string, error) {
 	return "", errors.New(errorString)
 }
 
+// UploadContext rejects unsupported storage without reading the upload.
+func UploadContext(ctx context.Context, input io.Reader, file models.File) (string, error) {
+	if ctx == nil {
+		return "", errors.New("invalid AWS context")
+	}
+	if err := ctx.Err(); err != nil {
+		return "", err
+	}
+	return "", errors.New(errorString)
+}
+
 // Download downloads a file from AWS
 func download(writer io.WriterAt, file models.File) (int64, error) {
 	return 0, errors.New(errorString)
@@ -67,6 +79,17 @@ func ServeFile(w http.ResponseWriter, r *http.Request, file models.File, forceDo
 // FileExists returns true if the object is stored in S3
 func FileExists(file models.File) (bool, int64, error) {
 	return true, 0, errors.New(errorString)
+}
+
+// FileExistsContext never treats an unsupported lookup as verified existence.
+func FileExistsContext(ctx context.Context, file models.File) (bool, int64, error) {
+	if ctx == nil {
+		return false, 0, errors.New("invalid AWS context")
+	}
+	if err := ctx.Err(); err != nil {
+		return false, 0, err
+	}
+	return false, 0, errors.New(errorString)
 }
 
 // DeleteObject deletes a file from S3

@@ -48,9 +48,13 @@ func ProcessCompleteFile(w http.ResponseWriter, r *http.Request, userId, _ int) 
 	if err := r.Context().Err(); err != nil {
 		return err
 	}
-	result, err := storage.NewFile(upload.File, upload.Header, userId, config)
+	limits, err := wholeUploadLimits(configuration.GetEnvironment())
 	if err != nil {
-		return err
+		return wholeUploadFailure{err}
+	}
+	result, err := storage.NewFileReserved(r.Context(), upload.File, upload.Header, userId, config, limits, upload.Close)
+	if err != nil {
+		return wholeUploadFailure{err}
 	}
 	user, _ := database.GetUser(userId)
 	logging.LogUpload(result, user, models.FileRequest{})

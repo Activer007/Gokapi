@@ -7,6 +7,7 @@ Serving and processing uploaded files
 import (
 	"archive/zip"
 	"bytes"
+	"context"
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
@@ -32,6 +33,7 @@ import (
 	"github.com/forceu/gokapi/internal/storage/filesystem"
 	"github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem/aws"
 	"github.com/forceu/gokapi/internal/storage/processingstatus"
+	"github.com/forceu/gokapi/internal/uploadquota"
 	"github.com/forceu/gokapi/internal/webserver/api/mutex/apimutex"
 	"github.com/forceu/gokapi/internal/webserver/downloadstatus"
 	"github.com/forceu/gokapi/internal/webserver/headers"
@@ -70,6 +72,14 @@ func NewFile(fileContent io.Reader, fileHeader *multipart.FileHeader, userId int
 	}
 	file := createNewMetaData(hex.EncodeToString(hash), header, userId, uploadRequest)
 	file.Encryption = encInfo
+	if uploadRequest.IsEndToEndEncrypted {
+		file.Encryption.IsEncrypted, file.Encryption.IsEndToEndEncrypted = true, true
+	}
+	unlock, err := lockBlobPublication(context.Background(), file)
+	if err != nil {
+		return models.File{}, err
+	}
+	defer unlock()
 	filename := configuration.Get().DataDir + "/" + file.SHA1
 	dataDir := configuration.Get().DataDir
 
@@ -87,14 +97,8 @@ func NewFile(fileContent io.Reader, fileHeader *multipart.FileHeader, userId int
 	}
 
 	if fileWithHashExists {
-		encryptionLevel := configuration.Get().Encryption.Level
-		previousEncryption, ok := getEncInfoFromExistingFile(file.SHA1)
-		if !ok && encryptionLevel != encryption.NoEncryption && encryptionLevel != encryption.EndToEndEncryption {
-			err = os.Remove(dataDir + "/" + file.SHA1)
-			helper.Check(err)
-			fileWithHashExists = false
-		} else {
-			file.Encryption = previousEncryption
+		if _, err := copyEncryptionInfo(&file); err != nil {
+			return models.File{}, err
 		}
 	}
 
@@ -177,9 +181,17 @@ func NewFileFromChunk(chunkId string, fileHeader chunking.FileHeader, userId int
 		return models.File{}, err
 	}
 	metaData := createNewMetaData(hash, fileHeader, userId, uploadRequest)
+	unlock, err := lockBlobPublication(context.Background(), metaData)
+	if err != nil {
+		return models.File{}, err
+	}
+	defer unlock()
 	fileExists := FileExists(metaData, configuration.Get().DataDir)
 	if fileExists {
-		fileExists = copyEncryptionInfo(&metaData)
+		fileExists, err = copyEncryptionInfo(&metaData)
+		if err != nil {
+			return models.File{}, err
+		}
 		err = file.Close()
 		if err != nil {
 			return models.File{}, err
@@ -219,21 +231,27 @@ func NewFileFromChunk(chunkId string, fileHeader chunking.FileHeader, userId int
 	return metaData, nil
 }
 
-// copyEncryptionInfo copies encryption info from an existing file,
-// if possible. If not possible due to incompatible encryption level,
-// the old file is removed.
-//
-// The function returns false if the old file was removed.
-func copyEncryptionInfo(metaData *models.File) bool {
-	encryptionLevel := configuration.Get().Encryption.Level
-	previousEncryption, ok := getEncInfoFromExistingFile(metaData.SHA1)
-	if !ok && encryptionLevel != encryption.NoEncryption && encryptionLevel != encryption.EndToEndEncryption {
-		err := os.Remove(configuration.Get().DataDir + "/" + metaData.SHA1)
-		helper.Check(err)
-		return false
+// copyEncryptionInfo runs under the shared publication lock. An existing blob
+// with unknown encryption information is never deleted or overwritten.
+func copyEncryptionInfo(metaData *models.File) (bool, error) {
+	expectedE2E := metaData.Encryption.IsEndToEndEncrypted
+	expectedEncrypted := isEncryptionRequested() || expectedE2E
+	previous, found, err := database.ReadBlobEncryption(context.Background(), metaData.SHA1, metaData.AwsBucket)
+	if err != nil {
+		return false, err
 	}
-	metaData.Encryption = previousEncryption
-	return true
+	if !found {
+		if expectedEncrypted && !expectedE2E {
+			return false, uploadquota.ErrConflict
+		}
+		metaData.Encryption = models.EncryptionInfo{IsEncrypted: expectedE2E, IsEndToEndEncrypted: expectedE2E}
+		return true, nil
+	}
+	if previous.IsEncrypted != expectedEncrypted || previous.IsEndToEndEncrypted != expectedE2E {
+		return false, uploadquota.ErrConflict
+	}
+	metaData.Encryption = previous
+	return true, nil
 }
 
 func getChunkFileHash(file *os.File, isEndToEndEncryted bool) (string, error) {
@@ -298,8 +316,16 @@ func encryptChunkFile(file *os.File, metadata *models.File) (*os.File, error) {
 }
 
 func createNewMetaData(hash string, fileHeader chunking.FileHeader, userId int, params models.UploadParameters) models.File {
+	file := buildNewMetaData(createNewId(), hash, fileHeader, userId, params)
+	AddHotlink(&file)
+	return file
+}
+
+// buildNewMetaData constructs metadata without publishing metadata or hotlinks.
+// Reserved uploads supply their already-claimed ID and commit this value once.
+func buildNewMetaData(id, hash string, fileHeader chunking.FileHeader, userId int, params models.UploadParameters) models.File {
 	file := models.File{
-		Id:                 createNewId(),
+		Id:                 id,
 		Name:               fileHeader.Filename,
 		SHA1:               hash,
 		Size:               helper.ByteCountSI(fileHeader.Size),
@@ -326,7 +352,6 @@ func createNewMetaData(hash string, fileHeader chunking.FileHeader, userId int, 
 			aws.AddBucketName(&file)
 		}
 	}
-	AddHotlink(&file)
 	return file
 }
 
@@ -384,6 +409,14 @@ func ReplaceFile(fileId, newFileContentId string, delete bool) (models.File, err
 	if file.Encryption.IsEndToEndEncrypted || newFileContent.Encryption.IsEndToEndEncrypted {
 		return models.File{}, ErrorReplaceE2EFile
 	}
+	unlock, err := lockBlobPublication(context.Background(), newFileContent)
+	if err != nil {
+		return models.File{}, err
+	}
+	defer unlock()
+	if !FileExists(newFileContent, configuration.Get().DataDir) {
+		return models.File{}, ErrorFileNotFound
+	}
 
 	file.Name = newFileContent.Name
 	file.Size = newFileContent.Size
@@ -408,9 +441,17 @@ func DuplicateFile(file models.File, parametersToChange int, newFileName string,
 
 	// apiDuplicateFile expects fileParameters.IsEndToEndEncrypted and fileParameters.RealSize not to be used,
 	// change in apiDuplicateFile if using in this function!
+	unlock, err := lockBlobPublication(context.Background(), file)
+	if err != nil {
+		return models.File{}, err
+	}
+	defer unlock()
+	if !FileExists(file, configuration.Get().DataDir) {
+		return models.File{}, ErrorFileNotFound
+	}
 
 	var newFile models.File
-	err := copier.Copy(&newFile, &file)
+	err = copier.Copy(&newFile, &file)
 	if err != nil {
 		return models.File{}, err
 	}
@@ -534,9 +575,14 @@ func AddHotlink(file *models.File) {
 	if !IsAbleHotlink(*file) {
 		return
 	}
-	link := helper.GenerateRandomString(configuration.GetEnvironment().LengthHotlinkId) + getFileExtension(file.Name)
-	file.HotlinkId = link
+	setHotlinkCandidate(file)
 	database.SaveHotlink(*file)
+}
+
+func setHotlinkCandidate(file *models.File) {
+	if IsAbleHotlink(*file) {
+		file.HotlinkId = helper.GenerateRandomString(configuration.GetEnvironment().LengthHotlinkId) + getFileExtension(file.Name)
+	}
 }
 
 // IsAbleHotlink returns true, if the file may use hotlinks (e.g. an image file that is not encrypted or password-protected).
@@ -823,22 +869,7 @@ func CleanUp(periodic bool) {
 	timeNow := time.Now().Unix()
 	wasItemDeleted := false
 	for key, element := range database.GetAllMetadata() {
-		fileExists := FileExists(element, configuration.Get().DataDir)
-		if !fileExists || isExpiredFileWithoutDownload(element, timeNow) || isPendingToBeDeleted(element, timeNow) {
-			deleteFile := true
-			for _, secondLoopElement := range database.GetAllMetadata() {
-				if (element.Id != secondLoopElement.Id) && (element.SHA1 == secondLoopElement.SHA1) {
-					deleteFile = false
-					break
-				}
-			}
-			if deleteFile && fileExists {
-				deleteSource(element, configuration.Get().DataDir)
-			}
-			if element.HotlinkId != "" {
-				database.DeleteHotlink(element.HotlinkId)
-			}
-			database.DeleteMetaData(key)
+		if cleanUpBlobReference(key, element, timeNow) {
 			wasItemDeleted = true
 		}
 	}
@@ -857,6 +888,40 @@ func CleanUp(periodic bool) {
 			CleanUp(periodic)
 		}()
 	}
+}
+
+// Publication and new references cannot interleave with the last-reference
+// check and deletion. Re-read the row under the locator lock: a stale scan must
+// not delete a replacement that now points to a different blob.
+func cleanUpBlobReference(key string, scanned models.File, now int64) bool {
+	unlock, err := lockBlobPublication(context.Background(), scanned)
+	if err != nil {
+		return false
+	}
+	defer unlock()
+	current, exists := database.GetMetaDataById(key)
+	if !exists || current.SHA1 != scanned.SHA1 || current.AwsBucket != scanned.AwsBucket {
+		return false
+	}
+	fileExists := FileExists(current, configuration.Get().DataDir)
+	if fileExists && !isExpiredFileWithoutDownload(current, now) && !isPendingToBeDeleted(current, now) {
+		return false
+	}
+	deleteFile := true
+	for _, other := range database.GetAllMetadata() {
+		if other.Id != current.Id && other.SHA1 == current.SHA1 && other.AwsBucket == current.AwsBucket {
+			deleteFile = false
+			break
+		}
+	}
+	if deleteFile && fileExists {
+		deleteSource(current, configuration.Get().DataDir)
+	}
+	if current.HotlinkId != "" {
+		database.DeleteHotlink(current.HotlinkId)
+	}
+	database.DeleteMetaData(key)
+	return true
 }
 
 func getUserMap() map[int]models.User {

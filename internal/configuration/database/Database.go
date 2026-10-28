@@ -171,6 +171,15 @@ func ApplyUploadQuota(ctx context.Context, change uploadquota.Change) (uploadquo
 
 func ReadUploadQuota(ctx context.Context) (uploadquota.Ledger, error) { return db.ReadUploadQuota(ctx) }
 
+// ReadBlobEncryption reads only bounded encryption metadata for one storage
+// locator. It does not load names, passwords or all file metadata into memory.
+func ReadBlobEncryption(ctx context.Context, hash, bucket string) (models.EncryptionInfo, bool, error) {
+	if ctx == nil || len(hash) == 0 || len(hash) > uploadquota.MaxIDLength || len(bucket) > 1024 {
+		return models.EncryptionInfo{}, false, uploadquota.ErrInvalid
+	}
+	return db.ReadBlobEncryption(ctx, hash, bucket)
+}
+
 // RunGarbageCollection runs the databases GC
 func RunGarbageCollection() {
 	db.RunGarbageCollection()
