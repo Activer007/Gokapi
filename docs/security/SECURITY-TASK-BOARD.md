@@ -33,13 +33,13 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | SEC-012 | P0 CONFIRMED_CODE + HISTORICAL_FIXED | M1 已合并，三类Cookie、网页改密注销、HTTP/TLS代理回调、SQLite/Redis旧密码真实登录迁移 | [PR #4](https://github.com/Activer007/Gokapi/pull/4)；合并7200526；ADR-002；本地回归及最终CI通过；原删除延迟断言一次失败保留；浏览器/冷恢复仍为023/063 Gate |
 | SEC-013 | P0 CONFIRMED_CODE | M1 已合并：共享直接peer检查、CF/XFF严格解析、Docker网段显式选择 | [PR #5](https://github.com/Activer007/Gokapi/pull/5)；合并138642c；ADR-003；本地及最终CI通过，真实容器网络Gate仍归011 |
 | SEC-014 | P0 CONFIRMED_CODE / P1 调优 | RED→GREEN：取消等待、清理协程有界、慢头、30秒管理I/O/Context、OIDC取消；长正文/SSE正例通过 | [PR #6](https://github.com/Activer007/Gokapi/pull/6)已合并462c5d5；补充[PR #8](https://github.com/Activer007/Gokapi/pull/8)，代码4bc1fc3，本地三组/定向race及最新镜像非rootGate PASS；ADR-004；最终CI/合并以PR为准；100GB/真实代理负载仍VALIDATE |
-| SEC-020 | P0 HISTORICAL_FIXED / CONFIRMED_CODE | 现状矩阵、故障状态RED、最小纯策略、目标/三组/race GREEN完成；失败原样保留 | [PR #9](https://github.com/Activer007/Gokapi/pull/9)，代码a83366a；远端diff自审完成，最终CI/合并以PR为准；M2其余边界仍未完成 |
-| SEC-021 | P0 HISTORICAL_FIXED / CONFIRMED_CODE / VALIDATE | 真实API撤销、Redis使用记录合同已合并；管理presign当前授权与原子消费RED→GREEN、三组/race PASS；其他跨请求/异步Gate仍开放 | [PR #10](https://github.com/Activer007/Gokapi/pull/10)合并d599aab；presign [PR #11](https://github.com/Activer007/Gokapi/pull/11)，代码81d7011、ADR-006、已自审；最终CI/合并以PR为准 |
+| SEC-020 | P0 HISTORICAL_FIXED / CONFIRMED_CODE | 用户修订范围内 M2 验收通过：当前授权交集、对象/凭据/公开能力矩阵 | PR #9/#12 已合并；源码、实跑和限制见 [M2 审计](M2-COMPLETION-AUDIT.md) |
+| SEC-021 | P0 HISTORICAL_FIXED / CONFIRMED_CODE | M2 验收通过：真实撤销、使用记录、presign 消费、单进程续期 | d599aab / 8377de4 / a65ecfe；ADR-006/010；多实例和会话家族明确延期 |
 | SEC-022 | P0 企业场景 VALIDATE | 已有私密双 IdP 评估和迁移建议；实际身份迁移延期，不阻塞内置登录参考部署 | 003/020 → G1/G3；先模拟 IdP + 完整回调，证实后才设计账户迁移 ADR；参考 #435，不冒称漏洞 |
 | SEC-023 | P0 HISTORICAL_FIXED / CONFIRMED_CODE | 表单上下文修复经私密 HTTP/浏览器 RED→GREEN 与三组/race 验证；最小发布集已合并 0d918a1，合并后四组 CI PASS | ADR-009；不改变 OIDC 链路，公开回归/限制见 TEST-REPORT |
 | SEC-030 | P0 CONFIRMED_CODE / VALIDATE | 当前 User 无累计额度字段，未见原子预算；资源耗尽需量化 | 003/020 → G1/G3；先计量语义与预约并发测试，按用户/实例分 PR；参考 issue #431 |
 | SEC-031 | P0 CONFIRMED_CODE / VALIDATE | 单文件实现 vs 总额文案；累计绕过未做攻击认定 | 003，语义定案后接 030 → G1/G3；连续/并发请求实测再选兼容方案；#436 先评审 |
-| SEC-032 | P0 CONFIRMED_CODE / VALIDATE | 取消预约最小发布集已合并 50965ba，合并后生成及四组 CI PASS | 003/030 → G1/G2；ADR-007；完成/在途任务/完整所有权边界仍开放 |
+| SEC-032 | P0 CONFIRMED_CODE / VALIDATE | M2 上传授权验收通过：取消、File Request 完成、普通分片/进度隔离 | 50965ba / 3d93cdb / 3a9627c；ADR-007/011/012；资源预算与完整生命周期仍开放 |
 | SEC-040 | P0 CONFIRMED_CODE | 删除错误与元数据生命周期不一致；S3 RED | 003 → G1/G2/G3；先保留记录/传递错误/重试；复杂状态机后置；不把 #419 当相同修复 |
 | SEC-041 | P0 CONFIRMED_CODE + HISTORICAL_FIXED | 旧内容回收缺口与历史替换越权是两件事 | 020/040 → G1/G2/G3；先评审 [#419](https://github.com/Forceu/Gokapi/pull/419)，多引用与中断回滚；仅 fork 应用经验证的补丁 |
 | SEC-042 | P1 VALIDATE | 双层元数据扫描；真实性能瓶颈待测 | 040/041 → 基准后 G3；先 1k/10k 扫描计数，必要时 Blob 索引，SQLite/Redis 都可重建 |
@@ -86,3 +86,9 @@ PR 均为 **Activer007/Gokapi ← codex/...**。SEC-062 的先决发布保护已
 ## SEC-032 普通上传作用域修复
 
 基线 3d93cdb；最小用户存储隔离及进度隔离已实现。ADR-012 记录升级前完成上传、旧未完成普通上传需重新上传、无数据库/已完成文件迁移和回滚边界。目标合同、三组全量及相关 race 证据见 TEST-REPORT；详细评估仅私密保存。只提交一个最小修复 PR，不另建待合并评估 PR。剩余 Gate：发布提取一致性 → PR 审查/合并及主仓库 CI → 对 M2 修订目标进行最终审计。OIDC 继续按用户决定延期，M2 尚未宣称完成。
+
+## M2 收尾验收（2026-10-28）
+
+SEC-020/021/023/032 在用户修订范围内的代码 Gate 已完成，基线 3a9627c，合并后 CI 40697431982 PASS。证据、跳过项、兼容与原始 A–E 映射见 [M2-COMPLETION-AUDIT](M2-COMPLETION-AUDIT.md)。SEC-022 的双 IdP 评估和 ADR 私密保存，实施继续延期。该收尾文档按独立 PR 审查/合并，不能把自审称为独立批准。
+
+后续 P0 为 SEC-031/030 上传计量/预算及 SEC-040/041 删除可恢复；每项仍先隔离 RED。P1 为发布清单/扫描及恢复演练等；没有开始部署、发布镜像、迁移 OIDC 或清理真实文件。
