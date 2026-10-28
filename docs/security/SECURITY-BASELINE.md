@@ -203,3 +203,9 @@ SEC-030接收增量，基线f4ce5db：[ADR-015](ADR-015-BOUNDED-UPLOAD-RECEPTION
 已公开工具链公告（2026-10-29核对）：当前复现/CI基线Go1.26.0落在官方[GO-2026-6603](https://pkg.go.dev/vuln/GO-2026-6603)列出的HTTP/2 Trailer内存问题版本范围（修复门槛go1.26.9）内；[GO-2026-6089](https://pkg.go.dev/vuln/GO-2026-6089)另涉及未加密HTTP/2前言读取超时。HISTORICAL_FIXED仅指上游Go已提供修复；VALIDATE为本仓库具体配置/可达调用链及构建工具链推进。不得从receiver测试绿色声称标准库问题已修复，发布前需独立SEC-062工具链/govulncheck Gate。本轮不混入依赖升级。
 
 SEC-030最终接收代码ff7497b：CONFIRMED_CODE并有远端实跑证据，生成/四组全仓/相关race及真实1GiB明文、2GiB服务器加密HTTP上传和读回通过；[43份源码hash与Gate](evidence/sec030-receiver-ff7497b/README.md)匹配该提交。局部默认4槽、12288MiB保守接收预算，不等同用户或File Request累计配额；MaxSize保持单文件。WSL本地BLOCKED及先前失败继续保留。接收前外层认证拒绝的传输等待、持久预算/所有metadata路径、异步完成和恢复仍VALIDATE；无新schema/密码/密文格式变更，未部署或发布。
+
+SEC-062工具链增量（2026-10-29），工作基线cb5868c：官方[release history](https://go.dev/doc/devel/release)及[下载清单](https://go.dev/dl/?mode=json)核实1.26受支持分支当前补丁1.26.10（2026-10-19，含crypto/x509修复）；本轮保持1.26，不做语言主版本升级。CONFIRMED_CODE：根/build go.mod为1.26.0，两个Docker builder为1.26.2、批量builder为1.26.1，CI从根go.mod取版本；已对齐五处声明。go.mod的go行设置最低patch，不仅添加可绕过的toolchain建议行。原build/go.sum不因升级整理；五个上游publisher保护保留，无发布。
+
+HISTORICAL_FIXED（Go上游）：[GO-2026-6609](https://pkg.go.dev/vuln/GO-2026-6609) Range CPU、[6603](https://pkg.go.dev/vuln/GO-2026-6603) H2 Trailer内存、[6611](https://pkg.go.dev/vuln/GO-2026-6611) H2 SETTINGS CPU已在1.26.9修复，[6089](https://pkg.go.dev/vuln/GO-2026-6089)未加密H2 preface超时在1.26.6修复，[6809](https://pkg.go.dev/vuln/GO-2026-6809) x509 denylist在1.26.10修复。CONFIRMED_CODE入口：静态FileServer/自定义ServeFile/本地ServeContent保留Range；UseSsl开启时采用默认ListenAndServeTLS。VALIDATE：实际H2协商/代理、出站TLS及系统根条件，不能仅从API名证明恶意负载可利用。当前没有显式启用h2c；旧x/net checksum不证明生产选择了该模块。没有执行高资源攻击负载或声明新未知漏洞。
+
+当前本地仅版本声明合同RED→GREEN；实际编译器、源码/产物扫描、Docker编译和新补丁大文件Gate须按TEST-REPORT的真实远端结果补充。WSL故障持续，不修复宿主；本地Go生成/测试/扫描NOT_RUN。工具链修补不能代替M3累计配额、持久chunk、异步/恢复。

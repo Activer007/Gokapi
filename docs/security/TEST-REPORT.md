@@ -725,3 +725,17 @@ go test ./internal/webserver/api -count=1 -tags=test,noaws,security_large -run T
 两个SHA256逐字节读回匹配。指标只代表该runner/路径，20ms磁盘采样不是所有瞬时峰值证明，不涵盖真实S3、浏览器WASM、全部chunk路径或生产负载。最后证据提交仅改docs，不改Go/运行器/workflow，随后PR CI独立检查；不能将ff7497b的大文件记录说成后续文档提交重新执行。
 
 本机2GiB失败及WSL E_UNEXPECTED仍为FAIL/BLOCKED，最终本地全量和补丁验证仍NOT_RUN；未重启/修复宿主。Windows原生Go、全仓race、govulncheck、真实Redis/S3、生产恢复仍NOT_RUN。SEC-062已公开Go公告的修补/可达性另设发布前P0 Gate。M3持久预算接线、正向metadata、完整区间、异步完成/恢复仍OPEN；外层认证早期拒绝传输行为仅VALIDATE，后续先写隔离socket合同。没有从接收层绿色推断整体防耗尽或已可安全发布。
+
+## SEC-062 已公开标准库修补与实际工具链 Gate（2026-10-29）
+
+基线cb5868c6d45d1a3f4fc163c74976c90c756ae8a8，E:/LHA/Gokapi，Windows PowerShell；无原生Go，WSL先前read-only/E_UNEXPECTED持续，本轮未再次启动或修复。保留原plan/deployment两个未跟踪目录。只读上游master仍a9c25d4，检索开放golang/toolchain/govulncheck/HTTP2 PR及Issues未见同范围待合并修复；官方Go发布及公告版本见SECURITY-BASELINE。该PR处理公开已修标准库，未复现高CPU/内存恶意负载，不新报漏洞。
+
+安全不变量先行：根/build模块、三个Go builder及实际编译器必须与审查过的1.26.10一致，真实产物需BuildInfo和扫描。实际本地执行 `python docs/security/tools/check-sec062-toolchain.py`，旧声明五项FAIL、退出1（policy-red.log），修改声明后同命令退出0（policy-green.log），明确actual compiler NOT_CHECKED。原始输出在sec062-toolchain-local.secret；这是配置策略合同RED，不冒充动态漏洞复现。无需新运行时/schema/依赖图重构，两个go.sum保持原字节。
+
+新增 `bash docs/security/tools/run-sec062-toolchain.sh scan` 在git archive隔离副本运行GOTOOLCHAIN=local、GOFLAGS=-mod=readonly，固定安装 `golang.org/x/vuln/cmd/govulncheck@v1.9.0` 到临时GOBIN，记录scanner版本/BuildInfo、输入hash、每条真实命令及退出码。普通文本输出保留漏洞非零状态；不用JSON格式的成功退出码伪装无漏洞。实际扫描default/noaws源码、单文件minifier生成器、CGO_ENABLED=0服务端/CLI产物；go generate重建WASM和匹配shim，产物SHA256留证。CI保留原生成/四组全仓/相关race，补实际compiler policy。
+
+手动workflow另运行historical模式：固定归档旧cb5868c，显式Go1.26.0生成与扫描，保存真实scanner非零结果，要求命中公开GO-2026-6609才承认历史RED。wrapper预期RED成功不等于旧源码无漏洞。containers模式只构建runner本地三个镜像，不push、不挂数据卷；复制临时容器中的server/CLI产物读取BuildInfo，builder读取go version。大文件Gate按原脚本1GiB明文/2GiB服务器加密实际HTTP重新执行。
+
+当前以上远端执行均NOT_RUN；本地Go生成/全仓/race/govulncheck/Docker仍NOT_RUN/BLOCKED。后续逐run补真实PASS/FAIL，不把本地Python结果当远端通过。无schema/密码哈希/加密格式变化；构建最低版本升至1.26.10，旧离线compiler将拒绝构建，auto环境可获取新版本。回滚二进制不改变既有数据格式，但旧compiler重新构建会恢复已知标准库风险。WASM浏览器交互、全仓race、真实Redis/S3、完整镜像digest固定/供应链扫描/生产恢复仍为独立Gate。
+
+审查补强：历史RED仅接受govulncheck漏洞退出码3且含目标ID，超时/执行失败不能转GREEN；实际归档inputs.sha256与当前harness.sha256分别记录。新增64B真实静态及带文件密码能力的本地下载Range兼容测试（200/HEAD/单Range/双Range/416及精确内容），没有高资源负载；纳入全仓和定向race。WASM另外按GOOS=js/GOARCH=wasm做源码扫描，浏览器交互仍NOT_RUN。当前新Go测试/gofmt/所有扫描均尚NOT_RUN，待真实远端结果。
