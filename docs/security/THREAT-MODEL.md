@@ -96,3 +96,7 @@ Token 与 Cookie 不替代凭据、当前会话和对象授权；详细私密对
 公开文件 ID、hotlink、密码下载 Token、presign、session ID 与 API Key 是不同权限域。把它们换到 apikey Header，或仅发送 session/文件密码 Cookie，不能授予管理 API 权限；File Request Key 只通过公开上传域认证。下载能力不是资源所有权，合法公开分享可读取另一所有者文件；仍必须遵守当前过期、次数、待删、File Request 私有文件和密码绑定约束。拒绝操作不修改文件内容/元数据，也不消费独立密码/presign 能力。
 
 新增测试覆盖顺序 handler 与实际 API 路由认证，不涵盖授权检查后与在途写入/撤销的线性化，也不把 miniredis 视为真实 Redis 或本地 blob 视为 S3 验证。
+
+## SEC-021 单进程会话续期收尾
+
+2026-10-28：续期必须条件替换仍存在且未变的原记录，不能恢复已撤销会话；用户/全局撤销与续期串行后不遗留新记录。普通授权读及已获准传输不加全程锁。采用既有 database 门面进程锁，兼容与旧 ID 注销范围见 [ADR-010](ADR-010-SESSION-RENEWAL.md)。多实例和会话家族不在本轮承诺内。

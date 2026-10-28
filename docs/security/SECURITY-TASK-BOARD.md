@@ -74,3 +74,7 @@ PR 均为 **Activer007/Gokapi ← codex/...**。SEC-062 的先决发布保护已
 2026-10-28，基线 0d918a1。公开 ID/密码 Cookie/session/presign/API Key 权限域与公开下载状态矩阵已新增；两种 provider 基线 PASS，隔离 mutation RED 生效，最终全量/race/PR Gate 见 TEST-REPORT。File Request 正例在认证边界止步，不冒称已验证完整上传/完成流程；跨请求和并发 Gate 继续开放。
 
 本轮按用户确认收缩 M2，收尾只保留单进程续期/撤销、File Request add/complete 作用域和最终审计；完整要求见 M2-GOAL。PR #12 已合并 79a0480，合并后 CI 40675833652 PASS。
+
+## SEC-021 单进程续期收尾
+
+基线 aff864a；私密请求合同 RED 已确认，门面条件续期和撤销协调已实现，相关回归与 merge Gate 见 TEST-REPORT；ADR-010 记录兼容与回滚。状态以最终测试/PR 记录为准，不宣称覆盖多实例或旧 ID 会话家族。M2 后续仅剩 SEC-032 分片 add/complete 作用域及最终审计（需本项 Gate 完成后确认）。
