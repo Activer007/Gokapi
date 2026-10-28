@@ -551,3 +551,24 @@ go test -race ./internal/webserver/api ./internal/storage/chunking/chunkreservat
 不修改 schema、用户 ID、密码、物理文件删除策略或上传字段；ADR-011 给出进程重启/在途上传兼容与回滚影响。有限秘密模式扫描、差异检查以及最终公开提取校验以提交/PR 自审记录为准；不冒称独立批准。
 
 公开提取验证：`bash docs/security/tools/run-sec032-completion.sh --target` 使用 `-tags=test,noaws`，1vBVjG 的 environment/generate/scope 均退出 0。四个发布 Go 文件的 SHA256 与 tW7WdK 全量/race 输入一致。有限秘密模式扫描与 git diff --check PASS；详细请求矩阵及评估文档未进入发布分支。
+
+## SEC-032 普通上传作用域修复
+
+2026-10-28；生产基线 3d93cdb，Windows PowerShell / WSL Ubuntu-24.04，Go 1.26.0 linux/amd64。临时 git 归档、SQLite/miniredis、合成文件；全量和 race 串行执行。最终 DKXgX6 的 environment/generate/scope/awsmock/noaws/integration/race 均退出 0（PASS）。摘要和公开输入哈希见 evidence/sec032-managed-DKXgX6；原始日志及详细请求测试私密保留。
+
+```sh
+go generate ./...
+go test ./internal/webserver/api ./internal/webserver/fileupload ./internal/webserver ./internal/storage ./internal/storage/chunking ./internal/storage/processingstatus/pstatusdb -count=1 -tags=test,noaws,security_private -run 'TestSEC032|TestNewFileFromChunk|TestChunkUpload|TestChunkComplete|TestProcessNewChunk|TestCompleteChunk' -v
+go test ./... -parallel 8 -count=1 -tags=test,awsmock,security_private
+go test ./... -parallel 8 -count=1 -tags=test,noaws,security_private
+go test ./... -count=1 -tags=test,noaws,integration,security_private
+go test -race ./internal/webserver/api ./internal/webserver/fileupload ./internal/webserver ./internal/storage ./internal/storage/chunking ./internal/storage/processingstatus/pstatusdb -count=1 -tags=test,noaws,security_private -run TestSEC032
+```
+
+私密真实 API 合同覆盖 56 个普通上传与 34 个既有 File Request 叶子用例；普通上传包括长期/临时/同用户换 Key、同步/异步正反例、缺失/旧分片和错误清理。公开回归覆盖存储域、浏览器接收处理器的认证上下文、进度用户隔离和异步前置检查；不把处理器测试称为实际浏览器测试。公开 runner 不带 security_private，能重跑公开子集和标准全量；私密合同不混入发布。
+
+保留失败：原始普通上传 RED 为 TdApbl（8 负例失败、12 对照通过）；进度隔离 RED 为 sec032-status-red.secret（第二用户状态缺失）。第一次进度测试启动遇 PowerShell/WSL 引号导致 tar 空路径，测试 NOT_RUN，改用保存脚本后取得真实 RED。初次修复回归 636zXV 的文件名净化测试失败，因为旧测试夹具直接写全局 chunk；修正夹具所属用户后通过。ebhqPz 中间全量/race 全过，最终改用与旧命名不相交的格式后再次取得 DKXgX6 全过。临时副本 mutation G37Y8g 恢复旧清理调用，6 个错误清理防御用例按预期失败；真实源码未回退。
+
+未修改依赖，govulncheck NOT_RUN；真实 Redis/S3、实际浏览器、全仓 race、多实例、全部同用户并发交错及异步存储失败注入 NOT_RUN。缺少已授权分片的异步入口已测试拒绝，合法异步完成已测试；不声称覆盖全部异步失败流程。ADR-012 记录兼容与回滚。
+
+公开提取验证：`bash docs/security/tools/run-sec032-managed.sh --target` 的 smTgmQ environment/generate/scope 均 PASS(0)，不带 security_private。14 个公开 Go 文件与最终全量/race 的输入 SHA256 一致。git diff --check、有限秘密模式扫描均 PASS。完整评估和两个详细请求测试不在发布树中。

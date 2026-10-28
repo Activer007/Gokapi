@@ -1011,6 +1011,11 @@ func showPublicUpload(w http.ResponseWriter, r *http.Request) {
 // Handling of /uploadChunk
 // If the user is authenticated, this parses the uploaded chunk and stores it
 func uploadChunk(w http.ResponseWriter, r *http.Request) {
+	user, err := authentication.GetUserFromRequest(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
 	maxUpload := int64(configuration.Get().MaxFileSizeMB) * 1024 * 1024
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if r.ContentLength > maxUpload {
@@ -1018,7 +1023,7 @@ func uploadChunk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, maxUpload)
-	_, err := fileupload.ProcessNewChunk(w, r, false, "", maxUpload)
+	_, err = fileupload.ProcessNewChunk(w, r, false, "", user.Id, maxUpload)
 	responseError(w, err)
 }
 

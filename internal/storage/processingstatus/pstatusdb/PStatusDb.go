@@ -7,7 +7,12 @@ import (
 	"github.com/forceu/gokapi/internal/models"
 )
 
-var statusMap = make(map[string]models.UploadStatus)
+type uploadKey struct {
+	userId  int
+	chunkId string
+}
+
+var statusMap = make(map[uploadKey]models.UploadStatus)
 var statusMutex sync.RWMutex
 var startCleanupOnce sync.Once
 
@@ -38,13 +43,14 @@ func GetAllForUser(userId int) []models.UploadStatus {
 // Set saves the upload status for 24 hours
 func Set(status models.UploadStatus) {
 	statusMutex.Lock()
-	oldStatus, ok := statusMap[status.ChunkId]
+	key := uploadKey{userId: status.UserId, chunkId: status.ChunkId}
+	oldStatus, ok := statusMap[key]
 	if ok && oldStatus.CurrentStatus > status.CurrentStatus {
 		statusMutex.Unlock()
 		return
 	}
 	status.Creation = time.Now().Unix()
-	statusMap[status.ChunkId] = status
+	statusMap[key] = status
 	statusMutex.Unlock()
 	startCleanupOnce.Do(func() { go doGarbageCollection(true) })
 }
@@ -52,10 +58,10 @@ func Set(status models.UploadStatus) {
 func deleteAllExpiredStatus() {
 	cutOff := time.Now().Add(-24 * time.Hour).Unix()
 	statusMutex.Lock()
-	newStatusMap := make(map[string]models.UploadStatus)
+	newStatusMap := make(map[uploadKey]models.UploadStatus)
 	for _, status := range statusMap {
 		if status.Creation > cutOff {
-			newStatusMap[status.ChunkId] = status
+			newStatusMap[uploadKey{userId: status.UserId, chunkId: status.ChunkId}] = status
 		}
 	}
 	statusMap = newStatusMap

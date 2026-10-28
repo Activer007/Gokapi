@@ -159,14 +159,15 @@ func GetUploadCounts() map[int]int {
 // already exists, it is deduplicated. This function gathers information about the file, creates an ID and saves
 // it into the global configuration.
 func NewFileFromChunk(chunkId string, fileHeader chunking.FileHeader, userId int, uploadRequest models.UploadParameters) (models.File, error) {
-	file, err := chunking.GetFileByChunkId(chunkId)
+	storageId := chunking.StorageID(chunkId, userId, uploadRequest.FileRequestId)
+	file, err := chunking.GetFileByChunkId(storageId)
 	if err != nil {
 		return models.File{}, err
 	}
 	defer file.Close()
 	err = validateChunkInfo(file, fileHeader)
 	if err != nil {
-		_ = chunking.DeleteChunk(chunkId)
+		_ = chunking.DeleteChunk(storageId)
 		return models.File{}, err
 	}
 

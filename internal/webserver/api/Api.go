@@ -352,12 +352,12 @@ func apiRestoreFile(w http.ResponseWriter, r requestParser, user models.User, _ 
 	outputFileJson(w, file)
 }
 
-func apiChunkAdd(w http.ResponseWriter, r requestParser, _ models.User, _ models.ApiKey) {
+func apiChunkAdd(w http.ResponseWriter, r requestParser, user models.User, _ models.ApiKey) {
 	request, ok := r.(*paramChunkAdd)
 	if !ok {
 		panic("invalid parameter passed")
 	}
-	statusCode, errCode, errString := processNewChunk(w, request, configuration.Get().MaxFileSizeMB, "")
+	statusCode, errCode, errString := processNewChunk(w, request, configuration.Get().MaxFileSizeMB, "", user.Id)
 	if statusCode != http.StatusOK {
 		sendError(w, statusCode, errCode, errString)
 	}
@@ -431,7 +431,7 @@ func apiChunkUploadRequestAdd(w http.ResponseWriter, r requestParser, user model
 	if !fileRequest.IsUnlimitedSize() {
 		maxUpload = min(maxUpload, fileRequest.MaxSize)
 	}
-	statusCode, errorCode, errString := processNewChunk(w, request, maxUpload, fileRequest.Id)
+	statusCode, errorCode, errString := processNewChunk(w, request, maxUpload, fileRequest.Id, user.Id)
 	if statusCode != http.StatusOK {
 		sendError(w, statusCode, errorCode, errString)
 	}
@@ -458,13 +458,13 @@ type chunkParams interface {
 	GetRequest() *http.Request
 }
 
-func processNewChunk(w http.ResponseWriter, request chunkParams, maxFileSizeMb int, filerequestId string) (int, int, string) {
+func processNewChunk(w http.ResponseWriter, request chunkParams, maxFileSizeMb int, filerequestId string, userId int) (int, int, string) {
 	maxUpload := int64(maxFileSizeMb) * 1024 * 1024
 	if request.GetRequest().ContentLength > maxUpload {
 		return http.StatusBadRequest, errorcodes.FileTooLarge, storage.ErrorFileTooLarge.Error()
 	}
 	request.GetRequest().Body = http.MaxBytesReader(w, request.GetRequest().Body, maxUpload)
-	errCode, err := fileupload.ProcessNewChunk(w, request.GetRequest(), true, filerequestId, maxUpload)
+	errCode, err := fileupload.ProcessNewChunk(w, request.GetRequest(), true, filerequestId, userId, maxUpload)
 	if err != nil {
 		return http.StatusBadRequest, errCode, err.Error()
 	}
@@ -475,6 +475,11 @@ func apiChunkComplete(w http.ResponseWriter, r requestParser, user models.User, 
 	request, ok := r.(*paramChunkComplete)
 	if !ok {
 		panic("invalid parameter passed")
+	}
+	// Reject missing caller-owned chunks before either processing or enqueueing.
+	if !chunking.FileExists(chunking.StorageID(request.Uuid, user.Id, "")) {
+		sendError(w, http.StatusBadRequest, errorcodes.UnspecifiedError, "chunk file does not exist")
+		return
 	}
 	uploadParams := fileupload.CreateUploadConfig(request.AllowedDownloads,
 		request.ExpiryDays,
@@ -495,7 +500,7 @@ func apiChunkComplete(w http.ResponseWriter, r requestParser, user models.User, 
 func doBlockingPartCompleteChunk(w http.ResponseWriter, uuid string, fileHeader chunking.FileHeader, user models.User, uploadParameters models.UploadParameters) {
 	file, err := fileupload.CompleteChunk(uuid, fileHeader, user.Id, uploadParameters)
 	if err != nil {
-		_ = chunking.DeleteChunk(uuid)
+		_ = chunking.DeleteChunk(chunking.StorageID(uuid, user.Id, uploadParameters.FileRequestId))
 		sendError(w, http.StatusBadRequest, errorcodes.UnspecifiedError, err.Error())
 		return
 	}

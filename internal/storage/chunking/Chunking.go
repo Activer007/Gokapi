@@ -1,6 +1,8 @@
 package chunking
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"io"
 	"mime/multipart"
@@ -156,7 +158,25 @@ func ParseMultipartHeader(header *multipart.FileHeader) (FileHeader, error) {
 	}, nil
 }
 
+// StorageID binds ordinary upload IDs to the authenticated user. File Request
+// IDs remain server-generated reservations checked by their own entry points.
+// Keep the client UUID separate for responses and upload progress events.
+func StorageID(id string, userId int, fileRequestId string) string {
+	if fileRequestId != "" {
+		return id
+	}
+	digest := sha256.Sum256([]byte(sanitiseUuid(id)))
+	return "managed." + strconv.Itoa(userId) + "." + hex.EncodeToString(digest[:])
+}
+
+// Legacy client UUIDs were sanitized to letters, digits, hyphens and underscores.
+// Dots therefore keep new scoped files disjoint from every legacy chunk name.
+var regexStorageID = regexp.MustCompile(`^managed\.-?[0-9]+\.[0-9a-f]{64}$`)
+
 func getChunkFilePath(id string) string {
+	if regexStorageID.MatchString(id) {
+		return configuration.Get().DataDir + "/chunk-" + id
+	}
 	return configuration.Get().DataDir + "/chunk-" + sanitiseUuid(id)
 }
 

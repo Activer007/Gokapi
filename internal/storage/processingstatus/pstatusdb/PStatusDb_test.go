@@ -56,10 +56,10 @@ func TestGarbageCollection(t *testing.T) {
 	test.IsEqualInt(t, len(getAll()), 2)
 	doGarbageCollection(false)
 	test.IsEqualInt(t, len(getAll()), 2)
-	status, ok := statusMap["toBeGarbaged"]
+	status, ok := statusMap[uploadKey{chunkId: "toBeGarbaged"}]
 	test.IsEqualBool(t, ok, true)
 	status.Creation = time.Now().Add(-30 * time.Hour).Unix()
-	statusMap["toBeGarbaged"] = status
+	statusMap[uploadKey{chunkId: "toBeGarbaged"}] = status
 	test.IsEqualInt(t, len(getAll()), 2)
 	doGarbageCollection(false)
 	test.IsEqualInt(t, len(getAll()), 1)
