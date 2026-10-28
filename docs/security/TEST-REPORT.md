@@ -671,3 +671,5 @@ go test ./... -count=1 -tags=test,noaws,integration
 CI在原generate之后串行增加同一脚本--occupied，只执行环境/编译/占配置端口合同，保留原四组Go测试；不执行--red。NOT_RUN：Windows原生Go、全仓race、govulncheck（依赖未改）、本地awstest、真实Redis重启/生产恢复、实际1–2GiB吞吐和暂存/RSS峰值。SEC-030运行时额度、物理清理/启动恢复及M3性能Gate继续OPEN。本项只修复可复现测试入口，不将测试启动问题声明为安全漏洞，也不把未确定的CI占用者写成已证实根因。
 
 最终393FfY九项全部PASS(0)：environment/compile/occupied-port/generate/setup/race/awsmock/noaws/integration；[公开结果](evidence/sec062-setup-listener-393FfY/results.tsv)、[三份编译源码哈希](evidence/sec062-setup-listener-393FfY/source.sha256)及[运行器哈希](evidence/sec062-setup-listener-393FfY/runner.sha256)。Go输入与当前规范字节/Git index、runner与实际运行哈希均逐项一致。静态复审未见剩余阻塞；这不是独立人工批准。原始日志/中间失败保留相应.secret目录；用户未跟踪计划和deployment目录未暂存。
+
+提交691238bf6d6f9faf6c7b5f76d166da6288a410b6；自己的[PR #18](https://github.com/Activer007/Gokapi/pull/18)承载本增量。后续只补PR链接的文档提交不改变上述Go/runner哈希；远端checks、合并和主分支CI必须另按实际状态核实，不能从本地PASS推断。
