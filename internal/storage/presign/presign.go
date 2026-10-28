@@ -27,10 +27,24 @@ func Get(id string) (models.Presign, bool) {
 	if !ok {
 		return models.Presign{}, false
 	}
-	if result.Expiry < time.Now().Unix() {
+	if result.Expiry <= time.Now().Unix() {
 		return models.Presign{}, false
 	}
 	return result, true
+}
+
+// Consume atomically claims a still-valid capability once. Callers must first
+// check current issuer, consumer and object authority; a rejected consumer
+// must not invalidate another authorized user's pending download.
+func Consume(id string) bool {
+	mutex.Lock()
+	defer mutex.Unlock()
+	result, ok := presignedUrls[id]
+	if !ok {
+		return false
+	}
+	delete(presignedUrls, id)
+	return result.Expiry > time.Now().Unix()
 }
 
 // Delete deletes the presigned url with the given ID
@@ -43,7 +57,7 @@ func Delete(id string) {
 func cleanUp(periodic bool) {
 	mutex.Lock()
 	for k, v := range presignedUrls {
-		if v.Expiry < time.Now().Unix() {
+		if v.Expiry <= time.Now().Unix() {
 			delete(presignedUrls, k)
 		}
 	}

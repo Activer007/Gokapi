@@ -1,0 +1,111 @@
+Binding webserver to 127.0.0.1:53843
+Webserver can be accessed at http://127.0.0.1:53843/admin
+Press CTRL+C to stop Gokapi
+Rate limiting disabled for unit tests
+=== RUN   TestSEC021PresignConsumption
+=== RUN   TestSEC021PresignConsumption/sqlite
+=== RUN   TestSEC021PresignConsumption/sqlite/owner
+2026/10/28 14:44:45 invalid presign
+=== RUN   TestSEC021PresignConsumption/sqlite/authorized-admin
+2026/10/28 14:44:45 invalid presign
+=== RUN   TestSEC021PresignConsumption/sqlite/zip
+2026/10/28 14:44:45 invalid presign
+=== RUN   TestSEC021PresignConsumption/sqlite/other-user
+2026/10/28 14:44:45 invalid presign
+=== RUN   TestSEC021PresignConsumption/sqlite/revoked-key
+2026/10/28 14:44:45 invalid presign
+=== RUN   TestSEC021PresignConsumption/sqlite/expired-key
+2026/10/28 14:44:45 invalid presign
+=== RUN   TestSEC021PresignConsumption/sqlite/key-permission
+2026/10/28 14:44:45 invalid presign
+=== RUN   TestSEC021PresignConsumption/sqlite/request-key
+2026/10/28 14:44:45 invalid presign
+=== RUN   TestSEC021PresignConsumption/sqlite/deleted-issuer
+2026/10/28 14:44:45 invalid presign
+=== RUN   TestSEC021PresignConsumption/sqlite/issuer-delegation
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/sqlite/consumer-delegation
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/sqlite/changed-owner
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/sqlite/zip-member-owner
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/sqlite/expired-grant
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/sqlite/pending-file
+2026/10/28 14:44:46 file not found
+=== RUN   TestSEC021PresignConsumption/redis
+Unable to check if Redis has persistence enabled.
+=== RUN   TestSEC021PresignConsumption/redis/owner
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/redis/authorized-admin
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/redis/zip
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/redis/other-user
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/redis/revoked-key
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/redis/expired-key
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/redis/key-permission
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/redis/request-key
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/redis/deleted-issuer
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/redis/issuer-delegation
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/redis/consumer-delegation
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/redis/changed-owner
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/redis/zip-member-owner
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/redis/expired-grant
+2026/10/28 14:44:46 invalid presign
+=== RUN   TestSEC021PresignConsumption/redis/pending-file
+2026/10/28 14:44:46 file not found
+--- PASS: TestSEC021PresignConsumption (0.66s)
+    --- PASS: TestSEC021PresignConsumption/sqlite (0.43s)
+        --- PASS: TestSEC021PresignConsumption/sqlite/owner (0.03s)
+        --- PASS: TestSEC021PresignConsumption/sqlite/authorized-admin (0.03s)
+        --- PASS: TestSEC021PresignConsumption/sqlite/zip (0.03s)
+        --- PASS: TestSEC021PresignConsumption/sqlite/other-user (0.03s)
+        --- PASS: TestSEC021PresignConsumption/sqlite/revoked-key (0.03s)
+        --- PASS: TestSEC021PresignConsumption/sqlite/expired-key (0.03s)
+        --- PASS: TestSEC021PresignConsumption/sqlite/key-permission (0.03s)
+        --- PASS: TestSEC021PresignConsumption/sqlite/request-key (0.03s)
+        --- PASS: TestSEC021PresignConsumption/sqlite/deleted-issuer (0.03s)
+        --- PASS: TestSEC021PresignConsumption/sqlite/issuer-delegation (0.03s)
+        --- PASS: TestSEC021PresignConsumption/sqlite/consumer-delegation (0.03s)
+        --- PASS: TestSEC021PresignConsumption/sqlite/changed-owner (0.03s)
+        --- PASS: TestSEC021PresignConsumption/sqlite/zip-member-owner (0.03s)
+        --- PASS: TestSEC021PresignConsumption/sqlite/expired-grant (0.03s)
+        --- PASS: TestSEC021PresignConsumption/sqlite/pending-file (0.02s)
+    --- PASS: TestSEC021PresignConsumption/redis (0.23s)
+        --- PASS: TestSEC021PresignConsumption/redis/owner (0.02s)
+        --- PASS: TestSEC021PresignConsumption/redis/authorized-admin (0.02s)
+        --- PASS: TestSEC021PresignConsumption/redis/zip (0.02s)
+        --- PASS: TestSEC021PresignConsumption/redis/other-user (0.01s)
+        --- PASS: TestSEC021PresignConsumption/redis/revoked-key (0.02s)
+        --- PASS: TestSEC021PresignConsumption/redis/expired-key (0.01s)
+        --- PASS: TestSEC021PresignConsumption/redis/key-permission (0.01s)
+        --- PASS: TestSEC021PresignConsumption/redis/request-key (0.01s)
+        --- PASS: TestSEC021PresignConsumption/redis/deleted-issuer (0.01s)
+        --- PASS: TestSEC021PresignConsumption/redis/issuer-delegation (0.01s)
+        --- PASS: TestSEC021PresignConsumption/redis/consumer-delegation (0.01s)
+        --- PASS: TestSEC021PresignConsumption/redis/changed-owner (0.01s)
+        --- PASS: TestSEC021PresignConsumption/redis/zip-member-owner (0.01s)
+        --- PASS: TestSEC021PresignConsumption/redis/expired-grant (0.01s)
+        --- PASS: TestSEC021PresignConsumption/redis/pending-file (0.01s)
+=== RUN   TestSEC021PresignAnonymous
+--- PASS: TestSEC021PresignAnonymous (0.00s)
+PASS
+ok  	github.com/forceu/gokapi/internal/webserver	1.725s
+=== RUN   TestSEC021PresignSingleConsumer
+--- PASS: TestSEC021PresignSingleConsumer (0.00s)
+=== RUN   TestSEC021PresignExpiry
+--- PASS: TestSEC021PresignExpiry (0.00s)
+PASS
+ok  	github.com/forceu/gokapi/internal/storage/presign	0.002s

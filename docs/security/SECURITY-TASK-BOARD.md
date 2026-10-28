@@ -32,7 +32,7 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | SEC-013 | P0 CONFIRMED_CODE | M1 已合并：共享直接peer检查、CF/XFF严格解析、Docker网段显式选择 | [PR #5](https://github.com/Activer007/Gokapi/pull/5)；合并138642c；ADR-003；本地及最终CI通过，真实容器网络Gate仍归011 |
 | SEC-014 | P0 CONFIRMED_CODE / P1 调优 | RED→GREEN：取消等待、清理协程有界、慢头、30秒管理I/O/Context、OIDC取消；长正文/SSE正例通过 | [PR #6](https://github.com/Activer007/Gokapi/pull/6)已合并462c5d5；补充[PR #8](https://github.com/Activer007/Gokapi/pull/8)，代码4bc1fc3，本地三组/定向race及最新镜像非rootGate PASS；ADR-004；最终CI/合并以PR为准；100GB/真实代理负载仍VALIDATE |
 | SEC-020 | P0 HISTORICAL_FIXED / CONFIRMED_CODE | 现状矩阵、故障状态RED、最小纯策略、目标/三组/race GREEN完成；失败原样保留 | [PR #9](https://github.com/Activer007/Gokapi/pull/9)，代码a83366a；远端diff自审完成，最终CI/合并以PR为准；M2其余边界仍未完成 |
-| SEC-021 | P0 HISTORICAL_FIXED / CONFIRMED_CODE / VALIDATE | 真实API撤销与混合ZIP矩阵、Redis使用记录合同RED→GREEN；三组及相关全包race PASS；跨请求/异步Gate仍开放 | [PR #10](https://github.com/Activer007/Gokapi/pull/10)，代码6fefc88，已自审；最终CI/合并以PR为准；原子更新现有时间字段，无schema或UI改动 |
+| SEC-021 | P0 HISTORICAL_FIXED / CONFIRMED_CODE / VALIDATE | 真实API撤销、Redis使用记录合同已合并；管理presign当前授权与原子消费RED→GREEN、三组/race PASS；其他跨请求/异步Gate仍开放 | [PR #10](https://github.com/Activer007/Gokapi/pull/10)合并d599aab；presign [PR #11](https://github.com/Activer007/Gokapi/pull/11)，代码81d7011、ADR-006、已自审；最终CI/合并以PR为准 |
 | SEC-022 | P0 企业场景 VALIDATE | 邮箱关联、issuer/sub/claims 完整策略未验证 | 003/020 → G1/G3；先模拟 IdP + 完整回调，证实后才设计账户迁移 ADR；参考 #435，不冒称漏洞 |
 | SEC-023 | P0 验证 VALIDATE | 历史 CSRF 已修；跨浏览器绑定疑点 | 003/012 → G1；真实浏览器/Origin/SameSite 矩阵，未经实证不替换认证框架 |
 | SEC-030 | P0 CONFIRMED_CODE / VALIDATE | 当前 User 无累计额度字段，未见原子预算；资源耗尽需量化 | 003/020 → G1/G3；先计量语义与预约并发测试，按用户/实例分 PR；参考 issue #431 |

@@ -136,3 +136,9 @@ M0 只增加文档、测试和入口脚本，不改公开 API、模板/WASM、�
 本轮只读检索上游开放PR、Redis相关PR/Issues（2026-10-28）；Redis相关PR #423/#180/#245/#243及Issues #413/#264/#209/#179/#198/#185/#39未提供同项使用记录修复。沿用SEC-020已核实的历史降权/临时Token公告结论；不修改上游。关键证据见TEST-REPORT和ACCESS-CONTROL-MATRIX。
 
 无schema、身份标识、密码、公开API、页面/WASM、物理文件删除变更。Redis使用既有Lua能力，单Key脚本参数化前缀/字段/时间，保持TTL；自定义ACL需允许EVAL/EVALSHA及脚本内EXISTS/HSET。现有数据不迁移，回滚代码即可，但会恢复旧更新语义。已存在的异常记录不自动修复，生产数据修复需备份后另评估。presign消费、分片、异步授权、OIDC、CSRF仍为VALIDATE，M2未完成。
+
+## SEC-021 presign补充基线
+
+2026-10-28，d599aabfbc7f52aa06a14a006348992adc94247a（PR #10已合并）；本地E:\LHA\Gokapi，分支codex/sec-021-presign；origin仍为Activer007/Gokapi，用户计划目录保留，尚未部署。WSL Ubuntu24.04 / Go1.26.0 linux/amd64。已检查签发API、presign内存store、登录middleware、消费handler、README/docs/setup保护路径、admin_api/admin_ui_allPages调用及现有测试。上游presign查询仅返回SDK迁移PR #424与文件名Issue #302，未见同项消费授权修复；未写上游。
+
+**CONFIRMED_CODE**：旧管理grant不保留签发主体并且消费不复查对象授权。新合同RED在两种隔离provider各10项状态中返回200；正常下载、管理员读取、ZIP、过期/待删拒绝、匿名拒绝均正常。该证据定义M2需要收紧的管理capability合同，不把合法capability转交自动称为未知漏洞。新增当前主体/Key/逐文件授权及原子一次领取；公开分享路径不改变。ADR-006记录行为兼容、无schema迁移、重启与回滚；全目标结果和未覆盖边界见TEST-REPORT。分片、异步任务、OIDC与浏览器CSRF仍为VALIDATE。

@@ -396,3 +396,34 @@ go test -race ./internal/test/securityfixture ./internal/configuration/database/
 证明范围：provider延迟快照及同步屏障并发；真实管理API的顺序撤销与当前会话权限；混合ZIP成员。没有构造完整外部HTTP利用链，不把provider RED扩大为漏洞利用结论。全仓race、govulncheck、真实Redis/S3、自定义ACL、生产数据修复为NOT_RUN。presign消费、分片/File Request跨请求授权、异步任务、并发会话续期、并发Key签发/权限修改、OIDC与浏览器CSRF仍为M2开放Gate。
 
 提交前源码overlay SHA256一致、文档相对链接、Windows原生diff --check通过；新增证据常见私钥/GitHub Token/AWS访问Key/Authorization/session Cookie模式无匹配（有限扫描）。[PR #10](https://github.com/Activer007/Gokapi/pull/10)代码提交6fefc889f9096b4dac224ea21ddb52193673ed8e；已读取远端patch并记录COMMENT自审，非独立审批。核对原子性、参数化key、TTL、正常更新正例、旧测试语义修正、会话夹具协程收尾及未覆盖边界；未发现本PR范围的阻塞项。后续提交只补PR与审查记录，代码/测试仍与e8JIMf摘要一致；最终head CI通过后才合并。
+
+PR #10合并核实：最终head 08f7da39c220061fda77398be4d194f0b1548e55，CI [40644142401](https://github.com/Activer007/Gokapi/actions/runs/40644142401) / [40644137808](https://github.com/Activer007/Gokapi/actions/runs/40644137808)成功，生成及四组测试全部PASS。合并d599aabfbc7f52aa06a14a006348992adc94247a；本地master同步，tree与审查head一致，用户计划目录未修改。现有Actions运行时弃用/ubuntu-latest迁移提示继续归SEC-062。
+
+## M2 / SEC-021 管理presign消费
+
+2026-10-28，基线d599aabfbc7f52aa06a14a006348992adc94247a，WSL Ubuntu24.04 / Go1.26.0 linux/amd64。`run-sec021-presign.sh --red`固定该基线并只叠加新handler测试；GREEN模式明确叠加模型、API、handler、store与测试。均在新/tmp archive运行并保存HEAD/overlay/runner SHA256，临时SQLite/miniredis、合成身份和blob，不涉及真实数据。上游只读查询见[sec021-presign-upstream.json](evidence/sec021-presign-upstream.json)。
+
+| 命令 / 证据 | 真实结果 |
+| --- | --- |
+| `bash docs/security/tools/run-sec021-presign.sh --red`，[foVI1z](evidence/sec021-presign-foVI1z/results.tsv) | generate PASS；目标FAIL。两provider各10项消费状态返回200而应拒绝；正常所有者/管理员/ZIP与过期/待删/匿名拒绝PASS。是M2当前授权合同RED，不把合法capability转交自动称为新漏洞 |
+| `bash docs/security/tools/run-sec021-presign.sh --target`，[47Ms57](evidence/sec021-presign-47Ms57/results.tsv) | generate、目标GREEN；原子store领取和到期秒边界PASS |
+| 最终完整执行，[Nfh4YZ](evidence/sec021-presign-Nfh4YZ/results.tsv) | generate、补强目标、awsmock、noaws、integration、定向race全部PASS，脚本退出0 |
+
+真实命令：
+
+```sh
+go generate ./...
+go test ./internal/webserver ./internal/storage/presign -count=1 -tags=test,noaws -run TestSEC021Presign -v
+go test ./... -parallel 8 -count=1 -tags=test,awsmock
+go test ./... -parallel 8 -count=1 -tags=test,noaws
+go test ./... -count=1 -tags=test,noaws,integration
+go test -race ./internal/webserver ./internal/storage/presign -count=1 -tags=test,noaws -run TestSEC021Presign
+```
+
+新webserver测试带`test && !integration`，由目标、awsmock、noaws和定向race运行；integration组是全仓兼容回归，不能宣称它执行了这些handler测试。测试从真实API签发进入消费handler，消费身份由可信认证context提供，另测匿名requireLogin拒绝，不冒称浏览器或完整HTTP登录链路测试。每个provider覆盖21组：正例、临时Key、撤销/过期/失去动作位/凭据类型变化、删除主体、双方委托变化、对象/ZIP成员所有者变化、过期/待删、缺失context/绑定、并发消费；未授权访问后原所有者仍可消费，成功后重放拒绝。单文件输出字节一致、ZIP两个成员；16个并发handler仅一个200，store的32个并发Consume仅一个成功，到期秒边界拒绝。
+
+实现复用当前API凭据校验与SEC-020 ReadFile策略；所有文件检查后原子领取。保持成功API路径/参数/字段、页面/WASM、公开分享及文件驱动，新增行为仅收紧管理grant的当前授权；拒绝沿用400 invalid presign，匿名401。无schema/用户ID迁移；重启本来会清空内存grant，回滚代码与重启即可，恢复旧授权语义。ADR-006记录兼容、失败后重签、在途撤销和S3外部短期URL限制。
+
+全仓race、真实S3/Redis服务、浏览器下载、S3已签发URL撤销、在途对象变更、govulncheck本项NOT_RUN。文件请求/分片/异步任务授权、并发会话续期/Key签发、公开分享矩阵、OIDC与跨浏览器CSRF仍是M2开放Gate。
+
+提交前overlay源码摘要、文档相对链接、Windows原生diff --check通过；新增证据常见私钥/GitHub Token/AWS访问Key/Authorization/session Cookie/完整presign URL模式无匹配（有限扫描）。[PR #11](https://github.com/Activer007/Gokapi/pull/11)代码提交81d70117535c262a73868c25f419cabb20a14538；已读取远端patch并记录COMMENT自审，非独立审批。核对双签发入口、当前主体/Key、逐对象交集、凭据类型、原子领取、错误格式及ADR边界，无本PR范围阻塞项。后续仅补PR/审查文档，应用与测试源码仍与Nfh4YZ摘要一致；最终head CI成功后才合并。

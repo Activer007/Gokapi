@@ -1060,6 +1060,17 @@ func downloadPresigned(w http.ResponseWriter, r *http.Request) {
 		responseError(w, storage.ErrorInvalidPresign)
 		return
 	}
+	consumer, err := authentication.GetUserFromRequest(r)
+	if err != nil {
+		responseError(w, storage.ErrorInvalidPresign)
+		return
+	}
+	consumer, consumerExists := database.GetUser(consumer.Id)
+	issuer, issuerValid := api.GetDownloadUser(presignedUrl.ApiKeyId)
+	if !consumerExists || !issuerValid || presignedUrl.UserId != issuer.Id || len(presignedUrl.FileIds) == 0 {
+		responseError(w, storage.ErrorInvalidPresign)
+		return
+	}
 	files := make([]models.File, 0)
 	for _, file := range presignedUrl.FileIds {
 		storedFile, ok := storage.GetFile(file)
@@ -1067,9 +1078,17 @@ func downloadPresigned(w http.ResponseWriter, r *http.Request) {
 			responseError(w, storage.ErrorFileNotFound)
 			return
 		}
+		if !authorization.Authorize(issuer, authorization.ReadFile, storedFile.UserId) ||
+			!authorization.Authorize(consumer, authorization.ReadFile, storedFile.UserId) {
+			responseError(w, storage.ErrorInvalidPresign)
+			return
+		}
 		files = append(files, storedFile)
 	}
-	presign.Delete(presignedUrl.Id)
+	if !presign.Consume(presignedUrl.Id) {
+		responseError(w, storage.ErrorInvalidPresign)
+		return
+	}
 
 	if len(files) == 1 {
 		file := files[0]
