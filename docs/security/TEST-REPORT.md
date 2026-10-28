@@ -578,3 +578,26 @@ go test -race ./internal/webserver/api ./internal/webserver/fileupload ./interna
 代码基线 3a9627c，与 64de3b7 的 `git diff --exit-code` 通过；九个必需前序合并为祖先、五个私密评估不是公开祖先。实际重读九份最终结果表均为全 0；公开源与最终完整验证保持一致。合并后 [CI 40697431982](https://github.com/Activer007/Gokapi/actions/runs/40697431982) success，生成和四组 Go 测试通过。重新核对私密浏览器观测、OIDC 现状/RED 与 ADR、会话 HTTP 及上传合同的证据范围；不重述为本轮重新执行浏览器或真实服务。
 
 本轮仅文档修改：运行相对链接/引用文件校验、证据/祖先核对、`git diff --check` 和有限秘密模式扫描。Go 生成/本地全量/race/govulncheck 本轮 NOT_RUN，按 M2-GOAL 复用已核实代码 Gate，文档 PR 的 CI 按配置执行。审计详见 [M2-COMPLETION-AUDIT](M2-COMPLETION-AUDIT.md)；此结论不包含任何生产迁移/部署或全部后续安全阶段。
+
+## M3 / SEC-031 现状语义与产品合同
+
+2026-10-28；基线 e38b03f；Windows PowerShell / WSL Ubuntu-24.04、Go1.26.0 linux/amd64。沙箱内首次WSL返回E_ACCESSDENIED，授权执行后环境核实通过。没有本机Go；测试以git archive临时副本叠加明确的新测试文件执行，不加载部署数据。用户原计划目录保持未跟踪。
+
+命令：`bash docs/security/tools/run-sec031-semantics.sh`，依次运行：
+
+```sh
+go version
+go generate ./...
+go test ./internal/webserver/api -count=1 -tags=test,noaws -run '^TestSEC031UploadSizeSemantics$' -v
+go test ./... -parallel 8 -count=1 -tags=test,awsmock
+go test ./... -parallel 8 -count=1 -tags=test,noaws
+go test ./... -count=1 -tags=test,noaws,integration
+```
+
+目标测试在独立子进程对SQLite/miniredis执行两份768KiB上传，完成结果ID绑定各自预期内容且blob不同；总计1572864字节证明MaxSize=1MiB实际为每文件。按准确错误码验证单文件/协议开销/未知长度、磁盘最低余量、过期请求和顺序文件数拒绝。不是10/50并发、真实Redis或大文件吞吐证明。
+
+失败历史：cosvj9生成PASS、目标FAIL，为测试DataDir与filesystem驱动路径未同步；修正夹具，未移除生产校验。4xtxNX目标PASS，新增控制后3sbGUY全部6项PASS。审查补强ID/内容绑定和拒绝原因后i3PXUM生成/目标/integration PASS、awsmock/noaws FAIL，唯一失败为Webserver固定端口53843 `address already in use`；端口归属未在失败时捕获，不归因于生产漏洞。检查Windows/WSL监听已释放后串行最终重跑，结果以下方最终证据为准。失败原始记录仍在各`.secret`目录。
+
+用户确认保留MaxSize单文件语义、另增累计限制。仅纠正文档、增加现状测试与ADR草案，无运行时/schema/依赖变更。相关race/govulncheck本PR NOT_RUN；没有并发生产逻辑或依赖变化。M3原子预约、预算入口、恢复/峰值 Gate保持开放。
+
+最终验证 `tn2FtP` 的environment/generate/semantics/awsmock/noaws/integration全部PASS(0)，[公开结果](evidence/sec031-semantics-tn2FtP/results.tsv)与[输入哈希](evidence/sec031-semantics-tn2FtP/source.sha256)已核实对应最终测试文件。相对链接、有限秘密模式扫描及git diff --check PASS。审查修复两项测试有效性问题：各完成ID对应自己的精确payload；负例匹配错误码及磁盘不足原因。没有把首次夹具失败当作漏洞RED，也没有把顺序数量测试当作原子预算证明。
