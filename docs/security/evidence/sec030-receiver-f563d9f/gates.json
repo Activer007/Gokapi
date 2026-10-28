@@ -1,0 +1,28 @@
+{
+  "commit": "f563d9f5bcb4fea30cfb4c5fc1ccb0b22a284313",
+  "pr_ci": {
+    "id": 40746205711,
+    "conclusion": "success"
+  },
+  "manual_ci": {
+    "id": 40746246616,
+    "conclusion": "success"
+  },
+  "scope": [
+    "generate",
+    "occupied-configured-port",
+    "awsmock",
+    "noaws",
+    "integration",
+    "awstest",
+    "receiver-race",
+    "source-hashes",
+    "1GiB-plain",
+    "2GiB-encrypted"
+  ],
+  "not_proven": [
+    "durable-runtime-quota",
+    "persistent-chunks",
+    "full-M3-completion"
+  ]
+}

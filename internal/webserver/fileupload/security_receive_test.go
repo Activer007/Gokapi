@@ -3,11 +3,13 @@
 package fileupload
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"crypto/rand"
 	"io"
 	"mime/multipart"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -578,5 +580,97 @@ func TestSEC030ReceiveHTTPDisconnectCleanup(t *testing.T) {
 				sec030ReceiveFourAvailable(t)
 			})
 		}
+	}
+}
+
+func TestSEC030ReceiveBusyHTTPDoesNotDrain(t *testing.T) {
+	if !sec030ReceiveChild(t) {
+		return
+	}
+	sec030ReceiveDirectory(t)
+	const slots = 4
+	events := make(chan sec030ReceiveEvent, slots*2)
+	release := make(chan struct{})
+	var releaseOnce sync.Once
+	unblock := func() { releaseOnce.Do(func() { close(release) }) }
+	var workers sync.WaitGroup
+	defer func() {
+		unblock()
+		workers.Wait()
+	}()
+	for id := 0; id < slots; id++ {
+		workers.Add(1)
+		go func(id int) {
+			defer workers.Done()
+			body := &sec030ReceiveGateBody{id: id, events: events, release: release}
+			request := sec030ReceiveEmptyRequest(context.Background(), body)
+			_, err := ProcessNewChunk(httptest.NewRecorder(), request, true, "", 9130, 1024*1024)
+			events <- sec030ReceiveEvent{id: id, err: err}
+		}(id)
+	}
+	for range slots {
+		select {
+		case event := <-events:
+			if !event.read {
+				t.Fatalf("could not occupy all receive slots: %v", event.err)
+			}
+		case <-time.After(5 * time.Second):
+			t.Fatal("receive slot fixture did not enter its held body")
+		}
+	}
+	type outcome struct {
+		err    error
+		status int
+	}
+	handlerExited := make(chan outcome, 1)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err := ProcessCompleteFile(w, r, 9130, configuration.Get().MaxMemory)
+		status := ReceiveErrorStatus(err)
+		if err == nil {
+			status = http.StatusInternalServerError
+		}
+		http.Error(w, "synthetic receive rejection", status)
+		handlerExited <- outcome{err: err, status: status}
+	}))
+	defer server.Close()
+	connection, err := net.DialTimeout("tcp", server.Listener.Addr().String(), time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Close the connection before server.Close on any failure. This also frees
+	// an old server stuck draining the byte deliberately omitted below.
+	defer connection.Close()
+	if err := connection.SetDeadline(time.Now().Add(2 * time.Second)); err != nil {
+		t.Fatal(err)
+	}
+	request := "POST /api/files/add HTTP/1.1\r\nHost: " + server.Listener.Addr().String() +
+		"\r\nContent-Type: multipart/form-data; boundary=sec030-absent-body\r\nContent-Length: 1\r\n\r\n"
+	// Do not send Connection: close or the declared body byte. The server must
+	// terminate rejection itself, including net/http's post-handler drain.
+	if _, err := io.WriteString(connection, request); err != nil {
+		t.Fatal(err)
+	}
+	reader := bufio.NewReader(connection)
+	response, err := http.ReadResponse(reader, &http.Request{Method: http.MethodPost})
+	if err != nil {
+		t.Fatalf("busy HTTP request waited for its missing body byte: %v", err)
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusTooManyRequests || (!response.Close && !strings.EqualFold(response.Header.Get("Connection"), "close")) {
+		t.Fatalf("busy response did not close HTTP/1 connection: status=%d close=%v", response.StatusCode, response.Close)
+	}
+	if _, err := io.Copy(io.Discard, response.Body); err != nil {
+		t.Fatalf("busy response did not finish within its deadline: %v", err)
+	}
+	if _, err := reader.Peek(1); err != io.EOF {
+		t.Fatalf("busy HTTP connection was not closed: %v", err)
+	}
+	select {
+	case result := <-handlerExited:
+		if result.err == nil || result.status != http.StatusTooManyRequests {
+			t.Fatalf("occupied receive pool did not reject handler: %v", result.err)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("busy handler remained active without a request body")
 	}
 }

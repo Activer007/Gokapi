@@ -1,0 +1,2 @@
+RECEIVE_METRIC bytes=1073741824 encrypted=false seconds=5.075 MiBps=201.78 heap_peak=2965576 rss_peak=24260608 apparent_peak=2147483683 allocated_peak=2147487744 sha256=3a33d58aa8ee1e9d21fd4f510cc5d1ce8d25ba5e24363d19c28e2bf866f4185c
+RECEIVE_METRIC bytes=2147483648 encrypted=true seconds=15.470 MiBps=132.39 heap_peak=3061344 rss_peak=24793088 apparent_peak=6434050083 allocated_peak=6434066432 sha256=72d03317b1c036b233f258bb93cf690b75e8abe40ac6638004453e5fb91cb443

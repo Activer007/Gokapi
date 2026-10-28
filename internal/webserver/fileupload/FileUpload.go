@@ -128,14 +128,29 @@ func receiveUpload(w http.ResponseWriter, r *http.Request, maxFileBytes int64) (
 		receiver, receiverError = uploadreceive.New(env.UploadBodySlots, env.UploadReceiveMB*1024*1024)
 	})
 	if receiverError != nil {
+		stopRejectedUpload(w, r)
 		return nil, uploadreceive.ErrInvalid
 	}
 	// Keep the existing live free-space setting, including its legacy zero rule.
 	minFree, err := uploadMiBOrZero(environment.New().MinFreeSpaceMB)
 	if err != nil {
+		stopRejectedUpload(w, r)
 		return nil, err
 	}
-	return receiver.Receive(w, r, configuration.Get().DataDir, maxFileBytes, minFree)
+	upload, err := receiver.Receive(w, r, configuration.Get().DataDir, maxFileBytes, minFree)
+	if err != nil {
+		stopRejectedUpload(w, r)
+	}
+	return upload, err
+}
+
+// A rejected HTTP/1 body must not be drained by net/http after releasing our
+// slot. Otherwise a short declared body can keep the rejection waiting on I/O.
+func stopRejectedUpload(w http.ResponseWriter, r *http.Request) {
+	if r.ProtoMajor == 1 {
+		w.Header().Set("Connection", "close")
+	}
+	_ = http.NewResponseController(w).SetReadDeadline(time.Now())
 }
 
 func uploadMiB(value int) (int64, error) {

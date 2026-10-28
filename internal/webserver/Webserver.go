@@ -1023,17 +1023,23 @@ func uploadChunk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	_, err = fileupload.ProcessNewChunk(w, r, false, "", user.Id, maxUpload)
-	if err != nil && fileupload.ReceiveErrorStatus(err) != http.StatusBadRequest {
+	errCode, err := fileupload.ProcessNewChunk(w, r, false, "", user.Id, maxUpload)
+	if err != nil {
 		status := fileupload.ReceiveErrorStatus(err)
 		if status == http.StatusTooManyRequests {
 			w.Header().Set("Retry-After", "1")
 		}
 		w.WriteHeader(status)
-		_ = json.NewEncoder(w).Encode(map[string]string{"Result": "error", "ErrorMessage": err.Error()})
+		body, _ := json.Marshal(struct {
+			Result string `json:"Result"`
+			ErrorMessage string `json:"ErrorMessage"`
+		}{"error", err.Error()})
+		_, _ = w.Write(body)
+		if !errors.Is(err, io.ErrUnexpectedEOF) {
+			log.Printf("Upload rejected (code=%d)", errCode)
+		}
 		return
 	}
-	responseError(w, err)
 }
 
 // Outputs an error in json format if err!=nil

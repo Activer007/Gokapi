@@ -691,3 +691,9 @@ CI在原generate之后串行增加同一脚本--occupied，只执行环境/编�
 远端workflow保留生成及四组全量，新增完整接收合同race和受测源码hash；手动workflow_dispatch额外运行1GiB明文/2GiB加密HTTP、读回hash、吞吐/heap/RSS/暂存采样。大文件使用单独security_large tag，不加入默认Go suite。所有远端Gate尚需观察实际完成，不能从本地1GiB结果推导2GiB、S3或完整上传总量已通过。
 
 代码d7ea1f4提交到自己的[草稿PR #19](https://github.com/Activer007/Gokapi/pull/19)。首次远端push40743890289的生成/占端口合同PASS，awsmock FAIL：旧TestPostUpload实际3字节却声明50，上传正确拒绝后原SSE scanner无截止等待至10分钟；另有原API非multipart错误文案兼容断言失败。修正网页夹具从真实stat长度填写两处声明并断言metadata字节，加30秒SSE context；补11/13字节错误末块拒绝回归，保留实际长度防线。非multipart返回原http.ErrNotMultipart以保留公开错误文案。原始失败保留，后续新提交另跑Gate，未通过缩弱服务端校验使旧错误数据成功。
+
+f563d9f检查点：PR CI40746205711与手动CI40746246616均SUCCESS，生成/四组全仓/完整receiver race全部PASS；手动run另有真实1GiB明文、2GiB服务器加密HTTP上传与读回SHA256。1GiB为5.075s/201.78MiB/s，heap2965576B、RSS24260608B、暂存allocated2147487744B；2GiB为15.470s/132.39MiB/s，heap3061344B、RSS24793088B、暂存allocated6434066432B。runner事前84GiB可用。[公开证据](evidence/sec030-receiver-f563d9f/README.md)含实际runner源码hash并逐一与该提交blob核对；指标仅代表此硬件/路径，不冒充S3、浏览器WASM或所有M3矩阵已完成。
+
+最后审查补HTTP拒绝边界：只有进程内slot不读不足以说明net/http不会在拒绝后自动drain。接收失败对HTTP/1设Connectionclose，并尽力设置当前read deadline，保留429/Retry-After；新增真实socket只发Content-Length:1头而不发body的忙碌拒绝回归。该后续改动及最新Gate另以当前PR/手动run核实，不用上个检查点绿色替代新增检查。
+
+最终兼容复核还保留旧Go multipart的quoted-printable流式解码与其他CTE原样语义；预算/envelope按wire计，落盘/文件上限按decoded计，新增真实QP writer编码膨胀及边界矩阵。参照Go1.26源码复核，不把换接收器变成无关公开协议改写；该补丁和拒绝后排空测试的本地执行仍NOT_RUN，必须由新提交远端Gate覆盖。

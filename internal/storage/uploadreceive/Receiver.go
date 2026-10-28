@@ -9,9 +9,11 @@ import (
 	"math"
 	"mime"
 	"mime/multipart"
+	"mime/quotedprintable"
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/forceu/gokapi/internal/helper"
@@ -122,7 +124,21 @@ func (p *Pool) Receive(w http.ResponseWriter, r *http.Request, dataDir string, m
 		if parseErr != nil {
 			return nil, ErrInvalid
 		}
-		if _, isFile := disposition["filename"]; isFile {
+		_, isFile := disposition["filename"]
+		var partReader io.Reader = part
+		if isFile {
+			// Count file bytes on the wire before any transfer decoding. The
+			// raw body budget and non-file envelope must not count encoding
+			// expansion as MIME overhead.
+			partReader = wireCountingReader{reader: part, count: &reader.payloadBytes}
+		}
+		if strings.EqualFold(part.Header.Get("Content-Transfer-Encoding"), "quoted-printable") {
+			// Match multipart.NextPart/ReadForm's existing public API semantics
+			// while keeping raw file accounting outside the decoder.
+			partReader = quotedprintable.NewReader(partReader)
+			part.Header.Del("Content-Transfer-Encoding")
+		}
+		if isFile {
 			if name != "file" || current.File != nil || part.FileName() == "" {
 				return nil, ErrInvalid
 			}
@@ -131,7 +147,7 @@ func (p *Pool) Receive(w http.ResponseWriter, r *http.Request, dataDir string, m
 				return nil, err
 			}
 			current.File = file
-			size, err := copyPayload(ctx, file, part, maxFileBytes, &reader.payloadBytes)
+			size, err := copyPayload(ctx, file, partReader, maxFileBytes)
 			if err != nil {
 				return nil, receiveError(err)
 			}
@@ -145,7 +161,7 @@ func (p *Pool) Receive(w http.ResponseWriter, r *http.Request, dataDir string, m
 				return nil, ErrTooLarge
 			}
 			remaining := maxFieldBytes - fieldBytes - len(name)
-			value, err := io.ReadAll(io.LimitReader(contextReader{ctx, part}, int64(remaining)+1))
+			value, err := io.ReadAll(io.LimitReader(contextReader{ctx, partReader}, int64(remaining)+1))
 			if err != nil {
 				return nil, receiveError(err)
 			}
@@ -164,7 +180,7 @@ func (p *Pool) Receive(w http.ResponseWriter, r *http.Request, dataDir string, m
 	if _, err := io.Copy(io.Discard, contextReader{ctx, reader}); err != nil {
 		return nil, receiveError(err)
 	}
-	if reader.read-current.Header.Size > envelopeBytes {
+	if reader.read-reader.payloadBytes > envelopeBytes {
 		return nil, ErrTooLarge
 	}
 	if _, err := current.File.Seek(0, io.SeekStart); err != nil {
@@ -173,7 +189,7 @@ func (p *Pool) Receive(w http.ResponseWriter, r *http.Request, dataDir string, m
 	return current, nil
 }
 
-func copyPayload(ctx context.Context, file *os.File, reader io.Reader, max int64, payloadBytes *int64) (int64, error) {
+func copyPayload(ctx context.Context, file *os.File, reader io.Reader, max int64) (int64, error) {
 	buffer := make([]byte, 32<<10)
 	var size int64
 	for {
@@ -196,7 +212,6 @@ func copyPayload(ctx context.Context, file *os.File, reader io.Reader, max int64
 				return size, io.ErrShortWrite
 			}
 			size += int64(n)
-			*payloadBytes = size
 		}
 		if errors.Is(readErr, io.EOF) {
 			return size, nil
@@ -210,6 +225,17 @@ func copyPayload(ctx context.Context, file *os.File, reader io.Reader, max int64
 type contextReader struct {
 	ctx    context.Context
 	reader io.Reader
+}
+
+type wireCountingReader struct {
+	reader io.Reader
+	count  *int64
+}
+
+func (r wireCountingReader) Read(p []byte) (int, error) {
+	n, err := r.reader.Read(p)
+	*r.count += int64(n)
+	return n, err
 }
 
 func (r contextReader) Read(p []byte) (int, error) {
@@ -234,9 +260,9 @@ func (r *budgetReader) Read(buffer []byte) (int, error) {
 	n, err := r.reader.Read(buffer)
 	if n > 0 {
 		r.read += int64(n) // MaxBytesReader bounds the counter below maxBody.
-		// multipart may prefetch while the copy's fixed 32 KiB buffer has not
-		// yet been written. Bound that temporary lag; the final check has no
-		// slack and permits at most envelopeBytes of actual non-file bytes.
+		// multipart and transfer decoding may prefetch before the raw file
+		// counter advances. Bound that fixed-buffer lag; the final check has
+		// no slack and permits at most envelopeBytes of non-file wire bytes.
 		if r.read-r.payloadBytes > envelopeBytes+(36<<10) {
 			return 0, ErrTooLarge
 		}

@@ -8,6 +8,7 @@ import (
 	"io"
 	"math"
 	"mime/multipart"
+	"mime/quotedprintable"
 	"net/http"
 	"net/http/httptest"
 	"net/textproto"
@@ -117,16 +118,19 @@ func TestReceiveCountsActualBodyAndEpilogue(t *testing.T) {
 	})
 }
 
-func TestReceiveRejectsInvalidFilePartsAndPreservesRawBytes(t *testing.T) {
+func TestReceiveRejectsInvalidFilePartsAndPreservesTransferSemantics(t *testing.T) {
 	for _, tc := range []struct {
 		name, partName string
 		count          int
 		want           error
+		encoding       string
+		wantBytes      string
 	}{
-		{"missing-file", "file", 0, ErrInvalid},
-		{"wrong-part", "another", 1, ErrInvalid},
-		{"two-files", "file", 2, ErrInvalid},
-		{"raw-transfer-encoding", "file", 1, nil},
+		{"missing-file", "file", 0, ErrInvalid, "quoted-printable", ""},
+		{"wrong-part", "another", 1, ErrInvalid, "quoted-printable", ""},
+		{"two-files", "file", 2, ErrInvalid, "quoted-printable", ""},
+		{"legacy-quoted-printable", "file", 1, nil, "QuOtEd-PrInTaBlE", "a=b"},
+		{"base64-label-is-raw", "file", 1, nil, "base64", "a=3Db"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			var b bytes.Buffer
@@ -134,7 +138,7 @@ func TestReceiveRejectsInvalidFilePartsAndPreservesRawBytes(t *testing.T) {
 			for i := 0; i < tc.count; i++ {
 				h := make(textproto.MIMEHeader)
 				h.Set("Content-Disposition", fmt.Sprintf(`form-data; name=%q; filename="payload"`, tc.partName))
-				h.Set("Content-Transfer-Encoding", "quoted-printable")
+				h.Set("Content-Transfer-Encoding", tc.encoding)
 				part, err := writer.CreatePart(h)
 				if err != nil {
 					t.Fatal(err)
@@ -159,8 +163,133 @@ func TestReceiveRejectsInvalidFilePartsAndPreservesRawBytes(t *testing.T) {
 					t.Fatal(err)
 				}
 				data, err := io.ReadAll(u.File)
-				if err != nil || string(data) != "a=3Db" {
-					t.Fatalf("payload transformed: %q %v", data, err)
+				if err != nil || string(data) != tc.wantBytes || u.Header.Size != int64(len(tc.wantBytes)) {
+					t.Fatalf("wrong decoded payload/size: %q size=%d %v", data, u.Header.Size, err)
+				}
+				wantEncoding := tc.encoding
+				if strings.EqualFold(wantEncoding, "quoted-printable") {
+					wantEncoding = ""
+				}
+				if got := u.Header.Header.Get("Content-Transfer-Encoding"); got != wantEncoding {
+					t.Fatalf("transfer header = %q, want %q", got, wantEncoding)
+				}
+				if err := u.Close(); err != nil {
+					t.Fatal(err)
+				}
+			}
+			assertReleased(t, p)
+		})
+	}
+}
+
+func quotedPrintableRequest(t *testing.T, first, unknown bool, payload []byte, field string) (*http.Request, int64) {
+	t.Helper()
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	writePart := func(disposition string, data []byte) int64 {
+		h := make(textproto.MIMEHeader)
+		h.Set("Content-Disposition", disposition)
+		h.Set("Content-Transfer-Encoding", "QuOtEd-PrInTaBlE")
+		part, err := writer.CreatePart(h)
+		if err != nil {
+			t.Fatal(err)
+		}
+		start := body.Len()
+		encoder := quotedprintable.NewWriter(part)
+		if _, err := encoder.Write(data); err != nil {
+			t.Fatal(err)
+		}
+		if err := encoder.Close(); err != nil {
+			t.Fatal(err)
+		}
+		return int64(body.Len() - start)
+	}
+	writeField := func() {
+		writePart(`form-data; name="comment"`, []byte(field))
+	}
+	if !first {
+		writeField()
+	}
+	wireFileBytes := writePart(`form-data; name="file"; filename="encoded.bin"`, payload)
+	if first {
+		writeField()
+	}
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
+	r := httptest.NewRequest("POST", "/upload", bytes.NewReader(body.Bytes()))
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+	if unknown {
+		r.ContentLength = -1
+	}
+	return r, wireFileBytes
+}
+
+func TestReceiveQuotedPrintableWireAccountingAndDecodedSize(t *testing.T) {
+	// This real encoding expands file bytes by more than the entire MIME
+	// envelope allowance. It must be charged as file wire bytes, rather than
+	// falsely rejected as headers/fields after decoding.
+	payload := bytes.Repeat([]byte{0, 0xff, '=', 1, 2}, 128<<10)
+	for _, first := range []bool{true, false} {
+		for _, unknown := range []bool{true, false} {
+			t.Run(fmt.Sprintf("file-first=%t/unknown=%t", first, unknown), func(t *testing.T) {
+				r, wireFileBytes := quotedPrintableRequest(t, first, unknown, payload, "field=\x00")
+				if wireFileBytes-int64(len(payload)) <= envelopeBytes {
+					t.Fatal("fixture does not distinguish raw file bytes from decoded size")
+				}
+				p, err := New(1, 64<<20)
+				if err != nil {
+					t.Fatal(err)
+				}
+				u, err := p.Receive(httptest.NewRecorder(), r, t.TempDir(), 4<<20, 0)
+				if err != nil {
+					t.Fatal(err)
+				}
+				data, err := io.ReadAll(u.File)
+				if err != nil || !bytes.Equal(data, payload) || u.Header.Size != int64(len(payload)) {
+					t.Fatalf("decoded payload mismatch: bytes=%d size=%d %v", len(data), u.Header.Size, err)
+				}
+				if u.Header.Header.Get("Content-Transfer-Encoding") != "" || u.Fields.Get("comment") != "field=\x00" {
+					t.Fatal("legacy transfer header/field semantics changed")
+				}
+				if err := u.Close(); err != nil {
+					t.Fatal(err)
+				}
+				assertReleased(t, p)
+			})
+		}
+	}
+}
+
+func TestReceiveQuotedPrintableDecodedLimits(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		payload []byte
+		field   string
+		want    error
+	}{
+		{"exact-file", []byte{0, '=', 1, 2}, "ok", nil},
+		{"oversize-decoded-file", []byte{0, '=', 1, 2, 3}, "ok", ErrTooLarge},
+		{"exact-decoded-fields", nil, strings.Repeat("=", maxFieldBytes-len("comment")), nil},
+		{"oversize-decoded-fields", nil, strings.Repeat("=", maxFieldBytes-len("comment")+1), ErrTooLarge},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r, _ := quotedPrintableRequest(t, true, true, tc.payload, tc.field)
+			p, err := New(1, 32<<20)
+			if err != nil {
+				t.Fatal(err)
+			}
+			u, err := p.Receive(httptest.NewRecorder(), r, t.TempDir(), 4, 0)
+			if tc.want != nil {
+				if !errors.Is(err, tc.want) {
+					t.Fatalf("decoded limit = %v, want %v", err, tc.want)
+				}
+			} else {
+				if err != nil {
+					t.Fatal(err)
+				}
+				if u.Header.Size != int64(len(tc.payload)) || u.Fields.Get("comment") != tc.field {
+					t.Fatal("decoded limits changed accepted payload/fields")
 				}
 				if err := u.Close(); err != nil {
 					t.Fatal(err)

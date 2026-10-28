@@ -7,9 +7,10 @@
 CLI、旧 WASM、File Request 都允许 file part 在 uuid/size/offset 之前。因此在绑定 ADR-014 持久上传预留之前，需要独立约束正文接收。网页、普通 API 分片、File Request 分片和整文件 API 共用一个进程内 receiver；认证和请求能力检查保持在外层。
 
 - `GOKAPI_UPLOAD_BODY_SLOTS` 默认4，合法1..64；满槽在读正文前返回429及 Retry-After。不为等待者创建队列或脱离请求的读取协程。
+- 接收失败对HTTP/1关闭连接并尽力结束读取，避免net/http在handler拒绝后为复用连接而等候未发送正文。真实socket回归须证明槽满时即使只给Content-Length:1头也能及时收到429/EOF。
 - `GOKAPI_UPLOAD_RECEIVE_MB` 默认12288（二进制 MiB），严格正整数且换算 int64 不溢出。旧 guest/MinFreeSpace 的0语义保持。配置需重启生效，显式0、空字符串、负数及非法数值失败关闭，不回显所给值。
 - 每次接收保守预留 `4 * 实收正文上界 + 64KiB`，覆盖当前正文 spool 及整文件同步处理中明文/密文副本。已知 Content-Length先占额，低报及未知长度继续按实际读取增长，未知长度不一次预留配置的整文件最大值。每次增额还保留已有 MIN_FREE_SPACE；实时空闲空间与全部预留比较会保守重复计入已经写出的字节。
-- file part 始终流式写盘，不用 ParseMultipartForm；仅一个名为file的文件，最多32字段、字段名和值合计64KiB，重复字段拒绝。文件 payload独立遵守单文件上限，实际非文件 envelope最多1MiB。传输编码不改写文件原始字节。ChunkSize仍是客户端调优值，避免拒绝浏览器加密后略大的块。
+- file part 始终流式写盘，不用 ParseMultipartForm；仅一个名为file的文件，最多32字段、字段名和值合计64KiB，重复字段拒绝。文件 payload独立遵守单文件上限，实际非文件 envelope最多1MiB。沿用旧Go multipart传输语义：仅quoted-printable流式解码，其他标签原样；预算和envelope计wire字节，payload大小计解码后的实际文件字节。另有总wire body<=单文件上限+1MiB约束，不能承诺任意编码扩张都能达到decoded上限。ChunkSize仍是客户端调优值，避免拒绝浏览器加密后略大的块。[Go1.26实现](https://github.com/golang/go/blob/go1.26.0/src/mime/multipart/multipart.go)支持此兼容选择。
 - 最小块按真实 payload 和剩余范围判断，未知 HTTP长度不再等于无效末块。偏移和长度在分配 chunk 前以减法检查，避免加法溢出；这尚不证明完整区间覆盖或重复块幂等。
 - 小文件后处理的堆缓冲硬上限8MiB；1–2GiB文件不因旧 MaxMemory 设置较大而整文件入堆。加密明文工作文件在删除前显式关闭，不能等待GC释放物理块。
 
@@ -18,6 +19,8 @@ CLI、旧 WASM、File Request 都允许 file part 在 uuid/size/offset 之前。
 正文只写 `DataDir/.gokapi-receive-v1`，0700目录、0600文件；`.owner`固定版本标记及随机`receive-`加32位hex文件名均由服务端生成。拒绝静态symlink、未知条目、非普通文件或缺失/错误marker；先有限扫描全部最多4096条，再删除旧payload，不递归、不清理共享TMPDIR。旧storage GC不进入此目录。
 
 每个Upload在存储处理结束后Close：先关闭描述符，再删除自己的payload；确认成功才返还字节。删除失败保留额度并在下一次准入前重试。Close结果不确定时，本进程不猜测描述符已消失；释放接收槽但保留字节及payload，直到进程停止后由新进程恢复。重复Close不能重复还额。初次准入前必须成功验证并清理本目录遗留，不能重置计数后直接接收。
+
+服务器端加密发生在接收之后，spool及明文处理副本仍是明文敏感数据，依赖目录/文件权限和可信本地管理员；不能称服务器磁盘全程只有密文。E2E客户端上传的密文经正常无CTE表单保持原字节，不向本spool保存客户端密钥。未改变密码哈希、密文格式或既有blob，不需密钥/schema迁移。
 
 此边界依赖唯一Pool和单进程独占DataDir；不支持两个Gokapi进程共用此目录，不承诺抵抗同UID本地替换目录竞态。生产DataDir需真实目录；symlink配置应在停机后改为可信真实路径，不移动用户文件。未知条目/marker失败需受控检查，程序不能自动认领或删除。
 
