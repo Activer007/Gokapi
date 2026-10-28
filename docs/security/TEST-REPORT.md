@@ -601,3 +601,24 @@ go test ./... -count=1 -tags=test,noaws,integration
 用户确认保留MaxSize单文件语义、另增累计限制。仅纠正文档、增加现状测试与ADR草案，无运行时/schema/依赖变更。相关race/govulncheck本PR NOT_RUN；没有并发生产逻辑或依赖变化。M3原子预约、预算入口、恢复/峰值 Gate保持开放。
 
 最终验证 `tn2FtP` 的environment/generate/semantics/awsmock/noaws/integration全部PASS(0)，[公开结果](evidence/sec031-semantics-tn2FtP/results.tsv)与[输入哈希](evidence/sec031-semantics-tn2FtP/source.sha256)已核实对应最终测试文件。相对链接、有限秘密模式扫描及git diff --check PASS。审查修复两项测试有效性问题：各完成ID对应自己的精确payload；负例匹配错误码及磁盘不足原因。没有把首次夹具失败当作漏洞RED，也没有把顺序数量测试当作原子预算证明。
+
+## M3 / SEC-030 纯逻辑配额计算
+
+基线bfd4998（SEC-031），环境Go1.26.0 linux/amd64 / WSL Ubuntu-24.04。新增internal/uploadquota，无DB/配置/文件I/O/生产调用。先编写合同测试和未实现stub，隔离命令 `go test ./internal/uploadquota -count=1 -tags=test,noaws -v -cover` 退出1，TestMeasureLogicalUsage等失败；这是新API开发RED，不是现存生产漏洞复现。最小实现后同命令退出0、语句覆盖100%；红/绿原始命令、输入哈希与日志在`sec030-calculation-agent.secret/{red,green}`保留。
+
+独立源码审查未见计算阻塞，范围仅纯逻辑：每条metadata独立计量、当前所有者/原request分组、加密显示无关、过期/待删保留、所有者转移/metadata删除、无输入变更；字节/文件数的精确边界、负值、两阶段溢出、零容量和1–2GiB算术。不用GB级数据分配伪装流式性能测试，未运行原子并发或恢复。
+
+最终运行器 `bash docs/security/tools/run-sec030-calculation.sh` 将git archive叠加两个明确Go文件，执行：
+
+```sh
+go version
+go generate ./...
+go test ./internal/uploadquota -count=1 -tags=test,noaws -v -cover
+go test ./... -parallel 8 -count=1 -tags=test,awsmock
+go test ./... -parallel 8 -count=1 -tags=test,noaws
+go test ./... -count=1 -tags=test,noaws,integration
+```
+
+相关race/govulncheck本PR NOT_RUN：没有共享并发状态或依赖修改。无schema迁移/上传接口改变；函数未接入，不能声称用户配额已强制执行或不会超卖。后续必须显式映射旧0=取消某层限制、处理Measure异常后拒绝准入；具体预算仍要在provider事务中与写入原子执行。
+
+最终62zgZb的environment/generate/calculation/awsmock/noaws/integration全部PASS(0)，目标覆盖100%语句；[公开结果](evidence/sec030-calculation-62zgZb/results.tsv)、[两个Go输入哈希](evidence/sec030-calculation-62zgZb/source.sha256)与当前文件逐项相符。相对链接/有限秘密模式/git diff --check PASS。前置SEC-031 [PR #15](https://github.com/Activer007/Gokapi/pull/15)已合并8019c61，CI40707671124 success，合并树与测试基线bfd4998一致。

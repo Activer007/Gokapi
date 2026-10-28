@@ -191,3 +191,5 @@ VALIDATE：完整分片/完成/在途及异步任务授权、会话续期/Key �
 ## M3 / SEC-031 语义基线（2026-10-28）
 
 代码基线 e38b03f。CONFIRMED_CODE：双 provider 的真实 API 合成上传证明 MaxSize=1MiB 可完成两个768KiB文件、总计1.5MiB；usage原累计文案与实现不符，改为每文件。用户确认保留旧字段语义、另增累计限制。请求体开销/未知长度和现有数量/空闲空间/过期控制的实测见 [M3-UPLOAD-SEMANTICS](M3-UPLOAD-SEMANTICS.md)，计量/预约草案见 ADR-013。HISTORICAL_FIXED：单文件历史公告与本项累计额度不同；VALIDATE：累计预算、原子预约、恢复和大文件峰值 Gate 仍未完成。无schema/运行时/旧数据语义改动。
+
+SEC-030纯计算：在SEC-031提交bfd4998上新增uploadquota，按metadata逻辑字节/文件数计算用户和请求用量并检查两维used+reserved+requested及int64溢出。共享blob、加密显示大小、待删/过期不降低用量；当前没有入口调用，不构成并发超卖防护。单测开发RED与最终结果见TEST-REPORT；数据库/schema、预算强制执行和物理容量仍VALIDATE。
