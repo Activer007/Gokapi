@@ -151,3 +151,13 @@ M0 只增加文档、测试和入口脚本，不改公开 API、模板/WASM、�
 基线 50965ba978aa10972423cea782fab2d72e68cfd8。浏览器表单上下文修复经私密 HTTP/浏览器验证及代码自审，
 分类 CONFIRMED_CODE；公开分支仅保留生产修复、必要回归和兼容说明，不携带详细复现历史。
 本实例尚未部署；只操作临时测试数据。方案/限制见 ADR-009，真实命令与最终结果见 TEST-REPORT。
+
+## SEC-020 公开能力矩阵补充（2026-10-28）
+
+基线 0d918a1bfa7df96f149de7f380026a504d164f81，E:\LHA\Gokapi，分支 codex/sec-020-capability-matrix，WSL Ubuntu24.04 / Go1.26.0 linux/amd64。本人公开仓库 Activer007/Gokapi 已独立；尚未部署，用户未跟踪计划目录保留。SEC-023 最小修复已合并，生成及四组父仓库 CI 40671571541 PASS，公告未发布。
+
+CONFIRMED_CODE：管理 API 使用 apikey 查数据库并校验凭据种类；公开下载使用文件状态和文件级密码 Cookie。新增实际路由表遍历与三类公开下载 handler 的两种 provider 矩阵，基线通过；隔离故障注入能检出文件绑定/待删检查失效，不作为生产漏洞 RED。没有修改运行时代码、schema、UI/WASM、驱动或公开 API。
+
+已只读检查 README、docs/changelog.rst、docs/advanced.rst、SECURITY.md、Api/routing、GetFile/ServeFile、downloadPasswordToken、现有矩阵及历史公开公告。上游开放 PR #436（Issue #433）涉及首次创建 File Request 的前端额度默认值，#437 是错误下载密码审计，#136 是旧 hotlink 生成问题；未见同范围能力隔离矩阵。初次 gh 搜索参数错误已纠正，不能把该错误当作没有结果。未写入 upstream。
+
+VALIDATE：完整分片/完成/在途及异步任务授权、会话续期/Key 签发并发、旧 hotlink 撤销竞争仍未由本项证明。M2 保持开放；OIDC 评估及迁移方案在独立私密审查中，未实施身份 schema 迁移。

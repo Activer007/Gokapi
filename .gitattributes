@@ -29,3 +29,5 @@ internal/storage/chunking/chunkreservation/security_scope_test.go text eol=lf
 internal/webserver/BrowserCsrf.go text eol=lf
 internal/webserver/security_form_cookie_test.go text eol=lf
 internal/webserver/authentication/csrftoken/security_binding_test.go text eol=lf
+internal/webserver/api/security_capability_test.go text eol=lf
+internal/webserver/security_public_capability_test.go text eol=lf

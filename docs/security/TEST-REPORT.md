@@ -478,3 +478,28 @@ Token 总量预算、生产部署、全仓 race、govulncheck 为 NOT_RUN。M2 �
 overlay 摘要与完整日志的有限秘密模式检查通过；生产源码与私密审查通过版本一致。自审不是独立审批。
 公开证据目录只含命令、退出码、环境与源码/runner 摘要；原始日志保留本地忽略目录。
 验证后仅将 runner 的输出目录改为 .secret 后缀，防止未来原始日志误暂存；已运行的原始 runner 摘要保留。
+
+## M2 / SEC-020 公开凭据与下载矩阵增量
+
+2026-10-28，基线 0d918a1bfa7df96f149de7f380026a504d164f81；WSL Ubuntu24.04、Go1.26.0 linux/amd64。仅新增回归测试和证据；不修改生产安全判断。run-sec020-capability.sh 将 HEAD archive 和两个新测试复制到独立 /tmp 工作区，所有数据库/blob 均为合成数据。
+
+实际路由表逐项检查：匿名、分享 ID、hotlink ID、密码下载 Token、管理 presign、session ID、35 字符 Key PublicId、File Request ID，以及仅携带 session/文件密码 Cookie 的请求不能获得 API 权限；File Request Key 不能进入普通管理路由。永久/临时 Key 正例进入真实 /info/version；File Request 正例只检验四个公开上传路由的认证边界，不声称完成上传。公开下载、带文件名下载、hotlink 的状态矩阵在 SQLite/miniredis 验证；密码正例通过真实表单 POST 获取 Cookie。拒绝不改文件元数据/内容，也不消耗独立下载能力。
+
+首次定向运行 qAlVz7 的 environment/generate/matrix 均 PASS。隔离 mutation trtJgO 的两个测试退出 1（预期 RED）：仅在临时源码中去掉文件绑定或待删检查，新负例均在“拒绝请求却返回文件字节”的断言失败；runner 检查退出码和具体断言，防止把编译失败当有效 RED。此为测试有效性验证，不是当前生产代码漏洞证据。
+
+首次全量 EGRQ9s：environment/generate/matrix/race PASS；awsmock FAIL（API 包旧删除测试的后台 GC 遇到新测试关闭的全局 SQLite）；随后 noaws/integration 因 panic 留下的夹具数据出现重复用户名而 FAIL。原结果保留。修正新 API 矩阵为同一测试二进制的独立进程、临时 cwd、两分钟 Context 期限；不加 sleep，也不修改生产 GC。子进程继承 race 插桩；修正后在全新 archive 重跑。
+
+实际命令：
+
+```sh
+go generate ./...
+go test ./internal/webserver/api ./internal/webserver -count=1 -tags=test,noaws -run 'TestSEC020CapabilityEveryRoute|TestSEC020PublicDownloadMatrix' -v
+go test ./... -parallel 8 -count=1 -tags=test,awsmock
+go test ./... -parallel 8 -count=1 -tags=test,noaws
+go test ./... -count=1 -tags=test,noaws,integration
+go test -race ./internal/webserver/api ./internal/webserver -count=1 -tags=test,noaws -run 'TestSEC020CapabilityEveryRoute|TestSEC020PublicDownloadMatrix'
+```
+
+mutation 命令和原始退出码见相应 evidence 目录的 *.command.txt/results.tsv；原始日志在本地 .secret 忽略目录。NOT_RUN：真实 Redis/S3、全仓 race、浏览器、在途授权线性化、旧 hotlink 撤销竞争、生产部署、govulncheck。无依赖/schema/用户标识/密码算法变更，回滚只需撤销测试和文档提交，无数据恢复步骤。M2 其余 Gate 保留。
+
+最终 [LVQVYR](evidence/sec020-capability-LVQVYR/results.tsv)：environment/generate/matrix/awsmock/noaws/integration/race 全部退出 0。40 个真实路由 × 凭据类别 × 两种 provider 共 872 个拒绝子用例；另 70 个公开下载状态子用例及合法认证正例通过。源码/runner SHA256 与最终工作区一致；有限秘密模式扫描与 git diff --check 通过。测试自审不是独立审批。
