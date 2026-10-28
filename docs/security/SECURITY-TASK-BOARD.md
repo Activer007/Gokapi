@@ -78,3 +78,7 @@ PR 均为 **Activer007/Gokapi ← codex/...**。SEC-062 的先决发布保护已
 ## SEC-021 单进程续期收尾
 
 基线 aff864a；私密请求合同 RED 已确认，门面条件续期和撤销协调已实现，相关回归与 merge Gate 见 TEST-REPORT；ADR-010 记录兼容与回滚。状态以最终测试/PR 记录为准，不宣称覆盖多实例或旧 ID 会话家族。M2 后续仅剩 SEC-032 分片 add/complete 作用域及最终审计（需本项 Gate 完成后确认）。
+
+## SEC-032 分片 add/complete 收尾
+
+基线 a65ecfe；已写真实 API 作用域合同并确认 RED，新增最小预约查询与完成入口检查。同步/异步拒绝、到期秒边界及合法完成证据见 TEST-REPORT；兼容与回滚见 ADR-011。详细评估保留私密分支，不另开待合并评估 PR。最终 merge Gate 以唯一修复 PR 和 CI 为准。之后进行 M2 收尾审计；普通管理分片绑定尚属 VALIDATE，不提前宣称所有上传授权均已证明。
