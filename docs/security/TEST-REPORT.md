@@ -503,3 +503,7 @@ go test -race ./internal/webserver/api ./internal/webserver -count=1 -tags=test,
 mutation 命令和原始退出码见相应 evidence 目录的 *.command.txt/results.tsv；原始日志在本地 .secret 忽略目录。NOT_RUN：真实 Redis/S3、全仓 race、浏览器、在途授权线性化、旧 hotlink 撤销竞争、生产部署、govulncheck。无依赖/schema/用户标识/密码算法变更，回滚只需撤销测试和文档提交，无数据恢复步骤。M2 其余 Gate 保留。
 
 最终 [LVQVYR](evidence/sec020-capability-LVQVYR/results.tsv)：environment/generate/matrix/awsmock/noaws/integration/race 全部退出 0。40 个真实路由 × 凭据类别 × 两种 provider 共 872 个拒绝子用例；另 70 个公开下载状态子用例及合法认证正例通过。源码/runner SHA256 与最终工作区一致；有限秘密模式扫描与 git diff --check 通过。测试自审不是独立审批。
+
+## 2026-10-28 M2 范围修订（纯文档）
+
+按用户确认更新 M2-GOAL 及基线/威胁模型/看板/矩阵引用；未改生产 Go、schema、API 或测试代码。检查文档目标存在、差异与秘密边界；本轮本地 go generate、全量 Go、race、govulncheck 为 NOT_RUN（纯文档，无需重复已验证代码）。上一代码基线 79a0480 的合并后 CI 40675833652 已核实 completed/success。旧私密评估保留在独立本地分支与未发布审查记录，未混入本目标修订提交。
