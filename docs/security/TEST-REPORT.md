@@ -425,3 +425,5 @@ go test -race ./internal/webserver ./internal/storage/presign -count=1 -tags=tes
 实现复用当前API凭据校验与SEC-020 ReadFile策略；所有文件检查后原子领取。保持成功API路径/参数/字段、页面/WASM、公开分享及文件驱动，新增行为仅收紧管理grant的当前授权；拒绝沿用400 invalid presign，匿名401。无schema/用户ID迁移；重启本来会清空内存grant，回滚代码与重启即可，恢复旧授权语义。ADR-006记录兼容、失败后重签、在途撤销和S3外部短期URL限制。
 
 全仓race、真实S3/Redis服务、浏览器下载、S3已签发URL撤销、在途对象变更、govulncheck本项NOT_RUN。文件请求/分片/异步任务授权、并发会话续期/Key签发、公开分享矩阵、OIDC与跨浏览器CSRF仍是M2开放Gate。
+
+提交前overlay源码摘要、文档相对链接、Windows原生diff --check通过；新增证据常见私钥/GitHub Token/AWS访问Key/Authorization/session Cookie/完整presign URL模式无匹配（有限扫描）。[PR #11](https://github.com/Activer007/Gokapi/pull/11)代码提交81d70117535c262a73868c25f419cabb20a14538；已读取远端patch并记录COMMENT自审，非独立审批。核对双签发入口、当前主体/Key、逐对象交集、凭据类型、原子领取、错误格式及ADR边界，无本PR范围阻塞项。后续仅补PR/审查文档，应用与测试源码仍与Nfh4YZ摘要一致；最终head CI成功后才合并。
