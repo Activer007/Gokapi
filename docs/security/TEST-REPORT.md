@@ -697,3 +697,31 @@ f563d9f检查点：PR CI40746205711与手动CI40746246616均SUCCESS，生成/四
 最后审查补HTTP拒绝边界：只有进程内slot不读不足以说明net/http不会在拒绝后自动drain。接收失败对HTTP/1设Connectionclose，并尽力设置当前read deadline，保留429/Retry-After；新增真实socket只发Content-Length:1头而不发body的忙碌拒绝回归。该后续改动及最新Gate另以当前PR/手动run核实，不用上个检查点绿色替代新增检查。
 
 最终兼容复核还保留旧Go multipart的quoted-printable流式解码与其他CTE原样语义；预算/envelope按wire计，落盘/文件上限按decoded计，新增真实QP writer编码膨胀及边界矩阵。参照Go1.26源码复核，不把换接收器变成无关公开协议改写；该补丁和拒绝后排空测试的本地执行仍NOT_RUN，必须由新提交远端Gate覆盖。
+
+### SEC-030 最终远端 Gate：ff7497b
+
+[PR CI40751200410](https://github.com/Activer007/Gokapi/actions/runs/40751200410)与[手动CI40751191903](https://github.com/Activer007/Gokapi/actions/runs/40751191903)，attempt1均SUCCESS，head为ff7497beb4f173f81cbf90695e7b6544d393f53b；手动job123038014344全部步骤success。环境GitHub ubuntu-latest / Go1.26.0 linux/amd64。实际执行如下（awstest使用workflow内合成凭据及mock，并非真实S3）：
+
+```sh
+go generate ./...
+bash docs/security/tools/run-sec062-setup-listener.sh --occupied
+go test ./... -parallel 8 -count=1 --tags=test,awsmock
+go test ./... -parallel 8 -count=1 --tags=test,noaws
+go test ./... --tags=test,noaws,integration -count=1
+go test ./... --tags=test,awstest -count=1
+go test -race ./internal/environment ./internal/storage ./internal/storage/uploadreceive ./internal/webserver/fileupload ./internal/webserver/api ./internal/webserver -count=1 -tags=test,noaws -run 'TestSEC030Receive|TestSEC031UploadSizeSemantics|TestReceive|TestSpool'
+bash docs/security/tools/run-sec030-receiver.sh large
+# large模式实际编译命令：
+go test ./internal/webserver/api -count=1 -tags=test,noaws,security_large -run TestSEC030ReceiveLargeFiles -timeout 15m -v
+```
+
+以上全为PASS；最后命令由large运行器在归档副本执行，非重复宣称另一独立执行。完整接收race这次包括核心TestReceive/TestSpool及webserver；最终新增sticky Close、HTTP拒绝、日志脱敏和quoted-printable合同均获本次覆盖。43份实际Go源码hash逐项与ff7497b Git blob核实一致，[最终证据/指标](evidence/sec030-receiver-ff7497b/README.md)已保存；此前f563d9f仅为历史检查点。
+
+| 实际HTTP上传+读回 | 用时 / 吞吐 | 堆峰值 / RSS峰值 | 暂存表观 / 已分配峰值 |
+| --- | --- | --- | --- |
+| 1GiB明文 | 3.761s / 272.25MiB/s | 3036296B / 23859200B | 2147483683B / 2147487744B |
+| 2GiB服务器加密 | 21.947s / 93.32MiB/s | 3051528B / 25358336B | 6435733539B / 6435753984B |
+
+两个SHA256逐字节读回匹配。指标只代表该runner/路径，20ms磁盘采样不是所有瞬时峰值证明，不涵盖真实S3、浏览器WASM、全部chunk路径或生产负载。最后证据提交仅改docs，不改Go/运行器/workflow，随后PR CI独立检查；不能将ff7497b的大文件记录说成后续文档提交重新执行。
+
+本机2GiB失败及WSL E_UNEXPECTED仍为FAIL/BLOCKED，最终本地全量和补丁验证仍NOT_RUN；未重启/修复宿主。Windows原生Go、全仓race、govulncheck、真实Redis/S3、生产恢复仍NOT_RUN。SEC-062已公开Go公告的修补/可达性另设发布前P0 Gate。M3持久预算接线、正向metadata、完整区间、异步完成/恢复仍OPEN；外层认证早期拒绝传输行为仅VALIDATE，后续先写隔离socket合同。没有从接收层绿色推断整体防耗尽或已可安全发布。

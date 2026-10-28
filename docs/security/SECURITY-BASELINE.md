@@ -201,3 +201,5 @@ SEC-030纯计算：在SEC-031提交bfd4998上新增uploadquota，按metadata逻�
 SEC-030接收增量，基线f4ce5db：[ADR-015](ADR-015-BOUNDED-UPLOAD-RECEPTION.md)记录已接入四类真实上传入口的单进程接收槽、字节/字段/正文边界与自有spool恢复。CONFIRMED_CODE：隔离10/50门控、未知长度、实际HTTP取消及加密工作描述符合同先RED再修复。未据内部资源用例声称未知可利用漏洞。VALIDATE：持久上传总账接线、异步完成/完整区间、共享blob和完整M3大文件矩阵；本地2GiB尝试因WSL只读/服务E_UNEXPECTED失败，后续远端结果以TEST-REPORT及PR为准。PR #18主分支CI40734115453已核实PASS。
 
 已公开工具链公告（2026-10-29核对）：当前复现/CI基线Go1.26.0落在官方[GO-2026-6603](https://pkg.go.dev/vuln/GO-2026-6603)列出的HTTP/2 Trailer内存问题版本范围（修复门槛go1.26.9）内；[GO-2026-6089](https://pkg.go.dev/vuln/GO-2026-6089)另涉及未加密HTTP/2前言读取超时。HISTORICAL_FIXED仅指上游Go已提供修复；VALIDATE为本仓库具体配置/可达调用链及构建工具链推进。不得从receiver测试绿色声称标准库问题已修复，发布前需独立SEC-062工具链/govulncheck Gate。本轮不混入依赖升级。
+
+SEC-030最终接收代码ff7497b：CONFIRMED_CODE并有远端实跑证据，生成/四组全仓/相关race及真实1GiB明文、2GiB服务器加密HTTP上传和读回通过；[43份源码hash与Gate](evidence/sec030-receiver-ff7497b/README.md)匹配该提交。局部默认4槽、12288MiB保守接收预算，不等同用户或File Request累计配额；MaxSize保持单文件。WSL本地BLOCKED及先前失败继续保留。接收前外层认证拒绝的传输等待、持久预算/所有metadata路径、异步完成和恢复仍VALIDATE；无新schema/密码/密文格式变更，未部署或发布。

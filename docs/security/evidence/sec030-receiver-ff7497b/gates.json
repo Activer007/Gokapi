@@ -1,0 +1,34 @@
+{
+  "commit": "ff7497beb4f173f81cbf90695e7b6544d393f53b",
+  "pr_ci": {
+    "id": 40751200410,
+    "conclusion": "success",
+    "url": "https://github.com/Activer007/Gokapi/actions/runs/40751200410"
+  },
+  "manual_ci": {
+    "id": 40751191903,
+    "job_id": 123038014344,
+    "conclusion": "success",
+    "url": "https://github.com/Activer007/Gokapi/actions/runs/40751191903"
+  },
+  "source_hash_count": 43,
+  "scope": [
+    "generate",
+    "occupied-configured-port",
+    "awsmock",
+    "noaws",
+    "integration",
+    "awstest",
+    "receiver-race",
+    "source-hashes",
+    "1GiB-plain",
+    "2GiB-encrypted"
+  ],
+  "not_proven": [
+    "durable-runtime-quota",
+    "persistent-chunks",
+    "full-M3-completion",
+    "real-S3",
+    "production-restore"
+  ]
+}
