@@ -743,3 +743,5 @@ go test ./internal/webserver/api -count=1 -tags=test,noaws,security_large -run T
 本地脚本语法：首次Git Bash被沙箱MSYS对象权限阻止，未解析脚本（BLOCKED）；随后仅提升bash -n读取权限，语法退出0，未启动WSL/Go。审查发现run辅助函数的全局name覆盖产物循环变量；隔离helper合同实际退出1，local name/code修复后同合同退出0（helper-red/green.log），不把运行器缺陷称产品漏洞。3686e28的手动CI40759379612因该已知缺陷取消，状态按GitHub实际保留；后续新提交独立验证，旧PR/推送CI不得冒充修复后通过。
 
 旧3686e28推送CI40759247121实际FAIL于toolchain gates：默认/noaws/WASM源码扫描均退出0，但生成器命名Go文件被govulncheck source mode拒绝（退出2），随后还有已修的循环变量导致错误产物路径。生成器目录有多个独立main，改为Go原生编译其实际minify可执行文件并binary扫描，不拼接虚构包。560862c的手动40760133832因同一已知source调用错误取消；这些失败/取消不计PASS。源码扫描同时报告未导入/未调用的openpgp及旧AWS S3 Crypto模块公告，不能简写为“依赖没有公告”，最终报告需保留模块级限制。
+
+第二个旧推送CI40760132130实际失败于go generate下载minify模块：proxy.golang.org HTTP/2 INTERNAL_ERROR，后续步骤未运行；未误归为生成器扫描错误，原日志second-failed.log保留。本轮进一步只读审查发现历史RED需要旧commit对象，checkout改为完整历史；格式检查改bash -ec，合成gofmt退出2控制证明旧bash -c误回0、新调用保留2，合同退出0。这是错误传播控制，不冒充运行了真实Go格式检查；真实格式化已由首轮远端退出0，最终仍随新CI验证。
