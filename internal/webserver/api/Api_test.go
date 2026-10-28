@@ -19,6 +19,7 @@ import (
 	"github.com/forceu/gokapi/internal/helper"
 	"github.com/forceu/gokapi/internal/models"
 	"github.com/forceu/gokapi/internal/storage"
+	"github.com/forceu/gokapi/internal/storage/chunking"
 	"github.com/forceu/gokapi/internal/test"
 	"github.com/forceu/gokapi/internal/test/testconfiguration"
 	"github.com/forceu/gokapi/internal/webserver/ratelimiter"
@@ -1781,7 +1782,7 @@ func TestChunkCompleteSanitisation(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// Write a temporary chunk file for the upload to succeed.
 			chunkUUID := "sanitisetest123"
-			err := os.WriteFile("test/data/chunk-"+chunkUUID, []byte("testcontent"), 0600)
+			err := os.WriteFile("test/data/chunk-"+chunking.StorageID(chunkUUID, idUser, ""), []byte("testcontent"), 0600)
 			test.IsNil(t, err)
 
 			w, r := test.GetRecorder("POST", "/api/chunk/complete", nil, []test.Header{

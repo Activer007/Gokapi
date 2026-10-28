@@ -202,7 +202,7 @@ func createTestChunk() (string, chunking.FileHeader, models.UploadParameters, er
 		ContentType: header.Header.Get("Content-Type"),
 		Size:        header.Size,
 	}
-	err := os.WriteFile("test/data/chunk-"+chunkId, content, 0600)
+	err := os.WriteFile("test/data/chunk-"+chunking.StorageID(chunkId, 99, ""), content, 0600)
 	if err != nil {
 		return "", chunking.FileHeader{}, models.UploadParameters{}, err
 	}
@@ -393,7 +393,7 @@ func TestNewFileFromChunk(t *testing.T) {
 	test.IsEqualBool(t, file.UnlimitedTime, false)
 	test.IsEqualBool(t, file.UnlimitedDownloads, false)
 	test.FileExists(t, "test/data/6cca7a6905774e6d61a77dca3ad7a1f44581d6ab")
-	test.FileDoesNotExist(t, "test/data/chunk-"+id)
+	test.FileDoesNotExist(t, "test/data/chunk-"+chunking.StorageID(id, 99, ""))
 	retrievedFile, ok := database.GetMetaDataById(file.Id)
 	test.IsEqualBool(t, ok, true)
 	test.IsEqual(t, file, retrievedFile)
@@ -417,7 +417,7 @@ func TestNewFileFromChunk(t *testing.T) {
 	test.IsEqualBool(t, file.UnlimitedTime, true)
 	test.IsEqualBool(t, file.UnlimitedDownloads, true)
 	test.FileExists(t, "test/data/6cca7a6905774e6d61a77dca3ad7a1f44581d6ab")
-	test.FileDoesNotExist(t, "test/data/chunk-"+id)
+	test.FileDoesNotExist(t, "test/data/chunk-"+chunking.StorageID(id, 99, ""))
 	retrievedFile, ok = database.GetMetaDataById(file.Id)
 	test.IsEqualBool(t, ok, true)
 	test.IsEqual(t, file, retrievedFile)

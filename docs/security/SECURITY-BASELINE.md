@@ -177,3 +177,9 @@ VALIDATE：完整分片/完成/在途及异步任务授权、会话续期/Key �
 基线 a65ecfef82f50e374bc0d3978d5e4dfac239db69；该 SEC-021 合并后 CI 40684368510 已核实 success，详细评估提交未进入 master，公告仍未公开。CONFIRMED_CODE：File Request add 已检查预约归属，complete 的隔离合同发现不一致；最小修复复用内存预约并在任何完成处理前检查。历史取消修复保留。VALIDATE：普通管理分片所有者绑定、完整追加/取消/完成竞争、资源预算及真实后端部署不由本项证明。详细请求复现私密保存，不声称生产被利用。
 
 已复核 README、advanced/changelog、SECURITY.md、API 路由/解析、fileupload、chunking/reservation、filerequest、存储完成与既有测试。只读检查上游 chunk Issues、当前开放 PR 与公开公告，未发现同范围待合并完成作用域修复；#436 为首次 File Request 前端额度问题，旧上传大小公告不等于本项已修复。未向 upstream 写入。
+
+## SEC-032 普通上传作用域修复
+
+生产基线 3d93cdbf7dda7428e96c0ef9f2e5a780b72331df，File Request 完成修复 PR #4 的合并后 CI 40689442018 已通过。CONFIRMED_CODE：普通上传按当前用户隔离服务端临时存储，同一用户有效 Key 可互换；File Request 预约保持原有边界。完成入口、错误清理和进度缓存采用一致用户范围，客户端 UUID 不变。新临时命名与旧 UUID 规范化生成的文件名不相交，不盲目认领旧分片。源码、测试及兼容决策见 ADR-012、TEST-REPORT。
+
+完整私密合同及原始复现不进入公开发布；公开保留最小回归和运行脚本。VALIDATE：同用户在途追加/完成竞态、全局资源预算、真实后端与浏览器环境未由本项穷尽。没有 schema、依赖、UI/WASM、加密或物理文件清理策略变更。上游 #429 仅修改 CLI 错误处理，不是同范围服务端修复；未向 upstream 写入。
