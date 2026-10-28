@@ -49,3 +49,11 @@
 在签发矩阵之外，消费检查当前签发Key/User、当前下载者及每个文件。有效所有者、有读取权的其他管理员、临时Key与ZIP仍允许；其他无读取权用户、已撤销/过期/失去Download位/转为File Request的Key、删除主体、委托撤销、对象转移、缺失签发绑定均拒绝。失效grant采用既有400响应，匿名入口401。
 
 拒绝不能输出任何文件或ZIP，也不能消耗仍可由合法用户使用的grant。顺序重放拒绝；并发单文件消费只有一个200，存储级32并发领取者仅一个成功。以上以TEST-REPORT最终实跑结果为准；完整浏览器会话、S3外部URL和在途元数据修改仍未由此矩阵证明。兼容与回滚见[ADR-006](ADR-006-PRESIGN-AUTHORITY.md)。
+
+## SEC-020 公开凭据边界补充合同（2026-10-28）
+
+基线 0d918a1。测试先于结果：分享 ID、hotlink ID、密码下载 Cookie、presign、session ID、Key 的 PublicId、File Request ID 均不得作为 apikey 进入任何 API 路由；File Request Key 仅可通过公开上传路由认证。遍历真实路由表并保留合法永久/临时 Key 和 File Request 认证正例。
+
+公开分享授予有限读取能力，不受下载者所有权限制；普通下载、带文件名下载和 hotlink 均拒绝过期、耗尽、待删、缺失、File Request 文件。受密码保护的下载仅接受匹配文件的有效密码 Cookie，管理 Key、session ID 和 File Request Key 不能替代密码 Cookie。拒绝不修改文件元数据或物理内容。
+
+本项只验证顺序消费，不证明在途元数据变更、旧 hotlink 撤销竞争、S3 外部 URL、分片完成或异步任务已满足授权合同。结果记录到 TEST-REPORT；如基线通过，以隔离故障注入证明负例有效，不伪造生产 RED。

@@ -34,7 +34,7 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | SEC-020 | P0 HISTORICAL_FIXED / CONFIRMED_CODE | 现状矩阵、故障状态RED、最小纯策略、目标/三组/race GREEN完成；失败原样保留 | [PR #9](https://github.com/Activer007/Gokapi/pull/9)，代码a83366a；远端diff自审完成，最终CI/合并以PR为准；M2其余边界仍未完成 |
 | SEC-021 | P0 HISTORICAL_FIXED / CONFIRMED_CODE / VALIDATE | 真实API撤销、Redis使用记录合同已合并；管理presign当前授权与原子消费RED→GREEN、三组/race PASS；其他跨请求/异步Gate仍开放 | [PR #10](https://github.com/Activer007/Gokapi/pull/10)合并d599aab；presign [PR #11](https://github.com/Activer007/Gokapi/pull/11)，代码81d7011、ADR-006、已自审；最终CI/合并以PR为准 |
 | SEC-022 | P0 企业场景 VALIDATE | 邮箱关联、issuer/sub/claims 完整策略未验证 | 003/020 → G1/G3；先模拟 IdP + 完整回调，证实后才设计账户迁移 ADR；参考 #435，不冒称漏洞 |
-| SEC-023 | P0 HISTORICAL_FIXED / CONFIRMED_CODE | 表单上下文修复经私密 HTTP/浏览器 RED→GREEN 与三组/race 验证；最小发布集待合并 | ADR-009；不改变 OIDC 链路，公开回归/限制见 TEST-REPORT |
+| SEC-023 | P0 HISTORICAL_FIXED / CONFIRMED_CODE | 表单上下文修复经私密 HTTP/浏览器 RED→GREEN 与三组/race 验证；最小发布集已合并 0d918a1，合并后四组 CI PASS | ADR-009；不改变 OIDC 链路，公开回归/限制见 TEST-REPORT |
 | SEC-030 | P0 CONFIRMED_CODE / VALIDATE | 当前 User 无累计额度字段，未见原子预算；资源耗尽需量化 | 003/020 → G1/G3；先计量语义与预约并发测试，按用户/实例分 PR；参考 issue #431 |
 | SEC-031 | P0 CONFIRMED_CODE / VALIDATE | 单文件实现 vs 总额文案；累计绕过未做攻击认定 | 003，语义定案后接 030 → G1/G3；连续/并发请求实测再选兼容方案；#436 先评审 |
 | SEC-032 | P0 CONFIRMED_CODE / VALIDATE | 取消预约最小发布集已合并 50965ba，合并后生成及四组 CI PASS | 003/030 → G1/G2；ADR-007；完成/在途任务/完整所有权边界仍开放 |
@@ -66,3 +66,7 @@ PR 均为 **Activer007/Gokapi ← codex/...**。SEC-062 的先决发布保护已
 ## M1验收状态（2026-10-28）
 
 六项要求的代码、测试、限制和兼容决策逐项映射于[TEST-REPORT的M1审计](TEST-REPORT.md#m1-逐项验收审计)。最新代码4bc1fc3的完整本地Go回归、定向race和重建镜像的非root初始化/上传/下载/重启Gate均PASS；SEC-010/011/012/013及SEC-014首项PR已合并，最后补充PR #8以最终checks及合并记录为准。该结论不清空本看板其他P0/P1，也不代表G4发布完成。当前尚未部署，所有操作仅在本fork和隔离测试副本中完成。
+
+## SEC-020 能力隔离矩阵增量
+
+2026-10-28，基线 0d918a1。公开 ID/密码 Cookie/session/presign/API Key 权限域与公开下载状态矩阵已新增；两种 provider 基线 PASS，隔离 mutation RED 生效，最终全量/race/PR Gate 见 TEST-REPORT。File Request 正例在认证边界止步，不冒称已验证完整上传/完成流程；跨请求和并发 Gate 继续开放。
