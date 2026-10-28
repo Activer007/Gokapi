@@ -739,3 +739,5 @@ go test ./internal/webserver/api -count=1 -tags=test,noaws,security_large -run T
 当前以上远端执行均NOT_RUN；本地Go生成/全仓/race/govulncheck/Docker仍NOT_RUN/BLOCKED。后续逐run补真实PASS/FAIL，不把本地Python结果当远端通过。无schema/密码哈希/加密格式变化；构建最低版本升至1.26.10，旧离线compiler将拒绝构建，auto环境可获取新版本。回滚二进制不改变既有数据格式，但旧compiler重新构建会恢复已知标准库风险。WASM浏览器交互、全仓race、真实Redis/S3、完整镜像digest固定/供应链扫描/生产恢复仍为独立Gate。
 
 审查补强：历史RED仅接受govulncheck漏洞退出码3且含目标ID，超时/执行失败不能转GREEN；实际归档inputs.sha256与当前harness.sha256分别记录。新增64B真实静态及带文件密码能力的本地下载Range兼容测试（200/HEAD/单Range/双Range/416及精确内容），没有高资源负载；纳入全仓和定向race。WASM另外按GOOS=js/GOARCH=wasm做源码扫描，浏览器交互仍NOT_RUN。当前新Go测试/gofmt/所有扫描均尚NOT_RUN，待真实远端结果。
+
+本地脚本语法：首次Git Bash被沙箱MSYS对象权限阻止，未解析脚本（BLOCKED）；随后仅提升bash -n读取权限，语法退出0，未启动WSL/Go。审查发现run辅助函数的全局name覆盖产物循环变量；隔离helper合同实际退出1，local name/code修复后同合同退出0（helper-red/green.log），不把运行器缺陷称产品漏洞。3686e28的手动CI40759379612因该已知缺陷取消，状态按GitHub实际保留；后续新提交独立验证，旧PR/推送CI不得冒充修复后通过。

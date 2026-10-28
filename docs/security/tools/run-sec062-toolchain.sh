@@ -20,7 +20,9 @@ cd "$work"
 failed=0
 last_code=0
 run() {
-    name=$1; shift
+    local name=$1
+    local code
+    shift
     printf '%s\n' "$*" > "$out/$name.command.txt"
     set +e
     timeout 1200 "$@" > "$out/$name.log" 2>&1
