@@ -741,3 +741,5 @@ go test ./internal/webserver/api -count=1 -tags=test,noaws,security_large -run T
 审查补强：历史RED仅接受govulncheck漏洞退出码3且含目标ID，超时/执行失败不能转GREEN；实际归档inputs.sha256与当前harness.sha256分别记录。新增64B真实静态及带文件密码能力的本地下载Range兼容测试（200/HEAD/单Range/双Range/416及精确内容），没有高资源负载；纳入全仓和定向race。WASM另外按GOOS=js/GOARCH=wasm做源码扫描，浏览器交互仍NOT_RUN。当前新Go测试/gofmt/所有扫描均尚NOT_RUN，待真实远端结果。
 
 本地脚本语法：首次Git Bash被沙箱MSYS对象权限阻止，未解析脚本（BLOCKED）；随后仅提升bash -n读取权限，语法退出0，未启动WSL/Go。审查发现run辅助函数的全局name覆盖产物循环变量；隔离helper合同实际退出1，local name/code修复后同合同退出0（helper-red/green.log），不把运行器缺陷称产品漏洞。3686e28的手动CI40759379612因该已知缺陷取消，状态按GitHub实际保留；后续新提交独立验证，旧PR/推送CI不得冒充修复后通过。
+
+旧3686e28推送CI40759247121实际FAIL于toolchain gates：默认/noaws/WASM源码扫描均退出0，但生成器命名Go文件被govulncheck source mode拒绝（退出2），随后还有已修的循环变量导致错误产物路径。生成器目录有多个独立main，改为Go原生编译其实际minify可执行文件并binary扫描，不拼接虚构包。560862c的手动40760133832因同一已知source调用错误取消；这些失败/取消不计PASS。源码扫描同时报告未导入/未调用的openpgp及旧AWS S3 Crypto模块公告，不能简写为“依赖没有公告”，最终报告需保留模块级限制。

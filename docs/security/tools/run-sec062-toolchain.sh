@@ -73,7 +73,12 @@ else
         run source-default "$GOBIN/govulncheck" -show verbose ./...
         run source-noaws "$GOBIN/govulncheck" -show verbose -tags=noaws ./...
         run wasm-source env GOOS=js GOARCH=wasm "$GOBIN/govulncheck" -show verbose ./cmd/wasmdownloader ./cmd/wasme2e
-        run generator "$GOBIN/govulncheck" -show verbose -tags=tools ./build/go-generate/minifyStaticContent.go
+        # govulncheck source mode accepts package patterns, not named Go files.
+        # The generator directory has multiple standalone mains, so scan its
+        # actual compiled executable rather than inventing a combined package.
+        run generator-build go build -tags=tools -o "$out/minify-generator" ./build/go-generate/minifyStaticContent.go
+        run generator-buildinfo go version -m "$out/minify-generator"
+        run generator-binary-scan "$GOBIN/govulncheck" -show verbose -mode=binary "$out/minify-generator"
         run server-build env CGO_ENABLED=0 go build -o "$out/gokapi" ./cmd/gokapi
         run cli-build env CGO_ENABLED=0 go build -o "$out/gokapi-cli" ./cmd/cli-uploader
         for name in gokapi gokapi-cli; do
@@ -81,7 +86,7 @@ else
             if ! head -n 1 "$out/$name-buildinfo.log" | grep -Eq 'go1\.26\.10([[:space:]]|$)'; then failed=1; fi
             run "$name-binary-scan" "$GOBIN/govulncheck" -show verbose -mode=binary "$out/$name"
         done
-        sha256sum "$out/gokapi" "$out/gokapi-cli" internal/webserver/web/main.wasm internal/webserver/web/e2e.wasm internal/webserver/web/static/js/wasm_exec.js | tee "$out/artifacts.sha256"
+        sha256sum "$out/gokapi" "$out/gokapi-cli" "$out/minify-generator" internal/webserver/web/main.wasm internal/webserver/web/e2e.wasm internal/webserver/web/static/js/wasm_exec.js | tee "$out/artifacts.sha256"
     fi
 fi
 printf 'Evidence: %s\n' "$out"
