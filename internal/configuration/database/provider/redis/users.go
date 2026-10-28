@@ -86,7 +86,7 @@ func (p DatabaseProvider) SaveUser(user models.User, isNewUser bool) {
 
 // UpdateUserLastOnline writes the last online time to the database
 func (p DatabaseProvider) UpdateUserLastOnline(id int) {
-	p.setHashmapField(prefixUsers+strconv.Itoa(id), "LastOnline", time.Now().Unix())
+	p.updateUsage(prefixUsers+strconv.Itoa(id), "LastOnline", time.Now().Unix())
 }
 
 // DeleteUser deletes a user with the given ID

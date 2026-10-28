@@ -126,3 +126,13 @@ M0 只增加文档、测试和入口脚本，不改公开 API、模板/WASM、�
 已检索README、usage/advanced文档、SECURITY.md、关键实现和现有测试；上游19项开放PR与相关Issues的只读清单见[m2-upstream.json](evidence/m2-upstream.json)。未发现同一集中策略的待合并修复；#435的OIDC回退不能直接采用，#419的旧内容回收不属于本PR。不会向上游提交PR或修改上游设置。
 
 兼容：保留HTTP路由、正常请求的状态码/错误结构、页面/WASM、SQLite/Redis格式、存储与删除流程；无依赖、schema、密码或OIDC身份迁移。无效用户/未知权限默认拒绝，遗留超额Key在使用时返回原有401 Unauthorized。回滚只需撤销本SEC-020代码/测试提交，无数据转换；回滚会恢复旧的Key权限判断，不能视为同等安全。当前无生产数据操作，重大身份/删除方案另设ADR。
+
+## M2 / SEC-021 使用记录与撤销（2026-10-28）
+
+基线bf5918e69827b75b5321acc37efd66f4b7e1b498（SEC-020 PR #9已合并），分支codex/sec-021-revocation；WSL Ubuntu24.04 / Go1.26.0。本地仍无部署，origin只指向Activer007/Gokapi，用户未跟踪计划目录保留。
+
+**HISTORICAL_FIXED**：通过真实管理API降权、移除日志权限、删除用户及删除Key后，后续请求读取当前权限，永久/临时Key与会话回归通过。**CONFIRMED_CODE**：Redis使用记录更新与SQLite合同不同，隔离provider测试证明其可能改写非时间字段/TTL或创建缺失记录。以最小原子单字段更新对齐两种provider；不由provider时序测试宣称已证明完整HTTP攻击链。公开描述只保留数据更新合同和必要修复信息。
+
+本轮只读检索上游开放PR、Redis相关PR/Issues（2026-10-28）；Redis相关PR #423/#180/#245/#243及Issues #413/#264/#209/#179/#198/#185/#39未提供同项使用记录修复。沿用SEC-020已核实的历史降权/临时Token公告结论；不修改上游。关键证据见TEST-REPORT和ACCESS-CONTROL-MATRIX。
+
+无schema、身份标识、密码、公开API、页面/WASM、物理文件删除变更。Redis使用既有Lua能力，单Key脚本参数化前缀/字段/时间，保持TTL；自定义ACL需允许EVAL/EVALSHA及脚本内EXISTS/HSET。现有数据不迁移，回滚代码即可，但会恢复旧更新语义。已存在的异常记录不自动修复，生产数据修复需备份后另评估。presign消费、分片、异步授权、OIDC、CSRF仍为VALIDATE，M2未完成。

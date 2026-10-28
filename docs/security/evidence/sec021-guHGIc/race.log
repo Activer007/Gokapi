@@ -1,0 +1,14 @@
+ok  	github.com/forceu/gokapi/internal/test/securityfixture	13.634s
+Unable to check if Redis has persistence enabled.
+Error connecting to redis
+Unable to check if Redis has persistence enabled.
+--- FAIL: TestApiKeys (0.02s)
+    Redis_test.go:241: Assertion failed, got: false, want: true.
+    Redis_test.go:242: Assertion failed, got: false, want: true.
+Unable to check if Redis has persistence enabled.
+Unable to check if Redis has persistence enabled.
+Unable to check if Redis has persistence enabled.
+FAIL
+FAIL	github.com/forceu/gokapi/internal/configuration/database/provider/redis	0.414s
+ok  	github.com/forceu/gokapi/internal/configuration/database/provider/sqlite	2.067s
+FAIL

@@ -22,3 +22,4 @@ internal/webserver/ManagementBudget.go text eol=lf
 internal/webserver/requestbudget/*.go text eol=lf
 internal/authorization/*.go text eol=lf
 internal/webserver/api/security_authorization_test.go text eol=lf
+internal/configuration/database/provider/redis/usage.go text eol=lf
