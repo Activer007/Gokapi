@@ -650,3 +650,26 @@ go test -race ./internal/uploadquota ./internal/test/securityfixture ./internal/
 NOT_RUN：真实Redis服务/AOF/RDB、旧二进制、生产迁移/恢复、全仓race、govulncheck（无依赖修改）、实际大文件/吞吐/峰值。HTTP/CLI上传尚未调用此预约原语；CleanupConfirmed不是删除成功证明，入口预算、正向metadata变更、I/O互斥、启动对账/物理清理和1–2GB验收继续OPEN，M3未完成。
 
 补记前轮私密现状观察：在cc5c1cd的未改动真实API上，SQLite/miniredis各10/50竞争MaxFiles=1，目标及定向race均退出0，每组恰好1个成功。生产认证限流保持，未用内部hook冻结快照；结论NOT_REPRODUCED，不证明所有调度原子。最初wrapper期待RED而返回1不是产品失败，第一次race启动器未启动Go为NOT_RUN，修正后实际race0；原始证据留在sec030-reservation-red.secret。本轮新的数据库合同RED与该现状观察分开，未将源码疑点升级为漏洞。
+
+## SEC-062 setup测试监听隔离（2026-10-29）
+
+基线4ad12558ed9096fc74ebf1afdda273d5a56fc76b，Windows PowerShell / WSL Ubuntu-24.04、Go1.26.0 linux/amd64。PR #17已合并，PR头CI40725885197通过，但合并后CI40726798576两次失败：attempt1的noaws、attempt2的integration均在setup首次监听127.0.0.1:53842时返回address already in use；不是quota断言失败。原始失败日志保留sec030-reservations-postmerge.secret，不把重跑前的失败覆盖成通过。CI占用socket未确定；Linux临时端口假设仍VALIDATE。只读检查upstream测试、README/advanced、Issues和开放PR；[#422](https://github.com/Forceu/Gokapi/pull/422)仅修正19888 wildcard地址，不是动态监听隔离，未发现同范围待合并修复，未向upstream写入。
+
+先RED后修复：kr9wsw在隔离归档上持续占住53842，旧TestInitialSetup实际bind失败，environment/compile退出0、occupied-port退出1。L7Jtst初版动态listener的占用合同、生成、setup全包与相关race均0，TkgSor的CI模式也0。Lx501J第一次全量中blocker自己无法绑定53842，occupied-port为2（harness BLOCKED，不是产品RED），其余environment/compile/generate/setup/race/awsmock/noaws/integration均0。为使复现器自身不依赖固定空闲端口，最终blocker改为持续持有OS分配端口，并将该实际端口作为子进程GOKAPI_PORT；lDddre在历史4ad1255重新确认environment/compile为0、occupied-port为1。最终脚本--red明确固定历史基线，CI只运行应通过的--occupied。
+
+实现保持原配置保存的53842/ServerUrl等断言；实际测试HTTP使用持续持有的OS分配listener，启动/结束同步并关闭探测响应体。审查发现初版ready超时后可能留下迟到listener；最终改为每cycle显式传递factory、launch前注册清理，TestSEC062LateListenerCleanup用通道先取消再放行分配，证明listener关闭且Serve退出，无长时间睡眠。生产默认绑定、公开Run API、认证、一次性证明、slow-header与重放判断不变，延迟Shutdown捕获本轮server；bootstrap两个直接调用只补server参数，405/409断言保留。不修改UI/WASM、依赖或数据库schema，也没有新增上传额度强制执行。
+
+最终命令为`bash docs/security/tools/run-sec062-setup-listener.sh`，在git archive基线上仅叠加Setup.go、Setup_test.go、bootstrap_test.go三份规范LF源码，记录实际编译哈希。依次运行go version、go test -c -tags=test,noaws、Python持有配置端口的真实setup合同、go generate ./...、go test ./internal/configuration/setup -count=1 -tags=test,noaws，以及：
+
+```sh
+go test -race ./internal/configuration/setup -count=1 -tags=test,noaws -run '^(TestInitialSetup|TestRunConfigModification|TestIntegration|TestIsErrorAddressAlreadyInUse|TestSEC062.*)$'
+go test ./... -parallel 8 -count=1 -tags=test,awsmock
+go test ./... -parallel 8 -count=1 -tags=test,noaws
+go test ./... -count=1 -tags=test,noaws,integration
+```
+
+CI在原generate之后串行增加同一脚本--occupied，只执行环境/编译/占配置端口合同，保留原四组Go测试；不执行--red。NOT_RUN：Windows原生Go、全仓race、govulncheck（依赖未改）、本地awstest、真实Redis重启/生产恢复、实际1–2GiB吞吐和暂存/RSS峰值。SEC-030运行时额度、物理清理/启动恢复及M3性能Gate继续OPEN。本项只修复可复现测试入口，不将测试启动问题声明为安全漏洞，也不把未确定的CI占用者写成已证实根因。
+
+最终393FfY九项全部PASS(0)：environment/compile/occupied-port/generate/setup/race/awsmock/noaws/integration；[公开结果](evidence/sec062-setup-listener-393FfY/results.tsv)、[三份编译源码哈希](evidence/sec062-setup-listener-393FfY/source.sha256)及[运行器哈希](evidence/sec062-setup-listener-393FfY/runner.sha256)。Go输入与当前规范字节/Git index、runner与实际运行哈希均逐项一致。静态复审未见剩余阻塞；这不是独立人工批准。原始日志/中间失败保留相应.secret目录；用户未跟踪计划和deployment目录未暂存。
+
+提交691238bf6d6f9faf6c7b5f76d166da6288a410b6；自己的[PR #18](https://github.com/Activer007/Gokapi/pull/18)承载本增量。后续只补PR链接的文档提交不改变上述Go/runner哈希；远端checks、合并和主分支CI必须另按实际状态核实，不能从本地PASS推断。

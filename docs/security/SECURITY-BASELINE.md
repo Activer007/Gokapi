@@ -195,3 +195,5 @@ VALIDATE：完整分片/完成/在途及异步任务授权、会话续期/Key �
 SEC-030纯计算：在SEC-031提交bfd4998上新增uploadquota，按metadata逻辑字节/文件数计算用户和请求用量并检查两维used+reserved+requested及int64溢出。共享blob、加密显示大小、待删/过期不降低用量；当前没有入口调用，不构成并发超卖防护。单测开发RED与最终结果见TEST-REPORT；数据库/schema、预算强制执行和物理容量仍VALIDATE。
 
 2026-10-29 SEC-030持久基础，起点357670c：SQLite16/Redis9增加有界预约账本，当前metadata现算used，事务/CAS检验所有范围并原子提交完成metadata。CONFIRMED_CODE范围及证据见[ADR-014](ADR-014-DURABLE-UPLOAD-RESERVATIONS.md)/TEST-REPORT；没有接入HTTP上传或启用默认额度。旧MaxSize不重释；迁库拒绝活动预约、非空应用目标及部分损坏状态。VALIDATE：真实I/O、策略接入、启动恢复、共享blob物理清理与1–2GB峰值，不能从数据库合同扩大成端到端不耗尽承诺。
+
+2026-10-29 SEC-062测试监听隔离，基线4ad1255：PR #17已合并，PR头CI通过，但合并后CI40726798576两次因setup首次绑定53842失败，不能记为合并后PASS。CONFIRMED_CODE：占住旧端口的隔离合同可复现启动失败；动态持有listener修复及相关race已通过。CI占用者未识别，临时端口范围冲突仅为VALIDATE。此项不是新安全漏洞，未改变生产端口、权限、数据库或上传策略；完整结果见TEST-REPORT。

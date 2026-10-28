@@ -15,6 +15,10 @@ jobs:
         with:
           go-version-file: go.mod
       - run: go generate ./...
+      # GREEN contract: the configured product port is occupied, while setup tests
+      # use held OS-assigned listeners. Never run the historical --red mode here.
+      - name: Setup tests with configured port occupied
+        run: bash docs/security/tools/run-sec062-setup-listener.sh --occupied
       - run: go test ./... -parallel 8 -count=1 --tags=test,awsmock
       - run: go test ./... -parallel 8 -count=1 --tags=test,noaws
       - run: go test ./... --tags=test,noaws,integration -count=1
