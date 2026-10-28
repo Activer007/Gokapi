@@ -461,7 +461,10 @@ func hashFile(input io.Reader, useSalt bool) (string, error) {
 func generateHashAndEncrypt(fileContent io.Reader, fileHeader *multipart.FileHeader) (io.Reader, []byte, *os.File, models.EncryptionInfo) {
 	hash := sha1.New()
 	encInfo := models.EncryptionInfo{}
-	if fileHeader.Size <= int64(configuration.Get().MaxMemory)*1024*1024 {
+	// An operator's large multipart memory setting must not turn a multi-GiB
+	// upload into whole-file heap allocation in this second processing stage.
+	bufferMiB := min(max(configuration.Get().MaxMemory, 0), 8)
+	if fileHeader.Size <= int64(bufferMiB)*1024*1024 {
 		content, err := io.ReadAll(fileContent)
 		helper.Check(err)
 		hash.Write(content)
@@ -488,6 +491,10 @@ func generateHashAndEncrypt(fileContent io.Reader, fileHeader *multipart.FileHea
 		tempFileEnc, err := os.CreateTemp(configuration.Get().DataDir, "upload")
 		helper.Check(err)
 		err = encryption.Encrypt(&encInfo, tempFile, tempFileEnc)
+		helper.Check(err)
+		// Release the plaintext descriptor before unlinking its work file;
+		// physical blocks must not remain held until an unrelated GC cycle.
+		err = tempFile.Close()
 		helper.Check(err)
 		err = os.Remove(tempFile.Name())
 		helper.Check(err)

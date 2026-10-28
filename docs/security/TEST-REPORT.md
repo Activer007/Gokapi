@@ -673,3 +673,55 @@ CI在原generate之后串行增加同一脚本--occupied，只执行环境/编�
 最终393FfY九项全部PASS(0)：environment/compile/occupied-port/generate/setup/race/awsmock/noaws/integration；[公开结果](evidence/sec062-setup-listener-393FfY/results.tsv)、[三份编译源码哈希](evidence/sec062-setup-listener-393FfY/source.sha256)及[运行器哈希](evidence/sec062-setup-listener-393FfY/runner.sha256)。Go输入与当前规范字节/Git index、runner与实际运行哈希均逐项一致。静态复审未见剩余阻塞；这不是独立人工批准。原始日志/中间失败保留相应.secret目录；用户未跟踪计划和deployment目录未暂存。
 
 提交691238bf6d6f9faf6c7b5f76d166da6288a410b6；自己的[PR #18](https://github.com/Activer007/Gokapi/pull/18)承载本增量。后续只补PR链接的文档提交不改变上述Go/runner哈希；远端checks、合并和主分支CI必须另按实际状态核实，不能从本地PASS推断。
+
+## SEC-030 真实上传接收准入（2026-10-29）
+
+起点f4ce5db，Windows PowerShell / WSL Ubuntu-24.04、Go1.26.0 linux/amd64；仅归档副本/合成临时数据，用户plan及deployment未跟踪目录未纳入。设计、接收目录升级/回滚及剩余边界见[ADR-015](ADR-015-BOUNDED-UPLOAD-RECEPTION.md)。四类入口共用receiver，保持认证先于正文；未接入持久chunk/metadata总额度，不宣称M3已完成。
+
+先失败合同：`bash docs/security/tools/run-sec030-receiver.sh red-policy`的6NrjZ8，环境0、contract1（严格配置桩允许非法值/回显值的断言失败）；`... red-entry`的hHKIGZ，环境0、contract1，旧入口10/50全部读取正文而非限4，未知长度正常末块被拒，已知长度的文件先/后两个对照PASS；`... red-storage`的wVRynQ，环境0、contract1，9MiB加密工作文件保留已经unlink的明文描述符，修为删除前显式Close。均是隔离资源合同，不自动升级为可利用漏洞声明。
+
+原有夹具修正：声明13字节的chunk只写11字节，改为实际13；保留服务器实际payload/剩余范围判断。旧SEC031的正文开销/未知长度拒绝改为正例，仍检查payload超单文件上限拒绝、无chunk/blob及ownedroot仅有marker。每provider/每根接收合同独立子进程，不能为测试切目录而放松单Pool/DataDir约束。首次联测QrWd7P生成0，目标/race1，失败为fixture多次换DataDir及本地pipe未关闭，随后修正；没有取消服务器端校验。
+
+`... target`的gCpjEk：environment/generate/contract/race全部0，覆盖环境、整文件工作描述符、混合入口10/50、未知长度/字段顺序、真实HTTP取消/断线和SEC031双provider路由。该次统一filter未匹配核心包TestReceive/TestSpool，输出明确为no-tests；核心包另有完整target/race PASS（core-agent/verified），不能把空包绿色当核心race覆盖。运行器及CI现补全filter。之后新增Close结果不确定的sticky保留及EIO注入合同，尚未由该旧本地PASS覆盖。
+
+实际大文件命令：`bash docs/security/tools/run-sec030-receiver.sh large`，irDnxt的environment/generate为0、large为1。真实HTTP chunked/file-first的1GiB明文上传及读回SHA256通过：7.448s、137.49MiB/s、堆峰值3071232B、RSS峰值24100864B、表观暂存峰值2146041891B、已分配峰值2146054144B。2GiB加密阶段因WSL根文件系统返回read-only而失败并触发旧storage错误路径，不能记PASS；后续WSL启动返回E_UNEXPECTED。Windows检查D盘剩余0、E盘约100GB；未确定根挂载失败的全部因果，不自动重启/修复宿主或删除他人数据。
+
+上述本地命令的原始输出和逐文件编译hash保留相应.secret目录。环境agent先前CR包装失败/路径转换NOT_RUN均未当通过，最终该agent环境全包独立运行退出0。当前本地全仓awsmock/noaws/integration、纠正后的完整filter、Close不确定及新增兼容合同的最终本地验证为BLOCKED/NOT_RUN（WSL服务故障），后续由GitHub临时runner执行，以真实远端记录补充；不能抹去本地失败。Windows原生Go、govulncheck（依赖未改）、真实Redis/AOF/RDB、真实S3、生产迁移/恢复、完整M3多路径1–2GiB矩阵仍NOT_RUN。
+
+远端workflow保留生成及四组全量，新增完整接收合同race和受测源码hash；手动workflow_dispatch额外运行1GiB明文/2GiB加密HTTP、读回hash、吞吐/heap/RSS/暂存采样。大文件使用单独security_large tag，不加入默认Go suite。所有远端Gate尚需观察实际完成，不能从本地1GiB结果推导2GiB、S3或完整上传总量已通过。
+
+代码d7ea1f4提交到自己的[草稿PR #19](https://github.com/Activer007/Gokapi/pull/19)。首次远端push40743890289的生成/占端口合同PASS，awsmock FAIL：旧TestPostUpload实际3字节却声明50，上传正确拒绝后原SSE scanner无截止等待至10分钟；另有原API非multipart错误文案兼容断言失败。修正网页夹具从真实stat长度填写两处声明并断言metadata字节，加30秒SSE context；补11/13字节错误末块拒绝回归，保留实际长度防线。非multipart返回原http.ErrNotMultipart以保留公开错误文案。原始失败保留，后续新提交另跑Gate，未通过缩弱服务端校验使旧错误数据成功。
+
+f563d9f检查点：PR CI40746205711与手动CI40746246616均SUCCESS，生成/四组全仓/完整receiver race全部PASS；手动run另有真实1GiB明文、2GiB服务器加密HTTP上传与读回SHA256。1GiB为5.075s/201.78MiB/s，heap2965576B、RSS24260608B、暂存allocated2147487744B；2GiB为15.470s/132.39MiB/s，heap3061344B、RSS24793088B、暂存allocated6434066432B。runner事前84GiB可用。[公开证据](evidence/sec030-receiver-f563d9f/README.md)含实际runner源码hash并逐一与该提交blob核对；指标仅代表此硬件/路径，不冒充S3、浏览器WASM或所有M3矩阵已完成。
+
+最后审查补HTTP拒绝边界：只有进程内slot不读不足以说明net/http不会在拒绝后自动drain。接收失败对HTTP/1设Connectionclose，并尽力设置当前read deadline，保留429/Retry-After；新增真实socket只发Content-Length:1头而不发body的忙碌拒绝回归。该后续改动及最新Gate另以当前PR/手动run核实，不用上个检查点绿色替代新增检查。
+
+最终兼容复核还保留旧Go multipart的quoted-printable流式解码与其他CTE原样语义；预算/envelope按wire计，落盘/文件上限按decoded计，新增真实QP writer编码膨胀及边界矩阵。参照Go1.26源码复核，不把换接收器变成无关公开协议改写；该补丁和拒绝后排空测试的本地执行仍NOT_RUN，必须由新提交远端Gate覆盖。
+
+### SEC-030 最终远端 Gate：ff7497b
+
+[PR CI40751200410](https://github.com/Activer007/Gokapi/actions/runs/40751200410)与[手动CI40751191903](https://github.com/Activer007/Gokapi/actions/runs/40751191903)，attempt1均SUCCESS，head为ff7497beb4f173f81cbf90695e7b6544d393f53b；手动job123038014344全部步骤success。环境GitHub ubuntu-latest / Go1.26.0 linux/amd64。实际执行如下（awstest使用workflow内合成凭据及mock，并非真实S3）：
+
+```sh
+go generate ./...
+bash docs/security/tools/run-sec062-setup-listener.sh --occupied
+go test ./... -parallel 8 -count=1 --tags=test,awsmock
+go test ./... -parallel 8 -count=1 --tags=test,noaws
+go test ./... --tags=test,noaws,integration -count=1
+go test ./... --tags=test,awstest -count=1
+go test -race ./internal/environment ./internal/storage ./internal/storage/uploadreceive ./internal/webserver/fileupload ./internal/webserver/api ./internal/webserver -count=1 -tags=test,noaws -run 'TestSEC030Receive|TestSEC031UploadSizeSemantics|TestReceive|TestSpool'
+bash docs/security/tools/run-sec030-receiver.sh large
+# large模式实际编译命令：
+go test ./internal/webserver/api -count=1 -tags=test,noaws,security_large -run TestSEC030ReceiveLargeFiles -timeout 15m -v
+```
+
+以上全为PASS；最后命令由large运行器在归档副本执行，非重复宣称另一独立执行。完整接收race这次包括核心TestReceive/TestSpool及webserver；最终新增sticky Close、HTTP拒绝、日志脱敏和quoted-printable合同均获本次覆盖。43份实际Go源码hash逐项与ff7497b Git blob核实一致，[最终证据/指标](evidence/sec030-receiver-ff7497b/README.md)已保存；此前f563d9f仅为历史检查点。
+
+| 实际HTTP上传+读回 | 用时 / 吞吐 | 堆峰值 / RSS峰值 | 暂存表观 / 已分配峰值 |
+| --- | --- | --- | --- |
+| 1GiB明文 | 3.761s / 272.25MiB/s | 3036296B / 23859200B | 2147483683B / 2147487744B |
+| 2GiB服务器加密 | 21.947s / 93.32MiB/s | 3051528B / 25358336B | 6435733539B / 6435753984B |
+
+两个SHA256逐字节读回匹配。指标只代表该runner/路径，20ms磁盘采样不是所有瞬时峰值证明，不涵盖真实S3、浏览器WASM、全部chunk路径或生产负载。最后证据提交仅改docs，不改Go/运行器/workflow，随后PR CI独立检查；不能将ff7497b的大文件记录说成后续文档提交重新执行。
+
+本机2GiB失败及WSL E_UNEXPECTED仍为FAIL/BLOCKED，最终本地全量和补丁验证仍NOT_RUN；未重启/修复宿主。Windows原生Go、全仓race、govulncheck、真实Redis/S3、生产恢复仍NOT_RUN。SEC-062已公开Go公告的修补/可达性另设发布前P0 Gate。M3持久预算接线、正向metadata、完整区间、异步完成/恢复仍OPEN；外层认证早期拒绝传输行为仅VALIDATE，后续先写隔离socket合同。没有从接收层绿色推断整体防耗尽或已可安全发布。

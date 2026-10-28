@@ -4,11 +4,13 @@ package webserver
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"errors"
 	"html/template"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -482,8 +484,15 @@ func TestPostUploadNoAuth(t *testing.T) {
 }
 
 func TestPostUpload(t *testing.T) {
+	info, err := os.Stat("test/fileupload.jpg")
+	if err != nil {
+		t.Fatal(err)
+	}
+	actualSize := strconv.FormatInt(info.Size(), 10)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 	// Open the SSE connection
-	req, err := http.NewRequest("GET", "http://127.0.0.1:53843/uploadStatus", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "http://127.0.0.1:53843/uploadStatus", nil)
 	test.IsNil(t, err)
 	req.Header.Set("Accept", "text/event-stream")
 	req.Header.Set("Cookie", "session_token=validsession")
@@ -501,7 +510,7 @@ func TestPostUpload(t *testing.T) {
 		UploadFieldName: "file",
 		PostValues: []test.PostBody{{
 			Key:   "dztotalfilesize",
-			Value: "50",
+			Value: actualSize,
 		}, {
 			Key:   "dzchunkbyteoffset",
 			Value: "0",
@@ -525,7 +534,7 @@ func TestPostUpload(t *testing.T) {
 				{"uuid", "eeng4ier3Taen7a"},
 				{"filename", "fileupload.jpg"},
 				{"filecontenttype", "test-content"},
-				{"filesize", "50"},
+				{"filesize", actualSize},
 				{"nonblocking", "true"},
 			},
 			RequiredContent: []string{"{\"result\":\"OK\"}"},
@@ -556,6 +565,7 @@ func TestPostUpload(t *testing.T) {
 	file, ok := database.GetMetaDataById(receivedStatus.FileId)
 	test.IsEqualBool(t, ok, true)
 	test.IsEqualString(t, file.Name, "fileupload.jpg")
+	test.IsEqualInt64(t, file.SizeBytes, info.Size())
 }
 
 // Originally declared in Sse, but should not be public

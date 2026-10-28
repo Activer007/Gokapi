@@ -3,17 +3,23 @@ package fileupload
 import (
 	"errors"
 	"io"
+	"log"
+	"math"
 	"net/http"
+	"net/url"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/forceu/gokapi/internal/configuration"
 	"github.com/forceu/gokapi/internal/configuration/database"
+	"github.com/forceu/gokapi/internal/environment"
 	"github.com/forceu/gokapi/internal/logging"
 	"github.com/forceu/gokapi/internal/models"
 	"github.com/forceu/gokapi/internal/storage"
 	"github.com/forceu/gokapi/internal/storage/chunking"
 	"github.com/forceu/gokapi/internal/storage/chunking/chunkreservation"
+	"github.com/forceu/gokapi/internal/storage/uploadreceive"
 	"github.com/forceu/gokapi/internal/webserver/errorHandling/errorcodes"
 )
 
@@ -23,24 +29,26 @@ const minChunkSizeLowMaxChunk = 1 * 1024 * 1024
 // ProcessCompleteFile processes a file upload request
 // This is only used when a complete file is uploaded through the API with /files/add
 // Normally a file is created from a chunk
-func ProcessCompleteFile(w http.ResponseWriter, r *http.Request, userId, maxMemory int) error {
-	err := r.ParseMultipartForm(int64(maxMemory) * 1024 * 1024)
+func ProcessCompleteFile(w http.ResponseWriter, r *http.Request, userId, _ int) error {
+	maxFile, err := uploadMiB(configuration.Get().MaxFileSizeMB)
 	if err != nil {
 		return err
 	}
-	defer r.MultipartForm.RemoveAll()
+	upload, err := receiveUpload(w, r, maxFile)
+	if err != nil {
+		return err
+	}
+	defer closeReceived(upload)
+	installUploadFields(r, upload.Fields)
 	config, err := parseConfig(r.Form)
 	if err != nil {
 		return err
 	}
-	file, header, err := r.FormFile("file")
-	if err != nil {
+	config.FileRequestId = ""
+	if err := r.Context().Err(); err != nil {
 		return err
 	}
-
-	config.FileRequestId = ""
-	result, err := storage.NewFile(file, header, userId, config)
-	defer file.Close()
+	result, err := storage.NewFile(upload.File, upload.Header, userId, config)
 	if err != nil {
 		return err
 	}
@@ -50,15 +58,15 @@ func ProcessCompleteFile(w http.ResponseWriter, r *http.Request, userId, maxMemo
 	return nil
 }
 
-func isChunkMinChunkSize(r *http.Request, offset, fileSize int64) bool {
+func isChunkMinChunkSize(chunkSize, offset, fileSize int64) bool {
 	minReqChunkSize := minChunkSize
 	if configuration.Get().ChunkSize < 5 {
 		minReqChunkSize = minChunkSizeLowMaxChunk
 	}
-	if r.ContentLength >= int64(minReqChunkSize) {
+	if chunkSize >= int64(minReqChunkSize) {
 		return true
 	}
-	if r.ContentLength >= (fileSize - offset) {
+	if offset <= fileSize && chunkSize == fileSize-offset {
 		return true
 	}
 	return false
@@ -66,21 +74,22 @@ func isChunkMinChunkSize(r *http.Request, offset, fileSize int64) bool {
 
 // ProcessNewChunk processes a file chunk upload request
 func ProcessNewChunk(w http.ResponseWriter, r *http.Request, isApiCall bool, filerequestId string, userId int, maxFileSize int64) (int, error) {
-	err := r.ParseMultipartForm(int64(configuration.Get().MaxMemory) * 1024 * 1024)
+	// ChunkSize is a client tuning value. Browser E2E chunks include cipher
+	// overhead; the file payload limit and shared receiver budget bound both.
+	upload, err := receiveUpload(w, r, maxFileSize)
 	if err != nil {
-		return errorcodes.CannotParse, err
+		return ReceiveErrorCode(err, errorcodes.CannotParse), err
 	}
-	defer r.MultipartForm.RemoveAll()
+	defer closeReceived(upload)
+	installUploadFields(r, upload.Fields)
 	chunkInfo, err := chunking.ParseChunkInfo(r, isApiCall)
 	if err != nil {
 		return errorcodes.InvalidUserInput, err
 	}
-	file, header, err := r.FormFile("file")
-	if err != nil {
-		return errorcodes.InvalidUserInput, err
+	if chunkInfo.Offset > chunkInfo.TotalFilesizeBytes || upload.Header.Size > chunkInfo.TotalFilesizeBytes-chunkInfo.Offset {
+		return errorcodes.InvalidUserInput, errors.New("chunk exceeds declared file range")
 	}
-
-	if !isChunkMinChunkSize(r, chunkInfo.Offset, chunkInfo.TotalFilesizeBytes) {
+	if !isChunkMinChunkSize(upload.Header.Size, chunkInfo.Offset, chunkInfo.TotalFilesizeBytes) {
 		return errorcodes.ChunkTooSmall, storage.ErrorChunkTooSmall
 	}
 	if chunkInfo.TotalFilesizeBytes > maxFileSize || chunkInfo.Offset > maxFileSize {
@@ -94,13 +103,112 @@ func ProcessNewChunk(w http.ResponseWriter, r *http.Request, isApiCall bool, fil
 	}
 
 	chunkInfo.UUID = chunking.StorageID(chunkInfo.UUID, userId, filerequestId)
-	err = chunking.NewChunk(file, header, chunkInfo, maxFileSize)
-	defer file.Close()
+	if err := r.Context().Err(); err != nil {
+		return errorcodes.InvalidUserInput, err
+	}
+	err = chunking.NewChunk(upload.File, upload.Header, chunkInfo, maxFileSize)
 	if err != nil {
 		return errorcodes.CannotAllocateFile, err
 	}
 	_, _ = io.WriteString(w, "{\"result\":\"OK\"}")
 	return 0, nil
+}
+
+var receiveOnce sync.Once
+var receiver *uploadreceive.Pool
+var receiverError error
+
+func receiveUpload(w http.ResponseWriter, r *http.Request, maxFileBytes int64) (*uploadreceive.Upload, error) {
+	receiveOnce.Do(func() {
+		env := configuration.GetEnvironment()
+		if err := env.ValidateReceiveLimits(); err != nil {
+			receiverError = err
+			return
+		}
+		receiver, receiverError = uploadreceive.New(env.UploadBodySlots, env.UploadReceiveMB*1024*1024)
+	})
+	if receiverError != nil {
+		stopRejectedUpload(w, r)
+		return nil, uploadreceive.ErrInvalid
+	}
+	// Keep the existing live free-space setting, including its legacy zero rule.
+	minFree, err := uploadMiBOrZero(environment.New().MinFreeSpaceMB)
+	if err != nil {
+		stopRejectedUpload(w, r)
+		return nil, err
+	}
+	upload, err := receiver.Receive(w, r, configuration.Get().DataDir, maxFileBytes, minFree)
+	if err != nil {
+		stopRejectedUpload(w, r)
+	}
+	return upload, err
+}
+
+// A rejected HTTP/1 body must not be drained by net/http after releasing our
+// slot. Otherwise a short declared body can keep the rejection waiting on I/O.
+func stopRejectedUpload(w http.ResponseWriter, r *http.Request) {
+	if r.ProtoMajor == 1 {
+		w.Header().Set("Connection", "close")
+	}
+	_ = http.NewResponseController(w).SetReadDeadline(time.Now())
+}
+
+func uploadMiB(value int) (int64, error) {
+	if value <= 0 {
+		return 0, uploadreceive.ErrInvalid
+	}
+	return uploadMiBOrZero(value)
+}
+
+// MaxUploadBytes converts a configured per-file MiB limit without overflow.
+func MaxUploadBytes(value int) (int64, error) { return uploadMiB(value) }
+
+func uploadMiBOrZero(value int) (int64, error) {
+	if value < 0 || int64(value) > math.MaxInt64/(1024*1024) {
+		return 0, uploadreceive.ErrInvalid
+	}
+	return int64(value) * 1024 * 1024, nil
+}
+
+func installUploadFields(r *http.Request, fields url.Values) {
+	r.PostForm = fields
+	r.Form = r.URL.Query()
+	for key, values := range fields {
+		r.Form[key] = append(r.Form[key], values...)
+	}
+}
+
+func closeReceived(upload *uploadreceive.Upload) {
+	if err := upload.Close(); err != nil {
+		// The pool retains the failed cleanup's charge and retries its own spool.
+		log.Print("Upload receive cleanup pending")
+	}
+}
+
+// ReceiveErrorStatus preserves ordinary validation responses and distinguishes
+// finite receiver backpressure from permanent payload rejection.
+func ReceiveErrorStatus(err error) int {
+	switch {
+	case errors.Is(err, uploadreceive.ErrBusy):
+		return http.StatusTooManyRequests
+	case errors.Is(err, uploadreceive.ErrCapacity), errors.Is(err, uploadreceive.ErrSpace):
+		return http.StatusInsufficientStorage
+	default:
+		return http.StatusBadRequest
+	}
+}
+
+func ReceiveErrorCode(err error, fallback int) int {
+	switch {
+	case errors.Is(err, uploadreceive.ErrBusy):
+		return errorcodes.UploadBusy
+	case errors.Is(err, uploadreceive.ErrCapacity), errors.Is(err, uploadreceive.ErrSpace):
+		return errorcodes.CannotAllocateFile
+	case errors.Is(err, uploadreceive.ErrTooLarge):
+		return errorcodes.FileTooLarge
+	default:
+		return fallback
+	}
 }
 
 // ParseFileHeader parses the parameters for CompleteChunk()

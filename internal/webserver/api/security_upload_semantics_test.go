@@ -23,6 +23,7 @@ import (
 	"github.com/forceu/gokapi/internal/configuration"
 	"github.com/forceu/gokapi/internal/configuration/database"
 	"github.com/forceu/gokapi/internal/models"
+	"github.com/forceu/gokapi/internal/storage/chunking"
 	"github.com/forceu/gokapi/internal/storage/chunking/chunkreservation"
 	"github.com/forceu/gokapi/internal/storage/filesystem"
 	"github.com/forceu/gokapi/internal/webserver/errorHandling/errorcodes"
@@ -32,26 +33,31 @@ import (
 // budget. All data is synthetic; the provider-global API fixture runs in a child.
 func TestSEC031UploadSizeSemantics(t *testing.T) {
 	const childEnv = "GOKAPI_SEC031_SEMANTICS_CHILD"
-	if os.Getenv(childEnv) != "1" {
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
-		defer cancel()
-		binary, err := os.Executable()
-		if err != nil {
-			t.Fatal(err)
-		}
-		cmd := exec.CommandContext(ctx, binary, "-test.run=^TestSEC031UploadSizeSemantics$", "-test.v")
-		cmd.Dir = t.TempDir()
-		cmd.Env = append(os.Environ(), childEnv+"=1")
-		output, err := cmd.CombinedOutput()
-		t.Logf("isolated characterization:\n%s", output)
-		if err != nil {
-			t.Fatalf("characterization failed: %v", err)
+	if os.Getenv(childEnv) == "" {
+		for _, backend := range []string{"sqlite", "redis"} {
+			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+			defer cancel()
+			binary, err := os.Executable()
+			if err != nil {
+				t.Fatal(err)
+			}
+			cmd := exec.CommandContext(ctx, binary, "-test.run=^TestSEC031UploadSizeSemantics$", "-test.v")
+			cmd.Dir = t.TempDir()
+			cmd.Env = append(os.Environ(), childEnv+"="+backend)
+			output, err := cmd.CombinedOutput()
+			t.Logf("isolated characterization:\n%s", output)
+			if err != nil {
+				t.Fatalf("characterization failed: %v", err)
+			}
 		}
 		return
 	}
 	database.Close()
 	t.Cleanup(configuration.ConnectDatabase)
 	for _, backend := range []string{"sqlite", "redis"} {
+		if os.Getenv(childEnv) != backend {
+			continue
+		}
 		t.Run(backend, func(t *testing.T) {
 			cfg := models.DbConnection{HostUrl: filepath.Join(t.TempDir(), "semantics.sqlite")}
 			if backend == "redis" {
@@ -145,8 +151,8 @@ func TestSEC031UploadSizeSemantics(t *testing.T) {
 						// A synthetic floor above this isolated host's capacity;
 						// never allocate or fill a real disk to test refusal.
 						t.Setenv("GOKAPI_MIN_FREE_SPACE", "2147483647")
-						message := checkError(chunk(uuid, []byte("abc"), false), http.StatusBadRequest, errorcodes.CannotAllocateFile)
-						if !strings.Contains(message, "not enough space") {
+						message := checkError(chunk(uuid, []byte("abc"), false), http.StatusInsufficientStorage, errorcodes.CannotAllocateFile)
+						if !strings.Contains(message, "space") {
 							t.Fatal("upload was not rejected by the disk-space check")
 						}
 					})
@@ -154,7 +160,7 @@ func TestSEC031UploadSizeSemantics(t *testing.T) {
 						name    string
 						payload int
 						unknown bool
-					}{{"over-per-file-limit", 1024*1024 + 1, false}, {"multipart-overhead-at-limit", 1024 * 1024, false}, {"unknown-length", 3, true}} {
+					}{{"over-per-file-limit", 1024*1024 + 1, false}} {
 						t.Run(test.name, func(t *testing.T) {
 							w := chunk(uuid, bytes.Repeat([]byte{0x31}, test.payload), test.unknown)
 							code := errorcodes.FileTooLarge
@@ -163,8 +169,39 @@ func TestSEC031UploadSizeSemantics(t *testing.T) {
 							}
 							checkError(w, http.StatusBadRequest, code)
 							files, err := os.ReadDir(configuration.Get().DataDir)
-							if err != nil || len(files) != 0 {
+							if err != nil {
 								t.Fatal("rejected upload created staged data")
+							}
+							for _, entry := range files {
+								if entry.Name() != ".gokapi-receive-v1" {
+									t.Fatal("rejected upload created chunk or blob data")
+								}
+								owned, err := os.ReadDir(filepath.Join(configuration.Get().DataDir, entry.Name()))
+								if err != nil || len(owned) != 1 || owned[0].Name() != ".owner" || !owned[0].Type().IsRegular() {
+									t.Fatal("rejected upload left receive payload or unexpected spool entry")
+								}
+							}
+						})
+					}
+					// MaxSize applies to payload; bounded multipart overhead and an
+					// unknown HTTP length no longer displace a valid last chunk.
+					for _, item := range []struct {
+						name    string
+						size    int
+						unknown bool
+					}{{"exact-payload-limit", 1024 * 1024, false}, {"unknown-length-last-chunk", 3, true}} {
+						t.Run(item.name, func(t *testing.T) {
+							payload := bytes.Repeat([]byte{0x32}, item.size)
+							w := chunk(uuid, payload, item.unknown)
+							if w.Code != http.StatusOK {
+								t.Fatalf("valid payload rejected: status=%d", w.Code)
+							}
+							data, err := os.ReadFile(filepath.Join(configuration.Get().DataDir, "chunk-"+uuid))
+							if err != nil || !bytes.Equal(data, payload) {
+								t.Fatal("accepted payload differs from stored chunk")
+							}
+							if err := chunking.DeleteChunk(uuid); err != nil {
+								t.Fatal(err)
 							}
 						})
 					}

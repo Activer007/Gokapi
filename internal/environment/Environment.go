@@ -2,6 +2,7 @@ package environment
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"path"
 	"reflect"
@@ -50,6 +51,12 @@ type Environment struct {
 	// Sets the amount of RAM in MB that can be allocated for an upload chunk or file
 	// Any chunk or file with a size greater than that will be written to a temporary file
 	MaxMemory int `env:"MAX_MEMORY_UPLOAD" envDefault:"50" onlyPositive:"true" persistent:"true"`
+	// Bounds concurrent request bodies during upload reception, independently
+	// of durable upload IDs and the number of parallel chunks per client.
+	UploadBodySlots int64 `env:"UPLOAD_BODY_SLOTS" envDefault:"4"`
+	// Bounds transient upload reception and processing copies in MiB. This is
+	// not the persisted chunk ledger or a user's cumulative logical quota.
+	UploadReceiveMB int64 `env:"UPLOAD_RECEIVE_MB" envDefault:"12288"`
 	// Sets the maximum number of files that can be uploaded per file requests created by
 	// non-admin users
 	// Set to 0 to allow unlimited file count for all users
@@ -103,6 +110,18 @@ func (e *Environment) IsParsed() bool {
 	return e.isSet
 }
 
+// ValidateReceiveLimits rejects invalid explicit reception capacities. Legacy
+// upload settings retain their separate zero and normalization semantics.
+func (e Environment) ValidateReceiveLimits() error {
+	if e.UploadBodySlots <= 0 || e.UploadBodySlots > 64 {
+		return fmt.Errorf("GOKAPI_UPLOAD_BODY_SLOTS must be between 1 and 64")
+	}
+	if e.UploadReceiveMB <= 0 || e.UploadReceiveMB > math.MaxInt64/(1024*1024) {
+		return fmt.Errorf("GOKAPI_UPLOAD_RECEIVE_MB must be positive and fit an int64 byte budget")
+	}
+	return nil
+}
+
 // New parses the env variables
 func New() Environment {
 	result := Environment{
@@ -111,10 +130,14 @@ func New() Environment {
 	}
 
 	result = parseEnvVars(result)
+	if !result.isSet {
+		return Environment{}
+	}
 	err := enforceIntLimits(&result)
 	if err != nil {
 		fmt.Println("Error parsing env variables:", err)
 		osExit(1)
+		return Environment{}
 	}
 	result = parseFlags(result)
 	result.ActiveDeprecations = deprecation.GetActive()
@@ -123,7 +146,16 @@ func New() Environment {
 }
 
 func parseEnvVars(result Environment) Environment {
-	err := envParser.Parse(&result, envParser.Options{
+	// Validate the two strict capacities before the general parser: its error
+	// messages include raw supplied values, which must not reach logs here.
+	validated, err := parseReceiveEnvironment(result)
+	if err != nil {
+		fmt.Println("Error parsing env variables:", err)
+		osExit(1)
+		return Environment{}
+	}
+	result = validated
+	err = envParser.Parse(&result, envParser.Options{
 		Prefix: "GOKAPI_",
 	})
 	if err != nil {
@@ -134,10 +166,36 @@ func parseEnvVars(result Environment) Environment {
 	return result
 }
 
+func parseReceiveEnvironment(result Environment) (Environment, error) {
+	result.UploadBodySlots, result.UploadReceiveMB = 4, 12288
+	for _, field := range []struct {
+		name   string
+		target *int64
+	}{
+		{name: "GOKAPI_UPLOAD_BODY_SLOTS", target: &result.UploadBodySlots},
+		{name: "GOKAPI_UPLOAD_RECEIVE_MB", target: &result.UploadReceiveMB},
+	} {
+		if raw, exists := os.LookupEnv(field.name); exists {
+			value, err := strconv.ParseInt(raw, 10, 64)
+			if err != nil {
+				return Environment{}, fmt.Errorf("invalid integer configuration for %s", field.name)
+			}
+			*field.target = value
+		}
+	}
+	if err := result.ValidateReceiveLimits(); err != nil {
+		return Environment{}, err
+	}
+	return result, nil
+}
+
 func enforceIntLimits(result *Environment) error {
 	v := reflect.ValueOf(result)
 	if v.Kind() != reflect.Ptr || v.Elem().Kind() != reflect.Struct {
 		return fmt.Errorf("env must be a pointer to a struct")
+	}
+	if err := result.ValidateReceiveLimits(); err != nil {
+		return err
 	}
 
 	v = v.Elem()

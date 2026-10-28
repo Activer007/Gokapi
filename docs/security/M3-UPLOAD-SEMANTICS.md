@@ -1,8 +1,8 @@
 # M3 上传语义调查（SEC-031）
 
-调查日期 2026-10-28，工作基线 `e38b03f44a183db93c7df929f87e614e21244137`。个人 VPS / 单 Go 进程 / 可信小团队，公开上传者不可信。当前无部署；本轮只在源码临时副本和合成数据中操作。以下区分实测现状、建议合同和尚未完成的资源防护，不能将文档修正当作 M3 完成。
+调查日期 2026-10-28，工作基线 `e38b03f44a183db93c7df929f87e614e21244137`。个人 VPS / 单 Go 进程 / 可信小团队，公开上传者不可信。当前无部署；本轮只在源码临时副本和合成数据中操作。以下历史调查仅描述该基线，不代表后续源码；当前接收层以[ADR-015](ADR-015-BOUNDED-UPLOAD-RECEPTION.md)、[最终测试](evidence/sec030-receiver-ff7497b/README.md)及[任务看板](SECURITY-TASK-BOARD.md)为准。接收器已替换ParseMultipartForm，正常未知长度/精确payload加协议开销已接受，1–2GiB实际HTTP验收已通过。保留旧测量以说明兼容变化，不将局部通过当作M3完成。
 
-## 当前事实
+## e38b03f 历史事实
 
 | 边界 | 源码证据 | 分类 / 语义 |
 | --- | --- | --- |
@@ -17,7 +17,7 @@
 | 暂存 | Environment TMPDIR、FileServing.cleanOldTempFiles、`cmd/gokapi/Main.go` | CONFIRMED_CODE：multipart 走 OS temp；Docker 未指定 TMPDIR 时使用 DataDir。chunk/加密临时文件在 DataDir；启动和每小时清理 mtime 超24小时的 `upload*`/`chunk-*`，与预约过期不是同一生命周期。 |
 | 去重/加密 | FileServing.createNewMetaData/getChunkFileHash/hashFile/encryptChunkFile | CONFIRMED_CODE：普通 SHA1 内容指纹去重；服务端加密加入现有 salt，E2E 用随机 blob 名称。SizeBytes 是上传长度，E2E RealSize 只影响展示字符串。加密处理可能同时保留原 chunk 和新密文。共享 blob 不合并用户逻辑所有权。 |
 
-## 隔离实测与不变量
+## e38b03f 隔离实测与不变量
 
 [TestSEC031UploadSizeSemantics](../../internal/webserver/api/security_upload_semantics_test.go) 通过真实 API 解析/认证和 SQLite/miniredis，在独立子进程、临时数据库和存储驱动执行。每个请求使用随机合成 Key/ID，不打印这些值。测试保持现有大小、预约、权限和磁盘校验。
 
@@ -36,7 +36,7 @@ M3 完整目标继续有效：用户逻辑额度与实例物理容量分开；�
 
 逐 PR 顺序：SEC-031 语义和现状测试 → SEC-030 纯计算 → SEC-030 预约事务与恢复 → 普通/File Request 接入 → SEC-032 统一异常流。各 PR 单一 SEC-ID，后续账本、入口和临时清理互为验收依赖，不能仅合并计算函数即宣称防护完成。
 
-仍缺证据：10/50 并发抢1额、恶意声明/大 offset/重复块/重放、整文件未知长度、客户端断线、加密和共享 blob 配额、进程重启、正确性/吞吐/暂存峰值以及真实1–2GB流式测试。这些 Gate 继续开放，详见任务看板。
+历史调查时尚缺以下证据：10/50并发、恶意声明/大offset/重复块/重放、未知长度/断线、加密和共享blob配额、重启及真实1–2GB流式峰值。后续持久原语和接收层已覆盖其中部分合同，详见任务看板和最终测试；运行时累计配额、完整区间/异步/恢复仍OPEN，不能将历史列表或局部绿色当作完整当前验收。
 
 ## 上游只读复核
 
