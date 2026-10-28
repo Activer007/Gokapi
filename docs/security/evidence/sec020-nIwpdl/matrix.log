@@ -1,0 +1,1159 @@
+=== RUN   TestSEC020ManagementMatrix
+Rate limiting disabled for unit tests
+=== RUN   TestSEC020ManagementMatrix/sqlite
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/permanent
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/permanent/list
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/permanent/metadata
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/permanent/download
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/permanent/zip
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/permanent/presign
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/permanent/modify
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/permanent/replace
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/permanent/copy
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/permanent/restore
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/permanent/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/permanent/users
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/permanent/logs
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/temporary
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/temporary/list
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/temporary/metadata
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/temporary/download
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/temporary/zip
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/temporary/presign
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/temporary/modify
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/temporary/replace
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/temporary/copy
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/temporary/restore
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/temporary/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/temporary/users
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/temporary/logs
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/session-token
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/session-token/list
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/session-token/metadata
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/session-token/download
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/session-token/zip
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/session-token/presign
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/session-token/modify
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/session-token/replace
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/session-token/copy
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/session-token/restore
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/session-token/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/session-token/users
+=== RUN   TestSEC020ManagementMatrix/sqlite/super/session-token/logs
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/permanent
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/permanent/list
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/permanent/metadata
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/permanent/download
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/permanent/zip
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/permanent/presign
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/permanent/modify
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/permanent/replace
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/permanent/copy
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/permanent/restore
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/permanent/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/permanent/users
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/permanent/logs
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/temporary
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/temporary/list
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/temporary/metadata
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/temporary/download
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/temporary/zip
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/temporary/presign
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/temporary/modify
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/temporary/replace
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/temporary/copy
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/temporary/restore
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/temporary/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/temporary/users
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/temporary/logs
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/session-token
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/session-token/list
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/session-token/metadata
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/session-token/download
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/session-token/zip
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/session-token/presign
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/session-token/modify
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/session-token/replace
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/session-token/copy
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/session-token/restore
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/session-token/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/session-token/users
+=== RUN   TestSEC020ManagementMatrix/sqlite/admin/session-token/logs
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/permanent
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/permanent/list
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/permanent/metadata
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/permanent/download
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/permanent/zip
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/permanent/presign
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/permanent/modify
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/permanent/replace
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/permanent/copy
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/permanent/restore
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/permanent/delete
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/permanent/users
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/permanent/logs
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/temporary
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/temporary/list
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/temporary/metadata
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/temporary/download
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/temporary/zip
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/temporary/presign
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/temporary/modify
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/temporary/replace
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/temporary/copy
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/temporary/restore
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/temporary/delete
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/temporary/users
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/temporary/logs
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/session-token
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/session-token/list
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/session-token/metadata
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/session-token/download
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/session-token/zip
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/session-token/presign
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/session-token/modify
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/session-token/replace
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/session-token/copy
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/session-token/restore
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/session-token/delete
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/session-token/users
+=== RUN   TestSEC020ManagementMatrix/sqlite/owner/session-token/logs
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/permanent
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/permanent/list
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/permanent/metadata
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/permanent/download
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/permanent/zip
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/permanent/presign
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/permanent/modify
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/permanent/replace
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/permanent/copy
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/permanent/restore
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/permanent/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/permanent/users
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/permanent/logs
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/temporary
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/temporary/list
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/temporary/metadata
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/temporary/download
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/temporary/zip
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/temporary/presign
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/temporary/modify
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/temporary/replace
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/temporary/copy
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/temporary/restore
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/temporary/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/temporary/users
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/temporary/logs
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/session-token
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/session-token/list
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/session-token/metadata
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/session-token/download
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/session-token/zip
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/session-token/presign
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/session-token/modify
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/session-token/replace
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/session-token/copy
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/session-token/restore
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/session-token/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/session-token/users
+=== RUN   TestSEC020ManagementMatrix/sqlite/other/session-token/logs
+=== RUN   TestSEC020ManagementMatrix/sqlite/anonymous/credential
+=== RUN   TestSEC020ManagementMatrix/sqlite/anonymous/credential/list
+=== RUN   TestSEC020ManagementMatrix/sqlite/anonymous/credential/metadata
+=== RUN   TestSEC020ManagementMatrix/sqlite/anonymous/credential/download
+=== RUN   TestSEC020ManagementMatrix/sqlite/anonymous/credential/zip
+=== RUN   TestSEC020ManagementMatrix/sqlite/anonymous/credential/presign
+=== RUN   TestSEC020ManagementMatrix/sqlite/anonymous/credential/modify
+=== RUN   TestSEC020ManagementMatrix/sqlite/anonymous/credential/replace
+=== RUN   TestSEC020ManagementMatrix/sqlite/anonymous/credential/copy
+=== RUN   TestSEC020ManagementMatrix/sqlite/anonymous/credential/restore
+=== RUN   TestSEC020ManagementMatrix/sqlite/anonymous/credential/delete
+=== RUN   TestSEC020ManagementMatrix/sqlite/anonymous/credential/users
+=== RUN   TestSEC020ManagementMatrix/sqlite/anonymous/credential/logs
+=== RUN   TestSEC020ManagementMatrix/sqlite/request/credential
+=== RUN   TestSEC020ManagementMatrix/sqlite/request/credential/list
+=== RUN   TestSEC020ManagementMatrix/sqlite/request/credential/metadata
+=== RUN   TestSEC020ManagementMatrix/sqlite/request/credential/download
+=== RUN   TestSEC020ManagementMatrix/sqlite/request/credential/zip
+=== RUN   TestSEC020ManagementMatrix/sqlite/request/credential/presign
+=== RUN   TestSEC020ManagementMatrix/sqlite/request/credential/modify
+=== RUN   TestSEC020ManagementMatrix/sqlite/request/credential/replace
+=== RUN   TestSEC020ManagementMatrix/sqlite/request/credential/copy
+=== RUN   TestSEC020ManagementMatrix/sqlite/request/credential/restore
+=== RUN   TestSEC020ManagementMatrix/sqlite/request/credential/delete
+=== RUN   TestSEC020ManagementMatrix/sqlite/request/credential/users
+=== RUN   TestSEC020ManagementMatrix/sqlite/request/credential/logs
+=== RUN   TestSEC020ManagementMatrix/sqlite/expired/credential
+=== RUN   TestSEC020ManagementMatrix/sqlite/expired/credential/list
+=== RUN   TestSEC020ManagementMatrix/sqlite/expired/credential/metadata
+=== RUN   TestSEC020ManagementMatrix/sqlite/expired/credential/download
+=== RUN   TestSEC020ManagementMatrix/sqlite/expired/credential/zip
+=== RUN   TestSEC020ManagementMatrix/sqlite/expired/credential/presign
+=== RUN   TestSEC020ManagementMatrix/sqlite/expired/credential/modify
+=== RUN   TestSEC020ManagementMatrix/sqlite/expired/credential/replace
+=== RUN   TestSEC020ManagementMatrix/sqlite/expired/credential/copy
+=== RUN   TestSEC020ManagementMatrix/sqlite/expired/credential/restore
+=== RUN   TestSEC020ManagementMatrix/sqlite/expired/credential/delete
+=== RUN   TestSEC020ManagementMatrix/sqlite/expired/credential/users
+=== RUN   TestSEC020ManagementMatrix/sqlite/expired/credential/logs
+=== RUN   TestSEC020ManagementMatrix/sqlite/revoked/credential
+=== RUN   TestSEC020ManagementMatrix/sqlite/revoked/credential/list
+=== RUN   TestSEC020ManagementMatrix/sqlite/revoked/credential/metadata
+=== RUN   TestSEC020ManagementMatrix/sqlite/revoked/credential/download
+=== RUN   TestSEC020ManagementMatrix/sqlite/revoked/credential/zip
+=== RUN   TestSEC020ManagementMatrix/sqlite/revoked/credential/presign
+=== RUN   TestSEC020ManagementMatrix/sqlite/revoked/credential/modify
+=== RUN   TestSEC020ManagementMatrix/sqlite/revoked/credential/replace
+=== RUN   TestSEC020ManagementMatrix/sqlite/revoked/credential/copy
+=== RUN   TestSEC020ManagementMatrix/sqlite/revoked/credential/restore
+=== RUN   TestSEC020ManagementMatrix/sqlite/revoked/credential/delete
+=== RUN   TestSEC020ManagementMatrix/sqlite/revoked/credential/users
+=== RUN   TestSEC020ManagementMatrix/sqlite/revoked/credential/logs
+=== RUN   TestSEC020ManagementMatrix/sqlite/deleted/credential
+=== RUN   TestSEC020ManagementMatrix/sqlite/deleted/credential/list
+=== RUN   TestSEC020ManagementMatrix/sqlite/deleted/credential/metadata
+=== RUN   TestSEC020ManagementMatrix/sqlite/deleted/credential/download
+=== RUN   TestSEC020ManagementMatrix/sqlite/deleted/credential/zip
+=== RUN   TestSEC020ManagementMatrix/sqlite/deleted/credential/presign
+=== RUN   TestSEC020ManagementMatrix/sqlite/deleted/credential/modify
+=== RUN   TestSEC020ManagementMatrix/sqlite/deleted/credential/replace
+=== RUN   TestSEC020ManagementMatrix/sqlite/deleted/credential/copy
+=== RUN   TestSEC020ManagementMatrix/sqlite/deleted/credential/restore
+=== RUN   TestSEC020ManagementMatrix/sqlite/deleted/credential/delete
+=== RUN   TestSEC020ManagementMatrix/sqlite/deleted/credential/users
+=== RUN   TestSEC020ManagementMatrix/sqlite/deleted/credential/logs
+=== RUN   TestSEC020ManagementMatrix/redis
+Unable to check if Redis has persistence enabled.
+=== RUN   TestSEC020ManagementMatrix/redis/super/permanent
+=== RUN   TestSEC020ManagementMatrix/redis/super/permanent/list
+=== RUN   TestSEC020ManagementMatrix/redis/super/permanent/metadata
+=== RUN   TestSEC020ManagementMatrix/redis/super/permanent/download
+=== RUN   TestSEC020ManagementMatrix/redis/super/permanent/zip
+=== RUN   TestSEC020ManagementMatrix/redis/super/permanent/presign
+=== RUN   TestSEC020ManagementMatrix/redis/super/permanent/modify
+=== RUN   TestSEC020ManagementMatrix/redis/super/permanent/replace
+=== RUN   TestSEC020ManagementMatrix/redis/super/permanent/copy
+=== RUN   TestSEC020ManagementMatrix/redis/super/permanent/restore
+=== RUN   TestSEC020ManagementMatrix/redis/super/permanent/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/redis/super/permanent/users
+=== RUN   TestSEC020ManagementMatrix/redis/super/permanent/logs
+=== RUN   TestSEC020ManagementMatrix/redis/super/temporary
+=== RUN   TestSEC020ManagementMatrix/redis/super/temporary/list
+=== RUN   TestSEC020ManagementMatrix/redis/super/temporary/metadata
+=== RUN   TestSEC020ManagementMatrix/redis/super/temporary/download
+=== RUN   TestSEC020ManagementMatrix/redis/super/temporary/zip
+=== RUN   TestSEC020ManagementMatrix/redis/super/temporary/presign
+=== RUN   TestSEC020ManagementMatrix/redis/super/temporary/modify
+=== RUN   TestSEC020ManagementMatrix/redis/super/temporary/replace
+=== RUN   TestSEC020ManagementMatrix/redis/super/temporary/copy
+=== RUN   TestSEC020ManagementMatrix/redis/super/temporary/restore
+=== RUN   TestSEC020ManagementMatrix/redis/super/temporary/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/redis/super/temporary/users
+=== RUN   TestSEC020ManagementMatrix/redis/super/temporary/logs
+=== RUN   TestSEC020ManagementMatrix/redis/super/session-token
+=== RUN   TestSEC020ManagementMatrix/redis/super/session-token/list
+=== RUN   TestSEC020ManagementMatrix/redis/super/session-token/metadata
+=== RUN   TestSEC020ManagementMatrix/redis/super/session-token/download
+=== RUN   TestSEC020ManagementMatrix/redis/super/session-token/zip
+=== RUN   TestSEC020ManagementMatrix/redis/super/session-token/presign
+=== RUN   TestSEC020ManagementMatrix/redis/super/session-token/modify
+=== RUN   TestSEC020ManagementMatrix/redis/super/session-token/replace
+=== RUN   TestSEC020ManagementMatrix/redis/super/session-token/copy
+=== RUN   TestSEC020ManagementMatrix/redis/super/session-token/restore
+=== RUN   TestSEC020ManagementMatrix/redis/super/session-token/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/redis/super/session-token/users
+=== RUN   TestSEC020ManagementMatrix/redis/super/session-token/logs
+=== RUN   TestSEC020ManagementMatrix/redis/admin/permanent
+=== RUN   TestSEC020ManagementMatrix/redis/admin/permanent/list
+=== RUN   TestSEC020ManagementMatrix/redis/admin/permanent/metadata
+=== RUN   TestSEC020ManagementMatrix/redis/admin/permanent/download
+=== RUN   TestSEC020ManagementMatrix/redis/admin/permanent/zip
+=== RUN   TestSEC020ManagementMatrix/redis/admin/permanent/presign
+=== RUN   TestSEC020ManagementMatrix/redis/admin/permanent/modify
+=== RUN   TestSEC020ManagementMatrix/redis/admin/permanent/replace
+=== RUN   TestSEC020ManagementMatrix/redis/admin/permanent/copy
+=== RUN   TestSEC020ManagementMatrix/redis/admin/permanent/restore
+=== RUN   TestSEC020ManagementMatrix/redis/admin/permanent/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/redis/admin/permanent/users
+=== RUN   TestSEC020ManagementMatrix/redis/admin/permanent/logs
+=== RUN   TestSEC020ManagementMatrix/redis/admin/temporary
+=== RUN   TestSEC020ManagementMatrix/redis/admin/temporary/list
+=== RUN   TestSEC020ManagementMatrix/redis/admin/temporary/metadata
+=== RUN   TestSEC020ManagementMatrix/redis/admin/temporary/download
+=== RUN   TestSEC020ManagementMatrix/redis/admin/temporary/zip
+=== RUN   TestSEC020ManagementMatrix/redis/admin/temporary/presign
+=== RUN   TestSEC020ManagementMatrix/redis/admin/temporary/modify
+=== RUN   TestSEC020ManagementMatrix/redis/admin/temporary/replace
+=== RUN   TestSEC020ManagementMatrix/redis/admin/temporary/copy
+=== RUN   TestSEC020ManagementMatrix/redis/admin/temporary/restore
+=== RUN   TestSEC020ManagementMatrix/redis/admin/temporary/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/redis/admin/temporary/users
+=== RUN   TestSEC020ManagementMatrix/redis/admin/temporary/logs
+=== RUN   TestSEC020ManagementMatrix/redis/admin/session-token
+=== RUN   TestSEC020ManagementMatrix/redis/admin/session-token/list
+=== RUN   TestSEC020ManagementMatrix/redis/admin/session-token/metadata
+=== RUN   TestSEC020ManagementMatrix/redis/admin/session-token/download
+=== RUN   TestSEC020ManagementMatrix/redis/admin/session-token/zip
+=== RUN   TestSEC020ManagementMatrix/redis/admin/session-token/presign
+=== RUN   TestSEC020ManagementMatrix/redis/admin/session-token/modify
+=== RUN   TestSEC020ManagementMatrix/redis/admin/session-token/replace
+=== RUN   TestSEC020ManagementMatrix/redis/admin/session-token/copy
+=== RUN   TestSEC020ManagementMatrix/redis/admin/session-token/restore
+=== RUN   TestSEC020ManagementMatrix/redis/admin/session-token/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/redis/admin/session-token/users
+=== RUN   TestSEC020ManagementMatrix/redis/admin/session-token/logs
+=== RUN   TestSEC020ManagementMatrix/redis/owner/permanent
+=== RUN   TestSEC020ManagementMatrix/redis/owner/permanent/list
+=== RUN   TestSEC020ManagementMatrix/redis/owner/permanent/metadata
+=== RUN   TestSEC020ManagementMatrix/redis/owner/permanent/download
+=== RUN   TestSEC020ManagementMatrix/redis/owner/permanent/zip
+=== RUN   TestSEC020ManagementMatrix/redis/owner/permanent/presign
+=== RUN   TestSEC020ManagementMatrix/redis/owner/permanent/modify
+=== RUN   TestSEC020ManagementMatrix/redis/owner/permanent/replace
+=== RUN   TestSEC020ManagementMatrix/redis/owner/permanent/copy
+=== RUN   TestSEC020ManagementMatrix/redis/owner/permanent/restore
+=== RUN   TestSEC020ManagementMatrix/redis/owner/permanent/delete
+=== RUN   TestSEC020ManagementMatrix/redis/owner/permanent/users
+=== RUN   TestSEC020ManagementMatrix/redis/owner/permanent/logs
+=== RUN   TestSEC020ManagementMatrix/redis/owner/temporary
+=== RUN   TestSEC020ManagementMatrix/redis/owner/temporary/list
+=== RUN   TestSEC020ManagementMatrix/redis/owner/temporary/metadata
+=== RUN   TestSEC020ManagementMatrix/redis/owner/temporary/download
+=== RUN   TestSEC020ManagementMatrix/redis/owner/temporary/zip
+=== RUN   TestSEC020ManagementMatrix/redis/owner/temporary/presign
+=== RUN   TestSEC020ManagementMatrix/redis/owner/temporary/modify
+=== RUN   TestSEC020ManagementMatrix/redis/owner/temporary/replace
+=== RUN   TestSEC020ManagementMatrix/redis/owner/temporary/copy
+=== RUN   TestSEC020ManagementMatrix/redis/owner/temporary/restore
+=== RUN   TestSEC020ManagementMatrix/redis/owner/temporary/delete
+=== RUN   TestSEC020ManagementMatrix/redis/owner/temporary/users
+=== RUN   TestSEC020ManagementMatrix/redis/owner/temporary/logs
+=== RUN   TestSEC020ManagementMatrix/redis/owner/session-token
+=== RUN   TestSEC020ManagementMatrix/redis/owner/session-token/list
+=== RUN   TestSEC020ManagementMatrix/redis/owner/session-token/metadata
+=== RUN   TestSEC020ManagementMatrix/redis/owner/session-token/download
+=== RUN   TestSEC020ManagementMatrix/redis/owner/session-token/zip
+=== RUN   TestSEC020ManagementMatrix/redis/owner/session-token/presign
+=== RUN   TestSEC020ManagementMatrix/redis/owner/session-token/modify
+=== RUN   TestSEC020ManagementMatrix/redis/owner/session-token/replace
+=== RUN   TestSEC020ManagementMatrix/redis/owner/session-token/copy
+=== RUN   TestSEC020ManagementMatrix/redis/owner/session-token/restore
+=== RUN   TestSEC020ManagementMatrix/redis/owner/session-token/delete
+=== RUN   TestSEC020ManagementMatrix/redis/owner/session-token/users
+=== RUN   TestSEC020ManagementMatrix/redis/owner/session-token/logs
+=== RUN   TestSEC020ManagementMatrix/redis/other/permanent
+=== RUN   TestSEC020ManagementMatrix/redis/other/permanent/list
+=== RUN   TestSEC020ManagementMatrix/redis/other/permanent/metadata
+=== RUN   TestSEC020ManagementMatrix/redis/other/permanent/download
+=== RUN   TestSEC020ManagementMatrix/redis/other/permanent/zip
+=== RUN   TestSEC020ManagementMatrix/redis/other/permanent/presign
+=== RUN   TestSEC020ManagementMatrix/redis/other/permanent/modify
+=== RUN   TestSEC020ManagementMatrix/redis/other/permanent/replace
+=== RUN   TestSEC020ManagementMatrix/redis/other/permanent/copy
+=== RUN   TestSEC020ManagementMatrix/redis/other/permanent/restore
+=== RUN   TestSEC020ManagementMatrix/redis/other/permanent/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/redis/other/permanent/users
+=== RUN   TestSEC020ManagementMatrix/redis/other/permanent/logs
+=== RUN   TestSEC020ManagementMatrix/redis/other/temporary
+=== RUN   TestSEC020ManagementMatrix/redis/other/temporary/list
+=== RUN   TestSEC020ManagementMatrix/redis/other/temporary/metadata
+=== RUN   TestSEC020ManagementMatrix/redis/other/temporary/download
+=== RUN   TestSEC020ManagementMatrix/redis/other/temporary/zip
+=== RUN   TestSEC020ManagementMatrix/redis/other/temporary/presign
+=== RUN   TestSEC020ManagementMatrix/redis/other/temporary/modify
+=== RUN   TestSEC020ManagementMatrix/redis/other/temporary/replace
+=== RUN   TestSEC020ManagementMatrix/redis/other/temporary/copy
+=== RUN   TestSEC020ManagementMatrix/redis/other/temporary/restore
+=== RUN   TestSEC020ManagementMatrix/redis/other/temporary/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/redis/other/temporary/users
+=== RUN   TestSEC020ManagementMatrix/redis/other/temporary/logs
+=== RUN   TestSEC020ManagementMatrix/redis/other/session-token
+=== RUN   TestSEC020ManagementMatrix/redis/other/session-token/list
+=== RUN   TestSEC020ManagementMatrix/redis/other/session-token/metadata
+=== RUN   TestSEC020ManagementMatrix/redis/other/session-token/download
+=== RUN   TestSEC020ManagementMatrix/redis/other/session-token/zip
+=== RUN   TestSEC020ManagementMatrix/redis/other/session-token/presign
+=== RUN   TestSEC020ManagementMatrix/redis/other/session-token/modify
+=== RUN   TestSEC020ManagementMatrix/redis/other/session-token/replace
+=== RUN   TestSEC020ManagementMatrix/redis/other/session-token/copy
+=== RUN   TestSEC020ManagementMatrix/redis/other/session-token/restore
+=== RUN   TestSEC020ManagementMatrix/redis/other/session-token/delete
+    authorization_matrix_test.go:171: positive async deletion belongs to isolated lifecycle tests
+=== RUN   TestSEC020ManagementMatrix/redis/other/session-token/users
+=== RUN   TestSEC020ManagementMatrix/redis/other/session-token/logs
+=== RUN   TestSEC020ManagementMatrix/redis/anonymous/credential
+=== RUN   TestSEC020ManagementMatrix/redis/anonymous/credential/list
+=== RUN   TestSEC020ManagementMatrix/redis/anonymous/credential/metadata
+=== RUN   TestSEC020ManagementMatrix/redis/anonymous/credential/download
+=== RUN   TestSEC020ManagementMatrix/redis/anonymous/credential/zip
+=== RUN   TestSEC020ManagementMatrix/redis/anonymous/credential/presign
+=== RUN   TestSEC020ManagementMatrix/redis/anonymous/credential/modify
+=== RUN   TestSEC020ManagementMatrix/redis/anonymous/credential/replace
+=== RUN   TestSEC020ManagementMatrix/redis/anonymous/credential/copy
+=== RUN   TestSEC020ManagementMatrix/redis/anonymous/credential/restore
+=== RUN   TestSEC020ManagementMatrix/redis/anonymous/credential/delete
+=== RUN   TestSEC020ManagementMatrix/redis/anonymous/credential/users
+=== RUN   TestSEC020ManagementMatrix/redis/anonymous/credential/logs
+=== RUN   TestSEC020ManagementMatrix/redis/request/credential
+=== RUN   TestSEC020ManagementMatrix/redis/request/credential/list
+=== RUN   TestSEC020ManagementMatrix/redis/request/credential/metadata
+=== RUN   TestSEC020ManagementMatrix/redis/request/credential/download
+=== RUN   TestSEC020ManagementMatrix/redis/request/credential/zip
+=== RUN   TestSEC020ManagementMatrix/redis/request/credential/presign
+=== RUN   TestSEC020ManagementMatrix/redis/request/credential/modify
+=== RUN   TestSEC020ManagementMatrix/redis/request/credential/replace
+=== RUN   TestSEC020ManagementMatrix/redis/request/credential/copy
+=== RUN   TestSEC020ManagementMatrix/redis/request/credential/restore
+=== RUN   TestSEC020ManagementMatrix/redis/request/credential/delete
+=== RUN   TestSEC020ManagementMatrix/redis/request/credential/users
+=== RUN   TestSEC020ManagementMatrix/redis/request/credential/logs
+=== RUN   TestSEC020ManagementMatrix/redis/expired/credential
+=== RUN   TestSEC020ManagementMatrix/redis/expired/credential/list
+=== RUN   TestSEC020ManagementMatrix/redis/expired/credential/metadata
+=== RUN   TestSEC020ManagementMatrix/redis/expired/credential/download
+=== RUN   TestSEC020ManagementMatrix/redis/expired/credential/zip
+=== RUN   TestSEC020ManagementMatrix/redis/expired/credential/presign
+=== RUN   TestSEC020ManagementMatrix/redis/expired/credential/modify
+=== RUN   TestSEC020ManagementMatrix/redis/expired/credential/replace
+=== RUN   TestSEC020ManagementMatrix/redis/expired/credential/copy
+=== RUN   TestSEC020ManagementMatrix/redis/expired/credential/restore
+=== RUN   TestSEC020ManagementMatrix/redis/expired/credential/delete
+=== RUN   TestSEC020ManagementMatrix/redis/expired/credential/users
+=== RUN   TestSEC020ManagementMatrix/redis/expired/credential/logs
+=== RUN   TestSEC020ManagementMatrix/redis/revoked/credential
+=== RUN   TestSEC020ManagementMatrix/redis/revoked/credential/list
+=== RUN   TestSEC020ManagementMatrix/redis/revoked/credential/metadata
+=== RUN   TestSEC020ManagementMatrix/redis/revoked/credential/download
+=== RUN   TestSEC020ManagementMatrix/redis/revoked/credential/zip
+=== RUN   TestSEC020ManagementMatrix/redis/revoked/credential/presign
+=== RUN   TestSEC020ManagementMatrix/redis/revoked/credential/modify
+=== RUN   TestSEC020ManagementMatrix/redis/revoked/credential/replace
+=== RUN   TestSEC020ManagementMatrix/redis/revoked/credential/copy
+=== RUN   TestSEC020ManagementMatrix/redis/revoked/credential/restore
+=== RUN   TestSEC020ManagementMatrix/redis/revoked/credential/delete
+=== RUN   TestSEC020ManagementMatrix/redis/revoked/credential/users
+=== RUN   TestSEC020ManagementMatrix/redis/revoked/credential/logs
+=== RUN   TestSEC020ManagementMatrix/redis/deleted/credential
+=== RUN   TestSEC020ManagementMatrix/redis/deleted/credential/list
+=== RUN   TestSEC020ManagementMatrix/redis/deleted/credential/metadata
+=== RUN   TestSEC020ManagementMatrix/redis/deleted/credential/download
+=== RUN   TestSEC020ManagementMatrix/redis/deleted/credential/zip
+=== RUN   TestSEC020ManagementMatrix/redis/deleted/credential/presign
+=== RUN   TestSEC020ManagementMatrix/redis/deleted/credential/modify
+=== RUN   TestSEC020ManagementMatrix/redis/deleted/credential/replace
+=== RUN   TestSEC020ManagementMatrix/redis/deleted/credential/copy
+=== RUN   TestSEC020ManagementMatrix/redis/deleted/credential/restore
+=== RUN   TestSEC020ManagementMatrix/redis/deleted/credential/delete
+=== RUN   TestSEC020ManagementMatrix/redis/deleted/credential/users
+=== RUN   TestSEC020ManagementMatrix/redis/deleted/credential/logs
+Rate limiting disabled for unit tests
+--- PASS: TestSEC020ManagementMatrix (13.95s)
+    --- PASS: TestSEC020ManagementMatrix/sqlite (2.97s)
+        --- PASS: TestSEC020ManagementMatrix/sqlite/super/permanent (0.19s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/permanent/list (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/permanent/metadata (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/permanent/download (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/permanent/zip (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/permanent/presign (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/permanent/modify (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/permanent/replace (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/permanent/copy (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/permanent/restore (0.01s)
+            --- SKIP: TestSEC020ManagementMatrix/sqlite/super/permanent/delete (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/permanent/users (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/permanent/logs (0.01s)
+        --- PASS: TestSEC020ManagementMatrix/sqlite/super/temporary (0.11s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/temporary/list (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/temporary/metadata (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/temporary/download (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/temporary/zip (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/temporary/presign (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/temporary/modify (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/temporary/replace (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/temporary/copy (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/temporary/restore (0.01s)
+            --- SKIP: TestSEC020ManagementMatrix/sqlite/super/temporary/delete (0.00s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/temporary/users (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/temporary/logs (0.01s)
+        --- PASS: TestSEC020ManagementMatrix/sqlite/super/session-token (0.12s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/session-token/list (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/session-token/metadata (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/session-token/download (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/session-token/zip (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/session-token/presign (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/session-token/modify (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/session-token/replace (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/session-token/copy (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/session-token/restore (0.01s)
+            --- SKIP: TestSEC020ManagementMatrix/sqlite/super/session-token/delete (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/session-token/users (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/super/session-token/logs (0.01s)
+        --- PASS: TestSEC020ManagementMatrix/sqlite/admin/permanent (0.10s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/permanent/list (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/permanent/metadata (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/permanent/download (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/permanent/zip (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/permanent/presign (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/permanent/modify (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/permanent/replace (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/permanent/copy (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/permanent/restore (0.01s)
+            --- SKIP: TestSEC020ManagementMatrix/sqlite/admin/permanent/delete (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/permanent/users (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/permanent/logs (0.01s)
+        --- PASS: TestSEC020ManagementMatrix/sqlite/admin/temporary (0.14s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/temporary/list (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/temporary/metadata (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/temporary/download (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/temporary/zip (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/temporary/presign (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/temporary/modify (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/temporary/replace (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/temporary/copy (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/temporary/restore (0.02s)
+            --- SKIP: TestSEC020ManagementMatrix/sqlite/admin/temporary/delete (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/temporary/users (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/temporary/logs (0.01s)
+        --- PASS: TestSEC020ManagementMatrix/sqlite/admin/session-token (0.17s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/session-token/list (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/session-token/metadata (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/session-token/download (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/session-token/zip (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/session-token/presign (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/session-token/modify (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/session-token/replace (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/session-token/copy (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/session-token/restore (0.01s)
+            --- SKIP: TestSEC020ManagementMatrix/sqlite/admin/session-token/delete (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/session-token/users (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/admin/session-token/logs (0.01s)
+        --- PASS: TestSEC020ManagementMatrix/sqlite/owner/permanent (0.09s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/permanent/list (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/permanent/metadata (0.00s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/permanent/download (0.00s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/permanent/zip (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/permanent/presign (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/permanent/modify (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/permanent/replace (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/permanent/copy (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/permanent/restore (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/permanent/delete (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/permanent/users (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/permanent/logs (0.01s)
+        --- PASS: TestSEC020ManagementMatrix/sqlite/owner/temporary (0.16s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/temporary/list (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/temporary/metadata (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/temporary/download (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/temporary/zip (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/temporary/presign (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/temporary/modify (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/temporary/replace (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/temporary/copy (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/temporary/restore (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/temporary/delete (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/temporary/users (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/temporary/logs (0.01s)
+        --- PASS: TestSEC020ManagementMatrix/sqlite/owner/session-token (0.16s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/session-token/list (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/session-token/metadata (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/session-token/download (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/session-token/zip (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/session-token/presign (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/session-token/modify (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/session-token/replace (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/session-token/copy (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/session-token/restore (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/session-token/delete (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/session-token/users (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/owner/session-token/logs (0.01s)
+        --- PASS: TestSEC020ManagementMatrix/sqlite/other/permanent (0.18s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/permanent/list (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/permanent/metadata (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/permanent/download (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/permanent/zip (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/permanent/presign (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/permanent/modify (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/permanent/replace (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/permanent/copy (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/permanent/restore (0.01s)
+            --- SKIP: TestSEC020ManagementMatrix/sqlite/other/permanent/delete (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/permanent/users (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/permanent/logs (0.02s)
+        --- PASS: TestSEC020ManagementMatrix/sqlite/other/temporary (0.20s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/temporary/list (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/temporary/metadata (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/temporary/download (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/temporary/zip (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/temporary/presign (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/temporary/modify (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/temporary/replace (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/temporary/copy (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/temporary/restore (0.01s)
+            --- SKIP: TestSEC020ManagementMatrix/sqlite/other/temporary/delete (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/temporary/users (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/temporary/logs (0.01s)
+        --- PASS: TestSEC020ManagementMatrix/sqlite/other/session-token (0.26s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/session-token/list (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/session-token/metadata (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/session-token/download (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/session-token/zip (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/session-token/presign (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/session-token/modify (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/session-token/replace (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/session-token/copy (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/session-token/restore (0.02s)
+            --- SKIP: TestSEC020ManagementMatrix/sqlite/other/session-token/delete (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/session-token/users (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/other/session-token/logs (0.01s)
+        --- PASS: TestSEC020ManagementMatrix/sqlite/anonymous/credential (0.16s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/anonymous/credential/list (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/anonymous/credential/metadata (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/anonymous/credential/download (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/anonymous/credential/zip (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/anonymous/credential/presign (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/anonymous/credential/modify (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/anonymous/credential/replace (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/anonymous/credential/copy (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/anonymous/credential/restore (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/anonymous/credential/delete (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/anonymous/credential/users (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/anonymous/credential/logs (0.01s)
+        --- PASS: TestSEC020ManagementMatrix/sqlite/request/credential (0.22s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/request/credential/list (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/request/credential/metadata (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/request/credential/download (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/request/credential/zip (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/request/credential/presign (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/request/credential/modify (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/request/credential/replace (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/request/credential/copy (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/request/credential/restore (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/request/credential/delete (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/request/credential/users (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/request/credential/logs (0.02s)
+        --- PASS: TestSEC020ManagementMatrix/sqlite/expired/credential (0.19s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/expired/credential/list (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/expired/credential/metadata (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/expired/credential/download (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/expired/credential/zip (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/expired/credential/presign (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/expired/credential/modify (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/expired/credential/replace (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/expired/credential/copy (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/expired/credential/restore (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/expired/credential/delete (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/expired/credential/users (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/expired/credential/logs (0.01s)
+        --- PASS: TestSEC020ManagementMatrix/sqlite/revoked/credential (0.20s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/revoked/credential/list (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/revoked/credential/metadata (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/revoked/credential/download (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/revoked/credential/zip (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/revoked/credential/presign (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/revoked/credential/modify (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/revoked/credential/replace (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/revoked/credential/copy (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/revoked/credential/restore (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/revoked/credential/delete (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/revoked/credential/users (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/revoked/credential/logs (0.02s)
+        --- PASS: TestSEC020ManagementMatrix/sqlite/deleted/credential (0.11s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/deleted/credential/list (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/deleted/credential/metadata (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/deleted/credential/download (0.00s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/deleted/credential/zip (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/deleted/credential/presign (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/deleted/credential/modify (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/deleted/credential/replace (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/deleted/credential/copy (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/deleted/credential/restore (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/deleted/credential/delete (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/deleted/credential/users (0.01s)
+            --- PASS: TestSEC020ManagementMatrix/sqlite/deleted/credential/logs (0.01s)
+    --- PASS: TestSEC020ManagementMatrix/redis (10.32s)
+        --- PASS: TestSEC020ManagementMatrix/redis/super/permanent (0.45s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/permanent/list (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/permanent/metadata (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/permanent/download (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/permanent/zip (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/permanent/presign (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/permanent/modify (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/permanent/replace (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/permanent/copy (0.05s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/permanent/restore (0.04s)
+            --- SKIP: TestSEC020ManagementMatrix/redis/super/permanent/delete (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/permanent/users (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/permanent/logs (0.07s)
+        --- PASS: TestSEC020ManagementMatrix/redis/super/temporary (0.50s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/temporary/list (0.05s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/temporary/metadata (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/temporary/download (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/temporary/zip (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/temporary/presign (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/temporary/modify (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/temporary/replace (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/temporary/copy (0.05s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/temporary/restore (0.04s)
+            --- SKIP: TestSEC020ManagementMatrix/redis/super/temporary/delete (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/temporary/users (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/temporary/logs (0.04s)
+        --- PASS: TestSEC020ManagementMatrix/redis/super/session-token (0.57s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/session-token/list (0.06s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/session-token/metadata (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/session-token/download (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/session-token/zip (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/session-token/presign (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/session-token/modify (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/session-token/replace (0.05s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/session-token/copy (0.06s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/session-token/restore (0.05s)
+            --- SKIP: TestSEC020ManagementMatrix/redis/super/session-token/delete (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/session-token/users (0.07s)
+            --- PASS: TestSEC020ManagementMatrix/redis/super/session-token/logs (0.03s)
+        --- PASS: TestSEC020ManagementMatrix/redis/admin/permanent (0.55s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/permanent/list (0.06s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/permanent/metadata (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/permanent/download (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/permanent/zip (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/permanent/presign (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/permanent/modify (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/permanent/replace (0.05s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/permanent/copy (0.06s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/permanent/restore (0.05s)
+            --- SKIP: TestSEC020ManagementMatrix/redis/admin/permanent/delete (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/permanent/users (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/permanent/logs (0.03s)
+        --- PASS: TestSEC020ManagementMatrix/redis/admin/temporary (0.59s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/temporary/list (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/temporary/metadata (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/temporary/download (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/temporary/zip (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/temporary/presign (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/temporary/modify (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/temporary/replace (0.06s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/temporary/copy (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/temporary/restore (0.05s)
+            --- SKIP: TestSEC020ManagementMatrix/redis/admin/temporary/delete (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/temporary/users (0.09s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/temporary/logs (0.04s)
+        --- PASS: TestSEC020ManagementMatrix/redis/admin/session-token (0.52s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/session-token/list (0.07s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/session-token/metadata (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/session-token/download (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/session-token/zip (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/session-token/presign (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/session-token/modify (0.05s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/session-token/replace (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/session-token/copy (0.05s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/session-token/restore (0.03s)
+            --- SKIP: TestSEC020ManagementMatrix/redis/admin/session-token/delete (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/session-token/users (0.06s)
+            --- PASS: TestSEC020ManagementMatrix/redis/admin/session-token/logs (0.03s)
+        --- PASS: TestSEC020ManagementMatrix/redis/owner/permanent (0.94s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/permanent/list (0.07s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/permanent/metadata (0.06s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/permanent/download (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/permanent/zip (0.07s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/permanent/presign (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/permanent/modify (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/permanent/replace (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/permanent/copy (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/permanent/restore (0.10s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/permanent/delete (0.09s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/permanent/users (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/permanent/logs (0.08s)
+        --- PASS: TestSEC020ManagementMatrix/redis/owner/temporary (0.96s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/temporary/list (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/temporary/metadata (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/temporary/download (0.07s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/temporary/zip (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/temporary/presign (0.06s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/temporary/modify (0.07s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/temporary/replace (0.07s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/temporary/copy (0.09s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/temporary/restore (0.10s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/temporary/delete (0.07s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/temporary/users (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/temporary/logs (0.08s)
+        --- PASS: TestSEC020ManagementMatrix/redis/owner/session-token (0.95s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/session-token/list (0.09s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/session-token/metadata (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/session-token/download (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/session-token/zip (0.09s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/session-token/presign (0.07s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/session-token/modify (0.06s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/session-token/replace (0.05s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/session-token/copy (0.07s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/session-token/restore (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/session-token/delete (0.09s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/session-token/users (0.07s)
+            --- PASS: TestSEC020ManagementMatrix/redis/owner/session-token/logs (0.09s)
+        --- PASS: TestSEC020ManagementMatrix/redis/other/permanent (0.76s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/permanent/list (0.09s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/permanent/metadata (0.06s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/permanent/download (0.05s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/permanent/zip (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/permanent/presign (0.05s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/permanent/modify (0.05s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/permanent/replace (0.06s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/permanent/copy (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/permanent/restore (0.06s)
+            --- SKIP: TestSEC020ManagementMatrix/redis/other/permanent/delete (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/permanent/users (0.08s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/permanent/logs (0.08s)
+        --- PASS: TestSEC020ManagementMatrix/redis/other/temporary (0.80s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/temporary/list (0.10s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/temporary/metadata (0.07s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/temporary/download (0.05s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/temporary/zip (0.05s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/temporary/presign (0.06s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/temporary/modify (0.05s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/temporary/replace (0.06s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/temporary/copy (0.09s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/temporary/restore (0.05s)
+            --- SKIP: TestSEC020ManagementMatrix/redis/other/temporary/delete (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/temporary/users (0.09s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/temporary/logs (0.09s)
+        --- PASS: TestSEC020ManagementMatrix/redis/other/session-token (0.51s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/session-token/list (0.07s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/session-token/metadata (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/session-token/download (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/session-token/zip (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/session-token/presign (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/session-token/modify (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/session-token/replace (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/session-token/copy (0.05s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/session-token/restore (0.04s)
+            --- SKIP: TestSEC020ManagementMatrix/redis/other/session-token/delete (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/session-token/users (0.05s)
+            --- PASS: TestSEC020ManagementMatrix/redis/other/session-token/logs (0.05s)
+        --- PASS: TestSEC020ManagementMatrix/redis/anonymous/credential (0.49s)
+            --- PASS: TestSEC020ManagementMatrix/redis/anonymous/credential/list (0.05s)
+            --- PASS: TestSEC020ManagementMatrix/redis/anonymous/credential/metadata (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/anonymous/credential/download (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/anonymous/credential/zip (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/anonymous/credential/presign (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/anonymous/credential/modify (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/anonymous/credential/replace (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/anonymous/credential/copy (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/anonymous/credential/restore (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/anonymous/credential/delete (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/anonymous/credential/users (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/anonymous/credential/logs (0.04s)
+        --- PASS: TestSEC020ManagementMatrix/redis/request/credential (0.46s)
+            --- PASS: TestSEC020ManagementMatrix/redis/request/credential/list (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/request/credential/metadata (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/request/credential/download (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/request/credential/zip (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/request/credential/presign (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/request/credential/modify (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/request/credential/replace (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/request/credential/copy (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/request/credential/restore (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/request/credential/delete (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/request/credential/users (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/request/credential/logs (0.04s)
+        --- PASS: TestSEC020ManagementMatrix/redis/expired/credential (0.38s)
+            --- PASS: TestSEC020ManagementMatrix/redis/expired/credential/list (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/expired/credential/metadata (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/expired/credential/download (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/expired/credential/zip (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/expired/credential/presign (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/redis/expired/credential/modify (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/expired/credential/replace (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/expired/credential/copy (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/expired/credential/restore (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/expired/credential/delete (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/expired/credential/users (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/expired/credential/logs (0.03s)
+        --- PASS: TestSEC020ManagementMatrix/redis/revoked/credential (0.35s)
+            --- PASS: TestSEC020ManagementMatrix/redis/revoked/credential/list (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/revoked/credential/metadata (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/revoked/credential/download (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/redis/revoked/credential/zip (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/revoked/credential/presign (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/revoked/credential/modify (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/revoked/credential/replace (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/revoked/credential/copy (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/revoked/credential/restore (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/revoked/credential/delete (0.04s)
+            --- PASS: TestSEC020ManagementMatrix/redis/revoked/credential/users (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/revoked/credential/logs (0.03s)
+        --- PASS: TestSEC020ManagementMatrix/redis/deleted/credential (0.27s)
+            --- PASS: TestSEC020ManagementMatrix/redis/deleted/credential/list (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/redis/deleted/credential/metadata (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/redis/deleted/credential/download (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/deleted/credential/zip (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/deleted/credential/presign (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/redis/deleted/credential/modify (0.03s)
+            --- PASS: TestSEC020ManagementMatrix/redis/deleted/credential/replace (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/redis/deleted/credential/copy (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/redis/deleted/credential/restore (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/redis/deleted/credential/delete (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/redis/deleted/credential/users (0.02s)
+            --- PASS: TestSEC020ManagementMatrix/redis/deleted/credential/logs (0.02s)
+=== RUN   TestSEC020ReplaceBoundaries
+Rate limiting disabled for unit tests
+=== RUN   TestSEC020ReplaceBoundaries/sqlite
+=== RUN   TestSEC020ReplaceBoundaries/sqlite/own-pair
+=== RUN   TestSEC020ReplaceBoundaries/sqlite/other-target
+=== RUN   TestSEC020ReplaceBoundaries/sqlite/other-source
+=== RUN   TestSEC020ReplaceBoundaries/sqlite/same-blob-other-owner
+=== RUN   TestSEC020ReplaceBoundaries/sqlite/target-delegated
+=== RUN   TestSEC020ReplaceBoundaries/sqlite/source-visible
+=== RUN   TestSEC020ReplaceBoundaries/sqlite/delete-needs-key-bit
+=== RUN   TestSEC020ReplaceBoundaries/sqlite/delete-needs-owner-authority
+=== RUN   TestSEC020ReplaceBoundaries/sqlite/own-delete-needs-key-bit
+=== RUN   TestSEC020ReplaceBoundaries/sqlite/delete-does-not-grant-read
+=== RUN   TestSEC020ReplaceBoundaries/sqlite/read-delete-do-not-grant-target
+=== RUN   TestSEC020ReplaceBoundaries/redis
+Unable to check if Redis has persistence enabled.
+=== RUN   TestSEC020ReplaceBoundaries/redis/own-pair
+=== RUN   TestSEC020ReplaceBoundaries/redis/other-target
+=== RUN   TestSEC020ReplaceBoundaries/redis/other-source
+=== RUN   TestSEC020ReplaceBoundaries/redis/same-blob-other-owner
+=== RUN   TestSEC020ReplaceBoundaries/redis/target-delegated
+=== RUN   TestSEC020ReplaceBoundaries/redis/source-visible
+=== RUN   TestSEC020ReplaceBoundaries/redis/delete-needs-key-bit
+=== RUN   TestSEC020ReplaceBoundaries/redis/delete-needs-owner-authority
+=== RUN   TestSEC020ReplaceBoundaries/redis/own-delete-needs-key-bit
+=== RUN   TestSEC020ReplaceBoundaries/redis/delete-does-not-grant-read
+=== RUN   TestSEC020ReplaceBoundaries/redis/read-delete-do-not-grant-target
+Rate limiting disabled for unit tests
+--- PASS: TestSEC020ReplaceBoundaries (0.49s)
+    --- PASS: TestSEC020ReplaceBoundaries/sqlite (0.18s)
+        --- PASS: TestSEC020ReplaceBoundaries/sqlite/own-pair (0.01s)
+        --- PASS: TestSEC020ReplaceBoundaries/sqlite/other-target (0.01s)
+        --- PASS: TestSEC020ReplaceBoundaries/sqlite/other-source (0.01s)
+        --- PASS: TestSEC020ReplaceBoundaries/sqlite/same-blob-other-owner (0.01s)
+        --- PASS: TestSEC020ReplaceBoundaries/sqlite/target-delegated (0.01s)
+        --- PASS: TestSEC020ReplaceBoundaries/sqlite/source-visible (0.01s)
+        --- PASS: TestSEC020ReplaceBoundaries/sqlite/delete-needs-key-bit (0.01s)
+        --- PASS: TestSEC020ReplaceBoundaries/sqlite/delete-needs-owner-authority (0.01s)
+        --- PASS: TestSEC020ReplaceBoundaries/sqlite/own-delete-needs-key-bit (0.01s)
+        --- PASS: TestSEC020ReplaceBoundaries/sqlite/delete-does-not-grant-read (0.01s)
+        --- PASS: TestSEC020ReplaceBoundaries/sqlite/read-delete-do-not-grant-target (0.01s)
+    --- PASS: TestSEC020ReplaceBoundaries/redis (0.26s)
+        --- PASS: TestSEC020ReplaceBoundaries/redis/own-pair (0.01s)
+        --- PASS: TestSEC020ReplaceBoundaries/redis/other-target (0.02s)
+        --- PASS: TestSEC020ReplaceBoundaries/redis/other-source (0.02s)
+        --- PASS: TestSEC020ReplaceBoundaries/redis/same-blob-other-owner (0.02s)
+        --- PASS: TestSEC020ReplaceBoundaries/redis/target-delegated (0.02s)
+        --- PASS: TestSEC020ReplaceBoundaries/redis/source-visible (0.02s)
+        --- PASS: TestSEC020ReplaceBoundaries/redis/delete-needs-key-bit (0.02s)
+        --- PASS: TestSEC020ReplaceBoundaries/redis/delete-needs-owner-authority (0.02s)
+        --- PASS: TestSEC020ReplaceBoundaries/redis/own-delete-needs-key-bit (0.02s)
+        --- PASS: TestSEC020ReplaceBoundaries/redis/delete-does-not-grant-read (0.02s)
+        --- PASS: TestSEC020ReplaceBoundaries/redis/read-delete-do-not-grant-target (0.03s)
+=== RUN   TestSEC020MissingKeyPermission
+Rate limiting disabled for unit tests
+=== RUN   TestSEC020MissingKeyPermission/sqlite
+=== RUN   TestSEC020MissingKeyPermission/sqlite//files/list
+=== RUN   TestSEC020MissingKeyPermission/sqlite//files/downloadzip
+=== RUN   TestSEC020MissingKeyPermission/sqlite//files/modify
+=== RUN   TestSEC020MissingKeyPermission/sqlite//files/replace
+=== RUN   TestSEC020MissingKeyPermission/sqlite//files/duplicate
+=== RUN   TestSEC020MissingKeyPermission/sqlite//files/restore
+=== RUN   TestSEC020MissingKeyPermission/sqlite//files/delete
+=== RUN   TestSEC020MissingKeyPermission/sqlite//user/create
+=== RUN   TestSEC020MissingKeyPermission/sqlite//logs/get
+=== RUN   TestSEC020MissingKeyPermission/redis
+Unable to check if Redis has persistence enabled.
+=== RUN   TestSEC020MissingKeyPermission/redis//files/list
+=== RUN   TestSEC020MissingKeyPermission/redis//files/downloadzip
+=== RUN   TestSEC020MissingKeyPermission/redis//files/modify
+=== RUN   TestSEC020MissingKeyPermission/redis//files/replace
+=== RUN   TestSEC020MissingKeyPermission/redis//files/duplicate
+=== RUN   TestSEC020MissingKeyPermission/redis//files/restore
+=== RUN   TestSEC020MissingKeyPermission/redis//files/delete
+=== RUN   TestSEC020MissingKeyPermission/redis//user/create
+=== RUN   TestSEC020MissingKeyPermission/redis//logs/get
+Rate limiting disabled for unit tests
+--- PASS: TestSEC020MissingKeyPermission (0.23s)
+    --- PASS: TestSEC020MissingKeyPermission/sqlite (0.09s)
+        --- PASS: TestSEC020MissingKeyPermission/sqlite//files/list (0.01s)
+        --- PASS: TestSEC020MissingKeyPermission/sqlite//files/downloadzip (0.00s)
+        --- PASS: TestSEC020MissingKeyPermission/sqlite//files/modify (0.00s)
+        --- PASS: TestSEC020MissingKeyPermission/sqlite//files/replace (0.00s)
+        --- PASS: TestSEC020MissingKeyPermission/sqlite//files/duplicate (0.00s)
+        --- PASS: TestSEC020MissingKeyPermission/sqlite//files/restore (0.00s)
+        --- PASS: TestSEC020MissingKeyPermission/sqlite//files/delete (0.00s)
+        --- PASS: TestSEC020MissingKeyPermission/sqlite//user/create (0.00s)
+        --- PASS: TestSEC020MissingKeyPermission/sqlite//logs/get (0.00s)
+    --- PASS: TestSEC020MissingKeyPermission/redis (0.07s)
+        --- PASS: TestSEC020MissingKeyPermission/redis//files/list (0.00s)
+        --- PASS: TestSEC020MissingKeyPermission/redis//files/downloadzip (0.00s)
+        --- PASS: TestSEC020MissingKeyPermission/redis//files/modify (0.00s)
+        --- PASS: TestSEC020MissingKeyPermission/redis//files/replace (0.00s)
+        --- PASS: TestSEC020MissingKeyPermission/redis//files/duplicate (0.00s)
+        --- PASS: TestSEC020MissingKeyPermission/redis//files/restore (0.00s)
+        --- PASS: TestSEC020MissingKeyPermission/redis//files/delete (0.00s)
+        --- PASS: TestSEC020MissingKeyPermission/redis//user/create (0.00s)
+        --- PASS: TestSEC020MissingKeyPermission/redis//logs/get (0.00s)
+=== RUN   TestSEC020CurrentPermissionIntersection
+Rate limiting disabled for unit tests
+=== RUN   TestSEC020CurrentPermissionIntersection/sqlite
+=== RUN   TestSEC020CurrentPermissionIntersection/sqlite/false/logs/get
+=== RUN   TestSEC020CurrentPermissionIntersection/sqlite/false/user/create
+=== RUN   TestSEC020CurrentPermissionIntersection/sqlite/false/uploadrequest/list
+=== RUN   TestSEC020CurrentPermissionIntersection/sqlite/false/files/replace
+=== RUN   TestSEC020CurrentPermissionIntersection/sqlite/true/logs/get
+=== RUN   TestSEC020CurrentPermissionIntersection/sqlite/true/user/create
+=== RUN   TestSEC020CurrentPermissionIntersection/sqlite/true/uploadrequest/list
+=== RUN   TestSEC020CurrentPermissionIntersection/sqlite/true/files/replace
+=== RUN   TestSEC020CurrentPermissionIntersection/redis
+Unable to check if Redis has persistence enabled.
+=== RUN   TestSEC020CurrentPermissionIntersection/redis/false/logs/get
+=== RUN   TestSEC020CurrentPermissionIntersection/redis/false/user/create
+=== RUN   TestSEC020CurrentPermissionIntersection/redis/false/uploadrequest/list
+=== RUN   TestSEC020CurrentPermissionIntersection/redis/false/files/replace
+=== RUN   TestSEC020CurrentPermissionIntersection/redis/true/logs/get
+=== RUN   TestSEC020CurrentPermissionIntersection/redis/true/user/create
+=== RUN   TestSEC020CurrentPermissionIntersection/redis/true/uploadrequest/list
+=== RUN   TestSEC020CurrentPermissionIntersection/redis/true/files/replace
+Rate limiting disabled for unit tests
+--- PASS: TestSEC020CurrentPermissionIntersection (0.32s)
+    --- PASS: TestSEC020CurrentPermissionIntersection/sqlite (0.08s)
+        --- PASS: TestSEC020CurrentPermissionIntersection/sqlite/false/logs/get (0.00s)
+        --- PASS: TestSEC020CurrentPermissionIntersection/sqlite/false/user/create (0.00s)
+        --- PASS: TestSEC020CurrentPermissionIntersection/sqlite/false/uploadrequest/list (0.00s)
+        --- PASS: TestSEC020CurrentPermissionIntersection/sqlite/false/files/replace (0.00s)
+        --- PASS: TestSEC020CurrentPermissionIntersection/sqlite/true/logs/get (0.00s)
+        --- PASS: TestSEC020CurrentPermissionIntersection/sqlite/true/user/create (0.00s)
+        --- PASS: TestSEC020CurrentPermissionIntersection/sqlite/true/uploadrequest/list (0.00s)
+        --- PASS: TestSEC020CurrentPermissionIntersection/sqlite/true/files/replace (0.00s)
+    --- PASS: TestSEC020CurrentPermissionIntersection/redis (0.16s)
+        --- PASS: TestSEC020CurrentPermissionIntersection/redis/false/logs/get (0.02s)
+        --- PASS: TestSEC020CurrentPermissionIntersection/redis/false/user/create (0.01s)
+        --- PASS: TestSEC020CurrentPermissionIntersection/redis/false/uploadrequest/list (0.01s)
+        --- PASS: TestSEC020CurrentPermissionIntersection/redis/false/files/replace (0.01s)
+        --- PASS: TestSEC020CurrentPermissionIntersection/redis/true/logs/get (0.01s)
+        --- PASS: TestSEC020CurrentPermissionIntersection/redis/true/user/create (0.01s)
+        --- PASS: TestSEC020CurrentPermissionIntersection/redis/true/uploadrequest/list (0.01s)
+        --- PASS: TestSEC020CurrentPermissionIntersection/redis/true/files/replace (0.02s)
+PASS
+ok  	github.com/forceu/gokapi/internal/test/securityfixture	15.005s
+=== RUN   TestSEC020PolicyDenyDefault
+--- PASS: TestSEC020PolicyDenyDefault (0.00s)
+=== RUN   TestSEC020PolicyObjectDelegation
+--- PASS: TestSEC020PolicyObjectDelegation (0.00s)
+=== RUN   TestSEC020PolicyKeyIntersection
+--- PASS: TestSEC020PolicyKeyIntersection (0.00s)
+PASS
+ok  	github.com/forceu/gokapi/internal/authorization	0.004s
+Rate limiting disabled for unit tests
+=== RUN   TestSEC020CredentialTypeEveryRoute
+=== RUN   TestSEC020CredentialTypeEveryRoute//info/version
+=== RUN   TestSEC020CredentialTypeEveryRoute//info/config
+=== RUN   TestSEC020CredentialTypeEveryRoute//files/download/
+=== RUN   TestSEC020CredentialTypeEveryRoute//files/downloadzip
+=== RUN   TestSEC020CredentialTypeEveryRoute//files/changeOwner
+=== RUN   TestSEC020CredentialTypeEveryRoute//files/list
+=== RUN   TestSEC020CredentialTypeEveryRoute//files/list/
+=== RUN   TestSEC020CredentialTypeEveryRoute//chunk/add
+=== RUN   TestSEC020CredentialTypeEveryRoute//chunk/complete
+=== RUN   TestSEC020CredentialTypeEveryRoute//files/add
+=== RUN   TestSEC020CredentialTypeEveryRoute//files/delete
+=== RUN   TestSEC020CredentialTypeEveryRoute//files/duplicate
+=== RUN   TestSEC020CredentialTypeEveryRoute//files/modify
+=== RUN   TestSEC020CredentialTypeEveryRoute//files/replace
+=== RUN   TestSEC020CredentialTypeEveryRoute//files/restore
+=== RUN   TestSEC020CredentialTypeEveryRoute//auth/create
+=== RUN   TestSEC020CredentialTypeEveryRoute//auth/friendlyname
+=== RUN   TestSEC020CredentialTypeEveryRoute//auth/modify
+=== RUN   TestSEC020CredentialTypeEveryRoute//auth/delete
+=== RUN   TestSEC020CredentialTypeEveryRoute//user/create
+=== RUN   TestSEC020CredentialTypeEveryRoute//user/changeRank
+=== RUN   TestSEC020CredentialTypeEveryRoute//user/delete
+=== RUN   TestSEC020CredentialTypeEveryRoute//user/modify
+=== RUN   TestSEC020CredentialTypeEveryRoute//user/resetPassword
+=== RUN   TestSEC020CredentialTypeEveryRoute//uploadrequest/list
+=== RUN   TestSEC020CredentialTypeEveryRoute//uploadrequest/list/
+=== RUN   TestSEC020CredentialTypeEveryRoute//uploadrequest/save
+=== RUN   TestSEC020CredentialTypeEveryRoute//uploadrequest/delete
+=== RUN   TestSEC020CredentialTypeEveryRoute//uploadrequest/chunk/add
+=== RUN   TestSEC020CredentialTypeEveryRoute//uploadrequest/chunk/complete
+=== RUN   TestSEC020CredentialTypeEveryRoute//uploadrequest/chunk/reserve
+=== RUN   TestSEC020CredentialTypeEveryRoute//uploadrequest/chunk/unreserve
+=== RUN   TestSEC020CredentialTypeEveryRoute//logs/delete
+=== RUN   TestSEC020CredentialTypeEveryRoute//logs/systemStatus
+=== RUN   TestSEC020CredentialTypeEveryRoute//logs/resetTraffic
+=== RUN   TestSEC020CredentialTypeEveryRoute//logs/get
+=== RUN   TestSEC020CredentialTypeEveryRoute//e2e/get
+=== RUN   TestSEC020CredentialTypeEveryRoute//e2e/set
+=== RUN   TestSEC020CredentialTypeEveryRoute//e2e/mutex/lock
+=== RUN   TestSEC020CredentialTypeEveryRoute//e2e/mutex/unlock
+--- PASS: TestSEC020CredentialTypeEveryRoute (0.25s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//info/version (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//info/config (0.00s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//files/download/ (0.00s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//files/downloadzip (0.00s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//files/changeOwner (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//files/list (0.00s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//files/list/ (0.00s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//chunk/add (0.00s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//chunk/complete (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//files/add (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//files/delete (0.00s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//files/duplicate (0.00s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//files/modify (0.00s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//files/replace (0.00s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//files/restore (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//auth/create (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//auth/friendlyname (0.00s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//auth/modify (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//auth/delete (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//user/create (0.00s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//user/changeRank (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//user/delete (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//user/modify (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//user/resetPassword (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//uploadrequest/list (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//uploadrequest/list/ (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//uploadrequest/save (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//uploadrequest/delete (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//uploadrequest/chunk/add (0.00s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//uploadrequest/chunk/complete (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//uploadrequest/chunk/reserve (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//uploadrequest/chunk/unreserve (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//logs/delete (0.00s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//logs/systemStatus (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//logs/resetTraffic (0.00s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//logs/get (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//e2e/get (0.01s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//e2e/set (0.00s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//e2e/mutex/lock (0.00s)
+    --- PASS: TestSEC020CredentialTypeEveryRoute//e2e/mutex/unlock (0.00s)
+PASS
+ok  	github.com/forceu/gokapi/internal/webserver/api	0.782s
+=== RUN   TestGenerate
+=== RUN   TestGenerate/Generate_basic_token
+=== RUN   TestGenerate/Fail_on_missing_PERM_REPLACE
+=== RUN   TestGenerate/Fail_on_missing_PERM_MANAGE_USERS
+=== RUN   TestGenerate/Fail_on_missing_PERM_MANAGE_LOGS
+=== RUN   TestGenerate/Success_with_elevated_permissions
+--- PASS: TestGenerate (0.49s)
+    --- PASS: TestGenerate/Generate_basic_token (0.02s)
+    --- PASS: TestGenerate/Fail_on_missing_PERM_REPLACE (0.00s)
+    --- PASS: TestGenerate/Fail_on_missing_PERM_MANAGE_USERS (0.00s)
+    --- PASS: TestGenerate/Fail_on_missing_PERM_MANAGE_LOGS (0.00s)
+    --- PASS: TestGenerate/Success_with_elevated_permissions (0.01s)
+PASS
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/tokengeneration	0.498s

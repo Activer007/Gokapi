@@ -1,0 +1,254 @@
+{
+  "checked": "2026-10-28",
+  "base": "c14e6c73a49a5d5a89d815cf4b660da25cc98d56",
+  "upstreamHead": "a9c25d453aab0c25f2d6e6926ec7312628638844",
+  "openPRs": [
+    {
+      "number": 438,
+      "title": "feat: support default AWS credential chain for S3",
+      "url": "https://github.com/Forceu/Gokapi/pull/438"
+    },
+    {
+      "number": 437,
+      "title": "feat: audit rejected download passwords",
+      "url": "https://github.com/Forceu/Gokapi/pull/437"
+    },
+    {
+      "number": 436,
+      "title": "Fix non-admin users unable to create their first file request (#433)",
+      "url": "https://github.com/Forceu/Gokapi/pull/436"
+    },
+    {
+      "number": 435,
+      "title": "Fix OIDC email and group claims extraction from ID token for AD FS",
+      "url": "https://github.com/Forceu/Gokapi/pull/435"
+    },
+    {
+      "number": 428,
+      "title": "Implement proxy-download mode in the mock AWS driver",
+      "url": "https://github.com/Forceu/Gokapi/pull/428"
+    },
+    {
+      "number": 427,
+      "title": "Handle an aws.ServeFile error gracefully instead of panicking",
+      "url": "https://github.com/Forceu/Gokapi/pull/427"
+    },
+    {
+      "number": 426,
+      "title": "Serve a proper 404 error page for missing static files",
+      "url": "https://github.com/Forceu/Gokapi/pull/426"
+    },
+    {
+      "number": 424,
+      "title": "Migrate S3 storage driver from aws-sdk-go v1 to aws-sdk-go-v2",
+      "url": "https://github.com/Forceu/Gokapi/pull/424"
+    },
+    {
+      "number": 423,
+      "title": "Add MariaDB and PostgreSQL database provider support",
+      "url": "https://github.com/Forceu/Gokapi/pull/423"
+    },
+    {
+      "number": 422,
+      "title": "Fix flaky tests on Windows",
+      "url": "https://github.com/Forceu/Gokapi/pull/422"
+    },
+    {
+      "number": 419,
+      "title": "fix: delete the previous content when a file is replaced",
+      "url": "https://github.com/Forceu/Gokapi/pull/419"
+    },
+    {
+      "number": 418,
+      "title": "Add Content-Security-Policy headers",
+      "url": "https://github.com/Forceu/Gokapi/pull/418"
+    },
+    {
+      "number": 415,
+      "title": "[Draft] feat: browser-side zip grouping for uploads (AI-generated, unreviewed)",
+      "url": "https://github.com/Forceu/Gokapi/pull/415"
+    },
+    {
+      "number": 414,
+      "title": "Multi-language support",
+      "url": "https://github.com/Forceu/Gokapi/pull/414"
+    },
+    {
+      "number": 405,
+      "title": "Add paste feature",
+      "url": "https://github.com/Forceu/Gokapi/pull/405"
+    },
+    {
+      "number": 396,
+      "title": "download view ogtags image",
+      "url": "https://github.com/Forceu/Gokapi/pull/396"
+    },
+    {
+      "number": 395,
+      "title": "Improve og tags in download view",
+      "url": "https://github.com/Forceu/Gokapi/pull/395"
+    },
+    {
+      "number": 361,
+      "title": "Added support for proxy url",
+      "url": "https://github.com/Forceu/Gokapi/pull/361"
+    },
+    {
+      "number": 76,
+      "title": "[WIP] Migrate to AWS SDK v2",
+      "url": "https://github.com/Forceu/Gokapi/pull/76"
+    }
+  ],
+  "issues": [
+    {
+      "number": 432,
+      "title": "[Feature Request] Windows Server AD FS send only 'sub' inside userinfo, and gokapi fails to login",
+      "url": "https://github.com/Forceu/Gokapi/issues/432"
+    },
+    {
+      "number": 295,
+      "title": "Nested OIDC Role Structure",
+      "url": "https://github.com/Forceu/Gokapi/issues/295"
+    },
+    {
+      "number": 172,
+      "title": "Feature Request: Multiple ServerUrl",
+      "url": "https://github.com/Forceu/Gokapi/issues/172"
+    },
+    {
+      "number": 433,
+      "title": "[Bug] Non-admin users cannot create their first File Request (400 \"AdminOnly\" error) due to size/file limit not being set when their file request list is empty",
+      "url": "https://github.com/Forceu/Gokapi/issues/433"
+    },
+    {
+      "number": 409,
+      "title": "[Feature request] Support IAM roles (default AWS credential chain) for S3 backend",
+      "url": "https://github.com/Forceu/Gokapi/issues/409"
+    },
+    {
+      "number": 286,
+      "title": "Feature Request: Add 2FA / MFA support",
+      "url": "https://github.com/Forceu/Gokapi/issues/286"
+    },
+    {
+      "number": 210,
+      "title": "Bug: Files cannot be edited or API permissions changed when using Access Restriction or Header Authentication",
+      "url": "https://github.com/Forceu/Gokapi/issues/210"
+    },
+    {
+      "number": 411,
+      "title": "[Documentation Request] Provide Scripts for automation.",
+      "url": "https://github.com/Forceu/Gokapi/issues/411"
+    },
+    {
+      "number": 408,
+      "title": "[Bug]  v2.2.5-dev: OIDC session cookie uses `SameSite=Strict`, so post-callback `/admin` navigation is unauthenticated → `ERR_TOO_MANY_REDIRECTS`",
+      "url": "https://github.com/Forceu/Gokapi/issues/408"
+    },
+    {
+      "number": 401,
+      "title": "[Bug] Unable to login with Microsoft Entra ID auth",
+      "url": "https://github.com/Forceu/Gokapi/issues/401"
+    },
+    {
+      "number": 369,
+      "title": "[Bug] OIDC error not parsed correctly / Rauthy incompatible",
+      "url": "https://github.com/Forceu/Gokapi/issues/369"
+    },
+    {
+      "number": 107,
+      "title": "Implementing Guest Uploads",
+      "url": "https://github.com/Forceu/Gokapi/issues/107"
+    },
+    {
+      "number": 378,
+      "title": "[Bug] GOKAPI_GUEST_UPLOAD_BY_DEFAULT not applied to OAuth2 users and Header Auth users",
+      "url": "https://github.com/Forceu/Gokapi/issues/378"
+    },
+    {
+      "number": 377,
+      "title": "Feature request: Disable API access for non-admin users",
+      "url": "https://github.com/Forceu/Gokapi/issues/377"
+    },
+    {
+      "number": 325,
+      "title": "[Enhancement] Permission / ownership management improvements to the docker image",
+      "url": "https://github.com/Forceu/Gokapi/issues/325"
+    },
+    {
+      "number": 298,
+      "title": "Bug: `dockerentry.sh` `chmod +x`'s all files in `config`.",
+      "url": "https://github.com/Forceu/Gokapi/issues/298"
+    },
+    {
+      "number": 285,
+      "title": "Feature Request: Support `PUID`/`PGID` environment variables in `docker` (user-chosen UID/GID for the container user)",
+      "url": "https://github.com/Forceu/Gokapi/issues/285"
+    },
+    {
+      "number": 272,
+      "title": "Microsoft Entra ID auth",
+      "url": "https://github.com/Forceu/Gokapi/issues/272"
+    },
+    {
+      "number": 256,
+      "title": "Please add regular user account",
+      "url": "https://github.com/Forceu/Gokapi/issues/256"
+    },
+    {
+      "number": 166,
+      "title": "Feature Request: Audit logs of who uploaded what",
+      "url": "https://github.com/Forceu/Gokapi/issues/166"
+    },
+    {
+      "number": 61,
+      "title": "Feature request: User management & permissions",
+      "url": "https://github.com/Forceu/Gokapi/issues/61"
+    },
+    {
+      "number": 234,
+      "title": "Bug: Email scope not requested in 2.0beta",
+      "url": "https://github.com/Forceu/Gokapi/issues/234"
+    },
+    {
+      "number": 229,
+      "title": "Bug: End-to-End Encryption - Stuck at Generating",
+      "url": "https://github.com/Forceu/Gokapi/issues/229"
+    },
+    {
+      "number": 198,
+      "title": "Bug: Gokapi crashes if OIDC returns null in groups",
+      "url": "https://github.com/Forceu/Gokapi/issues/198"
+    },
+    {
+      "number": 158,
+      "title": "User not authorised when login in with keycloak",
+      "url": "https://github.com/Forceu/Gokapi/issues/158"
+    },
+    {
+      "number": 130,
+      "title": "Azure / Microsoft Entra Oauth support",
+      "url": "https://github.com/Forceu/Gokapi/issues/130"
+    },
+    {
+      "number": 137,
+      "title": "Updated docs for oidc?",
+      "url": "https://github.com/Forceu/Gokapi/issues/137"
+    },
+    {
+      "number": 149,
+      "title": "Bug: issuer did not match the issuer returned by provider when using Authentik",
+      "url": "https://github.com/Forceu/Gokapi/issues/149"
+    },
+    {
+      "number": 129,
+      "title": "Add supports for groups to OIDC",
+      "url": "https://github.com/Forceu/Gokapi/issues/129"
+    },
+    {
+      "number": 57,
+      "title": "Switch from root user in Docker image?",
+      "url": "https://github.com/Forceu/Gokapi/issues/57"
+    }
+  ]
+}

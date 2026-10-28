@@ -20,3 +20,5 @@ internal/**/security_bounds_test.go text eol=lf
 internal/**/security_budget_test.go text eol=lf
 internal/webserver/ManagementBudget.go text eol=lf
 internal/webserver/requestbudget/*.go text eol=lf
+internal/authorization/*.go text eol=lf
+internal/webserver/api/security_authorization_test.go text eol=lf

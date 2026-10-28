@@ -1,0 +1,4 @@
+ok  	github.com/forceu/gokapi/internal/test/securityfixture	14.586s
+ok  	github.com/forceu/gokapi/internal/authorization	1.014s
+ok  	github.com/forceu/gokapi/internal/webserver/api	1.339s
+ok  	github.com/forceu/gokapi/internal/webserver/authentication/tokengeneration	1.175s

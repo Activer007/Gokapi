@@ -123,6 +123,25 @@ func getRecorderWithBody(url, apikey, method string, headers []test.Header, body
 }
 
 func testAuthorisation(t *testing.T, url string, requiredPermission models.ApiPermission) models.ApiKey {
+	t.Helper()
+	// Positive cases need a live user grant as well as the key grant. Keep
+	// object-level permissions unchanged so cross-owner negative cases remain.
+	userPermission := map[models.ApiPermission]models.UserPermission{
+		models.ApiPermReplace:            models.UserPermReplaceUploads,
+		models.ApiPermManageUsers:        models.UserPermManageUsers,
+		models.ApiPermManageLogs:         models.UserPermManageLogs,
+		models.ApiPermManageFileRequests: models.UserPermGuestUploads,
+	}[requiredPermission]
+	if userPermission != models.UserPermissionNone {
+		original, ok := database.GetUser(idUser)
+		if !ok {
+			t.Fatal("missing authorization fixture user")
+		}
+		user := original
+		user.GrantPermission(userPermission)
+		database.SaveUser(user, false)
+		t.Cleanup(func() { database.SaveUser(original, false) })
+	}
 	w, r := getRecorder(url, "", []test.Header{{}})
 	Process(w, r)
 	test.IsEqualBool(t, w.Code != 200, true)
