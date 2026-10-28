@@ -362,3 +362,5 @@ RED复现方式：在新临时目录展开 `git -c core.autocrlf=false archive c
 提交前diff --check通过；新增证据常见私钥/GitHub Token/AWS访问Key/Authorization/session Cookie模式无匹配（有限扫描）。代码自审核对对象策略等价性、四种用户权限映射、既有超级管理员/角色限制和凭据类型门禁；修正了旧API夹具授权前提。PR最终head和CI仍需提交后核实，自审不称为独立审批。
 
 环境检查补充：WSL对Windows工作树运行 `git diff --check` 因两端core.autocrlf不同，把既有CRLF文件报告为尾随空白，退出1；该命令短暂持有index.lock使首次commit失败。等待其正常退出后锁自动释放，未删除锁或修改文件。Windows原生 `git diff --cached --check` PASS；最终overlay全部SHA256一致，构建始终使用LF archive隔离副本。
+
+[PR #9](https://github.com/Activer007/Gokapi/pull/9)已在本fork创建，代码提交a83366a80bc551c65fcde47e943a13df62f159fe。已读取远端patch并提交COMMENT自审，未作为独立审批；未发现本PR范围的阻塞项。后续提交仅更新PR/审查记录，生产和测试源码与BS2VtP摘要一致；最终CI成功后才合并，动态状态见PR checks。M2继续保持未完成。
