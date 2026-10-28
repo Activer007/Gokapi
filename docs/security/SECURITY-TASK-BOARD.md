@@ -37,8 +37,8 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | SEC-021 | P0 HISTORICAL_FIXED / CONFIRMED_CODE | M2 验收通过：真实撤销、使用记录、presign 消费、单进程续期 | d599aab / 8377de4 / a65ecfe；ADR-006/010；多实例和会话家族明确延期 |
 | SEC-022 | P0 企业场景 VALIDATE | 已有私密双 IdP 评估和迁移建议；实际身份迁移延期，不阻塞内置登录参考部署 | 003/020 → G1/G3；先模拟 IdP + 完整回调，证实后才设计账户迁移 ADR；参考 #435，不冒称漏洞 |
 | SEC-023 | P0 HISTORICAL_FIXED / CONFIRMED_CODE | 表单上下文修复经私密 HTTP/浏览器 RED→GREEN 与三组/race 验证；最小发布集已合并 0d918a1，合并后四组 CI PASS | ADR-009；不改变 OIDC 链路，公开回归/限制见 TEST-REPORT |
-| SEC-030 | P0 CONFIRMED_CODE / VALIDATE | 纯逻辑用量/容量算术实现并单测；尚无持久原子预算或入口调用 | ADR-013；开发RED与最终Gate见TEST-REPORT，接下来双provider事务/恢复及10/50并发；#431无可复用实现 |
-| SEC-031 | P0 CONFIRMED_CODE / VALIDATE | 双 provider 顺序实测确认 MaxSize 每文件；用户确认保留并新增累计限制，usage纠正；并发/累计预算未实施 | [M3语义](M3-UPLOAD-SEMANTICS.md)、ADR-013；#436仅页面默认值，非累计/事务修复；测试/PR Gate见下 |
+| SEC-030 | P0 CONFIRMED_CODE / VALIDATE | 纯逻辑用量/容量算术实现并单测；尚无持久原子预算或入口调用 | [PR #16](https://github.com/Activer007/Gokapi/pull/16)、ADR-013；开发RED与最终Gate见TEST-REPORT，接下来双provider事务/恢复及10/50并发；#431无可复用实现 |
+| SEC-031 | P0 CONFIRMED_CODE / VALIDATE | 双 provider 顺序实测确认 MaxSize 每文件；用户确认保留并新增累计限制，usage纠正；并发/累计预算未实施 | [PR #15](https://github.com/Activer007/Gokapi/pull/15)已合并8019c61、CI40707671124 PASS；[M3语义](M3-UPLOAD-SEMANTICS.md)、ADR-013；#436非累计/事务修复 |
 | SEC-032 | P0 CONFIRMED_CODE / VALIDATE | M2 上传授权验收通过：取消、File Request 完成、普通分片/进度隔离 | 50965ba / 3d93cdb / 3a9627c；ADR-007/011/012；资源预算与完整生命周期仍开放 |
 | SEC-040 | P0 CONFIRMED_CODE | 删除错误与元数据生命周期不一致；S3 RED | 003 → G1/G2/G3；先保留记录/传递错误/重试；复杂状态机后置；不把 #419 当相同修复 |
 | SEC-041 | P0 CONFIRMED_CODE + HISTORICAL_FIXED | 旧内容回收缺口与历史替换越权是两件事 | 020/040 → G1/G2/G3；先评审 [#419](https://github.com/Forceu/Gokapi/pull/419)，多引用与中断回滚；仅 fork 应用经验证的补丁 |
