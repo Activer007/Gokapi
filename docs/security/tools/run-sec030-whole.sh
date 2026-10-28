@@ -8,6 +8,7 @@ cd "$repo"
 git rev-parse HEAD > "$out/head.txt"
 git ls-files -- internal/configuration/database internal/environment internal/storage internal/uploadquota internal/webserver/fileupload internal/webserver/api internal/webserver/errorHandling/errorcodes | grep -E '\.go$' | LC_ALL=C sort | xargs sha256sum > "$out/source.sha256"
 sha256sum "$0" .github/workflows/test-code.yml > "$out/harness.sha256"
+cat "$out/harness.sha256"
 export GOTOOLCHAIN=local GOFLAGS=-mod=readonly
 failed=0
 run() {

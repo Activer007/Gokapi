@@ -4,9 +4,9 @@
 
 基线 a9c25d453aab0c25f2d6e6926ec7312628638844，证据及分类见 [SECURITY-BASELINE](SECURITY-BASELINE.md)。模型面向个人 VPS / 小团队；不改变单体 Go、SQLite/Redis、本地/S3 或现有 API 架构。
 
-## SEC-030 整文件持久准入：IN_PROGRESS
+## SEC-030 整文件持久准入：本增量已验证
 
-起点710f4bf；本节是开发中合同，最终证据以 [TEST-REPORT](TEST-REPORT.md)及[ADR-016](ADR-016-WHOLE-UPLOAD-ADMISSION.md)为准。只覆盖 `/api/files/add` 整文件接线，不扩大成所有上传路径已强制额度的结论。
+起点710f4bf，已验证代码9db2542；Linux四组全仓、相关race及1–2GiB实传通过，具体证据/Windows限制以 [TEST-REPORT](TEST-REPORT.md)及[ADR-016](ADR-016-WHOLE-UPLOAD-ADMISSION.md)为准。只覆盖 `/api/files/add` 整文件接线，不扩大成所有上传路径已强制额度的结论。
 
 - 认证在外层完成；整文件强制空FileRequestId，owner来自当前授权主体，不从multipart覆盖。多个Key共享owner计量，去重和RealSize不能抵扣逻辑量；现存metadata仍进入快照。
 - 共用receiver先以有限正文槽/字节预算接收，再以实际file长度在provider原子Reserve/Claim；不能以receiver429当作累计额度拒绝证据。永久字节/数量拒绝为413/21，receiver429/20保持可区分。

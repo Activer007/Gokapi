@@ -2,9 +2,9 @@
 
 日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/Gokapi 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
 
-## SEC-030 整文件准入：IN_PROGRESS（2026-10-29）
+## SEC-030 整文件准入：代码 Gate 通过（2026-10-29）
 
-工作基线 `710f4bf32ae80ac110bb5cd24e8d92848ac22bd8`；本节记录开发中的真实阶段证据，不预报最终GREEN、PR或合并。范围为 `/api/files/add`，设计/默认值未决项/回滚见[ADR-016](ADR-016-WHOLE-UPLOAD-ADMISSION.md)。此前接收器、工具链的大文件及全仓绿色均属于其各自源码，不能作为本轮运行时接线结果。
+工作基线 `710f4bf32ae80ac110bb5cd24e8d92848ac22bd8`，已验证代码9db2542，[PR #21](https://github.com/Activer007/Gokapi/pull/21)。本节先保留阶段记录，最终Linux结果见下方增补，最终文档head及合并结果另核实。范围为 `/api/files/add`，设计/默认值/回滚见[ADR-016](ADR-016-WHOLE-UPLOAD-ADMISSION.md)。此前PR的绿色不作为本轮接线结果。
 
 执行环境新增Windows PowerShell / 便携Go1.26.10 windows-amd64，官方清单记录与实际zip SHA256均为 `7ecd2d7260e82c59bcbd7f1077a07cee2dea607295b858df67195a1e4e09629b`。下载及隔离cache/module/TMP保留于ignored的 `docs/security/evidence/sec030-whole-local.secret/`，没有调用生产数据或真实AWS。WSL仍BLOCKED，未启动/修复宿主；不能将早期WSL或依赖下载失败记为本轮合同通过。
 
@@ -65,6 +65,47 @@ go test ./internal/configuration/database/provider/sqlite ./internal/configurati
 | `bash -n docs/security/tools/run-sec030-whole.sh` | PASS，退出0，Git Bash；未启动WSL |
 
 首次本地全仓noaws实际FAIL：Go枚举到ignored便携SDK内的Go测试源码，同时原证书日期断言失败（365/-1）。为执行器隔离目录添加独立go.mod边界后，`go list ./...`退出0且不再包含SDK；已开始后续命令不追改原结果。当前三组全仓及native race执行完成后另补结果。Linux全仓/race、当前扫描及1–2GiB尚NOT_RUN，不能沿用前PR结果。
+
+### 本轮最终Linux代码 Gate：9db2542
+
+[PR CI40778813175](https://github.com/Activer007/Gokapi/actions/runs/40778813175)与[完整手动40778841823](https://github.com/Activer007/Gokapi/actions/runs/40778841823)全部SUCCESS；手动job123135051507，ubuntu-latest/Linux amd64，Go1.26.10，GOTOOLCHAIN=local。
+
+真实执行并PASS：
+
+```sh
+go generate ./...
+bash docs/security/tools/run-sec062-setup-listener.sh --occupied
+go test ./... -parallel 8 -count=1 --tags=test,awsmock
+go test ./... -parallel 8 -count=1 --tags=test,noaws
+go test ./... --tags=test,noaws,integration -count=1
+GOKAPI_AWS_BUCKET=gokapi GOKAPI_AWS_REGION=eu-central-1 GOKAPI_AWS_KEY=keyid GOKAPI_AWS_KEY_SECRET=secret go test ./... --tags=test,awstest -count=1
+go test -race ./internal/environment ./internal/storage ./internal/storage/uploadreceive ./internal/webserver/fileupload ./internal/webserver/api ./internal/webserver -count=1 -tags=test,noaws -run 'TestSEC030Receive|TestSEC031UploadSizeSemantics|TestReceive|TestSpool|TestSEC062Range'
+bash docs/security/tools/run-sec030-whole.sh target
+bash docs/security/tools/run-sec030-whole.sh race
+bash docs/security/tools/run-sec062-toolchain.sh scan
+bash docs/security/tools/run-sec062-toolchain.sh historical
+bash docs/security/tools/run-sec062-toolchain.sh containers
+bash docs/security/tools/run-sec030-receiver.sh large
+```
+
+awstest的值是workflow原有合成loopback配置，不是真实AWS密钥。whole target/race各自的whole/mock/sdk返回0；含双provider10/50争1份bytes/files余量、共享blob、Commit不确定保额、关闭失败、hotlink原子性、bounded getter、GC交错及真实SDK取消。历史Go1.26.0扫描实际退出3且含已公开GO-2026-6609，按预期RED通过；当前Go1.26.10的default/noaws/WASM源码及minifier/server/CLI二进制共6项扫描均退出0。模块级OpenPGP GO-2026-5932、AWS S3 Crypto GO-2022-0646/0635仍报告，受测配置未报告affected可达调用，不称依赖无公告。三个Docker构建和版本核对通过，未运行真实应用容器或发布镜像。
+
+| 当前代码实际HTTP+SHA256读回 | 时间 / 吞吐 | heap / RSS峰值 | 暂存表观 / allocated峰值 |
+| --- | --- | --- | --- |
+| 1GiB明文 | 9.219s / 111.07MiB/s | 3053736B / 24420352B | 2147483683B / 2147495936B |
+| 2GiB服务器加密 | 27.981s / 73.19MiB/s | 3079136B / 25628672B | 6427254819B / 6427271168B |
+
+[公开证据](evidence/sec030-whole-9db2542/README.md)包含真实步骤/返回码、48份旧scope源码hash和6份生成产物hash。48项逐一匹配9db2542 Git blob；它们不是全部provider/whole输入。后续仅扩大完整源码哈希日志并补文档，运行时Go保持不变，最终PR CI会另核对扩展scope。20ms峰值采样不证明所有瞬时峰值，不用不同runner速度作性能优劣比较。真实Redis/S3、全部多路径/浏览器/完整崩溃恢复和M3其他入口仍NOT_RUN/OPEN。
+
+### Windows全仓限制与基线对照
+
+三条实际本地全仓命令均FAIL，含 `-count=1 -timeout 8m`：`go test ./... -parallel 8 -tags=test,noaws`、同awsmock、`go test ./... -tags=test,noaws,integration`。首两条还含SDK误枚举/运行期间建立模块边界的setup错误；awsmock编译时新跨桶mock负例尚未修，后续单包已GREEN。没有把这些非冻结工作树尝试作为最终head Gate。
+
+Windows断言包括chunk打开文件删除、localstorage反斜杠、receiver断线前未观察到spool、SSL证书365/-1；后续suite还有UserExists/fixture残留，integration的TestParallelDownloads在8分钟超时。干净710f4bf归档的同一有限子集真实退出1：前述五个测试名称仍失败，ParallelDownloads单独PASS 0.04s；1285个原始输入hash前后无变化。不能从子集推定full挂起或跨suite残留已归因旧代码，两者保留VALIDATE。
+
+进一步分别从710f4bf和9db2542建立全新归档，串行执行 `go test ./internal/storage -count=1 -tags=test,noaws,integration -timeout 45s -v`，两者单包全套均PASS（9.047s / 11.908s），ParallelDownloads各0.01s；两边原始输入hash无变化。该结果仅表明干净单包未复现挂起，不覆盖前述全仓失败或确证残留/调度的具体因果。
+
+native `go test -race ./internal/storage -count=1 -tags=test,noaws,security_whole -run '^TestSEC030WholeReserved' -timeout 5m`先退出2（CGO未启用），显式 `CGO_ENABLED=1 go test -race ./internal/uploadquota -count=1 -tags=test,noaws`实际退出1，报C compiler gcc不存在；本地race为BLOCKED，不记PASS。相应Linux相关race已实际PASS。WSL仍BLOCKED，未启动或修复。测试生成残留按已核对路径移入ignored隔离证据，未操作用户原有目录或生产数据。
 
 ## 环境与隔离
 

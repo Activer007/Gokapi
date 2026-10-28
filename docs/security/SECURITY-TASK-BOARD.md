@@ -47,7 +47,7 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | SEC-021 | P0 HISTORICAL_FIXED / CONFIRMED_CODE | M2 验收通过：真实撤销、使用记录、presign 消费、单进程续期 | d599aab / 8377de4 / a65ecfe；ADR-006/010；多实例和会话家族明确延期 |
 | SEC-022 | P0 企业场景 VALIDATE | 已有私密双 IdP 评估和迁移建议；实际身份迁移延期，不阻塞内置登录参考部署 | 003/020 → G1/G3；先模拟 IdP + 完整回调，证实后才设计账户迁移 ADR；参考 #435，不冒称漏洞 |
 | SEC-023 | P0 HISTORICAL_FIXED / CONFIRMED_CODE | 表单上下文修复经私密 HTTP/浏览器 RED→GREEN 与三组/race 验证；最小发布集已合并 0d918a1，合并后四组 CI PASS | ADR-009；不改变 OIDC 链路，公开回归/限制见 TEST-REPORT |
-| SEC-030 | P0 CONFIRMED_CODE / VALIDATE | IN_PROGRESS：已有计算/双provider持久基础/有界接收；710f4bf起实施整文件API准入，本地相关目标已通过、最终Gate进行中，其他入口未全覆盖 | 既有[PR #16](https://github.com/Activer007/Gokapi/pull/16)/[#17](https://github.com/Activer007/Gokapi/pull/17)/[#19](https://github.com/Activer007/Gokapi/pull/19)、ADR-013/014/015；当前增量见ADR-016/TEST-REPORT，不继承ff7497b绿色作为本轮通过 |
+| SEC-030 | P0 CONFIRMED_CODE / VALIDATE | 整文件API准入9db2542：Linux四组全仓/相关race/扫描/1–2GiB Gate通过；M3其他入口及恢复继续OPEN | [PR #21](https://github.com/Activer007/Gokapi/pull/21)，ADR-016/TEST-REPORT；既有PR16/17/19保留，最终文档head及合并结果另核实 |
 | SEC-031 | P0 CONFIRMED_CODE / VALIDATE | 双 provider 顺序实测确认 MaxSize 每文件；用户确认保留并新增累计限制，usage纠正；并发/累计预算未实施 | [PR #15](https://github.com/Activer007/Gokapi/pull/15)已合并8019c61、CI40707671124 PASS；[M3语义](M3-UPLOAD-SEMANTICS.md)、ADR-013；#436非累计/事务修复 |
 | SEC-032 | P0 CONFIRMED_CODE / VALIDATE | M2 上传授权验收通过：取消、File Request 完成、普通分片/进度隔离 | 50965ba / 3d93cdb / 3a9627c；ADR-007/011/012；资源预算与完整生命周期仍开放 |
 | SEC-040 | P0 CONFIRMED_CODE | 删除错误与元数据生命周期不一致；S3 RED | 003 → G1/G2/G3；先保留记录/传递错误/重试；复杂状态机后置；不把 #419 当相同修复 |

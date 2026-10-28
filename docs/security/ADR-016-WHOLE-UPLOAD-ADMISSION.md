@@ -1,12 +1,12 @@
 # ADR-016：整文件 API 的持久配额准入
 
-状态：IN_PROGRESS，2026-10-29。工作基线 `710f4bf32ae80ac110bb5cd24e8d92848ac22bd8`；实现、默认值和完整 Gate 尚未验收，不预报 PR、合并或发布结果。适用个人 VPS / 可信小团队、单个 Go 进程及可信 DataDir，沿用 [ADR-013](ADR-013-UPLOAD-BUDGETS.md)、[ADR-014](ADR-014-DURABLE-UPLOAD-RESERVATIONS.md) 和 [ADR-015](ADR-015-BOUNDED-UPLOAD-RECEPTION.md)。
+状态：IMPLEMENTED（本增量Linux Gate通过），2026-10-29。工作基线 `710f4bf32ae80ac110bb5cd24e8d92848ac22bd8`，已验证代码 `9db2542`，[PR #21](https://github.com/Activer007/Gokapi/pull/21)；最终文档head及合并另核实，没有发布或部署。适用个人 VPS / 可信小团队、单个 Go 进程及可信 DataDir，沿用 [ADR-013](ADR-013-UPLOAD-BUDGETS.md)、[ADR-014](ADR-014-DURABLE-UPLOAD-RESERVATIONS.md) 和 [ADR-015](ADR-015-BOUNDED-UPLOAD-RECEPTION.md)。
 
 ## 本轮范围与证据
 
 本增量仅将整文件 `/api/files/add` 接到已有持久账本。源码路径为 `apiUploadFile → ProcessCompleteFile → NewFileReserved`；先由共用 receiver 有界接收完整 multipart，再以真实 file payload 长度预约，随后同步准备、发布和提交。兼容旧客户端的 file-first / fields-first、未知 Content-Length；本轮不要求新增客户端预约请求。
 
-CONFIRMED_CODE：原子预约原语已存在，新接线、严格配置解析、错误映射和存储代码正在工作树中实现。隔离历史源码加防御合同得到真实断言 RED；其结果与未完成的当前 GREEN 分开记录于 [TEST-REPORT](TEST-REPORT.md)。这不是新的未知漏洞认定。
+CONFIRMED_CODE：原子预约原语已存在，本增量已实施新接线、严格配置解析、错误映射和存储处理。隔离历史源码加防御合同得到真实断言 RED，当前代码的目标及Linux完整Gate已通过，结果分开记录于 [TEST-REPORT](TEST-REPORT.md)。这不是新的未知漏洞认定。
 
 证据更正：旧SQLite并发夹具的Key缺少唯一PublicId，后写覆盖前写并导致401，不能用于证明配额争抢。修订夹具为每个Key生成PublicId并在竞争前回读确认；冻结基线重跑双provider bytes/files×10/50均超额接受，真实RED。当前相同API合同已PASS，存储含故障/锁取消/GC交错/active与staging拒绝及旧路径回归已PASS；新增blob加密metadata读取合同也曾真实失败后修正。完整全仓/race/大文件Gate仍单列于TEST-REPORT。
 
@@ -56,9 +56,9 @@ SQLite schema16、Redis schema9及账本版本不变；无新增数据库字段�
 
 ## 仍开放的验收与下一步
 
-- 当前整文件 API的最终10/50并发、共享 blob、故障保持、hotlink事务、相关race与全仓 Gate；此前接收层或工具链的绿色不能替代本轮代码测试。
+- 本增量Linux10/50并发、共享blob、故障保持、hotlink事务、相关race及四组全仓已通过；Windows全仓失败/环境限制仍单列，不能扩大Linux结果。
 - 旧超额/异常 metadata 的运维提示与隔离升级/回滚验收。
 - 分片及 File Request reserve/首块绑定/完整区间/取消/同步与异步完成；请求新增累计字段、有限默认值及旧请求兼容。
 - 所有 metadata正向增加的原子准入，及实际删除/共享引用的可靠恢复。
 - 启动停止准入时对账 ledger、work/spool、已发布 canonical/S3目标；当前账本不持久化完整目标清单，缺少 chunk不能作为退款证据。关闭重连测试不等于进程崩溃恢复。
-- 本轮真实 Redis持久化、真实 S3、1–2GiB多路径读回与吞吐/内存/暂存峰值。单进程锁不提供跨实例或外部S3写入者的协调。
+- 本轮Linux runner的SQLite/本地存储路径1GiB明文/2GiB服务器加密HTTP读回及采样峰值已通过；真实Redis持久化、真实S3及完整多路径性能仍OPEN。单进程锁不提供跨实例或外部S3写入者的协调。

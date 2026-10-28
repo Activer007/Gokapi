@@ -2,13 +2,15 @@
 
 研究日期：2026-10-27（Asia/Shanghai）。范围为个人 VPS / 小团队的单体 Go 服务。本文是源码与测试基线，不是安全认证。只向 **Activer007/Gokapi fork** 交付；Forceu/Gokapi 只读，不创建上游 PR、不推送、不触发其工作流。
 
-## SEC-030 整文件准入增量：IN_PROGRESS（2026-10-29）
+## SEC-030 整文件准入增量：代码 Gate 通过（2026-10-29）
 
 当前开发起点 `710f4bf32ae80ac110bb5cd24e8d92848ac22bd8`，仍仅为本地源码/合成隔离环境，尚未部署。CONFIRMED_CODE：开发中的 `/api/files/add` 已经由共用 receiver 进入 `NewFileReserved`，按真实 payload进行 Reserve/Claim，并把 metadata、hotlink和回执纳入同一次 provider Commit；当前源码事实不等于最终 Gate已经通过。范围、兼容和失败保持见 [ADR-016](ADR-016-WHOLE-UPLOAD-ADMISSION.md)。
 
 用户已确认每文件 MaxSize保留并新增累计预算；本增量选择可配置的有限默认 owner20GiB/1000文件/4在途、instance100GiB/5000文件/8在途、staging12GiB，没有将具体数值记为用户逐项批准。receiver另有12GiB接收预算；新持久暂存声明为 `4*实际payload+64KiB`。旧超额或异常metadata可能阻止新整文件准入，不自动删除/改写旧数据。
 
-VALIDATE：本轮最终API/存储/故障/相关race/全仓验收尚在进行；分片、File Request累计字段和入口、所有正向metadata变更、异步完成及启动目标对账继续OPEN。不能称所有API累计额度已经强制或可防绕过。发布/Commit不确定时保留charge，不自动退款、不删除canonical；内部稳定ID只属于单次调用，不提供跨HTTP幂等。
+CONFIRMED_CODE：9db2542的[PR CI40778813175](https://github.com/Activer007/Gokapi/actions/runs/40778813175)与[完整手动40778841823](https://github.com/Activer007/Gokapi/actions/runs/40778841823)均SUCCESS；四组全仓、receiver/whole相关race、当前扫描、三镜像隔离构建及真实1GiB明文/2GiB服务器加密HTTP读回通过。[证据](evidence/sec030-whole-9db2542/README.md)区分实际48份旧scope源码hash、生成产物和新增完整源码日志，不能把部分hash说成全部输入。
+
+VALIDATE：分片、File Request累计字段和入口、所有正向metadata变更、异步完成及启动目标对账继续OPEN。不能称所有API累计额度已经强制或可防绕过。发布/Commit不确定时保留charge，不自动退款、不删除canonical；内部稳定ID只属于单次调用，不提供跨HTTP幂等。Windows全仓失败单列于TEST-REPORT，不借Linux通过隐去失败。
 
 证据更新：旧SQLite并发Key夹具缺少唯一PublicId，覆盖/401结果不计入配额证明；修订夹具重新冻结基线后，双provider的bytes/files×10/50均接受10/50且无quota拒绝，真实RED退出1。当前API目标相同合同全部PASS（8.330s）；存储含旧路径回归、锁取消/GC交错/active与staging拒绝PASS（7.831s）。新增getter的尾零/不可用provider合同真实FAIL后已GREEN；相关全仓/race及当前大文件仍以TEST-REPORT后续Gate为准，不宣称未知漏洞或完整M3已完成。
 

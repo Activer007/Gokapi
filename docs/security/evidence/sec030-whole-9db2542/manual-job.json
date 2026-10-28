@@ -1,0 +1,138 @@
+{
+  "run": 40778841823,
+  "sha": "9db2542bbdcda382db2c6aebbad9da672053ea0e",
+  "id": 123135051507,
+  "name": "build",
+  "status": "completed",
+  "conclusion": "success",
+  "run_id": 40778841823,
+  "logs_url": null,
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 1
+    },
+    {
+      "name": "checkout code",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 2
+    },
+    {
+      "name": "Run actions/setup-go@v5",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 3
+    },
+    {
+      "name": "Verify reviewed Go compiler and builder policy",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 4
+    },
+    {
+      "name": "Run go generate ./...",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 5
+    },
+    {
+      "name": "Setup tests with configured port occupied",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 6
+    },
+    {
+      "name": "Run go test ./... -parallel 8 -count=1 --tags=test,awsmock",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 7
+    },
+    {
+      "name": "Run go test ./... -parallel 8 -count=1 --tags=test,noaws",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 8
+    },
+    {
+      "name": "Run go test ./... --tags=test,noaws,integration -count=1",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 9
+    },
+    {
+      "name": "Run GOKAPI_AWS_BUCKET=\"gokapi\" GOKAPI_AWS_REGION=\"eu-central-1\" GOKAPI_AWS_KEY=\"keyid\" GOKAPI_AWS_KEY_SECRET=\"secret\" go test ./...  --tags=test,awstest -count=1",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 10
+    },
+    {
+      "name": "Receiver contracts with race",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 11
+    },
+    {
+      "name": "Whole upload durable admission and provider contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 12
+    },
+    {
+      "name": "Whole upload durable admission with race",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 13
+    },
+    {
+      "name": "Record receiver source hashes",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 14
+    },
+    {
+      "name": "Toolchain build and vulnerability gates",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 15
+    },
+    {
+      "name": "Historical vulnerable compiler scan contract",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 16
+    },
+    {
+      "name": "Reviewed Docker builders (local only)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 17
+    },
+    {
+      "name": "Opt-in large upload validation",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 18
+    },
+    {
+      "name": "Post Run actions/setup-go@v5",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 35
+    },
+    {
+      "name": "Post checkout code",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 36
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 37
+    }
+  ]
+}
