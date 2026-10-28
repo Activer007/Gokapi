@@ -598,7 +598,7 @@ func apiListSingle(w http.ResponseWriter, r requestParser, user models.User, _ m
 	_, _ = w.Write(result)
 }
 
-func apiDownloadSingle(w http.ResponseWriter, r requestParser, user models.User, _ models.ApiKey) {
+func apiDownloadSingle(w http.ResponseWriter, r requestParser, user models.User, apiKey models.ApiKey) {
 	request, ok := r.(*paramFilesDownloadSingle)
 	if !ok {
 		panic("invalid parameter passed")
@@ -614,10 +614,10 @@ func apiDownloadSingle(w http.ResponseWriter, r requestParser, user models.User,
 		storage.ServeFile(file, w, request.WebRequest, true, request.IncreaseCounter, forceDecryption, false)
 		return
 	}
-	createAndOutputPresignedUrl([]string{file.Id}, w, "")
+	createAndOutputPresignedUrl([]string{file.Id}, w, "", apiKey)
 }
 
-func apiDownloadZip(w http.ResponseWriter, r requestParser, user models.User, _ models.ApiKey) {
+func apiDownloadZip(w http.ResponseWriter, r requestParser, user models.User, apiKey models.ApiKey) {
 	request, ok := r.(*paramFilesDownloadZip)
 	if !ok {
 		panic("invalid parameter passed")
@@ -638,7 +638,7 @@ func apiDownloadZip(w http.ResponseWriter, r requestParser, user models.User, _ 
 		storage.ServeFilesAsZip(requestedFiles, request.Filename, w, request.WebRequest)
 		return
 	}
-	createAndOutputPresignedUrl(requestedFileIds, w, request.Filename)
+	createAndOutputPresignedUrl(requestedFileIds, w, request.Filename, apiKey)
 }
 
 func checkDownloadAllowed(fileId string, user models.User) (models.File, int, int, string) {
@@ -652,12 +652,14 @@ func checkDownloadAllowed(fileId string, user models.User) (models.File, int, in
 	return file, 0, 0, ""
 }
 
-func createAndOutputPresignedUrl(ids []string, w http.ResponseWriter, filename string) {
+func createAndOutputPresignedUrl(ids []string, w http.ResponseWriter, filename string, apiKey models.ApiKey) {
 	presignUrl := models.Presign{
 		Id:       helper.GenerateRandomString(60),
 		FileIds:  ids,
 		Expiry:   time.Now().Add(time.Second * 30).Unix(),
 		Filename: filename,
+		UserId:   apiKey.UserId,
+		ApiKeyId: apiKey.Id,
 	}
 	presign.Save(presignUrl)
 	response := struct {
@@ -668,6 +670,13 @@ func createAndOutputPresignedUrl(ids []string, w http.ResponseWriter, filename s
 	helper.Check(err)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	_, _ = w.Write(result)
+}
+
+// GetDownloadUser resolves current management download authority without
+// changing usage telemetry. File Request credentials cannot grant it.
+func GetDownloadUser(keyID string) (models.User, bool) {
+	user, key, ok := isValidApiKey(keyID, false, models.ApiPermDownload)
+	return user, ok && !key.IsUploadRequestKey()
 }
 
 func apiUploadFile(w http.ResponseWriter, r requestParser, user models.User, _ models.ApiKey) {
