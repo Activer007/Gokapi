@@ -517,6 +517,11 @@ func apiChunkUploadRequestComplete(w http.ResponseWriter, r requestParser, user 
 		sendError(w, status, errorCode, errorMsg)
 		return
 	}
+	// Validate scope before starting either processing path or its error cleanup.
+	if !chunkreservation.IsValid(fileRequest.Id, request.Uuid) {
+		sendError(w, http.StatusBadRequest, errorcodes.InvalidChunkReservation, "chunk reservation has expired or was not requested")
+		return
+	}
 	uploadParams := fileupload.CreateUploadConfig(0,
 		0, "", true, true,
 		false, request.FileSize, fileRequest.Id)

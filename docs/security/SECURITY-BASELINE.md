@@ -171,3 +171,9 @@ VALIDATE：完整分片/完成/在途及异步任务授权、会话续期/Key �
 基线 aff864aa48a77fc795ad91d2f3a4381b8d5afe59；Windows 工作区、WSL Ubuntu-24.04、Go 1.26.0 linux/amd64。CONFIRMED_CODE：隔离会话合同及受控 HTTP 认证交错证明旧续期路径不满足已完成撤销合同；最小修复在门面协调会话变更并条件替换，未修改 provider/schema。详细复现保留私密，不能据此声称生产被利用。HISTORICAL_FIXED：此前 API 权限交集、使用记录和管理 presign 修复保留。VALIDATE：真实 Redis/浏览器、多实例、会话家族、完整登录验证与新会话创建交错；M2 中 File Request add/complete 和最终审计仍开放。
 
 已复核 README、advanced/changelog、SECURITY.md、会话及撤销调用者和既有测试；只读检索上游 session Issues/PR、开放 PR 与公开安全公告，未发现同范围待合并修复。开放 #435 为 OIDC claims 兼容，#436 为 File Request 前端默认额度，均非本次续期修复。只写自己的仓库及未公开审查入口。
+
+## SEC-032 File Request 完成边界增量
+
+基线 a65ecfef82f50e374bc0d3978d5e4dfac239db69；该 SEC-021 合并后 CI 40684368510 已核实 success，详细评估提交未进入 master，公告仍未公开。CONFIRMED_CODE：File Request add 已检查预约归属，complete 的隔离合同发现不一致；最小修复复用内存预约并在任何完成处理前检查。历史取消修复保留。VALIDATE：普通管理分片所有者绑定、完整追加/取消/完成竞争、资源预算及真实后端部署不由本项证明。详细请求复现私密保存，不声称生产被利用。
+
+已复核 README、advanced/changelog、SECURITY.md、API 路由/解析、fileupload、chunking/reservation、filerequest、存储完成与既有测试。只读检查上游 chunk Issues、当前开放 PR 与公开公告，未发现同范围待合并完成作用域修复；#436 为首次 File Request 前端额度问题，旧上传大小公告不等于本项已修复。未向 upstream 写入。

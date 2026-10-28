@@ -530,3 +530,24 @@ RED：XgK3yj 的原始实现合同失败，正例成立。隔离 mutation lF3Ig0
 有限秘密模式扫描、git diff --check PASS。NOT_RUN：真实 Redis/S3、完整浏览器/生产网络、多实例、存储故障注入、全仓 race、govulncheck（无依赖修改）。无 schema/身份/密码算法/文件删除变更；兼容、先删旧后写新及回滚要求见 ADR-010。审查属于自审，不冒称独立批准；最终 PR/合并/CI 以远端为准。
 
 最小发布分支再次运行 `bash docs/security/tools/run-sec021-renewal.sh --target`：60mKPh 的 environment/generate/contract 均退出 0，公开合同使用 `-tags=test,noaws`。四个发布 Go 文件 SHA256 与最终全量/race 的 y3nYBb 完全一致；没有通过删除失败断言获得 GREEN。详细 HTTP 文件与私密评估文档不在发布提交中。
+
+## SEC-032 File Request add/complete（2026-10-28）
+
+基线 a65ecfe；Windows / WSL Ubuntu-24.04 / Go 1.26.0 linux/amd64，归档源码到 /tmp，env -i，合成文件及临时 SQLite/miniredis。原始 RED 5fUuoL：environment/generate 退出 0，scope 退出 1；六个完成边界断言失败，正例/拒绝对照通过。最小修复后 lDYez2 定向 PASS；加入异步拒绝覆盖后的最终 [tW7WdK](evidence/sec032-completion-tW7WdK/results.tsv) 全部退出 0。
+
+实际命令及结果均 PASS：
+
+```sh
+go generate ./...
+go test ./internal/webserver/api ./internal/storage/chunking/chunkreservation -count=1 -tags=test,noaws,security_private -run TestSEC032 -v
+go test ./... -parallel 8 -count=1 -tags=test,awsmock
+go test ./... -parallel 8 -count=1 -tags=test,noaws
+go test ./... -count=1 -tags=test,noaws,integration
+go test -race ./internal/webserver/api ./internal/storage/chunking/chunkreservation -count=1 -tags=test,noaws,security_private -run TestSEC032
+```
+
+私密合同共 34 个实际 API 子用例（双 provider 的 add/同步完成正反例、异步拒绝负例）；公开预约测试覆盖 5 种作用域/寿命状态，入口回归覆盖同步/异步两分支。检查拒绝前后分片字节、元数据和预约不变，合法完成的所有者/请求归属及字节正确。详细 API 文件与原始日志不进入公开发布。没有完整异步成功上传、真实 Redis/S3、浏览器、生产部署、存储故障注入或全仓 race 证明；普通管理分片所有者绑定和完整在途竞争仍 VALIDATE。govulncheck NOT_RUN（无依赖变化）。
+
+不修改 schema、用户 ID、密码、物理文件删除策略或上传字段；ADR-011 给出进程重启/在途上传兼容与回滚影响。有限秘密模式扫描、差异检查以及最终公开提取校验以提交/PR 自审记录为准；不冒称独立批准。
+
+公开提取验证：`bash docs/security/tools/run-sec032-completion.sh --target` 使用 `-tags=test,noaws`，1vBVjG 的 environment/generate/scope 均退出 0。四个发布 Go 文件的 SHA256 与 tW7WdK 全量/race 输入一致。有限秘密模式扫描与 git diff --check PASS；详细请求矩阵及评估文档未进入发布分支。

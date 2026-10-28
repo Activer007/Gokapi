@@ -70,6 +70,15 @@ func Cancel(id, uuid string, remove func() error) error {
 	return nil
 }
 
+// IsValid reports whether the request still owns a live reservation. It does
+// not extend the lifetime or consume the reservation.
+func IsValid(id, uuid string) bool {
+	reservationMutex.RLock()
+	defer reservationMutex.RUnlock()
+	chunk, ok := reservedChunks[id][uuid]
+	return ok && chunk.Expiry > time.Now().Unix()
+}
+
 // SetUploading marks a chunk as uploading and extends the reservation time
 func SetUploading(id string, uuid string) bool {
 	reservationMutex.Lock()
@@ -82,7 +91,7 @@ func SetUploading(id string, uuid string) bool {
 	if !ok {
 		return false
 	}
-	if chunk.Expiry < time.Now().Unix() {
+	if chunk.Expiry <= time.Now().Unix() {
 		return false
 	}
 	chunk.Expiry = time.Now().Unix() + timeReservationWithUpload
