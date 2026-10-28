@@ -4,18 +4,21 @@ package aws
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"io"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/forceu/gokapi/internal/models"
 )
 
 var uploadedFiles []models.File
 var isCorrectLogin bool
+var mockStateMutex sync.RWMutex
 
 const (
 	region     = "mock-region-1"
@@ -47,6 +50,8 @@ func Init(config models.AwsConfig) bool {
 
 // IsAvailable returns true if valid credentials have been passed
 func IsAvailable() bool {
+	mockStateMutex.RLock()
+	defer mockStateMutex.RUnlock()
 	return isCorrectLogin
 }
 
@@ -57,6 +62,8 @@ func IsValidLogin(config models.AwsConfig) (bool, error) {
 
 // LogOut resets the credentials
 func LogOut() {
+	mockStateMutex.Lock()
+	defer mockStateMutex.Unlock()
 	isCorrectLogin = false
 }
 
@@ -66,6 +73,8 @@ func AddBucketName(file *models.File) {
 }
 
 func isValidCredentials() bool {
+	mockStateMutex.Lock()
+	defer mockStateMutex.Unlock()
 	requiredKeys := []string{"GOKAPI_AWS_BUCKET", "GOKAPI_AWS_REGION", "GOKAPI_AWS_KEY", "GOKAPI_AWS_KEY_SECRET"}
 	requiredValues := []string{bucketName, region, accessId, accessKey}
 	for i, key := range requiredKeys {
@@ -101,10 +110,62 @@ func Upload(input io.Reader, file models.File) (string, error) {
 		return "", errors.New("invalid credentials / invalid bucket / invalid region")
 	}
 
-	if !isUploaded(file) {
+	mockStateMutex.Lock()
+	defer mockStateMutex.Unlock()
+	if !isUploadedLocked(file) {
 		uploadedFiles = append(uploadedFiles, file)
 	}
 	return "", nil
+}
+
+// UploadContext consumes the synthetic upload, unlike the legacy metadata-only
+// Upload mock. It keeps memory bounded and checks cancellation between reads.
+func UploadContext(ctx context.Context, input io.Reader, file models.File) (string, error) {
+	if ctx == nil {
+		return "", errors.New("invalid AWS context")
+	}
+	if err := ctx.Err(); err != nil {
+		return "", err
+	}
+	if input == nil {
+		return "", errors.New("nil AWS upload input")
+	}
+	if !isValidCredentials() {
+		return "", errors.New("invalid credentials / invalid bucket / invalid region")
+	}
+	size, err := io.Copy(io.Discard, uploadContextReader{ctx: ctx, reader: input})
+	if err != nil {
+		return "", err
+	}
+	if err := ctx.Err(); err != nil {
+		return "", err
+	}
+	file.SizeBytes = size
+	mockStateMutex.Lock()
+	defer mockStateMutex.Unlock()
+	if err := ctx.Err(); err != nil {
+		return "", err
+	}
+	for i, stored := range uploadedFiles {
+		if stored.SHA1 == file.SHA1 && stored.AwsBucket == file.AwsBucket {
+			uploadedFiles[i] = file
+			return "", nil
+		}
+	}
+	uploadedFiles = append(uploadedFiles, file)
+	return "", nil
+}
+
+type uploadContextReader struct {
+	ctx    context.Context
+	reader io.Reader
+}
+
+func (reader uploadContextReader) Read(buffer []byte) (int, error) {
+	if err := reader.ctx.Err(); err != nil {
+		return 0, err
+	}
+	return reader.reader.Read(buffer)
 }
 
 // Download downloads a file from AWS
@@ -120,6 +181,12 @@ func download(writer io.WriterAt, file models.File) (int64, error) {
 }
 
 func isUploaded(file models.File) bool {
+	mockStateMutex.RLock()
+	defer mockStateMutex.RUnlock()
+	return isUploadedLocked(file)
+}
+
+func isUploadedLocked(file models.File) bool {
 	for _, element := range uploadedFiles {
 		if element.SHA1 == file.SHA1 {
 			return true
@@ -161,6 +228,34 @@ func FileExists(file models.File) (bool, int64, error) {
 	return true, 10000, nil
 }
 
+// FileExistsContext reports the actual length recorded by UploadContext while
+// the legacy FileExists mock retains its historical fixed-size response.
+func FileExistsContext(ctx context.Context, file models.File) (bool, int64, error) {
+	if ctx == nil {
+		return false, 0, errors.New("invalid AWS context")
+	}
+	if err := ctx.Err(); err != nil {
+		return false, 0, err
+	}
+	if !isValidCredentials() {
+		return false, 0, errors.New("invalid credentials / invalid bucket / invalid region")
+	}
+	mockStateMutex.RLock()
+	defer mockStateMutex.RUnlock()
+	if err := ctx.Err(); err != nil {
+		return false, 0, err
+	}
+	for _, stored := range uploadedFiles {
+		if stored.SHA1 == file.SHA1 && stored.AwsBucket == file.AwsBucket {
+			if stored.SizeBytes < 0 {
+				return false, 0, errors.New("invalid S3 object length")
+			}
+			return true, stored.SizeBytes, nil
+		}
+	}
+	return false, 0, nil
+}
+
 // DeleteObject deletes a file from S3
 func DeleteObject(file models.File) (bool, error) {
 	if !isValidCredentials() {
@@ -168,8 +263,10 @@ func DeleteObject(file models.File) (bool, error) {
 	}
 	var buffer []models.File
 
+	mockStateMutex.Lock()
+	defer mockStateMutex.Unlock()
 	for _, element := range uploadedFiles {
-		if element.SHA1 != file.SHA1 {
+		if element.SHA1 != file.SHA1 || element.AwsBucket != file.AwsBucket {
 			buffer = append(buffer, element)
 		}
 	}

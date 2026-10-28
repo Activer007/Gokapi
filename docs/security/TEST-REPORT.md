@@ -2,6 +2,70 @@
 
 日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/Gokapi 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
 
+## SEC-030 整文件准入：IN_PROGRESS（2026-10-29）
+
+工作基线 `710f4bf32ae80ac110bb5cd24e8d92848ac22bd8`；本节记录开发中的真实阶段证据，不预报最终GREEN、PR或合并。范围为 `/api/files/add`，设计/默认值未决项/回滚见[ADR-016](ADR-016-WHOLE-UPLOAD-ADMISSION.md)。此前接收器、工具链的大文件及全仓绿色均属于其各自源码，不能作为本轮运行时接线结果。
+
+执行环境新增Windows PowerShell / 便携Go1.26.10 windows-amd64，官方清单记录与实际zip SHA256均为 `7ecd2d7260e82c59bcbd7f1077a07cee2dea607295b858df67195a1e4e09629b`。下载及隔离cache/module/TMP保留于ignored的 `docs/security/evidence/sec030-whole-local.secret/`，没有调用生产数据或真实AWS。WSL仍BLOCKED，未启动/修复宿主；不能将早期WSL或依赖下载失败记为本轮合同通过。
+
+| 已核对证据 | 实际结果及边界 |
+| --- | --- |
+| `api-red.log` | FAIL：包setup失败；没有运行到API安全断言，不能作为RED依据 |
+| `red-archive-verified.log`、`red-inputs.sha256` | FAIL / ASSERTION_RED：710f4bf归档叠加记录过hash的防御合同；配置字段/非法值未满足合同，存储开发桩及API断言实际执行 |
+| API并发Redis原基线 | 按父subtest核对：bytes/files两维、10/50均为successes10/50、quota_denied0、receiver_busy0，且完成回执0；是有效的独立合同RED |
+| API并发SQLite旧夹具 | bytes/files两维、10/50均为successes1、quota_denied0；只有1个Key进入正文，其余401。空PublicId触发唯一列INSERT OR REPLACE覆盖早先Key，不能作为quota争抢RED或GREEN；原日志保留 |
+| API共享blob | 第三份768KiB实际200/0，重连后仍200/0，目标为413/21；与MaxSize单文件历史公告分开，不认定新未知漏洞 |
+| `storage-stub-red-verified.log` | FAIL / ASSERTION_RED：新增接口桩可编译并返回ErrInvalid，happy/fault合同失败；属于新实现开发RED，不称原源码存在同一接口漏洞 |
+| `policy-red-verified.log` | FAIL / ASSERTION_RED：配置合同实际失败；旧guest零语义正向对照PASS，不用取消旧防线获得RED |
+| `hotlink-red-verified-20261029-054910.log`及metadata文件 | 实际退出1，RESULT=ASSERTION_RED；SQLite/Redis hotlink原子性、冲突/类型及WATCH竞态合同失败，输入hash和完整命令已保存 |
+
+上述权威RED中已核实完整命令的一项为：
+
+```sh
+go test ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,noaws,security_whole -run '^TestSEC030WholeHotlink' -v
+```
+
+其余归档日志已核对包、测试名和实际断言；完整shell调用细节待执行者按本地记录补录，不在此推测。原始日志/源码hash保留ignored目录，不把其中私密诊断直接加入公开提交。当前API合同以启动前子进程环境配置、真实HTTP、同owner多Key、首Read barrier排除receiver假证明；共享blob按metadata分别计量并验证内容及关闭重连。
+
+### 本轮首个实现target与夹具更正
+
+`root-target.command.txt`记录实际执行命令，`root-target-environment.txt`确认Go1.26.10 windows/amd64：
+
+```sh
+go test ./internal/webserver/fileupload ./internal/webserver/api ./internal/storage/filesystem/s3filesystem/aws -count=1 -tags=test,noaws,security_whole -run 'TestSEC030Whole|TestSEC030AWS' -timeout 8m -v
+```
+
+`root-target.log`实际整体FAIL：fileupload和noaws AWS目标PASS，Redis字节/文件竞争PASS，sharedblob双providerPASS；SQLite10/50仅1个请求达到body barrier，其余401，不能把该失败解释为持久额度竞态。修订仅在合成Key加入随机PublicId，并在并发前回读确认全部Key存在，没有改生产认证。修订测试的冻结基线RED正在重跑，结果和新输入hash尚待执行者补录；上表旧SQLite结果已降为夹具失败，不删除原日志。
+
+`blob-first.command.txt`另记录实际执行：
+
+```sh
+go test ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,noaws,security_whole -run '^TestSEC030WholeBlob' -v
+```
+
+`blob-first.log`整体FAIL：两provider的损坏加密编码合同失败，Redis不可用provider合同出现nil pool panic。审查另确认投影强制转换可能掩盖非法类型，已作修订；本节未核实修订后的最终GREEN，保留为IN_PROGRESS。它们是本轮新增getter的防御合同，不从孤立损坏数据测试推定外部可利用的未知漏洞。
+
+当前源码已经接上整文件准入、严格候选策略及hotlink同Commit；最终目标/故障/全仓/race结果仍IN_PROGRESS，完成后按具体源码hash补录。未记录的完整 `go generate ./...`、三组/四组全仓、相关race、当前变更govulncheck、本轮1–2GiB及真实Redis/S3/生产恢复均不记PASS。本次文档整理仅核对既有记录，未追加执行Go测试；已存在的局部日志不能被扩大为上述Gate已通过。
+
+本增量选择可配置有限默认额度，不记为用户逐项批准；SQLite16/Redis9无新增schema，内部稳定ID不提供跨HTTP幂等。分片/File Request累计、正向metadata准入、异步完成及启动目标对账保持OPEN；发布后或Commit不确定时保留charge，不自动退款、不删canonical。回滚必须停写并核对配套数据库/DataDir/配置密钥备份，不能因schema未变就直接换回忽略活动charge的旧代码。
+
+### 本地已核实增量结果
+
+便携Go1.26.10 windows/amd64；使用既有系统代理但不记录其值，缓存/临时目录位于ignored隔离目录。loopback和NTFS hardlink测试采用提升执行权限，不改宿主策略或WSL。
+
+| 实际命令（均加 `-count=1`） | 结果 |
+| --- | --- |
+| 冻结710f4bf叠加修订API夹具，`go test ./internal/webserver/api -tags=test,noaws,security_whole -run '^TestSEC030Whole' -timeout 8m -v` | ASSERTION_RED，退出1，9.168s；双provider bytes/files×10/50均成功10/50、quota拒绝0，无401夹具问题；共享blob合同亦失败。`red-api-fixed.log`及修订输入SHA保存 |
+| 当前相同API目标及 `./internal/webserver/fileupload` 的Whole响应/limits合同 | PASS，退出0；API 8.330s；新413/21、active/staging及固定错误文案合同通过 |
+| `go test ./internal/storage -tags=test,noaws,security_whole -run '^TestSEC030WholeReserved\|^Test(NewFile\|NewFileFromChunk\|DuplicateFile\|ReplaceFile)$' -timeout 5m -v` | PASS，退出0，7.831s；包含最终flags guard、锁取消、GC交错、active/staging零input读取以及旧路径回归 |
+| 两provider `-tags=test,noaws,security_whole -run '^TestSEC030WholeBlob' -v` | 新getter首轮实际退出1（两边接受尾零、Redis nil pool panic）；reader剩余长度/字节CAST/nil guard后退出0。TEXT+NUL投影上界另经源码核对 |
+| 两provider `-run '^TestSEC030WholeHotlink'` 及原foundation `-run '^TestSEC030'` | PASS；前置真实RED与首个竞态测试夹具错误均保留，不将Redis EXEC运行期错误称回滚 |
+| AWS包 `-tags=test,awsmock -run '^TestSEC030AWS' -v`、`-tags=test -run '^TestSEC030AWS' -v` | 均PASS，含真实SDK合成loopback上传/HEAD/取消；跨桶删除mock合同另RED退出1→一行locator修复→GREEN退出0（7.276s），不是产品S3漏洞认定 |
+| `go generate ./...` | PASS，退出0；保留原有代理策略文案，新增环境变量参考及整文件额度说明；未修改UI实现 |
+| `bash -n docs/security/tools/run-sec030-whole.sh` | PASS，退出0，Git Bash；未启动WSL |
+
+首次本地全仓noaws实际FAIL：Go枚举到ignored便携SDK内的Go测试源码，同时原证书日期断言失败（365/-1）。为执行器隔离目录添加独立go.mod边界后，`go list ./...`退出0且不再包含SDK；已开始后续命令不追改原结果。当前三组全仓及native race执行完成后另补结果。Linux全仓/race、当前扫描及1–2GiB尚NOT_RUN，不能沿用前PR结果。
+
 ## 环境与隔离
 
 - Windows 工作树 E:\LHA\Gokapi，PowerShell 中 go/docker 命令未找到；Go 测试在 Ubuntu-24.04 WSL 完成。

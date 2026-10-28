@@ -142,7 +142,29 @@ Available environment variables
 |                                     |                                                                                        |                 |                             |
 |                                     | and subnets ("10.0.0.0/24")                                                            |                 |                             |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
-| GOKAPI_USE_CLOUDFLARE               | Uses CF-Connecting-IP from trusted peers only (fork SEC-013)                           | No              | false                       |
+| GOKAPI_UPLOAD_BODY_SLOTS            | Bounds concurrent request bodies during upload reception, independently                | No              | 4                           |
+|                                     |                                                                                        |                 |                             |
+|                                     | of durable upload IDs and the number of parallel chunks per client.                    |                 |                             |
++-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
+| GOKAPI_UPLOAD_INSTANCE_ACTIVE       |                                                                                        | No              | 8                           |
++-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
+| GOKAPI_UPLOAD_INSTANCE_MAX_FILES    |                                                                                        | No              | 5000                        |
++-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
+| GOKAPI_UPLOAD_INSTANCE_TOTAL_MB     | Instance logical limits are independent of actual disk free space.                     | No              | 102400                      |
++-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
+| GOKAPI_UPLOAD_RECEIVE_MB            | Bounds transient upload reception and processing copies in MiB. This is                | No              | 12288                       |
+|                                     |                                                                                        |                 |                             |
+|                                     | not the persisted chunk ledger or a user's cumulative logical quota.                   |                 |                             |
++-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
+| GOKAPI_UPLOAD_STAGING_MB            | Bounds durable staging declarations, separately from reception copies.                 | No              | 12288                       |
++-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
+| GOKAPI_UPLOAD_USER_ACTIVE           |                                                                                        | No              | 4                           |
++-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
+| GOKAPI_UPLOAD_USER_MAX_FILES        |                                                                                        | No              | 1000                        |
++-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
+| GOKAPI_UPLOAD_USER_TOTAL_MB         | Logical owner limits apply across all of that owner's upload credentials.              | No              | 20480                       |
++-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
+| GOKAPI_USE_CLOUDFLARE               | Set this to true if you are using Cloudflare                                           | No              | false                       |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 | TMPDIR                              | Sets the path which contains temporary files                                           | No              | Non-Docker: Default OS path |
 |                                     |                                                                                        |                 |                             |
@@ -581,6 +603,36 @@ whole-file processing buffers are capped at 8 MiB even if MaxMemory is larger.
 These limits cover reception and synchronous whole-file processing; persistent
 chunks and cumulative user/File Request quotas require their separate upload
 accounting. They do not make multiple Gokapi processes sharing a DataDir safe.
+
+Whole-file API quotas
+---------------------
+
+``/api/files/add`` also reserves durable capacity after reception, using the
+actual file-part size. ``GOKAPI_UPLOAD_USER_TOTAL_MB`` (20480 MiB),
+``GOKAPI_UPLOAD_USER_MAX_FILES`` (1000) and ``GOKAPI_UPLOAD_USER_ACTIVE`` (4)
+apply to the authenticated owner across all their API keys. Instance defaults
+are 102400 MiB, 5000 files and 8 active reservations, configured through
+``GOKAPI_UPLOAD_INSTANCE_TOTAL_MB``, ``GOKAPI_UPLOAD_INSTANCE_MAX_FILES`` and
+``GOKAPI_UPLOAD_INSTANCE_ACTIVE``. ``GOKAPI_UPLOAD_STAGING_MB`` defaults to
+12288 MiB; each upload conservatively reserves four times its payload plus
+64 KiB. These are strict positive startup settings and require a restart.
+
+Each metadata record counts its logical size, including shared content and
+pending deletion. Client E2E uploads count received ciphertext bytes; the
+claimed plaintext size is only for display. Existing files are preserved if
+their usage already exceeds a limit, but new whole-file uploads are rejected.
+Logical byte/file exhaustion returns HTTP 413/code 21; active capacity returns
+429/code 22, staging capacity 507, and receipt/transaction backpressure 503.
+
+These cumulative limits currently apply only to the whole-file API. Chunked
+uploads, File Requests and metadata operations require their remaining
+admission work. The owner's active limit starts after reception; the shared
+receiver bounds bodies before then. Cleanup or publication uncertainty retains
+capacity and may return an error even after metadata was committed. A failed
+response does not guarantee rollback, and blind HTTP retries are not idempotent.
+Do not clear the ledger or delete shared blobs to recover capacity. See
+``docs/security/ADR-016-WHOLE-UPLOAD-ADMISSION.md`` for compatibility and recovery
+limits, including the local filesystem's hard-link requirement.
 
 .. _autodeployment:
 

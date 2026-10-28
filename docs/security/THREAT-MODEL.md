@@ -4,6 +4,21 @@
 
 基线 a9c25d453aab0c25f2d6e6926ec7312628638844，证据及分类见 [SECURITY-BASELINE](SECURITY-BASELINE.md)。模型面向个人 VPS / 小团队；不改变单体 Go、SQLite/Redis、本地/S3 或现有 API 架构。
 
+## SEC-030 整文件持久准入：IN_PROGRESS
+
+起点710f4bf；本节是开发中合同，最终证据以 [TEST-REPORT](TEST-REPORT.md)及[ADR-016](ADR-016-WHOLE-UPLOAD-ADMISSION.md)为准。只覆盖 `/api/files/add` 整文件接线，不扩大成所有上传路径已强制额度的结论。
+
+- 认证在外层完成；整文件强制空FileRequestId，owner来自当前授权主体，不从multipart覆盖。多个Key共享owner计量，去重和RealSize不能抵扣逻辑量；现存metadata仍进入快照。
+- 共用receiver先以有限正文槽/字节预算接收，再以实际file长度在provider原子Reserve/Claim；不能以receiver429当作累计额度拒绝证据。永久字节/数量拒绝为413/21，receiver429/20保持可区分。
+- 并发夹具必须先确认所有不同Key实际持久化且认证成功；SQLite唯一PublicId覆盖导致的401不证明任何quota边界。原错误夹具结果保留为FAIL，修订后的双provider竞争必须重新运行。
+- metadata、hotlink和完成回执应在同一provider提交边界发布；拒绝不得提前创建可用hotlink或覆盖现有映射。Redis EXEC运行期错误必须明确返回，不能宣称整批自动回滚。
+- 处理放大采用有溢出检查的 `4*实际payload+64KiB` 持久预留，receiver预算独立。I/O停止、自有work/spool关闭并清理确认后才能释放；已发布或Commit不确定的目标继续占charge，不自动删除canonical、不按超时退款。
+- 已有共享blob只在长度/加密metadata验证后复用，未知服务器密文拒绝覆盖；E2E声明不能绕过必需服务器加密，无法表达的双层组合拒绝。新S3调用传递Context并严格传播存在性检查错误。
+- 加密metadata读取必须拒绝损坏编码及尾字节，以字节长度限制投影，数据库不可用须返回错误而非panic。新增getter合同曾真实失败，修复后双provider目标已PASS；完整Gate仍单列，不能用目标绿色代替全部路径验证。
+- 内部上传ID仅在本次服务端调用内稳定；没有跨HTTP重试幂等协议。数据库关闭重连证明持久记录保存，不证明崩溃后文件目标已安全对账。
+
+本增量选择可配置的有限默认owner20GiB/1000/4、instance100GiB/5000/8、staging12GiB；现有MaxSize的单文件语义保持。owner在途限制从接收后开始，正文阶段仍由实例receiver约束。分片、File Request新增累计限制、复制/替换/所有者转移等正向metadata变更、异步完成与启动恢复仍OPEN，因此其他入口仍可能增加用量而不经过本轮准入。单进程与可信DataDir假设不变，不建立多租户权限引擎或分布式配额。
+
 ## 参与者与资产
 
 | 主体 | 权限来源与不能推定的权力 |

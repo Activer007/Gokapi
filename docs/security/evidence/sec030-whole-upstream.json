@@ -1,0 +1,102 @@
+{
+  "checkedAt": "2026-10-29",
+  "scope": "read-only upstream open PR search; no upstream writes",
+  "query": "repo:Forceu/Gokapi is:open",
+  "items": [
+    {
+      "number": 438,
+      "title": "feat: support default AWS credential chain for S3",
+      "url": "https://github.com/Forceu/Gokapi/pull/438"
+    },
+    {
+      "number": 437,
+      "title": "feat: audit rejected download passwords",
+      "url": "https://github.com/Forceu/Gokapi/pull/437"
+    },
+    {
+      "number": 436,
+      "title": "Fix non-admin users unable to create their first file request (#433)",
+      "url": "https://github.com/Forceu/Gokapi/pull/436"
+    },
+    {
+      "number": 435,
+      "title": "Fix OIDC email and group claims extraction from ID token for AD FS",
+      "url": "https://github.com/Forceu/Gokapi/pull/435"
+    },
+    {
+      "number": 361,
+      "title": "Added support for proxy url",
+      "url": "https://github.com/Forceu/Gokapi/pull/361"
+    },
+    {
+      "number": 424,
+      "title": "Migrate S3 storage driver from aws-sdk-go v1 to aws-sdk-go-v2",
+      "url": "https://github.com/Forceu/Gokapi/pull/424"
+    },
+    {
+      "number": 423,
+      "title": "Add MariaDB and PostgreSQL database provider support",
+      "url": "https://github.com/Forceu/Gokapi/pull/423"
+    },
+    {
+      "number": 427,
+      "title": "Handle an aws.ServeFile error gracefully instead of panicking",
+      "url": "https://github.com/Forceu/Gokapi/pull/427"
+    },
+    {
+      "number": 405,
+      "title": "Add paste feature",
+      "url": "https://github.com/Forceu/Gokapi/pull/405"
+    },
+    {
+      "number": 428,
+      "title": "Implement proxy-download mode in the mock AWS driver",
+      "url": "https://github.com/Forceu/Gokapi/pull/428"
+    },
+    {
+      "number": 426,
+      "title": "Serve a proper 404 error page for missing static files",
+      "url": "https://github.com/Forceu/Gokapi/pull/426"
+    },
+    {
+      "number": 422,
+      "title": "Fix flaky tests on Windows",
+      "url": "https://github.com/Forceu/Gokapi/pull/422"
+    },
+    {
+      "number": 415,
+      "title": "[Draft] feat: browser-side zip grouping for uploads (AI-generated, unreviewed)",
+      "url": "https://github.com/Forceu/Gokapi/pull/415"
+    },
+    {
+      "number": 419,
+      "title": "fix: delete the previous content when a file is replaced",
+      "url": "https://github.com/Forceu/Gokapi/pull/419"
+    },
+    {
+      "number": 418,
+      "title": "Add Content-Security-Policy headers",
+      "url": "https://github.com/Forceu/Gokapi/pull/418"
+    },
+    {
+      "number": 414,
+      "title": "Multi-language support",
+      "url": "https://github.com/Forceu/Gokapi/pull/414"
+    },
+    {
+      "number": 396,
+      "title": "download view ogtags image",
+      "url": "https://github.com/Forceu/Gokapi/pull/396"
+    },
+    {
+      "number": 395,
+      "title": "Improve og tags in download view",
+      "url": "https://github.com/Forceu/Gokapi/pull/395"
+    },
+    {
+      "number": 76,
+      "title": "[WIP] Migrate to AWS SDK v2",
+      "url": "https://github.com/Forceu/Gokapi/pull/76"
+    }
+  ]
+}

@@ -32,6 +32,10 @@ jobs:
       - run: GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1
       - name: Receiver contracts with race
         run: go test -race ./internal/environment ./internal/storage ./internal/storage/uploadreceive ./internal/webserver/fileupload ./internal/webserver/api ./internal/webserver -count=1 -tags=test,noaws -run 'TestSEC030Receive|TestSEC031UploadSizeSemantics|TestReceive|TestSpool|TestSEC062Range'
+      - name: Whole upload durable admission and provider contracts
+        run: bash docs/security/tools/run-sec030-whole.sh target
+      - name: Whole upload durable admission with race
+        run: bash docs/security/tools/run-sec030-whole.sh race
       - name: Record receiver source hashes
         run: |
           git ls-files -- internal/environment internal/storage/uploadreceive internal/storage/FileServing.go internal/storage/security_receive_storage_test.go internal/webserver/fileupload internal/webserver/api internal/webserver/Webserver.go internal/webserver/Webserver_test.go internal/webserver/security_receive_logging_test.go internal/webserver/security_toolchain_range_test.go internal/webserver/errorHandling/errorcodes | grep -E '\.go$' | LC_ALL=C sort | xargs sha256sum

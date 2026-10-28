@@ -273,13 +273,13 @@ func checkCapacity(ledger Ledger, files map[string]models.File, candidate Reserv
 		}
 	}
 	if userActive >= limits.UserActive || allActive >= limits.InstanceActive || (candidate.RequestID != "" && requestActive >= limits.RequestActive) {
-		return ErrQuota
+		return ErrActive
 	}
 	if staging > math.MaxInt64-candidate.StagingBytes {
 		return ErrInvalid
 	}
 	if staging+candidate.StagingBytes > limits.StagingBytes {
-		return ErrQuota
+		return ErrStaging
 	}
 	return nil
 }

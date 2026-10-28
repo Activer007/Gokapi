@@ -709,11 +709,11 @@ func apiUploadFile(w http.ResponseWriter, r requestParser, user models.User, _ m
 	}
 	err := fileupload.ProcessCompleteFile(w, request.Request, user.Id, configuration.Get().MaxMemory)
 	if err != nil {
-		status := fileupload.ReceiveErrorStatus(err)
-		if status == http.StatusTooManyRequests {
+		status, code, message := fileupload.WholeUploadErrorResponse(err)
+		if status == http.StatusTooManyRequests || status == http.StatusServiceUnavailable {
 			w.Header().Set("Retry-After", "1")
 		}
-		sendError(w, status, fileupload.ReceiveErrorCode(err, errorcodes.UnspecifiedError), err.Error())
+		sendError(w, status, code, message)
 		return
 	}
 }

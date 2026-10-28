@@ -2,6 +2,7 @@ package storage
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -336,12 +337,29 @@ func TestNewFile(t *testing.T) {
 
 	bigFile.Close()
 	database.DeleteMetaData(retrievedFile.Id)
+	canonicalDigest := func() []byte {
+		canonical, err := os.Open("test/data/c1c165c30d0def15ba2bc8f1bd243be13b8c8fe7")
+		test.IsNil(t, err)
+		if err != nil {
+			return nil
+		}
+		hash := sha256.New()
+		_, err = io.Copy(hash, canonical)
+		test.IsNil(t, err)
+		test.IsNil(t, canonical.Close())
+		return hash.Sum(nil)
+	}
+	beforeCanonical := canonicalDigest()
 
 	bigFile, _ = os.Open("bigfile")
 	file, err = NewFile(bigFile, &header, 99, request)
-	test.IsNil(t, err)
-	retrievedFile, ok = database.GetMetaDataById(file.Id)
-	test.IsEqualBool(t, ok, true)
+	// Existing encrypted bytes without their metadata must be preserved for
+	// recovery, rather than deleted and replaced under a new random key.
+	test.IsNotNil(t, err)
+	test.IsEmpty(t, file.Id)
+	test.FileExists(t, "test/data/c1c165c30d0def15ba2bc8f1bd243be13b8c8fe7")
+	test.IsEqualByteSlice(t, canonicalDigest(), beforeCanonical)
+	bigFile.Close()
 	os.Remove("bigfile")
 
 	configuration.Get().Authentication.SaltFiles = previousSalt

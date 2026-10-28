@@ -215,6 +215,7 @@ func (p DatabaseProvider) quotaAttempt(ctx context.Context, mutate quotaMutation
 		return uploadquota.Reservation{}, false, err
 	}
 	var metadataArgs redigo.Args
+	hotlinkKey := ""
 	if file != nil {
 		// Also watch the target itself: an old or external writer may change its
 		// type without participating in our metadata revision protocol.
@@ -235,6 +236,31 @@ func (p DatabaseProvider) quotaAttempt(ctx context.Context, mutate quotaMutation
 			return uploadquota.Reservation{}, false, err
 		}
 		metadataArgs = p.buildArgs(prefixMetaData + file.Id).AddFlat(marshalled)
+		if file.HotlinkId != "" {
+			hotlinkKey = p.dbPrefix + prefixHotlinks + file.HotlinkId
+			if _, err = redigo.DoContext(conn, ctx, "WATCH", hotlinkKey); err != nil {
+				return uploadquota.Reservation{}, false, err
+			}
+			kind, err := redigo.String(redigo.DoContext(conn, ctx, "TYPE", hotlinkKey))
+			if err != nil {
+				return uploadquota.Reservation{}, false, err
+			}
+			switch kind {
+			case "none":
+			case "string":
+				// File IDs are bounded by the ledger. Reading one extra byte
+				// rejects an overlong target without loading an unbounded value.
+				target, err := redigo.String(redigo.DoContext(conn, ctx, "GETRANGE", hotlinkKey, 0, uploadquota.MaxIDLength))
+				if err != nil {
+					return uploadquota.Reservation{}, false, err
+				}
+				if target != file.Id {
+					return uploadquota.Reservation{}, false, uploadquota.ErrConflict
+				}
+			default:
+				return uploadquota.Reservation{}, false, uploadquota.ErrConflict
+			}
+		}
 	}
 	if _, err = redigo.DoContext(conn, ctx, "MULTI"); err != nil {
 		return uploadquota.Reservation{}, false, err
@@ -247,6 +273,11 @@ func (p DatabaseProvider) quotaAttempt(ctx context.Context, mutate quotaMutation
 	}
 	if file != nil {
 		if _, err = redigo.DoContext(conn, ctx, "HMSET", metadataArgs...); err != nil {
+			return uploadquota.Reservation{}, false, err
+		}
+	}
+	if hotlinkKey != "" {
+		if _, err = redigo.DoContext(conn, ctx, "SET", hotlinkKey, file.Id); err != nil {
 			return uploadquota.Reservation{}, false, err
 		}
 	}
@@ -263,6 +294,9 @@ func (p DatabaseProvider) quotaAttempt(ctx context.Context, mutate quotaMutation
 	}
 	expected := 2
 	if file != nil {
+		expected++
+	}
+	if hotlinkKey != "" {
 		expected++
 	}
 	if err = checkQuotaExec(reply, expected); err != nil {

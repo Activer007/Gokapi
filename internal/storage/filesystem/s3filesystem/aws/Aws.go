@@ -15,7 +15,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
@@ -82,27 +81,47 @@ func IsValidLogin(config models.AwsConfig) (bool, error) {
 	return true, nil
 }
 
-func createSession() *session.Session {
+func createSession() (*session.Session, error) {
 	s3Config := &aws.Config{
 		Credentials:      credentials.NewStaticCredentials(awsConfig.KeyId, awsConfig.KeySecret, ""),
 		Endpoint:         aws.String(awsConfig.Endpoint),
 		Region:           aws.String(awsConfig.Region),
 		S3ForcePathStyle: aws.Bool(true),
 	}
-	return session.Must(session.NewSession(s3Config))
+	return session.NewSession(s3Config)
 }
 
 // Upload uploads a file to AWS
 func Upload(input io.Reader, file models.File) (string, error) {
-	sess := createSession()
+	return UploadContext(context.Background(), input, file)
+}
+
+// UploadContext uploads using the caller's cancellation and deadline.
+func UploadContext(ctx context.Context, input io.Reader, file models.File) (string, error) {
+	if ctx == nil {
+		return "", errors.New("invalid AWS context")
+	}
+	if err := ctx.Err(); err != nil {
+		return "", err
+	}
+	if input == nil {
+		return "", errors.New("nil AWS upload input")
+	}
+	sess, err := createSession()
+	if err != nil {
+		return "", err
+	}
 	uploader := s3manager.NewUploader(sess)
 
-	result, err := uploader.Upload(&s3manager.UploadInput{
+	result, err := uploader.UploadWithContext(ctx, &s3manager.UploadInput{
 		Bucket: aws.String(file.AwsBucket),
 		Key:    aws.String(file.SHA1),
 		Body:   input,
 	})
 	if err != nil {
+		if contextErr := ctx.Err(); contextErr != nil {
+			return "", contextErr
+		}
 		return "", err
 	}
 	return result.Location, nil
@@ -110,7 +129,10 @@ func Upload(input io.Reader, file models.File) (string, error) {
 
 // download downloads a file from AWS, used for testing
 func download(writer io.WriterAt, file models.File) (int64, error) {
-	sess := createSession()
+	sess, err := createSession()
+	if err != nil {
+		return 0, err
+	}
 	downloader := s3manager.NewDownloader(sess)
 	size, err := downloader.Download(writer, &s3.GetObjectInput{
 		Bucket: aws.String(file.AwsBucket),
@@ -124,7 +146,10 @@ func download(writer io.WriterAt, file models.File) (int64, error) {
 
 // Stream downloads a file from AWS sequentially, used for saving to a Zip file
 func Stream(writer io.Writer, file models.File) error {
-	sess := createSession()
+	sess, err := createSession()
+	if err != nil {
+		return err
+	}
 	s3svc := s3.New(sess)
 
 	obj, err := s3svc.GetObject(&s3.GetObjectInput{
@@ -158,7 +183,10 @@ func ServeFile(w http.ResponseWriter, r *http.Request, file models.File, forceDo
 }
 
 func getPresignedUrl(file models.File, forceDownload bool) (string, error) {
-	sess := createSession()
+	sess, err := createSession()
+	if err != nil {
+		return "", err
+	}
 	s3svc := s3.New(sess)
 
 	dispositionType := "inline"
@@ -209,7 +237,10 @@ func proxyDownload(w http.ResponseWriter, file models.File, forceDownload bool) 
 }
 
 func serveDecryptedFile(w http.ResponseWriter, file models.File) error {
-	sess := createSession()
+	sess, err := createSession()
+	if err != nil {
+		return err
+	}
 	s3svc := s3.New(sess)
 
 	// 1. Get the object from S3
@@ -245,46 +276,64 @@ func getTimeoutContext() (context.Context, context.CancelFunc) {
 
 // FileExists returns true if the object is stored in S3
 func FileExists(file models.File) (bool, int64, error) {
-	return fileExists(file.AwsBucket, file.SHA1)
+	return FileExistsContext(context.Background(), file)
 }
 
-func fileExists(bucket, filename string) (bool, int64, error) {
-	sess := createSession()
+// FileExistsContext fails closed on lookup errors. A canceled caller is not
+// replaced by a fresh background timeout, and an absent object is distinct from
+// an object whose existence or length could not be verified.
+func FileExistsContext(ctx context.Context, file models.File) (bool, int64, error) {
+	if ctx == nil {
+		return false, 0, errors.New("invalid AWS context")
+	}
+	if err := ctx.Err(); err != nil {
+		return false, 0, err
+	}
+	sess, err := createSession()
+	if err != nil {
+		return false, 0, err
+	}
 	svc := s3.New(sess)
 
-	ctx, cancelCtx := getTimeoutContext()
+	ctx, cancelCtx := context.WithTimeout(ctx, 5*time.Second)
 	defer cancelCtx()
 
 	info, err := svc.HeadObjectWithContext(ctx, &s3.HeadObjectInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String(filename),
+		Bucket: aws.String(file.AwsBucket),
+		Key:    aws.String(file.SHA1),
 	})
 
 	if err != nil {
+		if contextErr := ctx.Err(); contextErr != nil {
+			return false, 0, contextErr
+		}
 		var aerr awserr.Error
 		ok := errors.As(err, &aerr)
 		if ok {
 			if aerr.Code() == "NotFound" {
 				return false, 0, nil
 			}
-			if aerr.Code() == request.CanceledErrorCode {
-				return false, 0, errors.New("Timeout - could not connect to " + *svc.Config.Endpoint)
-			}
 		}
 		return false, 0, err
+	}
+	if info == nil || info.ContentLength == nil || *info.ContentLength < 0 {
+		return false, 0, errors.New("invalid S3 object length")
 	}
 	return true, *info.ContentLength, nil
 }
 
 // DeleteObject deletes a file from S3
 func DeleteObject(file models.File) (bool, error) {
-	sess := createSession()
+	sess, err := createSession()
+	if err != nil {
+		return false, err
+	}
 	svc := s3.New(sess)
 
 	ctx, cancelCtx := getTimeoutContext()
 	defer cancelCtx()
 
-	_, err := svc.DeleteObjectWithContext(ctx, &s3.DeleteObjectInput{
+	_, err = svc.DeleteObjectWithContext(ctx, &s3.DeleteObjectInput{
 		Bucket: aws.String(file.AwsBucket),
 		Key:    aws.String(file.SHA1),
 	})
@@ -297,7 +346,10 @@ func DeleteObject(file models.File) (bool, error) {
 
 // IsCorsCorrectlySet returns true if CORS rules allow download from Gokapi
 func IsCorsCorrectlySet(bucket, gokapiUrl string) (bool, error) {
-	sess := createSession()
+	sess, err := createSession()
+	if err != nil {
+		return false, err
+	}
 	svc := s3.New(sess)
 	input := &s3.GetBucketCorsInput{
 		Bucket: aws.String(bucket),

@@ -57,6 +57,19 @@ type Environment struct {
 	// Bounds transient upload reception and processing copies in MiB. This is
 	// not the persisted chunk ledger or a user's cumulative logical quota.
 	UploadReceiveMB int64 `env:"UPLOAD_RECEIVE_MB" envDefault:"12288"`
+
+	// Logical owner limits apply across all of that owner's upload credentials.
+	UploadUserTotalMB  int64 `env:"UPLOAD_USER_TOTAL_MB" envDefault:"20480"`
+	UploadUserMaxFiles int64 `env:"UPLOAD_USER_MAX_FILES" envDefault:"1000"`
+	UploadUserActive   int64 `env:"UPLOAD_USER_ACTIVE" envDefault:"4"`
+
+	// Instance logical limits are independent of actual disk free space.
+	UploadInstanceTotalMB  int64 `env:"UPLOAD_INSTANCE_TOTAL_MB" envDefault:"102400"`
+	UploadInstanceMaxFiles int64 `env:"UPLOAD_INSTANCE_MAX_FILES" envDefault:"5000"`
+	UploadInstanceActive   int64 `env:"UPLOAD_INSTANCE_ACTIVE" envDefault:"8"`
+
+	// Bounds durable staging declarations, separately from reception copies.
+	UploadStagingMB int64 `env:"UPLOAD_STAGING_MB" envDefault:"12288"`
 	// Sets the maximum number of files that can be uploaded per file requests created by
 	// non-admin users
 	// Set to 0 to allow unlimited file count for all users
@@ -122,6 +135,32 @@ func (e Environment) ValidateReceiveLimits() error {
 	return nil
 }
 
+// ValidateWholeUploadLimits checks finite whole-upload capacities without
+// normalizing explicit input or changing reception-only fixture validation.
+func (e Environment) ValidateWholeUploadLimits() error {
+	for _, field := range []struct {
+		name  string
+		value int64
+		bytes bool
+	}{
+		{"GOKAPI_UPLOAD_USER_TOTAL_MB", e.UploadUserTotalMB, true},
+		{"GOKAPI_UPLOAD_USER_MAX_FILES", e.UploadUserMaxFiles, false},
+		{"GOKAPI_UPLOAD_USER_ACTIVE", e.UploadUserActive, false},
+		{"GOKAPI_UPLOAD_INSTANCE_TOTAL_MB", e.UploadInstanceTotalMB, true},
+		{"GOKAPI_UPLOAD_INSTANCE_MAX_FILES", e.UploadInstanceMaxFiles, false},
+		{"GOKAPI_UPLOAD_INSTANCE_ACTIVE", e.UploadInstanceActive, false},
+		{"GOKAPI_UPLOAD_STAGING_MB", e.UploadStagingMB, true},
+	} {
+		if field.value <= 0 {
+			return fmt.Errorf("%s must be positive", field.name)
+		}
+		if field.bytes && field.value > math.MaxInt64/(1024*1024) {
+			return fmt.Errorf("%s must fit an int64 byte budget", field.name)
+		}
+	}
+	return nil
+}
+
 // New parses the env variables
 func New() Environment {
 	result := Environment{
@@ -146,9 +185,15 @@ func New() Environment {
 }
 
 func parseEnvVars(result Environment) Environment {
-	// Validate the two strict capacities before the general parser: its error
+	// Validate strict capacities before the general parser: its error
 	// messages include raw supplied values, which must not reach logs here.
 	validated, err := parseReceiveEnvironment(result)
+	if err != nil {
+		fmt.Println("Error parsing env variables:", err)
+		osExit(1)
+		return Environment{}
+	}
+	validated, err = parseWholeUploadEnvironment(validated)
 	if err != nil {
 		fmt.Println("Error parsing env variables:", err)
 		osExit(1)
@@ -184,6 +229,36 @@ func parseReceiveEnvironment(result Environment) (Environment, error) {
 		}
 	}
 	if err := result.ValidateReceiveLimits(); err != nil {
+		return Environment{}, err
+	}
+	return result, nil
+}
+
+func parseWholeUploadEnvironment(result Environment) (Environment, error) {
+	result.UploadUserTotalMB, result.UploadUserMaxFiles, result.UploadUserActive = 20480, 1000, 4
+	result.UploadInstanceTotalMB, result.UploadInstanceMaxFiles, result.UploadInstanceActive = 102400, 5000, 8
+	result.UploadStagingMB = 12288
+	for _, field := range []struct {
+		name   string
+		target *int64
+	}{
+		{"GOKAPI_UPLOAD_USER_TOTAL_MB", &result.UploadUserTotalMB},
+		{"GOKAPI_UPLOAD_USER_MAX_FILES", &result.UploadUserMaxFiles},
+		{"GOKAPI_UPLOAD_USER_ACTIVE", &result.UploadUserActive},
+		{"GOKAPI_UPLOAD_INSTANCE_TOTAL_MB", &result.UploadInstanceTotalMB},
+		{"GOKAPI_UPLOAD_INSTANCE_MAX_FILES", &result.UploadInstanceMaxFiles},
+		{"GOKAPI_UPLOAD_INSTANCE_ACTIVE", &result.UploadInstanceActive},
+		{"GOKAPI_UPLOAD_STAGING_MB", &result.UploadStagingMB},
+	} {
+		if raw, exists := os.LookupEnv(field.name); exists {
+			value, err := strconv.ParseInt(raw, 10, 64)
+			if err != nil {
+				return Environment{}, fmt.Errorf("invalid integer configuration for %s", field.name)
+			}
+			*field.target = value
+		}
+	}
+	if err := result.ValidateWholeUploadLimits(); err != nil {
 		return Environment{}, err
 	}
 	return result, nil

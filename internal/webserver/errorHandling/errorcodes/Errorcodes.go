@@ -43,4 +43,8 @@ const (
 	ResourceCanNotBeEdited
 	// UploadBusy is transient backpressure before reading an upload body.
 	UploadBusy
+	// UploadQuotaExceeded is a permanent logical byte or file count rejection.
+	UploadQuotaExceeded
+	// UploadQuotaBusy is transient durable upload capacity backpressure.
+	UploadQuotaBusy
 )
