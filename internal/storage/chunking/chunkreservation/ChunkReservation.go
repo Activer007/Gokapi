@@ -52,6 +52,24 @@ func SetComplete(id, uuid string) {
 	reservationMutex.Unlock()
 }
 
+// Cancel removes only a live reservation belonging to this request. Keep the
+// check, file removal and reservation removal together so duplicate cancels
+// cannot invoke remove twice. Failed removal retains the reservation for retry.
+// Unknown reservations are a no-op, preserving idempotent cancellation.
+func Cancel(id, uuid string, remove func() error) error {
+	reservationMutex.Lock()
+	defer reservationMutex.Unlock()
+	chunk, ok := reservedChunks[id][uuid]
+	if !ok || chunk.Expiry <= time.Now().Unix() {
+		return nil
+	}
+	if err := remove(); err != nil {
+		return err
+	}
+	delete(reservedChunks[id], uuid)
+	return nil
+}
+
 // SetUploading marks a chunk as uploading and extends the reservation time
 func SetUploading(id string, uuid string) bool {
 	reservationMutex.Lock()

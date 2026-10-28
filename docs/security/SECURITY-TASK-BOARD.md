@@ -37,7 +37,7 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | SEC-023 | P0 验证 VALIDATE | 历史 CSRF 已修；跨浏览器绑定疑点 | 003/012 → G1；真实浏览器/Origin/SameSite 矩阵，未经实证不替换认证框架 |
 | SEC-030 | P0 CONFIRMED_CODE / VALIDATE | 当前 User 无累计额度字段，未见原子预算；资源耗尽需量化 | 003/020 → G1/G3；先计量语义与预约并发测试，按用户/实例分 PR；参考 issue #431 |
 | SEC-031 | P0 CONFIRMED_CODE / VALIDATE | 单文件实现 vs 总额文案；累计绕过未做攻击认定 | 003，语义定案后接 030 → G1/G3；连续/并发请求实测再选兼容方案；#436 先评审 |
-| SEC-032 | P0 VALIDATE | 已有 body/offset/空间检查；跨请求资源与 chunk 所有权待证 | 003/030 → G1/G2；逐入口长度、offset、取消、UUID 复用测试；并发修复需 race |
+| SEC-032 | P0 CONFIRMED_CODE / VALIDATE | 取消预约修复经私密审查；最小发布集待合并 | 003/030 → G1/G2；ADR-007，测试见报告；完成/在途任务/完整所有权边界仍开放 |
 | SEC-040 | P0 CONFIRMED_CODE | 删除错误与元数据生命周期不一致；S3 RED | 003 → G1/G2/G3；先保留记录/传递错误/重试；复杂状态机后置；不把 #419 当相同修复 |
 | SEC-041 | P0 CONFIRMED_CODE + HISTORICAL_FIXED | 旧内容回收缺口与历史替换越权是两件事 | 020/040 → G1/G2/G3；先评审 [#419](https://github.com/Forceu/Gokapi/pull/419)，多引用与中断回滚；仅 fork 应用经验证的补丁 |
 | SEC-042 | P1 VALIDATE | 双层元数据扫描；真实性能瓶颈待测 | 040/041 → 基准后 G3；先 1k/10k 扫描计数，必要时 Blob 索引，SQLite/Redis 都可重建 |

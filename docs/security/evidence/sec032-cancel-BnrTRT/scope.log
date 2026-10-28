@@ -1,0 +1,18 @@
+=== RUN   TestSEC032CancelScope
+=== RUN   TestSEC032CancelScope/own
+=== RUN   TestSEC032CancelScope/other-request
+=== RUN   TestSEC032CancelScope/missing
+=== RUN   TestSEC032CancelScope/expired
+=== RUN   TestSEC032CancelScope/expiry-boundary
+--- PASS: TestSEC032CancelScope (0.00s)
+    --- PASS: TestSEC032CancelScope/own (0.00s)
+    --- PASS: TestSEC032CancelScope/other-request (0.00s)
+    --- PASS: TestSEC032CancelScope/missing (0.00s)
+    --- PASS: TestSEC032CancelScope/expired (0.00s)
+    --- PASS: TestSEC032CancelScope/expiry-boundary (0.00s)
+=== RUN   TestSEC032CancelRetry
+--- PASS: TestSEC032CancelRetry (0.00s)
+=== RUN   TestSEC032CancelConcurrent
+--- PASS: TestSEC032CancelConcurrent (0.00s)
+PASS
+ok  	github.com/forceu/gokapi/internal/storage/chunking/chunkreservation	0.005s

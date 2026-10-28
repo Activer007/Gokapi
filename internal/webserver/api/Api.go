@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -399,8 +400,17 @@ func apiChunkUnreserve(w http.ResponseWriter, r requestParser, _ models.User, ap
 		sendError(w, status, errorCode, errorMsg)
 		return
 	}
-	chunkreservation.SetComplete(fileRequest.Id, request.Uuid)
-	_ = chunking.DeleteChunk(request.Uuid)
+	err := chunkreservation.Cancel(fileRequest.Id, request.Uuid, func() error {
+		err := chunking.DeleteChunk(request.Uuid)
+		if errors.Is(err, os.ErrNotExist) {
+			return nil // A reserved upload may be cancelled before its first chunk.
+		}
+		return err
+	})
+	if err != nil {
+		sendError(w, http.StatusInternalServerError, errorcodes.InternalServer, "Unable to cancel upload; please retry")
+		return
+	}
 	_, _ = w.Write([]byte(`{"Result":"OK"}`))
 }
 

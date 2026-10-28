@@ -427,3 +427,26 @@ go test -race ./internal/webserver ./internal/storage/presign -count=1 -tags=tes
 全仓race、真实S3/Redis服务、浏览器下载、S3已签发URL撤销、在途对象变更、govulncheck本项NOT_RUN。文件请求/分片/异步任务授权、并发会话续期/Key签发、公开分享矩阵、OIDC与跨浏览器CSRF仍是M2开放Gate。
 
 提交前overlay源码摘要、文档相对链接、Windows原生diff --check通过；新增证据常见私钥/GitHub Token/AWS访问Key/Authorization/session Cookie/完整presign URL模式无匹配（有限扫描）。[PR #11](https://github.com/Activer007/Gokapi/pull/11)代码提交81d70117535c262a73868c25f419cabb20a14538；已读取远端patch并记录COMMENT自审，非独立审批。核对双签发入口、当前主体/Key、逐对象交集、凭据类型、原子领取、错误格式及ADR边界，无本PR范围阻塞项。后续仅补PR/审查文档，应用与测试源码仍与Nfh4YZ摘要一致；最终head CI成功后才合并。
+
+PR #11 已核实合并 8377de414a8a07ab1019397470f9547a206c2715；最终 head 14e7e3eacc74bfdc5f011cb67efab2d5689827b6 两条 CI（40652514812 / 40652508331）生成及四组测试均 PASS，本地 master 文件树一致。
+
+## M2 / SEC-032 最小发布集
+
+2026-10-28，WSL Ubuntu24.04、Go1.26.0 linux/amd64，基线 8377de414a8a07ab1019397470f9547a206c2715。完整条件性 API 矩阵、RED 证据及评估保留在本人仓库的私密安全审查记录中；生产修复在该矩阵、三组全量和相关包 race 下通过。发布分支从公开基线新建，不携带私密提交历史或详细复现材料。
+
+公开单元测试验证预约范围、有效期边界、删除失败/重试和 32 个并发取消。run-sec032-cancel.sh 以新 /tmp archive 加显式 overlay 验证发布文件集，记录 HEAD、源码/runner 摘要、真实命令及退出码；只使用临时文件和合成数据。命令如下，最终结果另列：
+
+```sh
+go generate ./...
+go test ./internal/storage/chunking/chunkreservation -count=1 -tags=test,noaws -run TestSEC032 -v
+go test ./... -parallel 8 -count=1 -tags=test,awsmock
+go test ./... -parallel 8 -count=1 -tags=test,noaws
+go test ./... -count=1 -tags=test,noaws,integration
+go test -race ./internal/test/securityfixture ./internal/storage/chunking/chunkreservation -count=1 -tags=test,noaws
+```
+
+临时安全 fork 按 GitHub 设计不运行 CI/状态检查，故远端合并前 CI 为 NOT_RUN，不能称为通过。官网流程要求在公告页统一合并，合并会将变更带入公开父仓库；因此只合并本最小发布集，公告保持草稿。详细审查材料继续私密保存，不能直接合并原完整证据分支。
+
+无 schema/身份/加密迁移，删除失败响应变化及回滚见 ADR-007。全仓 race、真实 Redis/S3、浏览器、在途写入/完成与取消竞争、崩溃恢复、govulncheck 本项 NOT_RUN。M2 不因此完成。
+
+最终发布集验证：[sec032-cancel-BnrTRT](evidence/sec032-cancel-BnrTRT/results.tsv) 的 environment/generate/scope/awsmock/noaws/integration/race 均退出 0。源码与私密审查通过的生产修复及单元测试一致。完整 API 矩阵仍保存在私密记录，本公开 runner 不声称重跑该矩阵。有限秘密模式扫描、源码摘要与原生 git diff --check 检查通过后提交；自审不是独立审批。

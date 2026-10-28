@@ -142,3 +142,7 @@ M0 只增加文档、测试和入口脚本，不改公开 API、模板/WASM、�
 2026-10-28，d599aabfbc7f52aa06a14a006348992adc94247a（PR #10已合并）；本地E:\LHA\Gokapi，分支codex/sec-021-presign；origin仍为Activer007/Gokapi，用户计划目录保留，尚未部署。WSL Ubuntu24.04 / Go1.26.0 linux/amd64。已检查签发API、presign内存store、登录middleware、消费handler、README/docs/setup保护路径、admin_api/admin_ui_allPages调用及现有测试。上游presign查询仅返回SDK迁移PR #424与文件名Issue #302，未见同项消费授权修复；未写上游。
 
 **CONFIRMED_CODE**：旧管理grant不保留签发主体并且消费不复查对象授权。新合同RED在两种隔离provider各10项状态中返回200；正常下载、管理员读取、ZIP、过期/待删拒绝、匿名拒绝均正常。该证据定义M2需要收紧的管理capability合同，不把合法capability转交自动称为未知漏洞。新增当前主体/Key/逐文件授权及原子一次领取；公开分享路径不改变。ADR-006记录行为兼容、无schema迁移、重启与回滚；全目标结果和未覆盖边界见TEST-REPORT。分片、异步任务、OIDC与浏览器CSRF仍为VALIDATE。
+
+## 2026-10-28 SEC-032 取消预约
+
+基线 8377de414a8a07ab1019397470f9547a206c2715。本人仓库已独立（REST fork=false），PR #11 合并记录仍可访问。CONFIRMED_CODE：取消预约按当前有效预约处理，删除失败保留重试；VALIDATE：完整分片生命周期和在途任务仍待验证。遵循私密安全审查流程，公开内容仅保留必要修复、单元回归和兼容说明；详细条件测试与 RED 证据未放入发布分支。见 ADR-007、TEST-REPORT。
