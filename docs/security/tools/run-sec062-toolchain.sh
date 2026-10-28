@@ -38,10 +38,11 @@ if [ "$mode" != historical ]; then
 fi
 if [ "$mode" = containers ]; then
     # Only temporary runner-local images/containers; no push, host mounts or data volumes.
-    tag=$(basename "$work")
+    tag=$(basename "$work" | tr '[:upper:]' '[:lower:]')
     run docker-server docker build -t "$tag-server" -f Dockerfile .
     run docker-cli docker build -t "$tag-cli" -f Dockerfile.cli-tool .
     run docker-builder docker build -t "$tag-builder" -f build/Dockerfile build
+    if [ "$failed" -ne 0 ]; then exit 1; fi
     run builder-version docker run --rm --entrypoint go "$tag-builder" version
     for target in server cli; do
         name=gokapi; if [ "$target" = cli ]; then name=gokapi-cli; fi

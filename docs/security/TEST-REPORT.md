@@ -745,3 +745,5 @@ go test ./internal/webserver/api -count=1 -tags=test,noaws,security_large -run T
 旧3686e28推送CI40759247121实际FAIL于toolchain gates：默认/noaws/WASM源码扫描均退出0，但生成器命名Go文件被govulncheck source mode拒绝（退出2），随后还有已修的循环变量导致错误产物路径。生成器目录有多个独立main，改为Go原生编译其实际minify可执行文件并binary扫描，不拼接虚构包。560862c的手动40760133832因同一已知source调用错误取消；这些失败/取消不计PASS。源码扫描同时报告未导入/未调用的openpgp及旧AWS S3 Crypto模块公告，不能简写为“依赖没有公告”，最终报告需保留模块级限制。
 
 第二个旧推送CI40760132130实际失败于go generate下载minify模块：proxy.golang.org HTTP/2 INTERNAL_ERROR，后续步骤未运行；未误归为生成器扫描错误，原日志second-failed.log保留。本轮进一步只读审查发现历史RED需要旧commit对象，checkout改为完整历史；格式检查改bash -ec，合成gofmt退出2控制证明旧bash -c误回0、新调用保留2，合同退出0。这是错误传播控制，不冒充运行了真实Go格式检查；真实格式化已由首轮远端退出0，最终仍随新CI验证。
+
+82d54dc手动CI40762083078：生成/四组全仓/相关race、实际Go1.26.10及全部源/产物扫描PASS，历史Go1.26.0扫描实际退出3且含6609、wrapper预期RED通过。其后Docker FAIL：mktemp随机目录名含大写，临时image repository名被Docker拒绝，构建尚未发生，大文件SKIPPED；原始final-attempt1.log保留。仅将临时image名转小写，并在任何build失败后停止后续容器操作，不改变应用、构建器版本或扫描判定；后续另跑真实构建。历史对象缺失另以本地no-checkout浅克隆归档实际RED128、unshallow后GREEN0验证，不操作原工作树数据。
