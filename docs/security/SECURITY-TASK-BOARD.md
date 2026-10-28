@@ -110,7 +110,7 @@ SEC-030计算PR仅交付Measure/CanReserve及测试，没有启用额度。独�
 
 SEC-062测试可靠性增量，[PR #18](https://github.com/Activer007/Gokapi/pull/18)，代码691238b，基线4ad1255：PR #17已合并；合并后CI40726798576 attempt1/noaws、attempt2/integration均因setup固定53842首次监听冲突失败，保留原始证据，不继续盲重跑。隔离占端口RED确认后改用持有的动态listener；生产默认net.Listen不变，保存配置/认证等原断言保留。最终393FfY占配置端口合同/生成/setup/相关race/三组全量全部PASS，见TEST-REPORT；PR审查及合并后CI仍按实际记录。M3运行时额度/清理/性能Gate不因此关闭。
 
-SEC-030接收增量，[PR #19](https://github.com/Activer007/Gokapi/pull/19)，起点f4ce5db、codex/sec-030-bounded-receiver：真实四类入口已共用有界receiver；槽/字节/字段/ownedspool、失败清理与重启、实际payload末块检查及小文件堆上限已实现，见ADR-015/TEST-REPORT。本地环境/入口目标及相关race通过，首轮混合fixture失败保留；1GiB实传通过，2GiB遇本机WSL只读/E_UNEXPECTED。首个远端全量因旧网页3/50字节夹具及错误文案失败，修正后Gate另验证。仍OPEN：ADR-014持久ID接线、用户/请求累计/在途、正向metadata、chunk完整区间、异步完成与完整恢复；不缩小M3目标。
+SEC-030接收增量初期记录（最终Gate见下），[PR #19](https://github.com/Activer007/Gokapi/pull/19)，起点f4ce5db、codex/sec-030-bounded-receiver：真实四类入口已共用有界receiver；槽/字节/字段/ownedspool、失败清理与重启、实际payload末块检查及小文件堆上限已实现，见ADR-015/TEST-REPORT。本地环境/入口目标及相关race通过，首轮混合fixture失败保留；1GiB实传通过，2GiB遇本机WSL只读/E_UNEXPECTED。首个远端全量因旧网页3/50字节夹具及错误文案失败，修正后Gate另验证。仍OPEN：ADR-014持久ID接线、用户/请求累计/在途、正向metadata、chunk完整区间、异步完成与完整恢复；不缩小M3目标。
 
 P0 SEC-062追加已公开标准库公告核验：Go1.26.0复现基线不能等于安全发布工具链；GO-2026-6603/6089官方版本与适用条件见SECURITY-BASELINE，下一独立工具链修补/可达性及govulncheck Gate，未运行的扫描不记PASS。保留个人/单进程范围，不以应用层正文预算替代handler之前的协议防线。
 
