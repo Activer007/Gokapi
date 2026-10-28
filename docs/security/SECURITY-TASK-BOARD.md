@@ -1,5 +1,7 @@
 # 安全任务看板
 
+> 当前 M2 范围以用户于 2026-10-28 确认的 [简化目标](M2-GOAL.md) 为准：单进程、可信小团队，保留关键授权边界。下列历史矩阵/待办不再全部构成 M2 阻塞 Gate；延期不等于已修复。
+
 初始工作基线：a9c25d453aab0c25f2d6e6926ec7312628638844；2026-10-27。SEC-003 分支基线：1f47d1d91eda7da2098d2820c1633f88942f19f4（SEC-062 PR #1 已合并）。沿用用户现有安全开发计划的 SEC 编号。P0/P1 是工程顺序，分类是证据强度，两者独立。**所有 PR 的 base repository 只能是 Activer007/Gokapi**；上游 PR 链接仅为只读参考。本轮按用户授权创建、审查和合并本 fork PR，不执行发布。
 
 ## Gate 定义
@@ -33,7 +35,7 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | SEC-014 | P0 CONFIRMED_CODE / P1 调优 | RED→GREEN：取消等待、清理协程有界、慢头、30秒管理I/O/Context、OIDC取消；长正文/SSE正例通过 | [PR #6](https://github.com/Activer007/Gokapi/pull/6)已合并462c5d5；补充[PR #8](https://github.com/Activer007/Gokapi/pull/8)，代码4bc1fc3，本地三组/定向race及最新镜像非rootGate PASS；ADR-004；最终CI/合并以PR为准；100GB/真实代理负载仍VALIDATE |
 | SEC-020 | P0 HISTORICAL_FIXED / CONFIRMED_CODE | 现状矩阵、故障状态RED、最小纯策略、目标/三组/race GREEN完成；失败原样保留 | [PR #9](https://github.com/Activer007/Gokapi/pull/9)，代码a83366a；远端diff自审完成，最终CI/合并以PR为准；M2其余边界仍未完成 |
 | SEC-021 | P0 HISTORICAL_FIXED / CONFIRMED_CODE / VALIDATE | 真实API撤销、Redis使用记录合同已合并；管理presign当前授权与原子消费RED→GREEN、三组/race PASS；其他跨请求/异步Gate仍开放 | [PR #10](https://github.com/Activer007/Gokapi/pull/10)合并d599aab；presign [PR #11](https://github.com/Activer007/Gokapi/pull/11)，代码81d7011、ADR-006、已自审；最终CI/合并以PR为准 |
-| SEC-022 | P0 企业场景 VALIDATE | 邮箱关联、issuer/sub/claims 完整策略未验证 | 003/020 → G1/G3；先模拟 IdP + 完整回调，证实后才设计账户迁移 ADR；参考 #435，不冒称漏洞 |
+| SEC-022 | P0 企业场景 VALIDATE | 已有私密双 IdP 评估和迁移建议；实际身份迁移延期，不阻塞内置登录参考部署 | 003/020 → G1/G3；先模拟 IdP + 完整回调，证实后才设计账户迁移 ADR；参考 #435，不冒称漏洞 |
 | SEC-023 | P0 HISTORICAL_FIXED / CONFIRMED_CODE | 表单上下文修复经私密 HTTP/浏览器 RED→GREEN 与三组/race 验证；最小发布集已合并 0d918a1，合并后四组 CI PASS | ADR-009；不改变 OIDC 链路，公开回归/限制见 TEST-REPORT |
 | SEC-030 | P0 CONFIRMED_CODE / VALIDATE | 当前 User 无累计额度字段，未见原子预算；资源耗尽需量化 | 003/020 → G1/G3；先计量语义与预约并发测试，按用户/实例分 PR；参考 issue #431 |
 | SEC-031 | P0 CONFIRMED_CODE / VALIDATE | 单文件实现 vs 总额文案；累计绕过未做攻击认定 | 003，语义定案后接 030 → G1/G3；连续/并发请求实测再选兼容方案；#436 先评审 |
@@ -70,3 +72,5 @@ PR 均为 **Activer007/Gokapi ← codex/...**。SEC-062 的先决发布保护已
 ## SEC-020 能力隔离矩阵增量
 
 2026-10-28，基线 0d918a1。公开 ID/密码 Cookie/session/presign/API Key 权限域与公开下载状态矩阵已新增；两种 provider 基线 PASS，隔离 mutation RED 生效，最终全量/race/PR Gate 见 TEST-REPORT。File Request 正例在认证边界止步，不冒称已验证完整上传/完成流程；跨请求和并发 Gate 继续开放。
+
+本轮按用户确认收缩 M2，收尾只保留单进程续期/撤销、File Request add/complete 作用域和最终审计；完整要求见 M2-GOAL。PR #12 已合并 79a0480，合并后 CI 40675833652 PASS。

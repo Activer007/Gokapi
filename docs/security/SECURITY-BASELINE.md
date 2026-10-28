@@ -161,3 +161,7 @@ CONFIRMED_CODE：管理 API 使用 apikey 查数据库并校验凭据种类；�
 已只读检查 README、docs/changelog.rst、docs/advanced.rst、SECURITY.md、Api/routing、GetFile/ServeFile、downloadPasswordToken、现有矩阵及历史公开公告。上游开放 PR #436（Issue #433）涉及首次创建 File Request 的前端额度默认值，#437 是错误下载密码审计，#136 是旧 hotlink 生成问题；未见同范围能力隔离矩阵。初次 gh 搜索参数错误已纠正，不能把该错误当作没有结果。未写入 upstream。
 
 VALIDATE：完整分片/完成/在途及异步任务授权、会话续期/Key 签发并发、旧 hotlink 撤销竞争仍未由本项证明。M2 保持开放；OIDC 评估及迁移方案在独立私密审查中，未实施身份 schema 迁移。
+
+## 2026-10-28 用户修订 M2 部署范围
+
+用户确认个人/可信小团队、单 VPS 单进程，公网下载者和 File Request 上传者仍不可信。已复核 User.go 的三角色/9 用户权限位、ApiKey.go 的10动作位、Policy.go 纯策略和 API 当前权限检查。CONFIRMED_CODE：现有实现无需新增权限引擎；VALIDATE：单进程会话续期/撤销及 File Request add/complete 收尾。目标调整见 [M2-GOAL](M2-GOAL.md)，不删除既有测试，不把延期标成已修复。代码仍为 79a0480；本轮仅改文档，尚未部署。
