@@ -12,15 +12,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Activer007/SupaShare/internal/encryption"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/webserver/headers"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/Activer007/SupaShare/internal/encryption"
-	"github.com/Activer007/SupaShare/internal/models"
-	"github.com/Activer007/SupaShare/internal/webserver/headers"
 )
 
 var awsConfig models.AwsConfig
@@ -322,23 +322,37 @@ func FileExistsContext(ctx context.Context, file models.File) (bool, int64, erro
 	return true, *info.ContentLength, nil
 }
 
-// DeleteObject deletes a file from S3
+// DeleteObject deletes a file from S3 using the legacy request timeout.
 func DeleteObject(file models.File) (bool, error) {
+	return DeleteObjectContext(context.Background(), file)
+}
+
+// DeleteObjectContext preserves caller cancellation and the five-second request
+// cap. Errors are returned to the caller without logging object identifiers.
+func DeleteObjectContext(ctx context.Context, file models.File) (bool, error) {
+	if ctx == nil {
+		return false, errors.New("invalid AWS context")
+	}
+	if err := ctx.Err(); err != nil {
+		return false, err
+	}
 	sess, err := createSession()
 	if err != nil {
 		return false, err
 	}
 	svc := s3.New(sess)
 
-	ctx, cancelCtx := getTimeoutContext()
+	ctx, cancelCtx := context.WithTimeout(ctx, 5*time.Second)
 	defer cancelCtx()
 
 	_, err = svc.DeleteObjectWithContext(ctx, &s3.DeleteObjectInput{
 		Bucket: aws.String(file.AwsBucket),
 		Key:    aws.String(file.SHA1),
 	})
-
 	if err != nil {
+		if contextErr := ctx.Err(); contextErr != nil {
+			return false, contextErr
+		}
 		return false, err
 	}
 	return true, nil

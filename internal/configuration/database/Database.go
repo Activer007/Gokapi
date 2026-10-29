@@ -182,6 +182,40 @@ func ReadRecoveryFile(ctx context.Context, id string) (models.File, bool, error)
 	return db.ReadRecoveryFile(ctx, id)
 }
 
+// ReadCleanupIDs is complete and bounded; an incomplete scan is an error.
+func ReadCleanupIDs(ctx context.Context) ([]string, error) {
+	if ctx == nil {
+		return nil, uploadquota.ErrInvalid
+	}
+	if db == nil {
+		return nil, uploadquota.ErrSchema
+	}
+	return db.ReadCleanupIDs(ctx)
+}
+
+// HasBlobReference includes other owners, expired shares and pending deletion.
+func HasBlobReference(ctx context.Context, file models.File) (bool, error) {
+	if ctx == nil {
+		return false, uploadquota.ErrInvalid
+	}
+	if db == nil {
+		return false, uploadquota.ErrSchema
+	}
+	return db.HasBlobReference(ctx, file)
+}
+
+// RetireCleanupFile conditionally removes the inspected row and its owned
+// hotlink. sourceGone is internal checked storage evidence, never user input.
+func RetireCleanupFile(ctx context.Context, file models.File, now int64, sourceGone bool) (bool, error) {
+	if ctx == nil {
+		return false, uploadquota.ErrInvalid
+	}
+	if db == nil {
+		return false, uploadquota.ErrSchema
+	}
+	return db.RetireCleanupFile(ctx, file, now, sourceGone)
+}
+
 // ReadBlobEncryption reads only bounded encryption metadata for one storage
 // locator. It does not load names, passwords or all file metadata into memory.
 func ReadBlobEncryption(ctx context.Context, hash, bucket string) (models.EncryptionInfo, bool, error) {
