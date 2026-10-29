@@ -45,13 +45,17 @@ jobs:
         run: go test -race ./internal/test/securityfixture ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,security_cleanup -run '^TestSEC040Cleanup' -timeout 3m -v
       - name: Deletion state, timer and API contracts with race
         run: go test -race ./internal/storage ./internal/storage/filerequest ./internal/webserver/api ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis ./internal/webserver/api/mutex/apimutex ./cmd/cli-uploader/cliapi -count=1 -tags=test,noaws,security_deletion,security_replace -run 'TestSEC040|TestSEC030ReplaceLocks' -timeout 3m -v
+      - name: Old content, process restart and candidate migration contracts with race
+        run: go test -race ./internal/blobreclaim ./internal/storage ./internal/configuration/database ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,noaws,security_reclaim -run 'TestSEC041|TestCandidateRecordBoundary' -timeout 3m -v
+      - name: Old content retry against loopback S3 with race
+        run: go test -race ./internal/test/securityfixture -count=1 -tags=test,security_cleanup,security_reclaim -run '^TestSEC041OldContentS3RetryKeepsReplacement$' -timeout 2m -v
       - name: Whole and chunk upload durable admission and provider contracts
         run: bash docs/security/tools/run-sec030-whole.sh target
       - name: Whole and chunk upload durable admission with race
         run: bash docs/security/tools/run-sec030-whole.sh race
       - name: Record security source hashes
         run: |
-          git ls-files -- cmd/supashare/Main.go cmd/cli-uploader/cliapi internal/configuration/database internal/environment internal/storage internal/uploadquota internal/webserver | grep -E '\.go$' | LC_ALL=C sort | xargs sha256sum
+          git ls-files -- cmd/supashare/Main.go cmd/cli-uploader/cliapi internal/blobreclaim internal/configuration/database internal/environment internal/storage internal/uploadquota internal/webserver | grep -E '\.go$' | LC_ALL=C sort | xargs sha256sum
           sha256sum cmd/wasmdownloader/Main.go internal/webserver/web/templates/html_download.tmpl internal/webserver/web/main.wasm
       - name: Toolchain build and vulnerability gates
         run: bash docs/security/tools/run-sec062-toolchain.sh scan

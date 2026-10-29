@@ -118,11 +118,13 @@ func (p DatabaseProvider) CheckEmptyForMigration(ctx context.Context) error {
 		_, _ = redigo.DoContext(conn, cleanup, command)
 	}()
 	bootstrap := map[string]bool{
-		p.dbPrefix + keyDbVersion:        true,
-		p.dbPrefix + keyUploadQuota:      true,
-		p.dbPrefix + keyMetadataRevision: true,
+		p.dbPrefix + keyDbVersion:             true,
+		p.dbPrefix + keyUploadQuota:           true,
+		p.dbPrefix + keyMetadataRevision:      true,
+		p.dbPrefix + keyBlobCandidatesVersion: true,
+		p.dbPrefix + keyBlobCandidates:        true,
 	}
-	if _, err = redigo.DoContext(conn, ctx, "WATCH", p.dbPrefix+keyDbVersion, p.dbPrefix+keyUploadQuota, p.dbPrefix+keyMetadataRevision); err != nil {
+	if _, err = redigo.DoContext(conn, ctx, "WATCH", p.dbPrefix+keyDbVersion, p.dbPrefix+keyUploadQuota, p.dbPrefix+keyMetadataRevision, p.dbPrefix+keyBlobCandidatesVersion, p.dbPrefix+keyBlobCandidates); err != nil {
 		return err
 	}
 	ledger, err := p.readUploadQuota(ctx, conn)
@@ -130,6 +132,13 @@ func (p DatabaseProvider) CheckEmptyForMigration(ctx context.Context) error {
 		return err
 	}
 	if len(ledger.Records) != 0 {
+		return uploadquota.ErrConflict
+	}
+	candidates, err := p.readBlobCandidatesConn(ctx, conn)
+	if err != nil {
+		return err
+	}
+	if len(candidates) != 0 {
 		return uploadquota.ErrConflict
 	}
 	version, err := redigo.Int(redigo.DoContext(conn, ctx, "GET", p.dbPrefix+keyDbVersion))
@@ -247,12 +256,16 @@ func (p DatabaseProvider) quotaAttemptWithPatch(ctx context.Context, mutate quot
 		return uploadquota.Reservation{}, false, err
 	}
 	var patchArgs redigo.Args
+	var blobPatchArgs redigo.Args
 	if patch != nil {
 		switch patch.Action {
 		case uploadquota.TransferOwner:
 			err = p.checkOwnerTransfer(ctx, conn, *patch)
 		case uploadquota.ReplaceMetadata:
 			patchArgs, err = p.prepareReplacement(ctx, conn, *patch)
+			if err == nil {
+				blobPatchArgs, err = p.prepareBlobReplacement(ctx, conn, *patch, patchArgs)
+			}
 		default:
 			err = uploadquota.ErrInvalid
 		}
@@ -336,13 +349,11 @@ func (p DatabaseProvider) quotaAttemptWithPatch(ctx context.Context, mutate quot
 		}
 	}
 	if patch != nil && patch.Action == uploadquota.ReplaceMetadata {
-		if _, err = redigo.DoContext(conn, ctx, "HSET", patchArgs...); err != nil {
+		// EVAL is one queued operation; do not split registration and patch into
+		// independently failing EXEC commands. All expected failures are checked
+		// before MULTI and the script checks types/capacity again before writing.
+		if _, err = redigo.DoContext(conn, ctx, "EVAL", blobPatchArgs...); err != nil {
 			return uploadquota.Reservation{}, false, err
-		}
-		if patch.DeleteSource {
-			if _, err = redigo.DoContext(conn, ctx, "HSET", p.dbPrefix+prefixMetaData+patch.Source.Id, "ExpireAt", 0, "UnlimitedTime", 0); err != nil {
-				return uploadquota.Reservation{}, false, err
-			}
 		}
 	}
 	if file != nil {
@@ -369,9 +380,6 @@ func (p DatabaseProvider) quotaAttemptWithPatch(ctx context.Context, mutate quot
 	expected := 2
 	if patch != nil {
 		expected++
-		if patch.Action == uploadquota.ReplaceMetadata && patch.DeleteSource {
-			expected++
-		}
 	}
 	if file != nil {
 		expected++
@@ -380,6 +388,9 @@ func (p DatabaseProvider) quotaAttemptWithPatch(ctx context.Context, mutate quot
 		expected++
 	}
 	if err = checkQuotaExec(reply, expected); err != nil {
+		if patch != nil && patch.Action == uploadquota.ReplaceMetadata {
+			err = blobCandidateRedisError(ctx, err)
+		}
 		return uploadquota.Reservation{}, false, err
 	}
 	return record, false, nil

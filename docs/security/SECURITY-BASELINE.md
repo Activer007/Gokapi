@@ -4,6 +4,12 @@
 
 ## 当前M4：可靠删除与下载内容边界
 
+SEC-041续作（2026-10-30）：基线65dd7ef6c7be7d1f08c00e41318b6da132aa89af（PR48已合并），分支codex/sec-041-old-content；fetch后origin/master一致，初始工作树干净，Go1.26.10 windows/amd64。
+CONFIRMED_CODE：冻结完整归档的隔离正常重启合同已取得旧内容未回收的业务RED（3.635s，exit1，1475项输入前后不变）；首次夹具阶段标记SETUP_FAIL不计作业务证据。
+方案见[ADR-025](ADR-025-OLD-CONTENT-RECLAMATION.md)：同事务/CAS登记有界去重旧locator、完整全ID引用查询、checked GC及token条件退休；SQLite17/Redis10，迁库保留候选。
+本地新增合同及双provider/迁库/骤停/loopback S3已实际GREEN，完整命令与首轮夹具失败保留在TEST-REPORT；相关race/最终CI尚未完成。历史孤儿不扫描回填，真实Redis/S3持久化及断电仍NOT_RUN。
+Forceu/Gokapi [PR419](https://github.com/Forceu/Gokapi/pull/419)和[PR418](https://github.com/Forceu/Gokapi/pull/418)本轮仍open/unmerged；419无持久候选/崩溃闭环。历史替换越权公告为HISTORICAL_FIXED，不混为本项。
+
 初始开发基线dee4382f19d0801cb4022ed3ec897beda297e1df，分支codex/sec-040-delete-state；最终代码冻结cf30b576020b187a20450e14b03cbfebb7294ba3。
 2026-10-30续作：保存实现22ce805后，无冲突合并自有PR45主线b7a5f85为0c2e07；UI/生成器改动完整保留。
 Forceu/Gokapi PR419、418本轮只读复核仍open/unmerged；未提交上游。

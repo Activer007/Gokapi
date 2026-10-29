@@ -14,7 +14,7 @@ M3按冻结范围保持完成；本文件不重新打开其全部延期，也不
 | --- | --- | --- |
 | 040-A | checked probe/delete/retire；失败保留已撤销访问的可重试管理锚点，确认后退休；共享内容保留 | PR44，CI40887732123 SUCCESS，相关race及Linux权限/链接通过；ADR-022 |
 | 040-B | 删除/定时/取消/恢复条件字段更新，旧timer不覆盖新状态；明确受理、未完成/失败、共享保留反馈 | PR48，冻结cf30b57，两私密候选及最终CI40922295319 SUCCESS；合并状态以PR记录为准 |
-| 041 | 旧locator与替换同TX/CAS登记有界去重候选，重启可回收；锁内完整引用检查，有引用/未知不删 | NOT_STARTED |
+| 041 | 旧locator与替换同TX/CAS登记有界去重候选，重启可回收；锁内完整引用检查，有引用/未知不删 | LOCAL_GREEN / CI_PENDING，基线65dd7ef业务RED；ADR-025，候选/引用/骤停/迁库/loopback故障已测，最终Linux/race待完成 |
 | 052 | 本地服务器加密和一个Chromium+HTTPS E2E/WASM路径；小跨块SHA256/截断/认证失败/中断终态 | 本地服务器路径实证升P0，052-A先修；真实WASM负例另证失败悬挂，纳入最小错误传播修复；其他组合VALIDATE |
 | 051 | 真实上传后必要浏览器执行上下文；下载/hotlink/ZIP/解密/S3最终MIME/文件名，保留sandbox | VALIDATE，限定预检 |
 | 050 | 最小响应头和渐进CSP；保留WASM/SSE/worker/StreamSaver/S3；Report-Only不替代sandbox | NOT_STARTED |

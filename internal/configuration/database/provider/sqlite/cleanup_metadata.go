@@ -61,6 +61,10 @@ func (p DatabaseProvider) HasBlobReference(ctx context.Context, file models.File
 	if ctx == nil || !validCleanupLocator(file) {
 		return false, uploadquota.ErrInvalid
 	}
+	return p.hasBlobReference(ctx, file, file.Id)
+}
+
+func (p DatabaseProvider) hasBlobReference(ctx context.Context, file models.File, excludedID string) (bool, error) {
 	if err := ctx.Err(); err != nil {
 		return false, err
 	}
@@ -92,7 +96,7 @@ func (p DatabaseProvider) HasBlobReference(ctx context.Context, file models.File
 		if bucket == "" && file.IsLocalStorage() && hash != file.SHA1 && strings.EqualFold(hash, file.SHA1) {
 			return false, uploadquota.ErrInvalid
 		}
-		if id != file.Id && hash == file.SHA1 && bucket == file.AwsBucket {
+		if id != excludedID && hash == file.SHA1 && bucket == file.AwsBucket {
 			found = true
 		}
 	}

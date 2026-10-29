@@ -127,6 +127,10 @@ func (p DatabaseProvider) HasBlobReference(ctx context.Context, file models.File
 		(file.IsLocalStorage() && !helper.IsSafeLocalBlobName(file.SHA1)) {
 		return false, uploadquota.ErrInvalid
 	}
+	return p.hasBlobReference(ctx, file.SHA1, file.AwsBucket, file.Id)
+}
+
+func (p DatabaseProvider) hasBlobReference(ctx context.Context, hash, bucket, excludeID string) (bool, error) {
 	if err := ctx.Err(); err != nil {
 		return false, err
 	}
@@ -144,7 +148,7 @@ func (p DatabaseProvider) HasBlobReference(ctx context.Context, file models.File
 	}
 	found := false
 	for _, id := range ids {
-		if id == file.Id {
+		if excludeID != "" && id == excludeID {
 			continue
 		}
 		values, err := redigo.Strings(readCleanupLocator.DoContext(ctx, conn, p.dbPrefix+prefixMetaData+id))
@@ -160,10 +164,10 @@ func (p DatabaseProvider) HasBlobReference(ctx context.Context, file models.File
 		if values[1] == "" && !helper.IsSafeLocalBlobName(values[0]) {
 			return false, uploadquota.ErrInvalid
 		}
-		if values[1] == "" && file.IsLocalStorage() && values[0] != file.SHA1 && strings.EqualFold(values[0], file.SHA1) {
+		if values[1] == "" && (bucket == "") && values[0] != hash && strings.EqualFold(values[0], hash) {
 			return false, uploadquota.ErrInvalid
 		}
-		if values[0] == file.SHA1 && values[1] == file.AwsBucket {
+		if values[0] == hash && values[1] == bucket {
 			found = true
 		}
 	}
