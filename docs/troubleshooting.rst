@@ -38,7 +38,7 @@ Uploads fail or time out behind a reverse proxy
 
 
 SupaShare always shows the wrong client IP / logs show 127.0.0.1
----------------------------------------------------------------
+----------------------------------------------------------------
 
 **Symptom:** All downloads are logged from ``127.0.0.1`` instead of real client IPs.
 
