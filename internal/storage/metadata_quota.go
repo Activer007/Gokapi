@@ -5,9 +5,9 @@ import (
 	"github.com/forceu/gokapi/internal/uploadquota"
 )
 
-// A duplicate has no new body, active upload or staging. Use the same startup
-// logical capacities as uploads; current request MaxFiles is resolved in TX/CAS.
-func duplicateLimits() (uploadquota.Limits, error) {
+// Metadata operations have no new body, active upload or staging. Use the same
+// startup logical capacities as uploads; each action checks only its delta.
+func metadataLimits() (uploadquota.Limits, error) {
 	env := configuration.GetEnvironment()
 	if err := env.ValidateWholeUploadLimits(); err != nil {
 		return uploadquota.Limits{}, err

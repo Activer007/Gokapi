@@ -91,6 +91,7 @@ const (
 	Abort             Action = "abort"
 	ReleaseStaging    Action = "release-staging"
 	DuplicateMetadata Action = "duplicate-metadata"
+	TransferOwner     Action = "transfer-owner"
 )
 
 // Change is an internal database command, not a public request parser. Upload
@@ -107,7 +108,7 @@ type Change struct {
 	CleanupConfirmed   bool
 	CheckRequestPolicy bool
 	// Source is a trusted authorization snapshot, rechecked inside the provider
-	// transaction for an instantaneous metadata duplicate. It is not persisted.
+	// transaction for a metadata duplicate or owner transfer. It is not persisted.
 	Source *models.File
 }
 
