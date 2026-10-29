@@ -12,12 +12,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/helper"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/storage/filesystem"
-	"github.com/Activer007/Gokapi/internal/storage/filesystem/s3filesystem/aws"
-	"github.com/Activer007/Gokapi/internal/storage/processingstatus/pstatusdb"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/helper"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/storage/filesystem"
+	"github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws"
+	"github.com/Activer007/SupaShare/internal/storage/processingstatus/pstatusdb"
 	"github.com/johannesboyne/gofakes3"
 	"github.com/johannesboyne/gofakes3/backend/s3mem"
 )
@@ -449,7 +449,7 @@ var configTestFile = []byte(`{
   "Port":"127.0.0.1:53843",
   "ServerUrl": "http://127.0.0.1:53843/",
   "RedirectUrl": "https://test.com/",
-  "PublicName": "Gokapi Test Version",
+  "PublicName": "SupaShare Test Version",
   "DataDir": "` + dataDir + `",
   "DatabaseUrl": "` + SqliteUrl + `",
   "ConfigVersion": 22,

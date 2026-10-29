@@ -1,6 +1,6 @@
 # M2 授权收尾审计
 
-日期：2026-10-28。代码验收基线 `3a9627c3ede21728688ea13f69937f2c87420ef4`，文件树与已测试发布提交 `64de3b70d2f9cc17ec89d92a3396a233de53903b` 一致。工作区 E:\LHA\Gokapi；Windows PowerShell / WSL Ubuntu-24.04，Go 1.26.0 linux/amd64。只写 Activer007/Gokapi；未部署，未操作生产数据，用户原计划目录保持未跟踪且未修改。
+日期：2026-10-28。代码验收基线 `3a9627c3ede21728688ea13f69937f2c87420ef4`，文件树与已测试发布提交 `64de3b70d2f9cc17ec89d92a3396a233de53903b` 一致。工作区 E:\LHA\Gokapi；Windows PowerShell / WSL Ubuntu-24.04，Go 1.26.0 linux/amd64。只写 Activer007/SupaShare；未部署，未操作生产数据，用户原计划目录保持未跟踪且未修改。
 
 ## 结论与适用范围
 
@@ -26,7 +26,7 @@
 ## 实跑与合并证据
 
 - 最新代码的完整隔离验证：[DKXgX6](evidence/sec032-managed-DKXgX6/results.tsv)，生成、目标、awsmock、noaws、integration、相关 race 全部 PASS。公开提取 [smTgmQ 摘要](evidence/sec032-managed-DKXgX6/release-target-results.tsv) PASS；14 个公开 Go 输入与全量/race 哈希一致。完整命令与失败历史见 [TEST-REPORT](TEST-REPORT.md)。
-- 当前主线 [CI 40697431982](https://github.com/Activer007/Gokapi/actions/runs/40697431982) 已核实 success，包含生成及 awsmock/noaws/integration/awstest 四组。继承镜像发布 job 的 skipped 不是测试失败，也不能当作已经构建/发布镜像。
+- 当前主线 [CI 40697431982](https://github.com/Activer007/SupaShare/actions/runs/40697431982) 已核实 success，包含生成及 awsmock/noaws/integration/awstest 四组。继承镜像发布 job 的 skipped 不是测试失败，也不能当作已经构建/发布镜像。
 - 已逐项重读最终结果：SEC-020 BS2VtP/LVQVYR；SEC-021 e8JIMf/Nfh4YZ/y3nYBb；SEC-023 yZKclk；SEC-032 BnrTRT/tW7WdK/DKXgX6。各最终表记录均为退出 0；原始 RED、夹具失败、启动失败及 mutation 单独保留，没有用全绿结果覆盖失败历史。
 - 祖先检查确认 bf5918e、d599aab、8377de4、50965ba、0d918a1、79a0480、aff864a、a65ecfe、3d93cdb 均已进入当前主线；最后普通分片修复合并为 3a9627c。私密 OIDC/会话/上传评估提交未进入公开祖先链，安全公告仍为 draft，SEC-032 公告下没有开放 PR。
 - 本审计仅更新文档，执行相对链接、引用文件/测试名、证据表、源码差异、祖先与有限秘密模式检查；本地 Go 全量/race 本轮 NOT_RUN，复用已核实代码基线的结果。文档 PR 的 CI 按仓库配置执行。自审不冒称独立审批。

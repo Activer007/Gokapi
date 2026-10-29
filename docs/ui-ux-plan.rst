@@ -94,6 +94,6 @@ Progress
   panel. Requested 1440/1920 overrides were not reliably applied; those sizes
   are not claimed as verified. Synthetic data was used throughout.
 * Repository follow-up: source/build paths, UI/documentation links and GitHub
-  API URLs migrated to Activer007/Gokapi in a separate PR. Inherited publishing
+  API URLs migrated to Activer007/SupaShare in a separate PR. Inherited publishing
   workflows remain disabled. See repository-identity.rst for the preserved
   historical evidence and separate legacy download-service dependency.

@@ -21,23 +21,23 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/encryption"
-	"github.com/Activer007/Gokapi/internal/environment"
-	"github.com/Activer007/Gokapi/internal/helper"
-	"github.com/Activer007/Gokapi/internal/logging"
-	"github.com/Activer007/Gokapi/internal/logging/serverstats"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/storage/chunking"
-	"github.com/Activer007/Gokapi/internal/storage/filesystem"
-	"github.com/Activer007/Gokapi/internal/storage/filesystem/s3filesystem/aws"
-	"github.com/Activer007/Gokapi/internal/storage/processingstatus"
-	"github.com/Activer007/Gokapi/internal/uploadquota"
-	"github.com/Activer007/Gokapi/internal/webserver/api/mutex/apimutex"
-	"github.com/Activer007/Gokapi/internal/webserver/downloadstatus"
-	"github.com/Activer007/Gokapi/internal/webserver/headers"
-	"github.com/Activer007/Gokapi/internal/webserver/sse"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/encryption"
+	"github.com/Activer007/SupaShare/internal/environment"
+	"github.com/Activer007/SupaShare/internal/helper"
+	"github.com/Activer007/SupaShare/internal/logging"
+	"github.com/Activer007/SupaShare/internal/logging/serverstats"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/storage/chunking"
+	"github.com/Activer007/SupaShare/internal/storage/filesystem"
+	"github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws"
+	"github.com/Activer007/SupaShare/internal/storage/processingstatus"
+	"github.com/Activer007/SupaShare/internal/uploadquota"
+	"github.com/Activer007/SupaShare/internal/webserver/api/mutex/apimutex"
+	"github.com/Activer007/SupaShare/internal/webserver/downloadstatus"
+	"github.com/Activer007/SupaShare/internal/webserver/headers"
+	"github.com/Activer007/SupaShare/internal/webserver/sse"
 	"github.com/jinzhu/copier"
 )
 
@@ -766,7 +766,7 @@ func makeFilenameUnique(filename string, nameMap *map[string]bool) string {
 // ServeFilesAsZip will zip all files and serve them to the browser. Can decrypt files if not end-to-end encrypted.
 func ServeFilesAsZip(files []models.File, filename string, w http.ResponseWriter, r *http.Request) {
 	if filename == "" {
-		filename = "Gokapi"
+		filename = "SupaShare"
 	}
 	filename = helper.SanitiseFilename(filename)
 	w.Header().Set("Content-Type", "application/zip")

@@ -16,14 +16,14 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Activer007/Gokapi/internal/configuration/cloudconfig"
-	"github.com/Activer007/Gokapi/internal/configuration/configupgrade"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/environment"
-	"github.com/Activer007/Gokapi/internal/helper"
-	"github.com/Activer007/Gokapi/internal/logging"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/storage/filesystem"
+	"github.com/Activer007/SupaShare/internal/configuration/cloudconfig"
+	"github.com/Activer007/SupaShare/internal/configuration/configupgrade"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/environment"
+	"github.com/Activer007/SupaShare/internal/helper"
+	"github.com/Activer007/SupaShare/internal/logging"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/storage/filesystem"
 	"golang.org/x/crypto/argon2"
 )
 
@@ -87,8 +87,9 @@ func Load() {
 	if configupgrade.DoUpgrade(&serverSettings, &parsedEnvironment) {
 		save()
 	}
-	if serverSettings.PublicName == "" {
-		serverSettings.PublicName = "Gokapi"
+	// Upgrade only the built-in legacy name; deployment-specific branding stays intact.
+	if serverSettings.PublicName == "" || serverSettings.PublicName == "Gokapi" {
+		serverSettings.PublicName = "SupaShare"
 	}
 	if serverSettings.MaxParallelUploads == 0 {
 		serverSettings.MaxParallelUploads = 4
@@ -109,7 +110,7 @@ func ConnectDatabase() {
 	database.Upgrade()
 }
 
-// UsesHttps returns true if Gokapi URL is set to a secure URL
+// UsesHttps returns true if SupaShare URL is set to a secure URL
 func UsesHttps() bool {
 	return usesHttps
 }

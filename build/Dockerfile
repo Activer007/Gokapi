@@ -2,8 +2,8 @@ FROM golang:1.26.10-bookworm
 
 ## To compile:
 ## cd Gokapi/build/
-## docker build . --tag gokapi-builder
-## docker run --rm -it -v ../:/src/gokapi -w /src/gokapi gokapi-builder
+## docker build . --tag supashare-builder
+## docker run --rm -it -v ../:/src/supashare -w /src/supashare supashare-builder
 
 RUN \
   apt-get update && \

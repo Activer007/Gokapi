@@ -16,15 +16,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/storage"
-	"github.com/Activer007/Gokapi/internal/storage/chunking"
-	"github.com/Activer007/Gokapi/internal/storage/chunking/chunksession"
-	"github.com/Activer007/Gokapi/internal/test"
-	"github.com/Activer007/Gokapi/internal/test/testconfiguration"
-	"github.com/Activer007/Gokapi/internal/uploadquota"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/storage"
+	"github.com/Activer007/SupaShare/internal/storage/chunking"
+	"github.com/Activer007/SupaShare/internal/storage/chunking/chunksession"
+	"github.com/Activer007/SupaShare/internal/test"
+	"github.com/Activer007/SupaShare/internal/test/testconfiguration"
+	"github.com/Activer007/SupaShare/internal/uploadquota"
 )
 
 func TestMain(m *testing.M) {

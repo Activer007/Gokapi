@@ -16,26 +16,26 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/configuration/database/migration"
-	"github.com/Activer007/Gokapi/internal/helper/systemd"
-	"github.com/Activer007/Gokapi/internal/logging/serverstats"
+	"github.com/Activer007/SupaShare/internal/configuration/database/migration"
+	"github.com/Activer007/SupaShare/internal/helper/systemd"
+	"github.com/Activer007/SupaShare/internal/logging/serverstats"
 
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/configuration/cloudconfig"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/configuration/setup"
-	"github.com/Activer007/Gokapi/internal/encryption"
-	"github.com/Activer007/Gokapi/internal/environment"
-	"github.com/Activer007/Gokapi/internal/environment/flagparser"
-	"github.com/Activer007/Gokapi/internal/logging"
-	"github.com/Activer007/Gokapi/internal/storage"
-	"github.com/Activer007/Gokapi/internal/storage/filesystem"
-	"github.com/Activer007/Gokapi/internal/storage/filesystem/s3filesystem/aws"
-	"github.com/Activer007/Gokapi/internal/webserver"
-	"github.com/Activer007/Gokapi/internal/webserver/authentication"
-	"github.com/Activer007/Gokapi/internal/webserver/fileupload"
-	"github.com/Activer007/Gokapi/internal/webserver/fileupload/uploadservice"
-	"github.com/Activer007/Gokapi/internal/webserver/ssl"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/configuration/cloudconfig"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/configuration/setup"
+	"github.com/Activer007/SupaShare/internal/encryption"
+	"github.com/Activer007/SupaShare/internal/environment"
+	"github.com/Activer007/SupaShare/internal/environment/flagparser"
+	"github.com/Activer007/SupaShare/internal/logging"
+	"github.com/Activer007/SupaShare/internal/storage"
+	"github.com/Activer007/SupaShare/internal/storage/filesystem"
+	"github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws"
+	"github.com/Activer007/SupaShare/internal/webserver"
+	"github.com/Activer007/SupaShare/internal/webserver/authentication"
+	"github.com/Activer007/SupaShare/internal/webserver/fileupload"
+	"github.com/Activer007/SupaShare/internal/webserver/fileupload/uploadservice"
+	"github.com/Activer007/SupaShare/internal/webserver/ssl"
 )
 
 // versionGokapi is the current version in readable form.
@@ -58,7 +58,7 @@ func main() {
 
 	showVersion(passedFlags)
 	fmt.Println(logo)
-	fmt.Println("Gokapi v" + versionGokapi + " starting")
+	fmt.Println("SupaShare v" + versionGokapi + " starting")
 	setup.RunIfFirstStart()
 	configuration.Load()
 	if !reconfigureServer(passedFlags) {
@@ -124,7 +124,7 @@ func showVersion(passedFlags flagparser.MainFlags) {
 	if !passedFlags.ShowVersion {
 		return
 	}
-	fmt.Println("Gokapi v" + versionGokapi)
+	fmt.Println("SupaShare v" + versionGokapi)
 	fmt.Println()
 	fmt.Println("Builder: " + environment.Builder)
 	fmt.Println("Build Date: " + environment.BuildTime)

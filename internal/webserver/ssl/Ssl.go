@@ -19,8 +19,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/environment"
-	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/SupaShare/internal/environment"
+	"github.com/Activer007/SupaShare/internal/helper"
 )
 
 var configDir string
@@ -98,7 +98,7 @@ func generateCertificates(externalUrl string) {
 	helper.Check(err)
 	template := x509.Certificate{
 		Subject: pkix.Name{
-			Organization: []string{"Gokapi"},
+			Organization: []string{"SupaShare"},
 		},
 		NotBefore: time.Now().Add(-5 * time.Minute),
 		NotAfter:  time.Now().Add(365 * 24 * time.Hour),

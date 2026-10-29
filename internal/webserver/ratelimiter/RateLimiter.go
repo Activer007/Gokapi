@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/logging"
+	"github.com/Activer007/SupaShare/internal/logging"
 	"golang.org/x/time/rate"
 )
 

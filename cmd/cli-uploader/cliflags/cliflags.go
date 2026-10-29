@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliconstants"
-	"github.com/Activer007/Gokapi/internal/environment"
+	"github.com/Activer007/SupaShare/cmd/cli-uploader/cliconstants"
+	"github.com/Activer007/SupaShare/internal/environment"
 )
 
 const (
@@ -275,17 +275,17 @@ func requireInt(input string) int {
 }
 
 func printUsage(exitCode int) {
-	fmt.Println("Gokapi CLI " + version)
+	fmt.Println("SupaShare CLI " + version)
 	fmt.Println()
 	fmt.Println("Usage:")
-	fmt.Println("  gokapi-cli [command] [options]")
+	fmt.Println("  supashare-cli [command] [options]")
 	fmt.Println()
 
 	fmt.Println("Commands:")
 	fmt.Println("  login          Save login credentials")
-	fmt.Println("  download       Download a file from the Gokapi instance without increasing its download counter")
-	fmt.Println("  upload         Upload a file to the Gokapi instance")
-	fmt.Println("  upload-dir     Upload a folder as a zip file to the Gokapi instance")
+	fmt.Println("  download       Download a file from the SupaShare instance without increasing its download counter")
+	fmt.Println("  upload         Upload a file to the SupaShare instance")
+	fmt.Println("  upload-dir     Upload a folder as a zip file to the SupaShare instance")
 	fmt.Println("  logout         Delete login credentials")
 	fmt.Println()
 
@@ -308,11 +308,11 @@ func printUsage(exitCode int) {
 	fmt.Println()
 
 	fmt.Println("Examples:")
-	fmt.Println("  gokapi-cli login")
-	fmt.Println("  gokapi-cli logout -c /path/to/config")
-	fmt.Println("  gokapi-cli upload -f /file/to/upload --expiry-days 7 --json")
-	fmt.Println("  gokapi-cli upload-dir -D /path/to/upload -t /mnt/tmp")
-	fmt.Println("  gokapi-cli download --remove -i chuTheishaipa9o -o myfile.zip")
+	fmt.Println("  supashare-cli login")
+	fmt.Println("  supashare-cli logout -c /path/to/config")
+	fmt.Println("  supashare-cli upload -f /file/to/upload --expiry-days 7 --json")
+	fmt.Println("  supashare-cli upload-dir -D /path/to/upload -t /mnt/tmp")
+	fmt.Println("  supashare-cli download --remove -i chuTheishaipa9o -o myfile.zip")
 	fmt.Println()
 	os.Exit(exitCode)
 }

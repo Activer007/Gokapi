@@ -11,10 +11,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/environment"
-	"github.com/Activer007/Gokapi/internal/environment/deprecation"
-	"github.com/Activer007/Gokapi/internal/helper"
-	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/SupaShare/internal/environment"
+	"github.com/Activer007/SupaShare/internal/environment/deprecation"
+	"github.com/Activer007/SupaShare/internal/helper"
+	"github.com/Activer007/SupaShare/internal/models"
 )
 
 var logPath = "config/log.txt"
@@ -228,19 +228,19 @@ func createLogFormatCustomTimestamp(category, text string, timestamp time.Time) 
 	return fmt.Sprintf("%s   [%s] %s", getDate(timestamp), category, text)
 }
 
-// LogStartup adds a log entry to indicate that Gokapi has started. Non-blocking
+// LogStartup adds a log entry to indicate that SupaShare has started. Non-blocking
 func LogStartup() {
-	createLogEntry(categoryInfo, "Gokapi started", false)
+	createLogEntry(categoryInfo, "SupaShare started", false)
 }
 
-// LogShutdown adds a log entry to indicate that Gokapi is shutting down. Blocking call
+// LogShutdown adds a log entry to indicate that SupaShare is shutting down. Blocking call
 func LogShutdown() {
-	createLogEntry(categoryInfo, "Gokapi shutting down", true)
+	createLogEntry(categoryInfo, "SupaShare shutting down", true)
 }
 
 // LogSetup adds a log entry to indicate that the setup was run. Non-blocking
 func LogSetup() {
-	createLogEntry(categoryAuth, "Re-running Gokapi setup", false)
+	createLogEntry(categoryAuth, "Re-running SupaShare setup", false)
 }
 
 // LogDeploymentPassword adds a log entry to indicate that a deployment password was set. Non-blocking

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/Activer007/Gokapi/internal/test"
+	"github.com/Activer007/SupaShare/internal/test"
 )
 
 func TestToJsonResult(t *testing.T) {

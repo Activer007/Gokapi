@@ -15,11 +15,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliflags"
-	"github.com/Activer007/Gokapi/internal/encryption"
-	"github.com/Activer007/Gokapi/internal/encryption/end2end"
-	"github.com/Activer007/Gokapi/internal/helper"
-	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/SupaShare/cmd/cli-uploader/cliflags"
+	"github.com/Activer007/SupaShare/internal/encryption"
+	"github.com/Activer007/SupaShare/internal/encryption/end2end"
+	"github.com/Activer007/SupaShare/internal/helper"
+	"github.com/Activer007/SupaShare/internal/models"
 	"github.com/schollz/progressbar/v3"
 )
 
@@ -62,7 +62,7 @@ func Init(url, key string, end2endKey []byte) {
 
 }
 
-// GetVersion returns the version of the Gokapi server
+// GetVersion returns the version of the SupaShare server
 func GetVersion() (string, int, error) {
 	result, err := getUrl(gokapiUrl+"/info/version", []header{}, false)
 	if err != nil {
@@ -83,7 +83,7 @@ func GetVersion() (string, int, error) {
 	return parsedResult.Version, parsedResult.VersionInt, nil
 }
 
-// GetConfig returns the upload configuration of the Gokapi server
+// GetConfig returns the upload configuration of the SupaShare server
 func GetConfig() (int, int, bool, error) {
 	result, err := getUrl(gokapiUrl+"/info/config", []header{}, false)
 	if err != nil {
@@ -141,7 +141,7 @@ func getUrl(url string, headers []header, longTimeout bool) (string, error) {
 	return string(body), nil
 }
 
-// UploadFile uploads a file to the Gokapi server
+// UploadFile uploads a file to the SupaShare server
 func UploadFile(uploadParams cliflags.FlagConfig) (models.FileApiOutput, error) {
 	var progressBar *progressbar.ProgressBar
 	file, err := os.OpenFile(uploadParams.File, os.O_RDONLY, 0664)
@@ -226,7 +226,7 @@ func UploadFile(uploadParams cliflags.FlagConfig) (models.FileApiOutput, error) 
 	return metaData, nil
 }
 
-// DownloadFile downloads a file from the Gokapi server
+// DownloadFile downloads a file from the SupaShare server
 func DownloadFile(downloadParams cliflags.FlagConfig) error {
 	var progressBar *progressbar.ProgressBar
 
@@ -500,7 +500,7 @@ func lockUnlockE2eLock(isUnlock bool) error {
 	return err
 }
 
-// GetE2eInfo returns the end-to-end encryption information of the Gokapi server for this user
+// GetE2eInfo returns the end-to-end encryption information of the SupaShare server for this user
 func GetE2eInfo(unlockLock bool) (models.E2EInfoPlainText, error) {
 	var result models.E2EInfoEncrypted
 	var fileInfo models.E2EInfoPlainText
@@ -545,8 +545,8 @@ func addE2EFileInfo(file models.E2EFile) error {
 	return setE2eInfo(output)
 }
 
-// setE2eInfo sets the end-to-end encryption information of the Gokapi server for this user
-// it does NOT set a lock itself on the Gokapi server
+// setE2eInfo sets the end-to-end encryption information of the SupaShare server for this user
+// it does NOT set a lock itself on the SupaShare server
 func setE2eInfo(input models.E2EInfoEncrypted) error {
 	outputJson, err := json.Marshal(input)
 	if err != nil {

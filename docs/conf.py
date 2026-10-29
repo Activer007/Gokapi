@@ -17,12 +17,12 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Gokapi Documentation'
+project = 'SupaShare Documentation'
 copyright = '2025, Marc Ole Bulling'
 author = 'Marc Ole Bulling'
 
 # The full version, including alpha/beta/rc tags
-release = '1.8.0'
+release = '2.10.0'
 
 
 # -- General configuration ---------------------------------------------------

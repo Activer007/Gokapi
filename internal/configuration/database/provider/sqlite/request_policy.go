@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/Activer007/Gokapi/internal/uploadquota"
+	"github.com/Activer007/SupaShare/internal/uploadquota"
 )
 
 // Read only the current numeric policy while BEGIN IMMEDIATE holds the same

@@ -12,16 +12,16 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/environment"
-	"github.com/Activer007/Gokapi/internal/logging"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/storage"
-	"github.com/Activer007/Gokapi/internal/storage/chunking"
-	"github.com/Activer007/Gokapi/internal/storage/chunking/chunksession"
-	"github.com/Activer007/Gokapi/internal/storage/uploadreceive"
-	"github.com/Activer007/Gokapi/internal/webserver/errorHandling/errorcodes"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/environment"
+	"github.com/Activer007/SupaShare/internal/logging"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/storage"
+	"github.com/Activer007/SupaShare/internal/storage/chunking"
+	"github.com/Activer007/SupaShare/internal/storage/chunking/chunksession"
+	"github.com/Activer007/SupaShare/internal/storage/uploadreceive"
+	"github.com/Activer007/SupaShare/internal/webserver/errorHandling/errorcodes"
 )
 
 const minChunkSize = 5 * 1024 * 1024

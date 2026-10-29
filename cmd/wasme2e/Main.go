@@ -14,9 +14,9 @@ import (
 	"sync"
 	"syscall/js"
 
-	"github.com/Activer007/Gokapi/internal/encryption"
-	"github.com/Activer007/Gokapi/internal/encryption/end2end"
-	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/SupaShare/internal/encryption"
+	"github.com/Activer007/SupaShare/internal/encryption/end2end"
+	"github.com/Activer007/SupaShare/internal/models"
 	"github.com/secure-io/sio-go"
 )
 

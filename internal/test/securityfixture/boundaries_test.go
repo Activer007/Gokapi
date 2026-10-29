@@ -11,14 +11,14 @@ import (
 
 	"github.com/alicebob/miniredis/v2"
 	"github.com/coreos/go-oidc/v3/oidc"
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/storage"
-	"github.com/Activer007/Gokapi/internal/test/securityfixture"
-	"github.com/Activer007/Gokapi/internal/test/testconfiguration"
-	"github.com/Activer007/Gokapi/internal/webserver/api"
-	"github.com/Activer007/Gokapi/internal/webserver/ratelimiter"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/storage"
+	"github.com/Activer007/SupaShare/internal/test/securityfixture"
+	"github.com/Activer007/SupaShare/internal/test/testconfiguration"
+	"github.com/Activer007/SupaShare/internal/webserver/api"
+	"github.com/Activer007/SupaShare/internal/webserver/ratelimiter"
 	"golang.org/x/oauth2"
 )
 
@@ -119,7 +119,7 @@ func TestM0ActorBoundaries(t *testing.T) {
 }
 
 // Verify the mock's signed tokens with the same upstream OIDC library. This
-// proves fixture quality; it does NOT claim Gokapi verifies ID tokens or binds sub.
+// proves fixture quality; it does NOT claim SupaShare verifies ID tokens or binds sub.
 func TestM0IDPProtocol(t *testing.T) {
 	ctx := context.Background()
 	var first *oidc.Provider

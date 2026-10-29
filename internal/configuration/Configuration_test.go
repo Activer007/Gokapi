@@ -1,16 +1,18 @@
 package configuration
 
 import (
+	"encoding/json"
 	"os"
 	"strings"
 	"testing"
 
-	"github.com/Activer007/Gokapi/internal/configuration/cloudconfig"
-	"github.com/Activer007/Gokapi/internal/configuration/configupgrade"
-	"github.com/Activer007/Gokapi/internal/helper"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/test"
-	"github.com/Activer007/Gokapi/internal/test/testconfiguration"
+	"github.com/Activer007/SupaShare/internal/configuration/cloudconfig"
+	"github.com/Activer007/SupaShare/internal/configuration/configupgrade"
+	"github.com/Activer007/SupaShare/internal/environment"
+	"github.com/Activer007/SupaShare/internal/helper"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/test"
+	"github.com/Activer007/SupaShare/internal/test/testconfiguration"
 	"golang.org/x/crypto/argon2"
 )
 
@@ -51,6 +53,48 @@ func TestLoadRejectsInvalidUI(t *testing.T) {
 		if _, err := loadFromFile(file); err == nil || !strings.Contains(err.Error(), "UI.") {
 			t.Fatal("invalid UI was accepted or did not identify the configuration field")
 		}
+	}
+}
+
+func TestLoadSupaShareBrandingCompatibility(t *testing.T) {
+	configPath, _, _, _ := environment.GetConfigPaths()
+	original, err := os.ReadFile(configPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		if err := os.WriteFile(configPath, original, 0600); err != nil {
+			t.Fatal(err)
+		}
+		Load()
+	}()
+	for _, tc := range []struct{ input, want string }{
+		{"", "SupaShare"},
+		{"Gokapi", "SupaShare"},
+		{"团队文件分享", "团队文件分享"},
+	} {
+		t.Run(tc.input, func(t *testing.T) {
+			var config models.Configuration
+			if err := json.Unmarshal(original, &config); err != nil {
+				t.Fatal(err)
+			}
+			config.PublicName = tc.input
+			config.UI = &models.UIConfig{Title: "团队文件中心", FooterText: "仅供内部使用"}
+			contents, err := json.Marshal(config)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(configPath, contents, 0600); err != nil {
+				t.Fatal(err)
+			}
+			Load()
+			if Get().PublicName != tc.want || Get().UI.Title != config.UI.Title || Get().UI.FooterText != config.UI.FooterText {
+				t.Fatalf("branding migration changed custom configuration: %+v", Get())
+			}
+			if Get().DatabaseUrl != config.DatabaseUrl || Get().DataDir != config.DataDir || Get().ServerUrl != config.ServerUrl {
+				t.Fatal("branding migration changed storage or public URL")
+			}
+		})
 	}
 }
 

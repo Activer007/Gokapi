@@ -18,6 +18,6 @@ go test -race ./internal/i18n ./internal/models ./internal/configuration/setup \
     -tags=test,noaws -run 'TestUI|TestPreference|TestSelect|TestDictionaries|TestDesktopPolicy|TestReconfigurationPreservesUI' -count=1
 
 buildDir=$(mktemp -d)
-trap 'rm -f "$buildDir/gokapi" "$buildDir/gokapi-noaws"; rmdir "$buildDir"' EXIT
-go build -buildvcs=false -o "$buildDir/gokapi" ./cmd/gokapi
-go build -buildvcs=false -tags=noaws -o "$buildDir/gokapi-noaws" ./cmd/gokapi
+trap 'rm -f "$buildDir/supashare" "$buildDir/supashare-noaws"; rmdir "$buildDir"' EXIT
+go build -buildvcs=false -o "$buildDir/supashare" ./cmd/supashare
+go build -buildvcs=false -tags=noaws -o "$buildDir/supashare-noaws" ./cmd/supashare

@@ -3,7 +3,7 @@ package helper
 import (
 	"testing"
 
-	"github.com/Activer007/Gokapi/internal/test"
+	"github.com/Activer007/SupaShare/internal/test"
 )
 
 func TestByteCountSI(t *testing.T) {

@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-We currently support the latest stable version of Gokapi. Security updates are provided on a best-effort basis for the most recent release.
+We currently support the latest stable version of SupaShare. Security updates are provided on a best-effort basis for the most recent release.
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -11,13 +11,13 @@ We currently support the latest stable version of Gokapi. Security updates are p
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in Gokapi, please **do not open a public issue**.
+If you discover a security vulnerability in SupaShare, please **do not open a public issue**.
 
-Instead, use GitHub’s [**"Report a vulnerability"**](https://github.com/Activer007/Gokapi/security/advisories/new) feature on this repository. This ensures your report stays private and will be reviewed promptly by the maintainers.
+Instead, use GitHub’s [**"Report a vulnerability"**](https://github.com/Activer007/SupaShare/security/advisories/new) feature on this repository. This ensures your report stays private and will be reviewed promptly by the maintainers.
 
 To report a vulnerability:
 
-1. Go to the **Security** tab of the Gokapi repository.
+1. Go to the **Security** tab of the SupaShare repository.
 2. Click on **"Report a vulnerability"**.
 3. Fill out the form with as much detail as possible.
 
@@ -35,8 +35,8 @@ Once a vulnerability is reported, we will:
 
 ## Scope
 
-This policy applies to the Gokapi codebase and documentation in this repository. Vulnerabilities in third-party dependencies should be reported to the appropriate maintainers.
+This policy applies to the SupaShare codebase and documentation in this repository. Vulnerabilities in third-party dependencies should be reported to the appropriate maintainers.
 
 ---
 
-Thank you for helping keep Gokapi secure!
+Thank you for helping keep SupaShare secure!

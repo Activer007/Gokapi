@@ -1,7 +1,7 @@
-GOPACKAGE=github.com/Activer007/Gokapi
+GOPACKAGE=github.com/Activer007/SupaShare
 BUILD_FLAGS=-ldflags="-s -w -X '$(GOPACKAGE)/internal/environment.Builder=Make Script' -X '$(GOPACKAGE)/internal/environment.BuildTime=$(shell date)'"
 BUILD_FLAGS_DEBUG=-ldflags="-X '$(GOPACKAGE)/internal/environment.Builder=Make Script' -X '$(GOPACKAGE)/internal/environment.BuildTime=$(shell date)'"
-DOCKER_IMAGE_NAME=gokapi
+DOCKER_IMAGE_NAME=supashare
 
 # Check for docker, then podman, otherwise use what the user provided
 ifeq ($(origin CONTAINER_TOOL), undefined)
@@ -18,12 +18,12 @@ all: build
 
 
 .PHONY: build
-# Build Gokapi binary
+# Build SupaShare binary
 build : 
 	@echo "Building binary..."
 	@echo
 	go generate ./...
-	CGO_ENABLED=0 go build $(BUILD_FLAGS) -o ./gokapi $(GOPACKAGE)/cmd/gokapi
+	CGO_ENABLED=0 go build $(BUILD_FLAGS) -o ./supashare $(GOPACKAGE)/cmd/supashare
 	
 .PHONY: build-cli
 # Build Gokapi-CLI binary
@@ -31,15 +31,15 @@ build-cli :
 	@echo "Building CLI binary..."
 	@echo
 	go generate ./...
-	CGO_ENABLED=0 go build $(BUILD_FLAGS) -o ./gokapi-cli $(GOPACKAGE)/cmd/cli-uploader
+	CGO_ENABLED=0 go build $(BUILD_FLAGS) -o ./supashare-cli $(GOPACKAGE)/cmd/cli-uploader
 
 .PHONY: build-debug
-# Build Gokapi binary
+# Build SupaShare binary
 build-debug : 
 	@echo "Building binary with debug info..."
 	@echo
 	go generate ./...
-	CGO_ENABLED=0 go build $(BUILD_FLAGS_DEBUG) -o ./gokapi $(GOPACKAGE)/cmd/gokapi
+	CGO_ENABLED=0 go build $(BUILD_FLAGS_DEBUG) -o ./supashare $(GOPACKAGE)/cmd/supashare
 
 .PHONY: coverage
 coverage:

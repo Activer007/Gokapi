@@ -1,10 +1,10 @@
 package configupgrade
 
 import (
-	"github.com/Activer007/Gokapi/internal/environment"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/test"
-	"github.com/Activer007/Gokapi/internal/test/testconfiguration"
+	"github.com/Activer007/SupaShare/internal/environment"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/test"
+	"github.com/Activer007/SupaShare/internal/test/testconfiguration"
 	"os"
 	"testing"
 )
@@ -20,7 +20,7 @@ var oldConfigFile = models.Configuration{
 	Authentication: models.AuthenticationConfig{},
 	Port:           "127.0.0.1:53844",
 	ServerUrl:      "https://gokapi.url/",
-	RedirectUrl:    "https://github.com/Activer007/Gokapi/",
+	RedirectUrl:    "https://github.com/Activer007/SupaShare/",
 }
 
 func TestUpgradeDb(t *testing.T) {

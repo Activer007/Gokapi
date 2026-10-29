@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/SupaShare/internal/models"
 )
 
 // Write sets headers to either display the file inline or to force download, the content type

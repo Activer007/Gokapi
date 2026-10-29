@@ -4,8 +4,8 @@ package api
 
 import (
 	"crypto/rand"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/models"
 	"net/http/httptest"
 	"testing"
 )

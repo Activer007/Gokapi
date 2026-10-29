@@ -1,6 +1,6 @@
 # ADR-002：对外 HTTPS Cookie 与密码迁移发布边界
 
-日期：2026-10-28；SEC-012；基线 `c1e0ee2d78c8b8ddb951b5f1053f6d5e15572a31`。范围仅 Activer007/Gokapi；当前尚未部署。
+日期：2026-10-28；SEC-012；基线 `c1e0ee2d78c8b8ddb951b5f1053f6d5e15572a31`。范围仅 Activer007/SupaShare；当前尚未部署。
 
 ## 决策与兼容
 

@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/SupaShare/internal/models"
 )
 
 type Scene struct {

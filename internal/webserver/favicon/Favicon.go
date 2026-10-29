@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/Kodeworks/golang-image-ico"
-	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/SupaShare/internal/helper"
 	"golang.org/x/image/draw"
 )
 

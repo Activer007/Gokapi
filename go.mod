@@ -1,4 +1,4 @@
-module github.com/Activer007/Gokapi
+module github.com/Activer007/SupaShare
 
 go 1.26.10
 

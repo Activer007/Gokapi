@@ -18,16 +18,16 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/Activer007/Gokapi/internal/encryption"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/webserver/headers"
+	"github.com/Activer007/SupaShare/internal/encryption"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/webserver/headers"
 )
 
 var awsConfig models.AwsConfig
 
 var isCorrectLogin bool
 
-// IsIncludedInBuild is true if Gokapi has been compiled with AWS support or the API is being mocked
+// IsIncludedInBuild is true if SupaShare has been compiled with AWS support or the API is being mocked
 const IsIncludedInBuild = true
 
 // IsMockApi is true if the API is being mocked and therefore can only be used for testing purposes
@@ -344,7 +344,7 @@ func DeleteObject(file models.File) (bool, error) {
 	return true, nil
 }
 
-// IsCorsCorrectlySet returns true if CORS rules allow download from Gokapi
+// IsCorsCorrectlySet returns true if CORS rules allow download from SupaShare
 func IsCorsCorrectlySet(bucket, gokapiUrl string) (bool, error) {
 	sess, err := createSession()
 	if err != nil {

@@ -6,7 +6,7 @@ import (
 	"errors"
 	"math"
 
-	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/SupaShare/internal/models"
 )
 
 // Usage measures logical bytes and file records, without deduplication.

@@ -14,7 +14,7 @@
 | 磁盘余量 | Chunking.isEnoughSpace / allocateFile | CONFIRMED_CODE：新 chunk 的瞬时 `free >= declared + GOKAPI_MIN_FREE_SPACE`，默认400 MiB；已有 chunk 提前返回。不是跨上传的物理预约，也不包含单独 TMPDIR 的预算。 |
 | 请求体与内存 | API processNewChunk/apiUploadFile、Webserver.uploadChunk、[FileUpload.go](../../internal/webserver/fileupload/FileUpload.go) | CONFIRMED_CODE：MaxBytesReader 限整个 multipart body，不是仅 file part；ParseMultipartForm 在预约/声明验证前按 MaxMemory 阈值缓存/落盘。MaxMemory 默认50 MiB为每请求阈值，MaxParallelUploads 默认3为客户端并行数，都不是实例总并发额度。 |
 | 未知长度 | isChunkMinChunkSize | CONFIRMED_CODE：依赖 ContentLength 判断最小块，-1 的正常分片当前被拒绝。整文件 API 不经过该检查，需单独测。 |
-| 暂存 | Environment TMPDIR、FileServing.cleanOldTempFiles、`cmd/gokapi/Main.go` | CONFIRMED_CODE：multipart 走 OS temp；Docker 未指定 TMPDIR 时使用 DataDir。chunk/加密临时文件在 DataDir；启动和每小时清理 mtime 超24小时的 `upload*`/`chunk-*`，与预约过期不是同一生命周期。 |
+| 暂存 | Environment TMPDIR、FileServing.cleanOldTempFiles、`cmd/supashare/Main.go` | CONFIRMED_CODE：multipart 走 OS temp；Docker 未指定 TMPDIR 时使用 DataDir。chunk/加密临时文件在 DataDir；启动和每小时清理 mtime 超24小时的 `upload*`/`chunk-*`，与预约过期不是同一生命周期。 |
 | 去重/加密 | FileServing.createNewMetaData/getChunkFileHash/hashFile/encryptChunkFile | CONFIRMED_CODE：普通 SHA1 内容指纹去重；服务端加密加入现有 salt，E2E 用随机 blob 名称。SizeBytes 是上传长度，E2E RealSize 只影响展示字符串。加密处理可能同时保留原 chunk 和新密文。共享 blob 不合并用户逻辑所有权。 |
 
 ## e38b03f 隔离实测与不变量
@@ -40,6 +40,6 @@ M3 完整目标继续有效：用户逻辑额度与实例物理容量分开；�
 
 ## 上游只读复核
 
-2026-10-28 核实 upstream master 仍为 `a9c25d453aab0c25f2d6e6926ec7312628638844`。[#431](https://github.com/Activer007/Gokapi/issues/431) 和 [#54](https://github.com/Activer007/Gokapi/issues/54) 为开放配额需求；已读相关评论。[#436](https://github.com/Activer007/Gokapi/pull/436) head `98e43fd1ca4173795f271c9d4a34683cb6237edb` 未合并，仅将页面默认 guest 限额赋值移出列表循环，不是服务器预算。[#419](https://github.com/Activer007/Gokapi/pull/419) 是替换旧 blob 回收，归SEC-041。检索全部quota PR和开放upload/chunk/size/disk/memory PR，未见可直接复用、覆盖本阶段原子预算的修复；这不证明所有历史分支均无实现。
+2026-10-28 核实 upstream master 仍为 `a9c25d453aab0c25f2d6e6926ec7312628638844`。[#431](https://github.com/Activer007/SupaShare/issues/431) 和 [#54](https://github.com/Activer007/SupaShare/issues/54) 为开放配额需求；已读相关评论。[#436](https://github.com/Activer007/SupaShare/pull/436) head `98e43fd1ca4173795f271c9d4a34683cb6237edb` 未合并，仅将页面默认 guest 限额赋值移出列表循环，不是服务器预算。[#419](https://github.com/Activer007/SupaShare/pull/419) 是替换旧 blob 回收，归SEC-041。检索全部quota PR和开放upload/chunk/size/disk/memory PR，未见可直接复用、覆盖本阶段原子预算的修复；这不证明所有历史分支均无实现。
 
-[GHSA-45vh-rpc8-hxpp / CVE-2026-30961](https://github.com/Activer007/Gokapi/security/advisories/GHSA-45vh-rpc8-hxpp) 是 <=2.2.3 的分片单文件 MaxSize 绕过，2.2.4已修，分类 HISTORICAL_FIXED；不能改名为累计额度新问题。本轮没有向上游写入或发布安全公告。
+[GHSA-45vh-rpc8-hxpp / CVE-2026-30961](https://github.com/Activer007/SupaShare/security/advisories/GHSA-45vh-rpc8-hxpp) 是 <=2.2.3 的分片单文件 MaxSize 绕过，2.2.4已修，分类 HISTORICAL_FIXED；不能改名为累计额度新问题。本轮没有向上游写入或发布安全公告。

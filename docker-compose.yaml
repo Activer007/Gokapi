@@ -1,7 +1,8 @@
 services:
-  gokapi:
-    image: f0rc3/gokapi:latest
-    container_name: gokapi
+  supashare:
+    build: .
+    image: supashare:local
+    container_name: supashare
     ports:
       - "127.0.0.1:53842:53842"
     volumes:

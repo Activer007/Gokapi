@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/helper"
-	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/SupaShare/internal/helper"
+	"github.com/Activer007/SupaShare/internal/models"
 	redigo "github.com/gomodule/redigo/redis"
 )
 

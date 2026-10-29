@@ -27,19 +27,19 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/configuration/cloudconfig"
-	"github.com/Activer007/Gokapi/internal/configuration/configupgrade"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/configuration/database/dbabstraction"
-	"github.com/Activer007/Gokapi/internal/encryption"
-	"github.com/Activer007/Gokapi/internal/environment"
-	"github.com/Activer007/Gokapi/internal/helper"
-	"github.com/Activer007/Gokapi/internal/i18n"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/storage/filesystem/s3filesystem/aws"
-	"github.com/Activer007/Gokapi/internal/webserver/browseraccess"
-	"github.com/Activer007/Gokapi/internal/webserver/ratelimiter"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/configuration/cloudconfig"
+	"github.com/Activer007/SupaShare/internal/configuration/configupgrade"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/configuration/database/dbabstraction"
+	"github.com/Activer007/SupaShare/internal/encryption"
+	"github.com/Activer007/SupaShare/internal/environment"
+	"github.com/Activer007/SupaShare/internal/helper"
+	"github.com/Activer007/SupaShare/internal/i18n"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws"
+	"github.com/Activer007/SupaShare/internal/webserver/browseraccess"
+	"github.com/Activer007/SupaShare/internal/webserver/ratelimiter"
 )
 
 // webserverDir is the embedded version of the "static" folder
@@ -49,7 +49,7 @@ import (
 var webserverDirEmb embed.FS
 
 // templateFolderEmbedded is the embedded version of the "templates" folder
-// This contains templates that Gokapi uses for creating the HTML output
+// This contains templates that SupaShare uses for creating the HTML output
 //
 //go:embed templates
 var templateFolderEmbedded embed.FS
@@ -155,7 +155,7 @@ func basicAuth(next http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 		}
-		w.Header().Set("WWW-Authenticate", `Basic realm="Gokapi setup: use username setup and the local credential file", charset="UTF-8"`)
+		w.Header().Set("WWW-Authenticate", `Basic realm="SupaShare setup: use username setup and the local credential file", charset="UTF-8"`)
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 	}
 }
@@ -195,9 +195,9 @@ func startSetupWebserver(listen setupListenerFactory) {
 	if debugDisableAuth {
 		server.Addr = "127.0.0.1:" + port
 		fmt.Println("Authentication is disabled by debug flag. Setup only accessible by localhost")
-		fmt.Println("Please open http://127.0.0.1:" + port + "/setup to setup Gokapi.")
+		fmt.Println("Please open http://127.0.0.1:" + port + "/setup to setup SupaShare.")
 	} else {
-		fmt.Println("Please open http://127.0.0.1:" + port + "/setup to setup Gokapi.")
+		fmt.Println("Please open http://127.0.0.1:" + port + "/setup to setup SupaShare.")
 	}
 	listener, err := listen(server)
 	if err != nil {

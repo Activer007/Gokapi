@@ -1,7 +1,7 @@
 # Standalone opt-in profile for this fork. Prepare fresh volumes first; see docs/setup.rst.
 # Require an explicitly selected local build or immutable image reference.
 services:
-  gokapi:
+  supashare:
     image: ${GOKAPI_IMAGE:?Set GOKAPI_IMAGE to your tested fork image}
     user: "${GOKAPI_UID:-10001}:${GOKAPI_GID:-10001}"
     ports:

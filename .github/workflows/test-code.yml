@@ -43,7 +43,7 @@ jobs:
         run: bash docs/security/tools/run-sec030-whole.sh race
       - name: Record security source hashes
         run: |
-          git ls-files -- cmd/gokapi/Main.go internal/configuration/database internal/environment internal/storage internal/uploadquota internal/webserver | grep -E '\.go$' | LC_ALL=C sort | xargs sha256sum
+          git ls-files -- cmd/supashare/Main.go internal/configuration/database internal/environment internal/storage internal/uploadquota internal/webserver | grep -E '\.go$' | LC_ALL=C sort | xargs sha256sum
       - name: Toolchain build and vulnerability gates
         run: bash docs/security/tools/run-sec062-toolchain.sh scan
       - name: Historical vulnerable compiler scan contract

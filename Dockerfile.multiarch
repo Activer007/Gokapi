@@ -9,9 +9,9 @@ RUN apk update && apk add --no-cache su-exec tini ca-certificates curl tzdata &&
     mkdir /app && touch /app/.isdocker
 
 COPY dockerentry.sh /app/run.sh
-COPY bin/${BINARY_NAME} /app/gokapi
+COPY bin/${BINARY_NAME} /app/supashare
 
-RUN chmod +x /app/gokapi /app/run.sh
+RUN chmod +x /app/supashare /app/run.sh
 
 WORKDIR /app
 

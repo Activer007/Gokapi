@@ -13,11 +13,11 @@ Examples
 Nginx Configuration
 *********************************
 
-The key settings any reverse proxy must have for Gokapi:
+The key settings any reverse proxy must have for SupaShare:
 
 * **Body size limit** — large enough for your biggest upload (``client_max_body_size`` in Nginx).
 * **Timeouts** — at least 300 seconds for send, receive, and connect.
-* **Forwarded IP headers** — pass ``X-Real-IP`` and ``X-Forwarded-For`` so Gokapi sees the real client IP.
+* **Forwarded IP headers** — pass ``X-Real-IP`` and ``X-Forwarded-For`` so SupaShare sees the real client IP.
 
 If you use a different proxy (Caddy, Traefik, Apache), apply the same three settings using your proxy's equivalent directives.
 
@@ -108,7 +108,7 @@ See the `Authelia documentation <https://www.authelia.com/configuration/identity
 	      allowed_origins_from_client_redirect_uris: false
 	    clients:
 	      - id: gokapi-dev
-		description: Gokapi Example
+		description: SupaShare Example
 		secret: 'AhXeV7_EXAMPLE_KEY'
 		sector_identifier: ''
 		public: false
@@ -127,16 +127,16 @@ See the `Authelia documentation <https://www.authelia.com/configuration/identity
 
 
 * Set ``authorization_policy`` to ``two_factor`` to use OTP or a hardware key.
-* If ``consent_mode`` is ``pre-configured``, the user has the option to remember consent. That way you can use a lower ``Recheck identity`` interval in Gokapi. Logout through the Gokapi interface will not be possible anymore, unless the user logs out their Authelia account. If the option is set to  ``explicit``, the user always has to grant the permission after the ``Recheck identity`` interval has passed
-* ``scopes`` may exclude ``groups`` if these are not required for authentication, e.g. if all users registered with Authelia may access Gokapi.
+* If ``consent_mode`` is ``pre-configured``, the user has the option to remember consent. That way you can use a lower ``Recheck identity`` interval in SupaShare. Logout through the SupaShare interface will not be possible anymore, unless the user logs out their Authelia account. If the option is set to  ``explicit``, the user always has to grant the permission after the ``Recheck identity`` interval has passed
+* ``scopes`` may exclude ``groups`` if these are not required for authentication, e.g. if all users registered with Authelia may access SupaShare.
 * Make sure ``redirect_uris`` is set to the correct value
 
 
-Gokapi Configuration
+SupaShare Configuration
 """"""""""""""""""""""
 
 +---------------------------+-------------------------------------------------------------+-----------------------------------------+
-| Gokapi Configuration      | Input                                                       | Example                                 |
+| SupaShare Configuration      | Input                                                       | Example                                 |
 +===========================+=============================================================+=========================================+
 | Provider URL              | URL to Authelia Server                                      | \https://auth.autheliaserver.com        |
 +---------------------------+-------------------------------------------------------------+-----------------------------------------+
@@ -150,7 +150,7 @@ Gokapi Configuration
 +---------------------------+-------------------------------------------------------------+-----------------------------------------+
 | Restrict to group         | Check this, if only users from certain groups shall be      | checked                                 |
 |                           |                                                             |                                         |
-|                           | allowed to access Gokapi admin menu                         |                                         |
+|                           | allowed to access SupaShare admin menu                         |                                         |
 +---------------------------+-------------------------------------------------------------+-----------------------------------------+
 | Scope identifier (group)  | Use a scope that lists the user's groups                    | groups                                  |
 +---------------------------+-------------------------------------------------------------+-----------------------------------------+
@@ -216,7 +216,7 @@ Adding a scope for exposing groups (optional)
     * Select ``Configure a new mapper``
     * Select ``Group Membership``
     * Enter a name and set ``Token Claim Name`` to a claim name, e.g. ``groups``
-    * Deselect ``Full group path`` if you are only using a single realm. Otherwise use the full name for your groups in the Gokapi configuration, e.g. ``/admins`` instead of ``admins``
+    * Deselect ``Full group path`` if you are only using a single realm. Otherwise use the full name for your groups in the SupaShare configuration, e.g. ``/admins`` instead of ``admins``
     * Click ``Save``
     
 #. In the realm click on ``[Manage] Clients`` and then ``gokapi-dev``
@@ -226,11 +226,11 @@ Adding a scope for exposing groups (optional)
     * Select the new scope and click ``Add / Default``
 
 
-Gokapi Configuration
+SupaShare Configuration
 """"""""""""""""""""""
 
 +---------------------------+-----------------------------------------------------------------------+--------------------------------------------+
-| Gokapi Configuration      | Input                                                                 | Example                                    |
+| SupaShare Configuration      | Input                                                                 | Example                                    |
 +===========================+=======================================================================+============================================+
 | Provider URL              | URL to Keycloak realm                                                 | \http://keycloak.server.com/realms/master  |
 +---------------------------+-----------------------------------------------------------------------+--------------------------------------------+
@@ -244,7 +244,7 @@ Gokapi Configuration
 +---------------------------+-----------------------------------------------------------------------+--------------------------------------------+
 | Restrict to group         | Check this, if only users from certain groups shall be                | checked                                    |
 |                           |                                                                       |                                            |
-|                           | allowed to access Gokapi admin menu                                   |                                            |
+|                           | allowed to access SupaShare admin menu                                   |                                            |
 +---------------------------+-----------------------------------------------------------------------+--------------------------------------------+
 | Scope identifier (group)  | Use a scope that lists the user's groups                              | groups                                     |
 +---------------------------+-----------------------------------------------------------------------+--------------------------------------------+
@@ -259,7 +259,7 @@ Gokapi Configuration
 
 
 .. note::
-   Logout through the Gokapi interface will not be possible anymore, unless the user logs out their Keycloak account.
+   Logout through the SupaShare interface will not be possible anymore, unless the user logs out their Keycloak account.
    
 
 
@@ -280,14 +280,14 @@ Server Configuration
 #. On the left, click Credentials.
 #. Click New Credentials, then select OAuth client ID.
 #. Select Application Type ``Webapplication``
-#. Add the correct Gokapi redirect URL and click Create
+#. Add the correct SupaShare redirect URL and click Create
 
 
-Gokapi Configuration
+SupaShare Configuration
 """"""""""""""""""""""
 
 +---------------------------+-------------------------------------------------------------+----------------------------------+
-| Gokapi Configuration      | Input                                                       | Example                          |
+| SupaShare Configuration      | Input                                                       | Example                          |
 +===========================+=============================================================+==================================+
 | Provider URL              | \https://accounts.google.com                                | \https://accounts.google.com     |
 +---------------------------+-------------------------------------------------------------+----------------------------------+
@@ -325,20 +325,20 @@ Creating the client
    
 #. Open https://entra.microsoft.com/
 #. Go to Applications / App registration / New registration
-#. Enter name and for redirect values ``Web`` and the Gokapi redirect URL shown in the setup
+#. Enter name and for redirect values ``Web`` and the SupaShare redirect URL shown in the setup
 #. In Manage / Authentication / Implicit grant and hybrid flows check ``ID Tokens``
-#. In Certificate & secrets / Client secrets click New client secret, enter the value of the secret in Gokapi setup
+#. In Certificate & secrets / Client secrets click New client secret, enter the value of the secret in SupaShare setup
 #. In Application / API permissions / click Grant admin consent.
 #. The client ID shown in Application Overview / Application (client) ID
 #. The provider URL is ``https://login.microsoftonline.com/REALM/v2.0/``, replace ``REALM`` with the tenant id shown in Application Overview / Directory (tenant) ID (see also https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc for other options)
 
 
 
-Optional: Restricting Gokapi to specific users or groups:
+Optional: Restricting SupaShare to specific users or groups:
 *************************************************************
 
 #. Open https://entra.microsoft.com/
-#. Go to Applications / Enterprise Applications and select Gokapi
+#. Go to Applications / Enterprise Applications and select SupaShare
 #. Go to Manage / Properties and check ``Assignment required?``
 #. Go to Manage / Users & Groups and add the allowed users / groups
 
@@ -346,11 +346,11 @@ Optional: Restricting Gokapi to specific users or groups:
 
 
 
-Gokapi Configuration
+SupaShare Configuration
 """"""""""""""""""""""
 
 +---------------------------+-------------------------------------------------------------------+-----------------------------------------------------------------------------+
-| Gokapi Configuration      | Input                                                             | Example                                                                     |
+| SupaShare Configuration      | Input                                                             | Example                                                                     |
 +===========================+===================================================================+=============================================================================+
 | Provider URL              | \https://login.microsoftonline.com/REALM/v2.0/, replace ``REALM`` | \https://login.microsoftonline.com/abcdef-1234-4678-9540-abcdefabcdef/v2.0/ |
 +---------------------------+-------------------------------------------------------------------+-----------------------------------------------------------------------------+

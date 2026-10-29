@@ -1,6 +1,6 @@
 # M0 本地测试报告
 
-日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/Gokapi 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
+日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/SupaShare 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
 
 ## 当前后续目标（2026-10-29）
 
@@ -9,8 +9,8 @@
 
 ## SEC-030 最小启动恢复（2026-10-29）
 
-最终收口：[PR35](https://github.com/Activer007/Gokapi/pull/35)，代码db4dc8a7e0ede74390cd422728fccd9ebf3287b3，
-[CI40833366371](https://github.com/Activer007/Gokapi/actions/runs/40833366371) SUCCESS，job123312410322。
+最终收口：[PR35](https://github.com/Activer007/SupaShare/pull/35)，代码db4dc8a7e0ede74390cd422728fccd9ebf3287b3，
+[CI40833366371](https://github.com/Activer007/SupaShare/actions/runs/40833366371) SUCCESS，job123312410322。
 实际checkout a78f7be52633fef9897a0c32e6f9ab491ef5fda2，父32fe5c1+db4dc8a，tree89276c432411389c7e685223fece6ce74eb19496，
 Go1.26.10 linux/amd64、Ubuntu24.04；包含UI PR32–34及仓库身份迁移PR36。收口文档不改安全源码/运行器。
 随后master45c5d69合入PR37（Presentation.go和html_footer.tmpl，统一显示版本），因此最终整树还含该UI差异。
@@ -39,7 +39,7 @@ ignored本地证据：`evidence/sec030-recovery-local.secret/`。两个用户目
 | 实际命令 | 结果 |
 | --- | --- |
 | `go test ./internal/storage -count=1 -tags=test,noaws,security_recovery -run '^TestSEC030RecoveryCrash$' -timeout 3m -v`（空入口） | FAIL，退出1/6.493s；A/B/C均真实到达exit97后fresh进程业务断言失败，无编译/环境失败冒充RED |
-| `go test ./internal/storage ./internal/storage/chunking/chunksession ./internal/storage/uploadreceive ./internal/webserver/fileupload ./cmd/gokapi -count=1 -tags=test,noaws,security_chunk,security_recovery -run '^TestSEC030Recovery' -timeout 3m -v` | PASS，退出0；storage7.627s（3窗口+2negative）、chunksession4.894s、receiver1.432s；fileupload5.263s/main7.592s为编译及TestMain，无匹配测试 |
+| `go test ./internal/storage ./internal/storage/chunking/chunksession ./internal/storage/uploadreceive ./internal/webserver/fileupload ./cmd/supashare -count=1 -tags=test,noaws,security_chunk,security_recovery -run '^TestSEC030Recovery' -timeout 3m -v` | PASS，退出0；storage7.627s（3窗口+2negative）、chunksession4.894s、receiver1.432s；fileupload5.263s/main7.592s为编译及TestMain，无匹配测试 |
 | `go test ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,noaws,security_recovery -run '^TestSEC030Recovery.*ReadMetadata$' -timeout 90s -v` | PASS，退出0；SQLite4.355s、miniredis4.405s，正常完整模型/missing/cancel/nil/坏gob；miniredis无法检查真实持久化是预期限制 |
 
 独立审查后收紧canonical同长损坏、whole不可能状态；两个negative均PASS，不扩大provider矩阵。
@@ -48,9 +48,9 @@ ignored本地证据：`evidence/sec030-recovery-local.secret/`。两个用户目
 原生-race因无CGO/gcc为BLOCKED；最终Linux相关race结果见本节收尾。
 首个冻结head ac2b6ec 的CI40831437902已SUCCESS，候选22e11b2/treeb06a48e8含UI PR32–34；
 生成、四组全仓、receiver/durable race及scan均通过，三窗口race6.26s、negative2.71s。
-合并时GitHub返回405冲突：同期PR36已将module/import迁移到Activer007/Gokapi（master32fe5c1）。
+合并时GitHub返回405冲突：同期PR36已将module/import迁移到Activer007/SupaShare（master32fe5c1）。
 保留迁移，仅同步本轮新增Go imports并合并Main启动门禁；旧CI不代表这个新组合，另行验证并记录结果。
-迁移后的实际命令：`go test ./internal/storage ./internal/storage/chunking/chunksession ./internal/storage/uploadreceive ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis ./cmd/gokapi -count=1 -tags=test,noaws,security_chunk,security_recovery -run '^TestSEC030Recovery' -timeout 3m -v`
+迁移后的实际命令：`go test ./internal/storage ./internal/storage/chunking/chunksession ./internal/storage/uploadreceive ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis ./cmd/supashare -count=1 -tags=test,noaws,security_chunk,security_recovery -run '^TestSEC030Recovery' -timeout 3m -v`
 PASS，退出0；新module包storage7.326s/chunksession4.697s/receiver1.282s/SQLite1.589s/Redis1.646s，main9.002s编译+TestMain无匹配case。
 这次重复由真实基线/import变化触发，保留前次PASS与Git合并冲突记录；迁移后的最终CI见本节收尾。
 scan保留模块级GO-2026-5932及GO-2022-0646/0635提示，受测配置未报affected调用，不声称依赖已修复。
@@ -60,7 +60,7 @@ C先保留未知whole硬链接，再在隔离副本备份、same-inode+SHA256确
 
 ## SEC-030 文件替换增量（2026-10-29）
 
-最终：[PR30](https://github.com/Activer007/Gokapi/pull/30)合并60b2fb0；[CI40823139886](https://github.com/Activer007/Gokapi/actions/runs/40823139886)
+最终：[PR30](https://github.com/Activer007/SupaShare/pull/30)合并60b2fb0；[CI40823139886](https://github.com/Activer007/SupaShare/actions/runs/40823139886)
 实际SUCCESS，checkoutdda1f255bf72a531db5bda9a00dfbb1cce6e8875，tree1325ff654d27942ac78f7a086c6e70400e00a072与合并一致。
 环境Go1.26.10 linux/amd64、Ubuntu24.04；生成、awsmock/noaws/integration/awstest四组全仓、receiver及
 durable admission相关race、当前build/scan、两次source-unchanged均通过。替换4容量例6.37s+self1.11s、
@@ -88,7 +88,7 @@ ignored证据目录 `evidence/sec030-replace-local.secret/`。生产开始前tra
 
 ## SEC-030 单文件owner准入增量（2026-10-29）
 
-收尾：PR27合并79f2577；[CI40816967130](https://github.com/Activer007/Gokapi/actions/runs/40816967130)
+收尾：PR27合并79f2577；[CI40816967130](https://github.com/Activer007/SupaShare/actions/runs/40816967130)
 实际SUCCESS，checkoutd129cfb含UI PR26，tree4de09843与实际合并一致。生成、四组全仓、相关race及
 扫描通过；新owner合同仅在race运行一次，完整命令与审查记录在PR27，未补文档重复CI。
 
@@ -112,7 +112,7 @@ ignored证据目录 `evidence/sec030-replace-local.secret/`。生产开始前tra
 
 ## SEC-030 复制准入增量（2026-10-29）
 
-收尾：PR24合并为c3244f0；[最终CI40812061382](https://github.com/Activer007/Gokapi/actions/runs/40812061382)
+收尾：PR24合并为c3244f0；[最终CI40812061382](https://github.com/Activer007/SupaShare/actions/runs/40812061382)
 实际SUCCESS，checkout5d37f97含UI PR23/25，tree2982bfdf与实际合并一致。生成、四组全仓、
 相关race及扫描通过；复制12组/core/双provider仅在race步骤跑一次。最终命令及审查记录在PR24，
 没有为补文档重跑CI；下表及CI_PENDING描述保留各阶段当时状态，不能替代此最终结果。
@@ -142,7 +142,7 @@ Native race仍受既有CGO0/无gcc限制，本轮不重复尝试；Linux执行�
 
 基线57e5116；Windows便携Go1.26.10，仍不启动/修复WSL。独立归档及当前临时SQLite/loopback Redis
 证据位于ignored sec030-chunks-local.secret和request-policy-*，不是生产数据。
-首个代码head be5f385已创建[PR22](https://github.com/Activer007/Gokapi/pull/22)。用户随后明确默认
+首个代码head be5f385已创建[PR22](https://github.com/Activer007/SupaShare/pull/22)。用户随后明确默认
 owner5GiB/instance20GiB，其他上限不变；旧head的PR40797560851/手动40797586038已主动取消，
 不记完整PASS；更新默认值后的143f041已实际通过完整Gate（见下节）。以下本地结果保留各自实际输入及范围。
 新默认值最小合同在隔离be5实现叠加当前test后真实RED：`go test ./internal/environment -count=1
@@ -189,8 +189,8 @@ owner5GiB/instance20GiB，其他上限不变；旧head的PR40797560851/手动407
 ### 最终 Linux 代码 Gate
 
 已验证代码 `143f041162605a160c98f9cf0420033260d8bded`，用户选择owner5GiB/instance20GiB；
-[PR CI40798733852](https://github.com/Activer007/Gokapi/actions/runs/40798733852)及
-[完整手动40798813978](https://github.com/Activer007/Gokapi/actions/runs/40798813978)均实际SUCCESS。
+[PR CI40798733852](https://github.com/Activer007/SupaShare/actions/runs/40798733852)及
+[完整手动40798813978](https://github.com/Activer007/SupaShare/actions/runs/40798813978)均实际SUCCESS。
 Ubuntu24.04 runner、Go1.26.10 linux/amd64；原始decoded日志在ignored目录，
 [公开数值与复现说明](evidence/sec030-chunks-143f041/README.md)不包含敏感请求正文。
 
@@ -226,14 +226,14 @@ base57→143的50份非删除Go变更50/50覆盖，0 mismatch；target/race/larg
 首次简单合并全日志同路径hash得到manual MISMATCH：historical工具链步骤使用cb5868c6旧workflow，
 当前harness仍为143版本。经分开归属，两种workflow的Git blob SHA各自真实匹配；旧扫描实际退出3，
 并有published GO-2026-6609 RED marker。原误归类JSON仍保留，不通过忽略任意冲突伪造VERIFIED。
-独立只读代码/远端patch与关键blob核对无本增量剩余阻断；[GitHub COMMENT审查](https://github.com/Activer007/Gokapi/pull/22#pullrequestreview-5691708097)
+独立只读代码/远端patch与关键blob核对无本增量剩余阻断；[GitHub COMMENT审查](https://github.com/Activer007/SupaShare/pull/22#pullrequestreview-5691708097)
 明确为工具辅助self-review，不声称独立人类审批。最终文档提交将保持全部Go/harness输入与143一致。
 
 ## SEC-030 整文件准入：代码 Gate 通过（2026-10-29）
 
 下列初期阶段片段保留当时的IN_PROGRESS/失败状态，最终结果以本节“最终Linux代码Gate”增补为准。
 
-工作基线 `710f4bf32ae80ac110bb5cd24e8d92848ac22bd8`，已验证代码9db2542，[PR #21](https://github.com/Activer007/Gokapi/pull/21)。本节先保留阶段记录，最终Linux结果见下方增补，最终文档head及合并结果另核实。范围为 `/api/files/add`，设计/默认值/回滚见[ADR-016](ADR-016-WHOLE-UPLOAD-ADMISSION.md)。此前PR的绿色不作为本轮接线结果。
+工作基线 `710f4bf32ae80ac110bb5cd24e8d92848ac22bd8`，已验证代码9db2542，[PR #21](https://github.com/Activer007/SupaShare/pull/21)。本节先保留阶段记录，最终Linux结果见下方增补，最终文档head及合并结果另核实。范围为 `/api/files/add`，设计/默认值/回滚见[ADR-016](ADR-016-WHOLE-UPLOAD-ADMISSION.md)。此前PR的绿色不作为本轮接线结果。
 
 执行环境新增Windows PowerShell / 便携Go1.26.10 windows-amd64，官方清单记录与实际zip SHA256均为 `7ecd2d7260e82c59bcbd7f1077a07cee2dea607295b858df67195a1e4e09629b`。下载及隔离cache/module/TMP保留于ignored的 `docs/security/evidence/sec030-whole-local.secret/`，没有调用生产数据或真实AWS。WSL仍BLOCKED，未启动/修复宿主；不能将早期WSL或依赖下载失败记为本轮合同通过。
 
@@ -297,7 +297,7 @@ go test ./internal/configuration/database/provider/sqlite ./internal/configurati
 
 ### 本轮最终Linux代码 Gate：9db2542
 
-[PR CI40778813175](https://github.com/Activer007/Gokapi/actions/runs/40778813175)与[完整手动40778841823](https://github.com/Activer007/Gokapi/actions/runs/40778841823)全部SUCCESS；手动job123135051507，ubuntu-latest/Linux amd64，Go1.26.10，GOTOOLCHAIN=local。
+[PR CI40778813175](https://github.com/Activer007/SupaShare/actions/runs/40778813175)与[完整手动40778841823](https://github.com/Activer007/SupaShare/actions/runs/40778841823)全部SUCCESS；手动job123135051507，ubuntu-latest/Linux amd64，Go1.26.10，GOTOOLCHAIN=local。
 
 真实执行并PASS：
 
@@ -375,7 +375,7 @@ native `go test -race ./internal/storage -count=1 -tags=test,noaws,security_whol
 | go test ./internal/test/securityfixture -count=1 -tags=test -run TestM0S3 | PASS，0，真实 SDK + 回环模拟 S3 | [S3 driver](evidence/run-FFCfrI/s3-driver.log) |
 | go test -race ./internal/test/securityfixture -count=1 -tags=test -run TestM0S3 | PASS，0 | [S3 driver race](evidence/run-r6ErJq/s3-driver-race.log) |
 | go test ./internal/configuration/setup ./internal/webserver/authentication/sessionmanager ./internal/test/securityfixture -count=1 -tags=test,security_red -run TestSEC | FAIL，1，三个有意暴露的目标不变量 | [最终 RED](evidence/run-80e7sZ/red.log) |
-| go build -o ./gokapi-m0 ./cmd/gokapi | PASS，0，仅构建 | [build](evidence/run-80e7sZ/build.log) |
+| go build -o ./gokapi-m0 ./cmd/supashare | PASS，0，仅构建 | [build](evidence/run-80e7sZ/build.log) |
 | ./gokapi-m0 -v | PASS，0，未启动服务 | [binary version](evidence/run-80e7sZ/binary-version.log) |
 | go version -m ./gokapi-m0 | PASS，0 | [build info](evidence/run-80e7sZ/build-info.log) |
 | docker version | BLOCKED，命令退出127 | [docker](evidence/run-80e7sZ/docker.log) |
@@ -385,7 +385,7 @@ native `go test -race ./internal/storage -count=1 -tags=test,noaws,security_whol
 | govulncheck ./... | NOT_RUN：没有修改依赖，本轮未固定/安装扫描器；SEC-062 Gate 保留，不能宣称无依赖漏洞 | — |
 | Docker/浏览器 E2E/双浏览器 CSRF/真实 Redis 恢复/真实 S3/VPS | NOT_RUN | 后续按任务 Gate 执行 |
 
-vet 的具体原有问题：cmd/gokapi/Main.go:76 向 signal.Notify 传无缓冲 channel；Webserver_test.go 多处 test.PostBody/Cookie/Header 使用未命名字段字面量。原始 HEAD 的 vet 日志已证明同样失败；M0 不混入修复或关闭检查。测试三组 PASS 不能覆盖这些静态告警。
+vet 的具体原有问题：cmd/supashare/Main.go:76 向 signal.Notify 传无缓冲 channel；Webserver_test.go 多处 test.PostBody/Cookie/Header 使用未命名字段字面量。原始 HEAD 的 vet 日志已证明同样失败；M0 不混入修复或关闭检查。测试三组 PASS 不能覆盖这些静态告警。
 
 ## 新增回归的覆盖强度
 
@@ -446,7 +446,7 @@ M0 基线与测试基础交付完成。SEC-010/012/040 的修复、OIDC/CSRF 浏
 | 同命令新副本重跑，[run-fEX5G8](evidence/run-fEX5G8/results.tsv) | 总退出1；generate、awsmock、noaws、integration、fixture race、真实 S3 PASS；vet 原有告警与三个 opt-in RED 继续 FAIL。最终新增 Go 文件对应此 overlay.sha256 |
 | `bash docs/security/tools/check-credential-guard.sh`，[guard-ZVTgGi](evidence/guard-ZVTgGi/results.tsv) | 脚本退出0；generate PASS；`go test ./internal/test/securityfixture -count=1 -tags=test,noaws -run TestM0ActorBoundaries -v` 控制组 PASS；同命令 mutation 组退出1，四个预期边界断言 FAIL，检测结论 PASS |
 | mutation 的具体结果 | 两种 provider 均为 request key → management 返回200（期望401），ordinary key → request 返回400（期望401）；[原始断言](evidence/guard-ZVTgGi/mutant.log) |
-| SEC-062 PR #1 CI | [run 40529619817](https://github.com/Activer007/Gokapi/actions/runs/40529619817) success，包含 generate 与官方四组；不是 SEC-003 新增文件的测试结果 |
+| SEC-062 PR #1 CI | [run 40529619817](https://github.com/Activer007/SupaShare/actions/runs/40529619817) success，包含 generate 与官方四组；不是 SEC-003 新增文件的测试结果 |
 
 TestDeleteFile 使用固定200ms+900ms等待异步删除；生产任务内部另有1s sleep，完成时刻还受调度和数据库 I/O 影响。此次失败重跑未复现，因此原因仍为 **VALIDATE**，不能仅凭后续 PASS 断言已修复。没有延长或删除断言来掩盖失败；run-YZYD48 原日志保留。已有 vet 告警、容器工具缺失和未执行项沿用上表，合并测试基础不等于通过部署 Gate。
 
@@ -506,9 +506,9 @@ SEC-012原M0 opt-in RED现迁入默认test组；SEC-040仍需显式security_red�
 
 兼容/发布/回滚详见[ADR-002](ADR-002-COOKIE-AND-PASSWORD-ROLLOUT.md)。本项无schema、身份或文件格式变化；旧Cookie需要维护窗口注销再登录，降回v2.2.4必须恢复配套备份。测试/PR通过不等于已发布镜像或M1全部完成。
 
-[PR #4](https://github.com/Activer007/Gokapi/pull/4) 创建于本 fork，初始提交 `f780a84f9e3ed59b8c2a560f48167724c3c890d8`。远端diff已逐项自审并记录COMMENT，不冒充独立审批；后续仅补PR链接和本说明。提交前gofmt、bash -n、diff --check和文档相对链接校验通过，新增证据及fixture的常见私钥/GitHub Token/AWS访问Key模式扫描无匹配；这是有限模式扫描，非全仓秘密审计。合并必须等待最终head的远端CI通过，动态结果以PR checks为准。
+[PR #4](https://github.com/Activer007/SupaShare/pull/4) 创建于本 fork，初始提交 `f780a84f9e3ed59b8c2a560f48167724c3c890d8`。远端diff已逐项自审并记录COMMENT，不冒充独立审批；后续仅补PR链接和本说明。提交前gofmt、bash -n、diff --check和文档相对链接校验通过，新增证据及fixture的常见私钥/GitHub Token/AWS访问Key模式扫描无匹配；这是有限模式扫描，非全仓秘密审计。合并必须等待最终head的远端CI通过，动态结果以PR checks为准。
 
-SEC-012合并核实：PR #4最终head `bb2008ff755482f877d668c42902bb32c445fa3d`，合并提交 `7200526486d7a4b317043fe7056e6d279e1c92f3`。CI [40542126888](https://github.com/Activer007/Gokapi/actions/runs/40542126888)首轮通过；[40542116738](https://github.com/Activer007/Gokapi/actions/runs/40542116738)首轮FAIL于原有TestDeleteFile/Api_test.go:1108，固定200ms+900ms后记录仍存在；同SHA重跑通过，失败attempt及PR审查评论保留。两条最终CI均执行生成和官方四组，不能记成首次全绿或宣称删除问题已修。
+SEC-012合并核实：PR #4最终head `bb2008ff755482f877d668c42902bb32c445fa3d`，合并提交 `7200526486d7a4b317043fe7056e6d279e1c92f3`。CI [40542126888](https://github.com/Activer007/SupaShare/actions/runs/40542126888)首轮通过；[40542116738](https://github.com/Activer007/SupaShare/actions/runs/40542116738)首轮FAIL于原有TestDeleteFile/Api_test.go:1108，固定200ms+900ms后记录仍存在；同SHA重跑通过，失败attempt及PR审查评论保留。两条最终CI均执行生成和官方四组，不能记成首次全绿或宣称删除问题已修。
 
 ## M1 / SEC-013 可信代理
 
@@ -536,9 +536,9 @@ go test -race ./internal/logging ./internal/environment ./internal/webserver/aut
 
 仅为现有Header正例设置可信RemoteAddr；不删弱化负例。未更改数据库、密码哈希、OIDC账户关联、文件内容/删除、API或界面。普通三组继续包含SEC-010安装与SEC-012回调/迁移回归；Docker配置模拟不等于真实容器网络/非root上传下载。浏览器、真实容器、全仓race、govulncheck本轮NOT_RUN；无依赖修改，原vet告警保留。环境与代理迁移/回滚见[ADR-003](ADR-003-TRUSTED-PROXY-BOUNDARY.md)，M1剩余SEC-011/014未完成。
 
-[PR #5](https://github.com/Activer007/Gokapi/pull/5)初始提交 `86d9afd5591f17df3c6718b73ff42b8aa8cf3575`；远端diff已自审并记录COMMENT，非独立审批。后续只补PR链接与本说明。提交前gofmt、bash -n、diff --check及文档相对链接检查通过；本轮新增证据/fixture的常见私钥、GitHub Token、AWS访问Key模式扫描无匹配（非全仓秘密审计）。8pVkpv与yJt6Pn的overlay hash完全一致。最终head的CI及合并结果以PR checks为准，合并前必须核实成功。
+[PR #5](https://github.com/Activer007/SupaShare/pull/5)初始提交 `86d9afd5591f17df3c6718b73ff42b8aa8cf3575`；远端diff已自审并记录COMMENT，非独立审批。后续只补PR链接与本说明。提交前gofmt、bash -n、diff --check及文档相对链接检查通过；本轮新增证据/fixture的常见私钥、GitHub Token、AWS访问Key模式扫描无匹配（非全仓秘密审计）。8pVkpv与yJt6Pn的overlay hash完全一致。最终head的CI及合并结果以PR checks为准，合并前必须核实成功。
 
-SEC-013合并核实：PR #5最终head `7b1153489bccdb0aa09ee79898e024dff0790847`，CI [40545422637](https://github.com/Activer007/Gokapi/actions/runs/40545422637)和[40545415672](https://github.com/Activer007/Gokapi/actions/runs/40545415672)成功，包含generate及官方四组。合并为 `138642c72ea481a2b63d2ed5e1aac071de34a01d`，本地master已核对同步。
+SEC-013合并核实：PR #5最终head `7b1153489bccdb0aa09ee79898e024dff0790847`，CI [40545422637](https://github.com/Activer007/SupaShare/actions/runs/40545422637)和[40545415672](https://github.com/Activer007/SupaShare/actions/runs/40545415672)成功，包含generate及官方四组。合并为 `138642c72ea481a2b63d2ed5e1aac071de34a01d`，本地master已核对同步。
 
 ## M1 / SEC-014 请求阶段与取消
 
@@ -570,9 +570,9 @@ go test -race ./internal/webserver/ratelimiter ./internal/webserver ./internal/w
 
 提交前检查：WSL /usr/bin/go 为 go1.26.0 linux/amd64，gofmt、bash -n、git diff --check通过；新增证据常见私钥/GitHub Token/AWS访问Key模式扫描无匹配（有限模式扫描，不是全仓秘密审计）。Windows PATH无go；首次格式检查误指定不存在的/usr/local/go/bin/go后，改用既有/usr/bin/go完成检查，未影响已记录的测试。
 
-[PR #6](https://github.com/Activer007/Gokapi/pull/6)初始提交 8defad1a80046b156cf662de6ce8d9e659f45429；远端diff已自审并记录COMMENT，非独立审批。审查修正测试清理与API正例夹具；本次后续提交只补PR链接与审查说明。最终head的CI通过后方可合并，动态结果以PR checks为准。
+[PR #6](https://github.com/Activer007/SupaShare/pull/6)初始提交 8defad1a80046b156cf662de6ce8d9e659f45429；远端diff已自审并记录COMMENT，非独立审批。审查修正测试清理与API正例夹具；本次后续提交只补PR链接与审查说明。最终head的CI通过后方可合并，动态结果以PR checks为准。
 
-SEC-014合并核实：PR #6最终head 99da9bbb0c2c7c9d58e8a9c0bbc68b9a16a5ae00，两条CI [40549566906](https://github.com/Activer007/Gokapi/actions/runs/40549566906) / [40549557374](https://github.com/Activer007/Gokapi/actions/runs/40549557374)均成功，日志含generate和官方四组；合并462c5d57dc428ccedb352b2c84c4367331687872。本地已同步。警告仅Node20 action运行时和ubuntu-latest迁移，未混入本项升级。
+SEC-014合并核实：PR #6最终head 99da9bbb0c2c7c9d58e8a9c0bbc68b9a16a5ae00，两条CI [40549566906](https://github.com/Activer007/SupaShare/actions/runs/40549566906) / [40549557374](https://github.com/Activer007/SupaShare/actions/runs/40549557374)均成功，日志含generate和官方四组；合并462c5d57dc428ccedb352b2c84c4367331687872。本地已同步。警告仅Node20 action运行时和ubuntu-latest迁移，未混入本项升级。
 
 ## M1 / SEC-011 非 root Compose
 
@@ -610,9 +610,9 @@ M1逐项复核：SEC-010未授权初始化、SEC-012 Cookie/HTTP与TLS回调/旧
 
 提交前Python AST、bash -n、git diff --check、文档相对链接校验通过；本轮新增证据常见私钥/GitHub Token/AWS访问Key/Authorization/session Cookie模式扫描无匹配（有限扫描，非全仓秘密审计）。测试脚本自审核对了容器ID/卷标签清理范围、安装前日志范围、镜像复用来源标注、固定端口和匿名重启就绪检查。
 
-[PR #7](https://github.com/Activer007/Gokapi/pull/7)初始提交5e611a211b050b91084a716935be863bfe7e835a；远端diff已自审并记录COMMENT，非独立审批。提交后用默认git archive HEAD读取dockerentry.sh字节，确认无CR、LF属性生效。本次后续仅补PR/审查记录，最终head CI成功后合并，动态状态以PR checks为准。
+[PR #7](https://github.com/Activer007/SupaShare/pull/7)初始提交5e611a211b050b91084a716935be863bfe7e835a；远端diff已自审并记录COMMENT，非独立审批。提交后用默认git archive HEAD读取dockerentry.sh字节，确认无CR、LF属性生效。本次后续仅补PR/审查记录，最终head CI成功后合并，动态状态以PR checks为准。
 
-SEC-011合并核实：PR #7最终head ccb7c7aac44dd90037e1f653110b45a15a2b22e8，CI [40553793808](https://github.com/Activer007/Gokapi/actions/runs/40553793808) / [40553783138](https://github.com/Activer007/Gokapi/actions/runs/40553783138)成功，含generate与官方四组；合并863fdb5442e8709e1639dfaa50ea26232eff7ec4，本地master已核实同步。
+SEC-011合并核实：PR #7最终head ccb7c7aac44dd90037e1f653110b45a15a2b22e8，CI [40553793808](https://github.com/Activer007/SupaShare/actions/runs/40553793808) / [40553783138](https://github.com/Activer007/SupaShare/actions/runs/40553783138)成功，含generate与官方四组；合并863fdb5442e8709e1639dfaa50ea26232eff7ec4，本地master已核实同步。
 
 ## M1 / SEC-014 管理请求预算补充
 
@@ -641,7 +641,7 @@ go test -race ./internal/webserver ./internal/webserver/api ./internal/webserver
 
 提交前gofmt、bash -n、diff --check、文档相对链接通过；新增证据常见私钥/GitHub Token/AWS访问Key/Authorization/session Cookie模式无匹配（有限扫描）。只读上游timeout PR检索无结果。默认镜像USER仍root，完整Go回归继续覆盖SEC-010安装/重配、SEC-012 Cookie/旧密码、SEC-013代理边界；本轮提交后的最终镜像尚待重建并复跑SEC-011，合并以最终PR checks为准。
 
-提交后验收（替代上段“尚待重建”状态）：[PR #8](https://github.com/Activer007/Gokapi/pull/8)代码提交 `4bc1fc3c8a86c1bc39d6ce92ef2e4db7474280df`；远端diff已自审并记录COMMENT，非独立审批。Windows Python3.13执行 `python docs/security/tools/run-sec011.py`，从该提交的LF archive重新构建镜像（未复用旧镜像），[wtswvd6t/results.tsv](evidence/sec011-wtswvd6t/results.tsv)全部PASS、退出0。镜像 `gokapi-sec011:4bc1fc3c8a86`，不可变ID `sha256:fe7681a6e0bd8a3c3460ba896096f364d4ab1daaab1a0570c7a2ba18d477e0ad`；源archive、runner、Compose摘要及构建日志一并保留。环境沿用Docker29.1.3/Compose2.40.3，本次构建仍使用进程内既有代理。
+提交后验收（替代上段“尚待重建”状态）：[PR #8](https://github.com/Activer007/SupaShare/pull/8)代码提交 `4bc1fc3c8a86c1bc39d6ce92ef2e4db7474280df`；远端diff已自审并记录COMMENT，非独立审批。Windows Python3.13执行 `python docs/security/tools/run-sec011.py`，从该提交的LF archive重新构建镜像（未复用旧镜像），[wtswvd6t/results.tsv](evidence/sec011-wtswvd6t/results.tsv)全部PASS、退出0。镜像 `gokapi-sec011:4bc1fc3c8a86`，不可变ID `sha256:fe7681a6e0bd8a3c3460ba896096f364d4ab1daaab1a0570c7a2ba18d477e0ad`；源archive、runner、Compose摘要及构建日志一并保留。环境沿用Docker29.1.3/Compose2.40.3，本次构建仍使用进程内既有代理。
 
 最新容器验证错误卷属主拒绝且不改权限、实际应用UID/GID10001、只读根FS及降权选项、证明0600、无证明401且无配置、合法初装/登录、147,456字节上传与匿名下载SHA256、重启持久化和已有配置无新bootstrap。测试只使用新建标记卷；清理退出成功，镜像保留供检查。这是本地SQLite/文件驱动验收，不推断真实S3/Redis或旧生产卷迁移。后续提交只补证据和验收文档，应用源码与被测提交相同。最终CI/合并结果以PR #8 checks与合并记录为准。
 
@@ -697,9 +697,9 @@ RED复现方式：在新临时目录展开 `git -c core.autocrlf=false archive c
 
 环境检查补充：WSL对Windows工作树运行 `git diff --check` 因两端core.autocrlf不同，把既有CRLF文件报告为尾随空白，退出1；该命令短暂持有index.lock使首次commit失败。等待其正常退出后锁自动释放，未删除锁或修改文件。Windows原生 `git diff --cached --check` PASS；最终overlay全部SHA256一致，构建始终使用LF archive隔离副本。
 
-[PR #9](https://github.com/Activer007/Gokapi/pull/9)已在本fork创建，代码提交a83366a80bc551c65fcde47e943a13df62f159fe。已读取远端patch并提交COMMENT自审，未作为独立审批；未发现本PR范围的阻塞项。后续提交仅更新PR/审查记录，生产和测试源码与BS2VtP摘要一致；最终CI成功后才合并，动态状态见PR checks。M2继续保持未完成。
+[PR #9](https://github.com/Activer007/SupaShare/pull/9)已在本fork创建，代码提交a83366a80bc551c65fcde47e943a13df62f159fe。已读取远端patch并提交COMMENT自审，未作为独立审批；未发现本PR范围的阻塞项。后续提交仅更新PR/审查记录，生产和测试源码与BS2VtP摘要一致；最终CI成功后才合并，动态状态见PR checks。M2继续保持未完成。
 
-SEC-020合并核实：PR #9最终head c29148819087698dcc1f2fbd7fdb00bd31ddd98b，CI [40641638222](https://github.com/Activer007/Gokapi/actions/runs/40641638222) / [40641632183](https://github.com/Activer007/Gokapi/actions/runs/40641632183)均成功，生成及四组测试全部通过。合并bf5918e69827b75b5321acc37efd66f4b7e1b498，本地master同步且tree与已审查head一致。CI提示现有Actions Node20弃用及ubuntu-latest迁移，留待SEC-062固定构建环境。
+SEC-020合并核实：PR #9最终head c29148819087698dcc1f2fbd7fdb00bd31ddd98b，CI [40641638222](https://github.com/Activer007/SupaShare/actions/runs/40641638222) / [40641632183](https://github.com/Activer007/SupaShare/actions/runs/40641632183)均成功，生成及四组测试全部通过。合并bf5918e69827b75b5321acc37efd66f4b7e1b498，本地master同步且tree与已审查head一致。CI提示现有Actions Node20弃用及ubuntu-latest迁移，留待SEC-062固定构建环境。
 
 ## M2 / SEC-021 撤销与使用记录合同
 
@@ -729,9 +729,9 @@ go test -race ./internal/test/securityfixture ./internal/configuration/database/
 
 证明范围：provider延迟快照及同步屏障并发；真实管理API的顺序撤销与当前会话权限；混合ZIP成员。没有构造完整外部HTTP利用链，不把provider RED扩大为漏洞利用结论。全仓race、govulncheck、真实Redis/S3、自定义ACL、生产数据修复为NOT_RUN。presign消费、分片/File Request跨请求授权、异步任务、并发会话续期、并发Key签发/权限修改、OIDC与浏览器CSRF仍为M2开放Gate。
 
-提交前源码overlay SHA256一致、文档相对链接、Windows原生diff --check通过；新增证据常见私钥/GitHub Token/AWS访问Key/Authorization/session Cookie模式无匹配（有限扫描）。[PR #10](https://github.com/Activer007/Gokapi/pull/10)代码提交6fefc889f9096b4dac224ea21ddb52193673ed8e；已读取远端patch并记录COMMENT自审，非独立审批。核对原子性、参数化key、TTL、正常更新正例、旧测试语义修正、会话夹具协程收尾及未覆盖边界；未发现本PR范围的阻塞项。后续提交只补PR与审查记录，代码/测试仍与e8JIMf摘要一致；最终head CI通过后才合并。
+提交前源码overlay SHA256一致、文档相对链接、Windows原生diff --check通过；新增证据常见私钥/GitHub Token/AWS访问Key/Authorization/session Cookie模式无匹配（有限扫描）。[PR #10](https://github.com/Activer007/SupaShare/pull/10)代码提交6fefc889f9096b4dac224ea21ddb52193673ed8e；已读取远端patch并记录COMMENT自审，非独立审批。核对原子性、参数化key、TTL、正常更新正例、旧测试语义修正、会话夹具协程收尾及未覆盖边界；未发现本PR范围的阻塞项。后续提交只补PR与审查记录，代码/测试仍与e8JIMf摘要一致；最终head CI通过后才合并。
 
-PR #10合并核实：最终head 08f7da39c220061fda77398be4d194f0b1548e55，CI [40644142401](https://github.com/Activer007/Gokapi/actions/runs/40644142401) / [40644137808](https://github.com/Activer007/Gokapi/actions/runs/40644137808)成功，生成及四组测试全部PASS。合并d599aabfbc7f52aa06a14a006348992adc94247a；本地master同步，tree与审查head一致，用户计划目录未修改。现有Actions运行时弃用/ubuntu-latest迁移提示继续归SEC-062。
+PR #10合并核实：最终head 08f7da39c220061fda77398be4d194f0b1548e55，CI [40644142401](https://github.com/Activer007/SupaShare/actions/runs/40644142401) / [40644137808](https://github.com/Activer007/SupaShare/actions/runs/40644137808)成功，生成及四组测试全部PASS。合并d599aabfbc7f52aa06a14a006348992adc94247a；本地master同步，tree与审查head一致，用户计划目录未修改。现有Actions运行时弃用/ubuntu-latest迁移提示继续归SEC-062。
 
 ## M2 / SEC-021 管理presign消费
 
@@ -760,7 +760,7 @@ go test -race ./internal/webserver ./internal/storage/presign -count=1 -tags=tes
 
 全仓race、真实S3/Redis服务、浏览器下载、S3已签发URL撤销、在途对象变更、govulncheck本项NOT_RUN。文件请求/分片/异步任务授权、并发会话续期/Key签发、公开分享矩阵、OIDC与跨浏览器CSRF仍是M2开放Gate。
 
-提交前overlay源码摘要、文档相对链接、Windows原生diff --check通过；新增证据常见私钥/GitHub Token/AWS访问Key/Authorization/session Cookie/完整presign URL模式无匹配（有限扫描）。[PR #11](https://github.com/Activer007/Gokapi/pull/11)代码提交81d70117535c262a73868c25f419cabb20a14538；已读取远端patch并记录COMMENT自审，非独立审批。核对双签发入口、当前主体/Key、逐对象交集、凭据类型、原子领取、错误格式及ADR边界，无本PR范围阻塞项。后续仅补PR/审查文档，应用与测试源码仍与Nfh4YZ摘要一致；最终head CI成功后才合并。
+提交前overlay源码摘要、文档相对链接、Windows原生diff --check通过；新增证据常见私钥/GitHub Token/AWS访问Key/Authorization/session Cookie/完整presign URL模式无匹配（有限扫描）。[PR #11](https://github.com/Activer007/SupaShare/pull/11)代码提交81d70117535c262a73868c25f419cabb20a14538；已读取远端patch并记录COMMENT自审，非独立审批。核对双签发入口、当前主体/Key、逐对象交集、凭据类型、原子领取、错误格式及ADR边界，无本PR范围阻塞项。后续仅补PR/审查文档，应用与测试源码仍与Nfh4YZ摘要一致；最终head CI成功后才合并。
 
 PR #11 已核实合并 8377de414a8a07ab1019397470f9547a206c2715；最终 head 14e7e3eacc74bfdc5f011cb67efab2d5689827b6 两条 CI（40652514812 / 40652508331）生成及四组测试均 PASS，本地 master 文件树一致。
 
@@ -909,7 +909,7 @@ go test -race ./internal/webserver/api ./internal/webserver/fileupload ./interna
 
 ## M2 收尾审计验证
 
-代码基线 3a9627c，与 64de3b7 的 `git diff --exit-code` 通过；九个必需前序合并为祖先、五个私密评估不是公开祖先。实际重读九份最终结果表均为全 0；公开源与最终完整验证保持一致。合并后 [CI 40697431982](https://github.com/Activer007/Gokapi/actions/runs/40697431982) success，生成和四组 Go 测试通过。重新核对私密浏览器观测、OIDC 现状/RED 与 ADR、会话 HTTP 及上传合同的证据范围；不重述为本轮重新执行浏览器或真实服务。
+代码基线 3a9627c，与 64de3b7 的 `git diff --exit-code` 通过；九个必需前序合并为祖先、五个私密评估不是公开祖先。实际重读九份最终结果表均为全 0；公开源与最终完整验证保持一致。合并后 [CI 40697431982](https://github.com/Activer007/SupaShare/actions/runs/40697431982) success，生成和四组 Go 测试通过。重新核对私密浏览器观测、OIDC 现状/RED 与 ADR、会话 HTTP 及上传合同的证据范围；不重述为本轮重新执行浏览器或真实服务。
 
 本轮仅文档修改：运行相对链接/引用文件校验、证据/祖先核对、`git diff --check` 和有限秘密模式扫描。Go 生成/本地全量/race/govulncheck 本轮 NOT_RUN，按 M2-GOAL 复用已核实代码 Gate，文档 PR 的 CI 按配置执行。审计详见 [M2-COMPLETION-AUDIT](M2-COMPLETION-AUDIT.md)；此结论不包含任何生产迁移/部署或全部后续安全阶段。
 
@@ -955,7 +955,7 @@ go test ./... -count=1 -tags=test,noaws,integration
 
 相关race/govulncheck本PR NOT_RUN：没有共享并发状态或依赖修改。无schema迁移/上传接口改变；函数未接入，不能声称用户配额已强制执行或不会超卖。后续必须显式映射旧0=取消某层限制、处理Measure异常后拒绝准入；具体预算仍要在provider事务中与写入原子执行。
 
-最终62zgZb的environment/generate/calculation/awsmock/noaws/integration全部PASS(0)，目标覆盖100%语句；[公开结果](evidence/sec030-calculation-62zgZb/results.tsv)、[两个Go输入哈希](evidence/sec030-calculation-62zgZb/source.sha256)与当前文件逐项相符。相对链接/有限秘密模式/git diff --check PASS。前置SEC-031 [PR #15](https://github.com/Activer007/Gokapi/pull/15)已合并8019c61，CI40707671124 success，合并树与测试基线bfd4998一致。
+最终62zgZb的environment/generate/calculation/awsmock/noaws/integration全部PASS(0)，目标覆盖100%语句；[公开结果](evidence/sec030-calculation-62zgZb/results.tsv)、[两个Go输入哈希](evidence/sec030-calculation-62zgZb/source.sha256)与当前文件逐项相符。相对链接/有限秘密模式/git diff --check PASS。前置SEC-031 [PR #15](https://github.com/Activer007/SupaShare/pull/15)已合并8019c61，CI40707671124 success，合并树与测试基线bfd4998一致。
 
 ## M3 / SEC-030 持久预约基础（2026-10-28—29）
 
@@ -987,7 +987,7 @@ NOT_RUN：真实Redis服务/AOF/RDB、旧二进制、生产迁移/恢复、全�
 
 ## SEC-062 setup测试监听隔离（2026-10-29）
 
-基线4ad12558ed9096fc74ebf1afdda273d5a56fc76b，Windows PowerShell / WSL Ubuntu-24.04、Go1.26.0 linux/amd64。PR #17已合并，PR头CI40725885197通过，但合并后CI40726798576两次失败：attempt1的noaws、attempt2的integration均在setup首次监听127.0.0.1:53842时返回address already in use；不是quota断言失败。原始失败日志保留sec030-reservations-postmerge.secret，不把重跑前的失败覆盖成通过。CI占用socket未确定；Linux临时端口假设仍VALIDATE。只读检查upstream测试、README/advanced、Issues和开放PR；[#422](https://github.com/Activer007/Gokapi/pull/422)仅修正19888 wildcard地址，不是动态监听隔离，未发现同范围待合并修复，未向upstream写入。
+基线4ad12558ed9096fc74ebf1afdda273d5a56fc76b，Windows PowerShell / WSL Ubuntu-24.04、Go1.26.0 linux/amd64。PR #17已合并，PR头CI40725885197通过，但合并后CI40726798576两次失败：attempt1的noaws、attempt2的integration均在setup首次监听127.0.0.1:53842时返回address already in use；不是quota断言失败。原始失败日志保留sec030-reservations-postmerge.secret，不把重跑前的失败覆盖成通过。CI占用socket未确定；Linux临时端口假设仍VALIDATE。只读检查upstream测试、README/advanced、Issues和开放PR；[#422](https://github.com/Activer007/SupaShare/pull/422)仅修正19888 wildcard地址，不是动态监听隔离，未发现同范围待合并修复，未向upstream写入。
 
 先RED后修复：kr9wsw在隔离归档上持续占住53842，旧TestInitialSetup实际bind失败，environment/compile退出0、occupied-port退出1。L7Jtst初版动态listener的占用合同、生成、setup全包与相关race均0，TkgSor的CI模式也0。Lx501J第一次全量中blocker自己无法绑定53842，occupied-port为2（harness BLOCKED，不是产品RED），其余environment/compile/generate/setup/race/awsmock/noaws/integration均0。为使复现器自身不依赖固定空闲端口，最终blocker改为持续持有OS分配端口，并将该实际端口作为子进程GOKAPI_PORT；lDddre在历史4ad1255重新确认environment/compile为0、occupied-port为1。最终脚本--red明确固定历史基线，CI只运行应通过的--occupied。
 
@@ -1006,7 +1006,7 @@ CI在原generate之后串行增加同一脚本--occupied，只执行环境/编�
 
 最终393FfY九项全部PASS(0)：environment/compile/occupied-port/generate/setup/race/awsmock/noaws/integration；[公开结果](evidence/sec062-setup-listener-393FfY/results.tsv)、[三份编译源码哈希](evidence/sec062-setup-listener-393FfY/source.sha256)及[运行器哈希](evidence/sec062-setup-listener-393FfY/runner.sha256)。Go输入与当前规范字节/Git index、runner与实际运行哈希均逐项一致。静态复审未见剩余阻塞；这不是独立人工批准。原始日志/中间失败保留相应.secret目录；用户未跟踪计划和deployment目录未暂存。
 
-提交691238bf6d6f9faf6c7b5f76d166da6288a410b6；自己的[PR #18](https://github.com/Activer007/Gokapi/pull/18)承载本增量。后续只补PR链接的文档提交不改变上述Go/runner哈希；远端checks、合并和主分支CI必须另按实际状态核实，不能从本地PASS推断。
+提交691238bf6d6f9faf6c7b5f76d166da6288a410b6；自己的[PR #18](https://github.com/Activer007/SupaShare/pull/18)承载本增量。后续只补PR链接的文档提交不改变上述Go/runner哈希；远端checks、合并和主分支CI必须另按实际状态核实，不能从本地PASS推断。
 
 ## SEC-030 真实上传接收准入（2026-10-29）
 
@@ -1026,7 +1026,7 @@ CI在原generate之后串行增加同一脚本--occupied，只执行环境/编�
 
 远端workflow保留生成及四组全量，新增完整接收合同race和受测源码hash；手动workflow_dispatch额外运行1GiB明文/2GiB加密HTTP、读回hash、吞吐/heap/RSS/暂存采样。大文件使用单独security_large tag，不加入默认Go suite。所有远端Gate尚需观察实际完成，不能从本地1GiB结果推导2GiB、S3或完整上传总量已通过。
 
-代码d7ea1f4提交到自己的[草稿PR #19](https://github.com/Activer007/Gokapi/pull/19)。首次远端push40743890289的生成/占端口合同PASS，awsmock FAIL：旧TestPostUpload实际3字节却声明50，上传正确拒绝后原SSE scanner无截止等待至10分钟；另有原API非multipart错误文案兼容断言失败。修正网页夹具从真实stat长度填写两处声明并断言metadata字节，加30秒SSE context；补11/13字节错误末块拒绝回归，保留实际长度防线。非multipart返回原http.ErrNotMultipart以保留公开错误文案。原始失败保留，后续新提交另跑Gate，未通过缩弱服务端校验使旧错误数据成功。
+代码d7ea1f4提交到自己的[草稿PR #19](https://github.com/Activer007/SupaShare/pull/19)。首次远端push40743890289的生成/占端口合同PASS，awsmock FAIL：旧TestPostUpload实际3字节却声明50，上传正确拒绝后原SSE scanner无截止等待至10分钟；另有原API非multipart错误文案兼容断言失败。修正网页夹具从真实stat长度填写两处声明并断言metadata字节，加30秒SSE context；补11/13字节错误末块拒绝回归，保留实际长度防线。非multipart返回原http.ErrNotMultipart以保留公开错误文案。原始失败保留，后续新提交另跑Gate，未通过缩弱服务端校验使旧错误数据成功。
 
 f563d9f检查点：PR CI40746205711与手动CI40746246616均SUCCESS，生成/四组全仓/完整receiver race全部PASS；手动run另有真实1GiB明文、2GiB服务器加密HTTP上传与读回SHA256。1GiB为5.075s/201.78MiB/s，heap2965576B、RSS24260608B、暂存allocated2147487744B；2GiB为15.470s/132.39MiB/s，heap3061344B、RSS24793088B、暂存allocated6434066432B。runner事前84GiB可用。[公开证据](evidence/sec030-receiver-f563d9f/README.md)含实际runner源码hash并逐一与该提交blob核对；指标仅代表此硬件/路径，不冒充S3、浏览器WASM或所有M3矩阵已完成。
 
@@ -1036,7 +1036,7 @@ f563d9f检查点：PR CI40746205711与手动CI40746246616均SUCCESS，生成/四
 
 ### SEC-030 最终远端 Gate：ff7497b
 
-[PR CI40751200410](https://github.com/Activer007/Gokapi/actions/runs/40751200410)与[手动CI40751191903](https://github.com/Activer007/Gokapi/actions/runs/40751191903)，attempt1均SUCCESS，head为ff7497beb4f173f81cbf90695e7b6544d393f53b；手动job123038014344全部步骤success。环境GitHub ubuntu-latest / Go1.26.0 linux/amd64。实际执行如下（awstest使用workflow内合成凭据及mock，并非真实S3）：
+[PR CI40751200410](https://github.com/Activer007/SupaShare/actions/runs/40751200410)与[手动CI40751191903](https://github.com/Activer007/SupaShare/actions/runs/40751191903)，attempt1均SUCCESS，head为ff7497beb4f173f81cbf90695e7b6544d393f53b；手动job123038014344全部步骤success。环境GitHub ubuntu-latest / Go1.26.0 linux/amd64。实际执行如下（awstest使用workflow内合成凭据及mock，并非真实S3）：
 
 ```sh
 go generate ./...
@@ -1086,7 +1086,7 @@ go test ./internal/webserver/api -count=1 -tags=test,noaws,security_large -run T
 
 ### SEC-062 最终代码 Gate：58d2cb5
 
-[PR CI40763628844](https://github.com/Activer007/Gokapi/actions/runs/40763628844)、[推送CI40763619586](https://github.com/Activer007/Gokapi/actions/runs/40763619586)及[手动CI40763621734](https://github.com/Activer007/Gokapi/actions/runs/40763621734)全部SUCCESS；手动job123081807272，head58d2cb54acb64ce8f5b9f3bda41d75cb38e620d5。GitHub ubuntu-latest/Linux amd64、Go1.26.10、GOTOOLCHAIN=local；govulncheck1.9.0，DB updated 2026-10-27 21:16:18 UTC。原有go generate、占配置端口合同、四组全仓awsmock/noaws/integration/awstest、相关race（含TestSEC062Range）全部PASS，实际命令保留workflow及脚本。新增完整真实命令为：
+[PR CI40763628844](https://github.com/Activer007/SupaShare/actions/runs/40763628844)、[推送CI40763619586](https://github.com/Activer007/SupaShare/actions/runs/40763619586)及[手动CI40763621734](https://github.com/Activer007/SupaShare/actions/runs/40763621734)全部SUCCESS；手动job123081807272，head58d2cb54acb64ce8f5b9f3bda41d75cb38e620d5。GitHub ubuntu-latest/Linux amd64、Go1.26.10、GOTOOLCHAIN=local；govulncheck1.9.0，DB updated 2026-10-27 21:16:18 UTC。原有go generate、占配置端口合同、四组全仓awsmock/noaws/integration/awstest、相关race（含TestSEC062Range）全部PASS，实际命令保留workflow及脚本。新增完整真实命令为：
 
 ```sh
 python3 docs/security/tools/check-sec062-toolchain.py --actual "$(go env GOVERSION)"

@@ -6,7 +6,7 @@ Advanced usage
 
 This page is a reference for users who have already completed the initial setup. Here is a quick map:
 
-* **Configuring Gokapi without editing files** — :ref:`envvar`
+* **Configuring SupaShare without editing files** — :ref:`envvar`
 * **Switching or migrating the database** — :ref:`databases`
 * **Using the command-line upload/download tool** — :ref:`clitool`
 * **Scripting with the REST API** — :ref:`api`
@@ -22,12 +22,12 @@ This page is a reference for users who have already completed the initial setup.
 Environment variables
 ********************************
 
-Several environment variables can be passed to Gokapi. They can be used to modify settings that are not present during setup or to pass cloud storage credentials without saving them to the filesystem.
+Several environment variables can be passed to SupaShare. They can be used to modify settings that are not present during setup or to pass cloud storage credentials without saving them to the filesystem.
 
 
 .. _passingenv:
 
-Passing environment variables to Gokapi
+Passing environment variables to SupaShare
 =========================================
 
 
@@ -37,7 +37,7 @@ Docker
 Pass the variable with the ``-e`` argument. Example for setting the port in use to *12345* and the chunk size to *60MB*:
 ::
 
- docker run -it -e GOKAPI_PORT=12345 -e GOKAPI_CHUNK_SIZE_MB=60 f0rc3/gokapi:latest
+ docker run -it -e GOKAPI_PORT=12345 -e GOKAPI_CHUNK_SIZE_MB=60 supashare:local
 
 
 Native Deployment
@@ -49,7 +49,7 @@ Linux / Unix
 For Linux / Unix environments, execute the binary in this format:
 ::
 
-  GOKAPI_PORT=12345 GOKAPI_CHUNK_SIZE_MB=60 [...] ./Gokapi
+  GOKAPI_PORT=12345 GOKAPI_CHUNK_SIZE_MB=60 [...] ./supashare
 
 Windows
 """"""""
@@ -60,7 +60,7 @@ For Windows environments, you need to run ``set`` first, e.g.:
   set GOKAPI_PORT=12345
   set GOKAPI_CHUNK_SIZE_MB=60
   [...]
-  Gokapi.exe
+  SupaShare.exe
 
 
 
@@ -181,7 +181,7 @@ Available environment variables
 |                                     | Docker only: Runs the binary in the container as a non-root user, if set to "true"     |                 |                             |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 
-.. [*] Variables that are persistent must be submitted during the first start when Gokapi creates a new config file. They can be omitted afterwards. Non-persistent variables need to be set on every start.
+.. [*] Variables that are persistent must be submitted during the first start when SupaShare creates a new config file. They can be omitted afterwards. Non-persistent variables need to be set on every start.
 
 
 
@@ -204,7 +204,7 @@ All values that are described in :ref:`cloudstorage` can be passed as environmen
 |                           |                                         |                             |
 |                           | to a pre-signed S3 URL for downloading. |                             |
 |                           |                                         |                             |
-|                           | Instead, Gokapi will download the file  |                             |
+|                           | Instead, SupaShare will download the file  |                             |
 |                           |                                         |                             |
 |                           | and proxy it to the user                |                             |
 +---------------------------+-----------------------------------------+-----------------------------+
@@ -218,25 +218,25 @@ All values that are described in :ref:`cloudstorage` can be passed as environmen
 Databases
 ********************************
 
-By default, Gokapi uses an SQLite database for data storage, which should suffice for most use cases. However if you are using a slow media for storing the database or expect to have a lot of files uploaded or downloaded it is highly recommended to use Redis instead.
+By default, SupaShare uses an SQLite database for data storage, which should suffice for most use cases. However if you are using a slow media for storing the database or expect to have a lot of files uploaded or downloaded it is highly recommended to use Redis instead.
 
 
 
 Migrating to a different database
 =================================
 
-To switch to a different database, Gokapi provides a migration tool. By running:
+To switch to a different database, SupaShare provides a migration tool. By running:
 
 ::
 
  gokapi migrate-database --source [old Database URL] --destination [new Database URL]
- 
+
 all existing data, except for user sessions, will be transferred to the new database. After the migration, you will need to rerun the setup and specify the new database location. For details on the correct database URL format, refer to the section :ref:`databaseUrl`.
 
 For Docker users, the command is:
 ::
 
- docker run --rm -v gokapi-data:/app/data f0rc3/gokapi:latest /app/run.sh migrate-database --source [old Database URL] --destination [new Database URL]
+ docker run --rm -v gokapi-data:/app/data supashare:local /app/run.sh migrate-database --source [old Database URL] --destination [new Database URL]
 
 
 .. _databaseUrl:
@@ -259,7 +259,7 @@ A Redis URL has the following structure:
 ::
 
  redis://[username:password@]host[:port][?options]
- 
+
 * username: (optional) The username for authentication.
 * password: (optional) The password for authentication.
 * host: (required) The address of the Redis server.
@@ -282,7 +282,7 @@ Migrating SQLite (``/app/data/gokapi.sqlite``) to SQLite (``./data/gokapi.sqlite
 ::
 
  gokapi migrate-database --source sqlite:///app/data/gokapi.sqlite --destination sqlite://./data/gokapi.sqlite
- 
+
 Migrating Redis (``127.0.0.1:6379, User: test, Password: 1234, Prefix: gokapi_, using SSL``) to SQLite (``./data/gokapi.sqlite``):
 
 
@@ -298,12 +298,12 @@ Migrating Redis (``127.0.0.1:6379, User: test, Password: 1234, Prefix: gokapi_, 
 CLI Tool
 ********
 
-The Gokapi CLI tool enables seamless file uploads and downloads directly from the command line. 
+The SupaShare CLI tool enables seamless file uploads and downloads directly from the command line.
 
 Installation
 ============
 
-Official binaries for Linux, Windows, and macOS are available on the `GitHub releases page <https://github.com/Activer007/Gokapi/releases>`_.
+Official binaries for Linux, Windows, and macOS are available on the `GitHub releases page <https://github.com/Activer007/SupaShare/releases>`_.
 
 To build the tool from source:
 
@@ -311,7 +311,7 @@ To build the tool from source:
 2. Run ``make build-cli`` from the root directory.
 
 .. note::
-   Gokapi v2.1.0 or newer is required for CLI functionality. For file downloads, version v2.2.0 or newer is required.
+   SupaShare v2.1.0 or newer is required for CLI functionality. For file downloads, version v2.2.0 or newer is required.
 
 Authentication
 ==============
@@ -320,7 +320,7 @@ To begin, authenticate your session using the following command:
 
 .. code-block:: bash
 
-   gokapi-cli login
+   supashare-cli login
 
 You will be prompted to provide your server URL, an API key with upload permissions, and your end-to-end encryption key (if applicable).
 
@@ -330,14 +330,17 @@ You will be prompted to provide your server URL, an API key with upload permissi
   2. ``~/.config/gokapi-cli/gokapi-cli.json``
   3. ``/etc/gokapi-cli/gokapi-cli.json``
 
-  When running via Docker, only ``/app/config/gokapi-cli.json`` is used.
+  When running via Docker, only ``/app/config/config.json`` is used.
+
+  The native CLI configuration paths retain their legacy ``gokapi-cli`` names
+  so SupaShare can reuse existing login configuration without moving credentials.
 
   You may also specify a custom path using the ``-c`` parameter, which skips the search entirely.
 
   .. note::
      On first login (when no config file exists yet), credentials are always written to ``./gokapi-cli.json`` in the current working directory. If you intend to use a different location, specify it explicitly with ``-c``.
 
-* **Logout:** To logout, run ``gokapi-cli logout`` or manually delete the configuration file.
+* **Logout:** To logout, run ``supashare-cli logout`` or manually delete the configuration file.
 
 .. warning::
    The configuration file stores login credentials in plain text. Ensure the file is stored in a secure environment.
@@ -345,13 +348,14 @@ You will be prompted to provide your server URL, an API key with upload permissi
 Docker Usage
 ------------
 
-While the native binary is recommended for the best experience, the CLI can be run via Docker. By default, the configuration is stored at ``/app/config/config.json``. 
+While the native binary is recommended for the best experience, the CLI can be run via Docker. By default, the configuration is stored at ``/app/config/config.json``.
 
 To persist your login session, mount a volume as shown below:
 
 .. code-block:: bash
 
-   docker run -it --rm -v gokapi-cli-config:/app/config docker.io/f0rc3/gokapi-cli:latest login
+   docker build -f Dockerfile.cli-tool -t supashare-cli:local .
+   docker run -it --rm -v gokapi-cli-config:/app/config supashare-cli:local login
 
 .. _clitool-upload-file:
 
@@ -362,7 +366,7 @@ To upload a file, use the ``upload`` command with the ``-f`` flag:
 
 .. code-block:: bash
 
-   gokapi-cli upload -f /path/to/file
+   supashare-cli upload -f /path/to/file
 
 By default, files are encrypted (if enabled) and have no expiration date. The following parameters are available to customize the upload:
 
@@ -391,9 +395,9 @@ Upload a file that expires in 10 days, has no download limit, and is protected b
 
 .. code-block:: bash
 
-   gokapi-cli upload -f /tmp/example --expiry-days 10 --password abcd
+   supashare-cli upload -f /tmp/example --expiry-days 10 --password abcd
 
-   
+
 Docker
 ---------------------------------
 
@@ -402,18 +406,18 @@ As a Docker container cannot access your host files without a volume, you will n
 **Example:** Uploading the file ``/tmp/example``. It will expire after 5 downloads, has no time expiry and has no password.
 ::
 
- docker run --rm -v gokapi-cli-config:/app/config -v /tmp/:/upload/ docker.io/f0rc3/gokapi-cli:latest upload -f /upload/example --expiry-downloads 5 
+ docker run --rm -v gokapi-cli-config:/app/config -v /tmp/:/upload/ supashare-cli:local upload -f /upload/example --expiry-downloads 5
 
 **Example:** Uploading the file ``/tmp/single/example``. There is no other file in the folder ``/tmp/single/``.
 ::
 
- docker run --rm -v gokapi-cli-config:/app/config -v /tmp/single/:/upload/ docker.io/f0rc3/gokapi-cli:latest upload
+ docker run --rm -v gokapi-cli-config:/app/config -v /tmp/single/:/upload/ supashare-cli:local upload
 
 **Example:** Uploading the file ``/tmp/multiple/example``. There are other files in the folder ``/tmp/multiple/``.
 ::
 
- docker run --rm -v gokapi-cli-config:/app/config -v /tmp/multiple/example:/upload/example docker.io/f0rc3/gokapi-cli:latest upload
-   
+ docker run --rm -v gokapi-cli-config:/app/config -v /tmp/multiple/example:/upload/example supashare-cli:local upload
+
 
 
 
@@ -421,7 +425,7 @@ Uploading a directory
 =================================
 
 
-By running ``gokapi-cli upload-dir -D /path/to/directory/``, gokapi-cli compresses the given folder as a zip file and then uploads it. By default the foldername is used for the name of the zip file. Also the file is encrypted (if enabled) and stored without any expiration.
+By running ``supashare-cli upload-dir -D /path/to/directory/``, supashare-cli compresses the given folder as a zip file and then uploads it. By default the foldername is used for the name of the zip file. Also the file is encrypted (if enabled) and stored without any expiration.
 
 In addition to all the options seen in chapter :ref:`clitool-upload-file`, the following optional options are also available:
 
@@ -435,15 +439,15 @@ In addition to all the options seen in chapter :ref:`clitool-upload-file`, the f
 **Example:** Uploading the folder ``/tmp/example/``. It will expire in 10 days, has unlimited downloads and requires the password ``abcd``:
 ::
 
- gokapi-cli upload-dir -D /tmp/example --expiry-days 10 --password abcd
-  
-  
+ supashare-cli upload-dir -D /tmp/example --expiry-days 10 --password abcd
+
+
 .. warning::
 
-   If you are using end-to-end encryption, do not upload other encrypted files simultaneously to avoid race conditions. 
-   
-   
-   
+   If you are using end-to-end encryption, do not upload other encrypted files simultaneously to avoid race conditions.
+
+
+
 Docker
 ---------------------------------
 
@@ -452,12 +456,12 @@ As a Docker container cannot access your host files without a volume, you will n
 **Example:** Uploading the folder ``/tmp/example/``. It will expire after 5 downloads, has no time expiry and has no password.
 ::
 
- docker run --rm -v gokapi-cli-config:/app/config -v /tmp/example/:/upload/example docker.io/f0rc3/gokapi-cli:latest upload-dir -D /upload/example/ --expiry-downloads 5 
+ docker run --rm -v gokapi-cli-config:/app/config -v /tmp/example/:/upload/example supashare-cli:local upload-dir -D /upload/example/ --expiry-downloads 5
 
 **Example:** Uploading the folder ``/tmp/another/example`` and setting the filename to ``example.zip``
 ::
 
- docker run --rm -v gokapi-cli-config:/app/config -v /tmp/another/example:/upload/ docker.io/f0rc3/gokapi-cli:latest upload-dir -n "example.zip"
+ docker run --rm -v gokapi-cli-config:/app/config -v /tmp/another/example:/upload/ supashare-cli:local upload-dir -n "example.zip"
 
 
 Downloading Files
@@ -467,7 +471,7 @@ To retrieve a file from the server, use the ``download`` command followed by the
 
 .. code-block:: bash
 
-   gokapi-cli download -i [FILE_ID]
+   supashare-cli download -i [FILE_ID]
 
 Available parameters for downloads:
 
@@ -488,8 +492,8 @@ Download the file with ID ``Eukohc6r`` to the ``/home/user/downloads`` folder an
 
 .. code-block:: bash
 
-   gokapi-cli download -i Eukohc6r --output-path /home/user/downloads --remove
-   
+   supashare-cli download -i Eukohc6r --output-path /home/user/downloads --remove
+
 .. _api:
 
 
@@ -497,7 +501,7 @@ Download the file with ID ``Eukohc6r`` to the ``/home/user/downloads`` folder an
 API
 ********************************
 
-Gokapi offers an API that can be reached at ``http(s)://your.gokapi.url/api/``. You can find the current documentation with an overview of all API functions and examples at ``http(s)://your.gokapi.url/apidocumentation/``.
+SupaShare offers an API that can be reached at ``http(s)://your.gokapi.url/api/``. You can find the current documentation with an overview of all API functions and examples at ``http(s)://your.gokapi.url/apidocumentation/``.
 
 
 Interacting with the API
@@ -536,7 +540,7 @@ The client defaults to 45MB chunks and up to 3 parallel transfers per file. The 
 Servers with limited RAM
 ================================
 
-To conserve RAM, you can either 
+To conserve RAM, you can either
 
 * keep the shared reception/body limits appropriate for the server's disk and workload; ``MaxMemory`` does not bypass the bounded receiver or select its spool location
 * reduce the chunk size by setting the ``ChunkSize`` to a lower value
@@ -551,14 +555,14 @@ If your server has a lot of available RAM, you can improve upload speed by incre
 
 * Increase the chunk size by setting the ``ChunkSize`` to a larger value
 * Make sure that the ``MaxMemory`` setting is a higher value than your chunk size
-* Increasing the amount of parallel uploads by setting ``MaxParallelUploads`` to a higher value is possible, but not recommended if using HTTP1.1 (see warning below). 
+* Increasing the amount of parallel uploads by setting ``MaxParallelUploads`` to a higher value is possible, but not recommended if using HTTP1.1 (see warning below).
 
 
 Refer to :ref:`chunk_config` for instructions on changing these values.
 
 .. note::
    Ensure your reverse proxy and CDN (if applicable) support the chosen chunk size. Cloudflare users on the free tier are limited to 100MB file chunks.
-   
+
 .. warning::
    Most browsers do not support more than 6 open connections with HTTP1.1 (which is the default connection). There is always one connection per tab used in the background for receiving status updates, therefore increasing the ``MaxParallelUploads`` value is not recommended in that case. If you require more connections, you can consider switching to HTTP2.
 
@@ -569,7 +573,7 @@ Refer to :ref:`chunk_config` for instructions on changing these values.
 Changing the configuration
 ============================
 
-If you have not completed the Gokapi setup yet, you can set all the values mentioned above using environment variables. See :ref:`passingenv` for instructions. If the setup is complete, Gokapi will ignore these environment variables, and you'll need to modify the configuration file (by default: ``config.json`` in the folder ``config``). See the table below on how to change the values:
+If you have not completed the SupaShare setup yet, you can set all the values mentioned above using environment variables. See :ref:`passingenv` for instructions. If the setup is complete, SupaShare will ignore these environment variables, and you'll need to modify the configuration file (by default: ``config.json`` in the folder ``config``). See the table below on how to change the values:
 
 
 +----------------------------------------+-----------------------------+--------------------------+---------+
@@ -608,7 +612,7 @@ whole-file processing buffers are capped at 8 MiB even if MaxMemory is larger.
 
 These limits cover reception and synchronous whole-file processing; persistent
 chunks and cumulative user/File Request quotas require their separate upload
-accounting. They do not make multiple Gokapi processes sharing a DataDir safe.
+accounting. They do not make multiple SupaShare processes sharing a DataDir safe.
 
 Upload quotas
 -------------
@@ -676,7 +680,7 @@ reconciliation remains unfinished.
 Automatic Deployment
 ********************************
 
-It is possible to deploy Gokapi without having to run the setup. You will need to complete the setup on a temporary instance first. This is to create the configuration files, which can then be used for deployment.
+It is possible to deploy SupaShare without having to run the setup. You will need to complete the setup on a temporary instance first. This is to create the configuration files, which can then be used for deployment.
 
 
 Configuration Files
@@ -694,23 +698,23 @@ Stores the access data for cloud storage. This can be reused without modificatio
 config.json
 ------------------------
 
-Contains the server configuration. If you want to deploy Gokapi in multiple instances for redundancy  (e.g. all instances share the same data), then the configuration file can be reused without modification. Otherwise you need to modify it before deploying (see below). Can be read-only, but might need write access when upgrading Gokapi to a newer version. Needs write access when re-running setup.
+Contains the server configuration. If you want to deploy SupaShare in multiple instances for redundancy  (e.g. all instances share the same data), then the configuration file can be reused without modification. Otherwise you need to modify it before deploying (see below). Can be read-only, but might need write access when upgrading SupaShare to a newer version. Needs write access when re-running setup.
 
 
 Modifying config.json to deploy without setup
 ====================================================
 
-If you are deploying Gokapi across multiple instances with different datasets, there is no need to modify the ``config.json`` file anymore. The only time you should update it is when using internal username/password authentication and you want to change the admin username. In that case, simply update the ``Username`` field in the file.
+If you are deploying SupaShare across multiple instances with different datasets, there is no need to modify the ``config.json`` file anymore. The only time you should update it is when using internal username/password authentication and you want to change the admin username. In that case, simply update the ``Username`` field in the file.
 
 
 Setting an admin password
 ====================================================
 
-If you are using internal username/password authentication, run the binary with the parameter ``--deployment-password [YOUR_PASSWORD]``. This sets the password in the database. This has to be done before Gokapi is run for the first time on the new instance. Alternatively you can do this on the orchestrating machine and then copy the configuration file and database to the new instance.
+If you are using internal username/password authentication, run the binary with the parameter ``--deployment-password [YOUR_PASSWORD]``. This sets the password in the database. This has to be done before SupaShare is run for the first time on the new instance. Alternatively you can do this on the orchestrating machine and then copy the configuration file and database to the new instance.
 
 If you are using a Docker image, this has to be done by starting a container with the entrypoint ``/app/run.sh``, for example: ::
 
- docker run --rm -v gokapi-data:/app/data -v gokapi-config:/app/config  f0rc3/gokapi:latest /app/run.sh --deployment-password newPassword
+ docker run --rm -v gokapi-data:/app/data -v gokapi-config:/app/config  supashare:local /app/run.sh --deployment-password newPassword
 
 
 .. _customising:
@@ -724,7 +728,7 @@ Language, page titles and footer
 
 The optional ``UI`` object in the existing ``config/config.json`` configures the
 Web interface. Merge it into your configuration; do not replace authentication
-or storage settings. Restart Gokapi after editing. Example::
+or storage settings. Restart SupaShare after editing. Example::
 
   "PublicName": "Team files",
   "UI": {

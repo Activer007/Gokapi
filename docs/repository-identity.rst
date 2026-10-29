@@ -1,20 +1,45 @@
 Repository identity
 ===================
 
-This fork is maintained at https://github.com/Activer007/Gokapi.
+This fork is maintained at https://github.com/Activer007/SupaShare.
 Application/footer links, setup references, documentation, GitHub API requests
 and build tooling use this repository. The Go module and internal imports use
-``github.com/Activer007/Gokapi`` consistently, including the build helper module,
+``github.com/Activer007/SupaShare`` consistently, including the build helper module,
 WebAssembly targets and linker variables used by Docker/release builds.
+
+SupaShare migration
+-------------------
+
+The software and repository are named SupaShare. The server command is now
+``cmd/supashare`` and local builds produce ``supashare`` and ``supashare-cli``.
+Build container images from this repository (``supashare:local`` and
+``supashare-cli:local``); the upstream ``f0rc3/gokapi`` images do not contain
+these changes. Update external service scripts that invoke the old binary
+path to invoke the new executable before deploying the rebuilt package.
+
+Existing configuration, database files, uploaded data and encryption keys keep
+their formats and locations. ``GOKAPI_*`` environment variables, CLI credential
+paths, cookies, browser storage keys, internal JavaScript/WASM bindings and
+private staging markers retain their legacy identifiers for compatibility.
+The systemd unit remains ``gokapi.service`` so upgrading cannot create a second
+service against the same data. Existing Docker volumes and bind directories
+retain their names; the Compose service is now ``supashare``.
+
+An empty public name or the old built-in ``Gokapi`` default displays as
+``SupaShare``. Custom public names, UI titles, footer text and links are
+preserved. The old upstream documentation and HTTP encrypted-download helper
+are separately hosted services and are not renamed or redeployed by changing
+this repository. Original author/license attribution and archived raw evidence
+are retained.
 
 Version line
 ------------
 
 Starting with ``2.10.0``, this fork uses its own version line to distinguish
-Activer007/Gokapi builds from upstream builds. This intentional numbering jump
+Activer007/SupaShare builds from upstream builds. This intentional numbering jump
 does not imply that this fork published versions 2.3 through 2.9.
 
-The source of truth is ``versionGokapi`` in ``cmd/gokapi/Main.go``. Change that
+The source of truth is ``versionGokapi`` in ``cmd/supashare/Main.go``. Change that
 constant, run ``go generate ./...`` from the repository root, and commit the
 generated version/API/static asset changes with the source update. Rebuild and
 deploy the binary or image to update the displayed version. Git tags and

@@ -1,16 +1,17 @@
-# Gokapi
+# SupaShare
 
-[![Documentation Status](https://readthedocs.org/projects/gokapi/badge/?version=latest)](https://gokapi.readthedocs.io/en/stable/?badge=stable)
-[![Go Report Card](https://goreportcard.com/badge/github.com/Activer007/Gokapi)](https://goreportcard.com/report/github.com/Activer007/Gokapi)
-[![Coverage](https://img.shields.io/badge/Go%20Coverage-83%25-brightgreen.svg?longCache=true&style=flat)](https://github.com/jpoles1/gopherbadger)
-[![Docker Pulls](https://img.shields.io/docker/pulls/f0rc3/gokapi.svg)](https://hub.docker.com/r/f0rc3/gokapi/)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Activer007/SupaShare)](https://goreportcard.com/report/github.com/Activer007/SupaShare)
 
-**Gokapi** is a modern, self-hosted alternative to Firefox Send that puts you in control of your file sharing. Built with Go, it combines simplicity with powerful features like automatic file expiration, end-to-end encryption, and flexible cloud storage support.
+**SupaShare** is a modern, self-hosted alternative to Firefox Send that puts you in control of your file sharing. Built with Go, it combines simplicity with powerful features like automatic file expiration, end-to-end encryption, and flexible cloud storage support.
+
+SupaShare is independently maintained from the original Gokapi project. Existing
+Gokapi deployments can retain their configuration, environment variables and
+data volumes; see the [migration notes](docs/repository-identity.rst).
 
 ### Available for:
 
 - **Bare Metal** (Linux/macOS/Windows)
-- **Docker**: [View on Docker Hub](https://hub.docker.com/r/f0rc3/gokapi)
+- **Docker**: build this repository's image locally with the included Dockerfile.
 
 ## Features
 
@@ -28,23 +29,24 @@
 
 ## Getting Started
 
-You can deploy Gokapi in seconds using Docker or directly on your system.
+You can deploy SupaShare in seconds using Docker or directly on your system.
 
-[Installation Guide](https://gokapi.readthedocs.io/en/latest/setup.html)  
-[Usage Instructions](https://gokapi.readthedocs.io/en/latest/usage.html)
+[Installation Guide](docs/setup.rst)
+[Usage Instructions](docs/usage.rst)
 
 **Want to give it a try?**
 
-Start Gokapi instantly with Docker:
+Build and start SupaShare with Docker:
 
 ```bash
+docker build -t supashare:local .
 docker run --rm \
-  --name gokapi \
+  --name supashare \
   -v gokapi-data:/app/data \
   -v gokapi-config:/app/config \
   -p 127.0.0.1:53842:53842 \
   -e TZ=UTC \
-  docker.io/f0rc3/gokapi:latest
+  supashare:local
 ```
 
 Then visit ``http://localhost:53842/setup`` and follow the setup wizard.
@@ -121,8 +123,8 @@ For an explicit non-root deployment of this fork, use [docker-compose.nonroot.ya
 
 ```bash
 # Clone the repository
-git clone https://github.com/Activer007/Gokapi.git
-cd Gokapi
+git clone https://github.com/Activer007/SupaShare.git
+cd SupaShare
 
 # Build the binary
 make build
@@ -131,7 +133,7 @@ make build
 make test
 
 # Build Docker image
-docker build -t gokapi:local .
+docker build -t supashare:local .
 ```
 
 ## License
@@ -139,8 +141,8 @@ docker build -t gokapi:local .
 This project is licensed under the AGPL3 - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Contributors
-<a href="https://github.com/Activer007/Gokapi/graphs/contributors">
-  <img src="https://contributors-img.web.app/image?repo=Activer007/Gokapi" />
+<a href="https://github.com/Activer007/SupaShare/graphs/contributors">
+  <img src="https://contributors-img.web.app/image?repo=Activer007/SupaShare" />
 </a>
 
 

@@ -10,11 +10,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/configuration/database/dbabstraction"
-	"github.com/Activer007/Gokapi/internal/configuration/database/dbcache"
-	"github.com/Activer007/Gokapi/internal/helper"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/uploadquota"
+	"github.com/Activer007/SupaShare/internal/configuration/database/dbabstraction"
+	"github.com/Activer007/SupaShare/internal/configuration/database/dbcache"
+	"github.com/Activer007/SupaShare/internal/helper"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/uploadquota"
 )
 
 var db dbabstraction.Database
@@ -198,12 +198,12 @@ func RunGarbageCollection() {
 
 var osExit = os.Exit
 
-// Upgrade migrates the DB to a new Gokapi version, if required
+// Upgrade migrates the DB to a new SupaShare version, if required
 func Upgrade() {
 	dbVersion := db.GetDbVersion()
 	expectedVersion := db.GetSchemaVersion()
 	if dbVersion > expectedVersion {
-		fmt.Println("Error: Database is from a newer Gokapi version. Unable to continue.")
+		fmt.Println("Error: Database is from a newer SupaShare version. Unable to continue.")
 		osExit(1)
 		return
 	}
@@ -330,7 +330,7 @@ func GetDownloadsRemaining(id string) int {
 
 // Session mutations are coordinated within this process. Reads may precede a
 // revocation; renewal must therefore compare the stored record under this lock.
-// This is not a coordination protocol for multiple Gokapi processes.
+// This is not a coordination protocol for multiple SupaShare processes.
 var sessionMutation sync.Mutex
 
 // GetSession returns the session with the given ID or false if not a valid ID

@@ -28,7 +28,7 @@ func ParseFlags() MainFlags {
 		Long:  "version",
 		Short: "v",
 	})
-	reconfigureFlag := passedFlags.Bool("reconfigure", false, "Runs setup again to change Gokapi configuration / passwords")
+	reconfigureFlag := passedFlags.Bool("reconfigure", false, "Runs setup again to change SupaShare configuration / passwords")
 	createSslFlag := passedFlags.Bool("create-ssl", false, "Creates a new SSL certificate valid for 365 days")
 	configPathFlagLong := passedFlags.String("config", "", "Use provided config file instead of the default one in the config directory.\n"+
 		"                               Can point to a different directory than default or the one provided by -config-path or env variable GOKAPI_CONFIG_DIR")
@@ -57,8 +57,8 @@ func ParseFlags() MainFlags {
 	})
 	disableCorsCheck := passedFlags.Bool("disable-cors-check", false, "Disables the CORS check on startup")
 
-	installService := passedFlags.Bool("install-service", false, "Installs Gokapi as a systemd service")
-	uninstallService := passedFlags.Bool("uninstall-service", false, "Uninstalls the Gokapi systemd service")
+	installService := passedFlags.Bool("install-service", false, "Installs SupaShare as a systemd service")
+	uninstallService := passedFlags.Bool("uninstall-service", false, "Uninstalls the SupaShare systemd service")
 	deploymentPassword := passedFlags.String("deployment-password", "", "Sets a new password. This should only be used for non-interactive deployment")
 
 	passedFlags.Usage = showUsage(passedFlags, aliases)

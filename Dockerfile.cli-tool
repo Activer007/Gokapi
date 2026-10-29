@@ -1,8 +1,8 @@
 FROM golang:1.26.10-alpine AS build_base
 
 ## Usage:
-## docker build . -f Dockerfile.cli-tool -t gokapi-cli
-## docker run -it --rm -v gokapi-cli-config:/app/config gokapi-cli
+## docker build . -f Dockerfile.cli-tool -t supashare-cli
+## docker run -it --rm -v gokapi-cli-config:/app/config supashare-cli
 
 RUN mkdir /compile
 COPY go.mod /compile
@@ -10,11 +10,11 @@ RUN cd /compile && go mod download
   
 COPY . /compile  
 
-RUN cd /compile && go generate ./... && CGO_ENABLED=0 go build -ldflags="-s -w -X 'github.com/Activer007/Gokapi/internal/environment.IsDocker=true' -X 'github.com/Activer007/Gokapi/internal/environment.Builder=Project Docker File' -X 'github.com/Activer007/Gokapi/internal/environment.BuildTime=$(date)'" -o /compile/gokapi-cli github.com/Activer007/Gokapi/cmd/cli-uploader
+RUN cd /compile && go generate ./... && CGO_ENABLED=0 go build -ldflags="-s -w -X 'github.com/Activer007/SupaShare/internal/environment.IsDocker=true' -X 'github.com/Activer007/SupaShare/internal/environment.Builder=Project Docker File' -X 'github.com/Activer007/SupaShare/internal/environment.BuildTime=$(date)'" -o /compile/supashare-cli github.com/Activer007/SupaShare/cmd/cli-uploader
 
 FROM alpine:3.23
 
-COPY --from=build_base /compile/gokapi-cli /app/gokapi-cli
+COPY --from=build_base /compile/supashare-cli /app/supashare-cli
 WORKDIR /app
 
-ENTRYPOINT ["/app/gokapi-cli"]
+ENTRYPOINT ["/app/supashare-cli"]

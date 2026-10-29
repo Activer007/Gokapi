@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/SupaShare/internal/helper"
 )
 
 var (

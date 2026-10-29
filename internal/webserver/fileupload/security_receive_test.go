@@ -22,11 +22,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/encryption"
-	"github.com/Activer007/Gokapi/internal/storage/chunking/chunksession"
-	"github.com/Activer007/Gokapi/internal/storage/filesystem"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/encryption"
+	"github.com/Activer007/SupaShare/internal/storage/chunking/chunksession"
+	"github.com/Activer007/SupaShare/internal/storage/filesystem"
 )
 
 // These tests use only synthetic bodies and their own storage directory. They

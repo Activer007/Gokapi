@@ -4,7 +4,7 @@
 Troubleshooting
 ===============
 
-This page covers the most common problems reported by users. If your issue is not listed here, check the :ref:`changelog` for breaking changes in recent versions and open a `GitHub issue <https://github.com/Activer007/Gokapi/issues>`_ if needed.
+This page covers the most common problems reported by users. If your issue is not listed here, check the :ref:`changelog` for breaking changes in recent versions and open a `GitHub issue <https://github.com/Activer007/SupaShare/issues>`_ if needed.
 
 ----
 
@@ -37,12 +37,12 @@ Uploads fail or time out behind a reverse proxy
 * See the full example: :ref:`nginx_config`.
 
 
-Gokapi always shows the wrong client IP / logs show 127.0.0.1
+SupaShare always shows the wrong client IP / logs show 127.0.0.1
 ---------------------------------------------------------------
 
 **Symptom:** All downloads are logged from ``127.0.0.1`` instead of real client IPs.
 
-**Cause:** Gokapi does not trust the ``X-Forwarded-For`` header from your proxy unless the proxy's IP is in the trusted proxies list.
+**Cause:** SupaShare does not trust the ``X-Forwarded-For`` header from your proxy unless the proxy's IP is in the trusted proxies list.
 
 **Fix:** Set ``GOKAPI_TRUSTED_PROXIES`` to the IP (or CIDR range) of your proxy, e.g.:
 
@@ -52,7 +52,7 @@ Gokapi always shows the wrong client IP / logs show 127.0.0.1
 
 Multiple IPs and subnets are comma-separated: ``10.0.0.1,192.168.1.0/24``. See :ref:`availenvvar` for details.
 
-If Gokapi is behind Cloudflare, also set ``GOKAPI_USE_CLOUDFLARE=true``. Fork builds containing SEC-013 still require the immediate proxy to be explicitly trusted; the option alone does not trust incoming CF headers. See the Reverse Proxy section in :ref:`setup` for direct Cloudflare versus local proxy configuration.
+If SupaShare is behind Cloudflare, also set ``GOKAPI_USE_CLOUDFLARE=true``. Fork builds containing SEC-013 still require the immediate proxy to be explicitly trusted; the option alone does not trust incoming CF headers. See the Reverse Proxy section in :ref:`setup` for direct Cloudflare versus local proxy configuration.
 
 
 Uploads fail when using Cloudflare (free plan)
@@ -60,7 +60,7 @@ Uploads fail when using Cloudflare (free plan)
 
 **Symptom:** File uploads fail for files larger than ~100 MB when routed through Cloudflare.
 
-**Cause:** Cloudflare's free plan has a 100 MB upload limit per request. Gokapi uploads files in chunks, so the chunk size must be kept at or below this limit.
+**Cause:** Cloudflare's free plan has a 100 MB upload limit per request. SupaShare uploads files in chunks, so the chunk size must be kept at or below this limit.
 
 **Fix:** Set ``GOKAPI_CHUNK_SIZE_MB=90`` (leaving a safety margin below 100 MB). See :ref:`availenvvar`.
 
@@ -69,14 +69,14 @@ Uploads fail when using Cloudflare (free plan)
 All data is lost after restarting Redis
 -----------------------------------------
 
-**Symptom:** After restarting your Redis server, all Gokapi files and metadata are gone.
+**Symptom:** After restarting your Redis server, all SupaShare files and metadata are gone.
 
 **Cause:** Redis does not persist data to disk by default. Without persistence, everything stored in memory is lost on restart.
 
 **Fix:** Enable Redis persistence. The simplest approach is to add ``save 1 1`` to your ``redis.conf``. This tells Redis to save to disk after at least 1 key has changed within 1 second. For production use, consult the `Redis persistence documentation <https://redis.io/docs/manual/persistence/>`_ for a more appropriate strategy.
 
 .. danger::
-   Never use Redis without persistence enabled for Gokapi. Data loss is unrecoverable.
+   Never use Redis without persistence enabled for SupaShare. Data loss is unrecoverable.
 
 
 Setup page shows a CORS error
@@ -84,7 +84,7 @@ Setup page shows a CORS error
 
 **Symptom:** During setup, a CORS-related error appears when testing the configuration.
 
-**Cause:** The public-facing URL entered in setup does not match the URL you are actually accessing Gokapi from, or a reverse proxy is modifying the ``Origin`` header.
+**Cause:** The public-facing URL entered in setup does not match the URL you are actually accessing SupaShare from, or a reverse proxy is modifying the ``Origin`` header.
 
 **Fix:**
 
@@ -108,7 +108,7 @@ Cannot upload files — "not enough free space" error
 
 **Symptom:** Uploads are rejected with a message about insufficient disk space, even when disk space appears available.
 
-**Cause:** Gokapi checks that at least ``GOKAPI_MIN_FREE_SPACE`` MB (default: 400 MB) is available before accepting an upload.
+**Cause:** SupaShare checks that at least ``GOKAPI_MIN_FREE_SPACE`` MB (default: 400 MB) is available before accepting an upload.
 
 **Fix:** Free up disk space, or if you intentionally want to allow uploads with less headroom, lower the threshold:
 

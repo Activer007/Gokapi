@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Activer007/Gokapi/internal/configuration/database/provider/redis"
-	"github.com/Activer007/Gokapi/internal/configuration/database/provider/sqlite"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/uploadquota"
+	"github.com/Activer007/SupaShare/internal/configuration/database/provider/redis"
+	"github.com/Activer007/SupaShare/internal/configuration/database/provider/sqlite"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/uploadquota"
 )
 
 const (
@@ -30,7 +30,7 @@ type Database interface {
 	// GetType returns identifier of the underlying interface
 	GetType() int
 
-	// Upgrade migrates the DB to a new Gokapi version, if required
+	// Upgrade migrates the DB to a new SupaShare version, if required
 	Upgrade(currentDbVersion int)
 	// RunGarbageCollection runs the databases GC
 	RunGarbageCollection()

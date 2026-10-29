@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/SupaShare/internal/helper"
 )
 
 var tokens = make(map[string]DisplayedError)
@@ -65,7 +65,7 @@ func RedirectGenericErrorPage(w http.ResponseWriter, r *http.Request, genericTyp
 	default:
 		redirectToError(w, r, DisplayedError{
 			Title:     "error.unknown.title",
-			Message:   "Gokapi cannot display this error (error code " + strconv.Itoa(genericType) + ")",
+			Message:   "SupaShare cannot display this error (error code " + strconv.Itoa(genericType) + ")",
 			CardWidth: WidthWide,
 			expiry:    time.Now().Add(ttl).Unix(),
 		})

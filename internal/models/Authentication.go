@@ -1,6 +1,6 @@
 package models
 
-// AuthenticationConfig holds configuration on how to authenticate to Gokapi admin menu
+// AuthenticationConfig holds configuration on how to authenticate to SupaShare admin menu
 type AuthenticationConfig struct {
 	Method int `json:"Method"`
 	// deprecated, only used for migration
@@ -19,7 +19,7 @@ type AuthenticationConfig struct {
 }
 
 const (
-	// AuthenticationInternal authentication method uses a user / password combination handled by Gokapi
+	// AuthenticationInternal authentication method uses a user / password combination handled by SupaShare
 	AuthenticationInternal = iota
 
 	// AuthenticationOAuth2 authentication retrieves the users email with Open Connect ID

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/test"
+	"github.com/Activer007/SupaShare/internal/test"
 )
 
 func TestFileRequest_PopulateAndHelpers(t *testing.T) {
