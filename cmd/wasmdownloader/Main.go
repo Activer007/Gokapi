@@ -8,10 +8,12 @@ package main
 import (
 	"encoding/base64"
 	"errors"
-	"github.com/Activer007/SupaShare/internal/encryption"
 	"io"
 	"net/http"
+	"sync/atomic"
 	"syscall/js"
+
+	"github.com/Activer007/SupaShare/internal/encryption"
 )
 
 // Main routine that is called on startup
@@ -59,6 +61,7 @@ func encryptDecrypt(key []byte, url string, doEncrypt bool) interface{} {
 				return
 			}
 			// We're not calling res.Body.Close() here, because we are reading it asynchronously
+			var canceled atomic.Bool
 
 			// Create the "underlyingSource" object for the ReadableStream constructor
 			// See: https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/ReadableStream
@@ -80,6 +83,9 @@ func encryptDecrypt(key []byte, url string, doEncrypt bool) interface{} {
 						} else {
 							reader, err = encryption.GetDecryptReader(key, res.Body)
 						}
+						if canceled.Load() {
+							return
+						}
 						if err != nil {
 							controller.Call("error", jsError(err.Error()))
 							return
@@ -89,6 +95,11 @@ func encryptDecrypt(key []byte, url string, doEncrypt bool) interface{} {
 							// Read up to 1MB at a time
 							buf := make([]byte, 1048576)
 							n, err := reader.Read(buf)
+							// Close need not discard a Read already in flight. A
+							// canceled native stream must receive no later calls.
+							if canceled.Load() {
+								return
+							}
 							if err != nil && err != io.EOF {
 								controller.Call("error", jsError(err.Error()))
 								return
@@ -113,7 +124,8 @@ func encryptDecrypt(key []byte, url string, doEncrypt bool) interface{} {
 				}),
 				// cancel method
 				"cancel": js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-					// If the request is canceled, just close the body
+					// Publish cancellation before waking a blocked response read.
+					canceled.Store(true)
 					res.Body.Close()
 
 					return nil

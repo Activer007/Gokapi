@@ -4,6 +4,13 @@
 
 ## 当前M4：可靠删除与下载内容边界
 
+SEC-052-B续作（2026-10-30）：基线0b6b2e2462626db6d928bde25f477548c021b8ef，分支codex/sec-052-download-cancel；fetch后自有主线一致，初始干净，Go1.26.10 windows/amd64。
+本地128KiB真实服务器加密正常/部分写入取消合同首次GREEN；新增真实HTTP/1客户端首字节后取消子例亦GREEN。现有error→ErrAbortHandler已满足这两条防御合同，未为获得RED修改断言或生产行为。
+VALIDATE：WASM在途取消后controller终态、页面输出取消传播、浏览器截断/主动取消；此前Chromium+HTTPS只有正常和认证篡改两例，不能外推。
+WASM模块首跑为环境长度超限的SETUP_FAIL，未进入合同；原始日志保留，不算新漏洞。自有PR49仍open，不把其未合并UI行为算主线。
+052-B模块已在完整前提成立后取得实际RED→GREEN：主线取消后controller调用异常；最小取消状态标记候选使同一合同通过、worker结束并在同实例继续正常SHA256。精确证据保留自有未公开草稿，无远程利用或完整性P0结论。
+新HTTPS browser fixture已编译并启动；浏览器工具返回ERR_CERT_AUTHORITY_INVALID，需要用户手动处理证书提示。浏览器项当前BLOCKED，其他检查继续，不替换成降低证书验证。
+
 SEC-041续作（2026-10-30）：基线65dd7ef6c7be7d1f08c00e41318b6da132aa89af（PR48已合并），分支codex/sec-041-old-content；fetch后origin/master一致，初始工作树干净，Go1.26.10 windows/amd64。
 CONFIRMED_CODE：冻结完整归档的隔离正常重启合同已取得旧内容未回收的业务RED（3.635s，exit1，1475项输入前后不变）；首次夹具阶段标记SETUP_FAIL不计作业务证据。
 方案见[ADR-025](ADR-025-OLD-CONTENT-RECLAMATION.md)：同事务/CAS登记有界去重旧locator、完整全ID引用查询、checked GC及token条件退休；SQLite17/Redis10，迁库保留候选。

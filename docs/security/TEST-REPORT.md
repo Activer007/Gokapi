@@ -2,7 +2,38 @@
 
 日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/SupaShare 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
 
-## M4：SEC-041开发验证（2026-10-30，进行中）
+## M4：SEC-052-B主动中断验证（2026-10-30，进行中）
+
+基线0b6b2e2462626db6d928bde25f477548c021b8ef，fetch与origin/master一致，初始干净；Go1.26.10 windows/amd64/CGO0。
+全源码隔离归档SHA256 `d5465805efe07b1ada9559257ebc0310259563080ba03690d5e0da70dd0da7c7`；仅临时合成数据。
+
+| 实际命令 | 结果 |
+| --- | --- |
+| `go test ./internal/storage -count=1 -tags='test,noaws' -run '^TestSEC052ServeFileCancel$' -timeout 90s -v` | 首次GREEN，11.067s/合同2.64s；真实128KiB加密正常SHA256、部分写入后取消/精确ErrAbortHandler、有限工作排空、源与metadata保持；当时尚无HTTP子例 |
+| `go test ./internal/storage -count=1 -tags='test,noaws' -run '^TestSEC052ServeFileCancel/http1-client-cancel$' -timeout 90s -v` | PASS5.915s/合同0.16s；仅补新子例：真实HTTP/1首字节确已读取后客户端取消、server context取消、handler中断/关闭且源与metadata保持；清理逃生不算PASS |
+| 冻结副本 `go generate ./...` | PASS，main.wasm已生成；9份tracked文本原始字节仅EOL变化，逐项canonical Git blob==0b，语义输入未变。生成后1489文件冻结，WASM SHA256 `9d0019975d663835c1c3693987648e8d1f9b6aea3eef0e610e4d9e1b750d4470` |
+| 私密 `run-module.ps1`：官方Node24 wasm_exec_node.js经 `GOOS=js GOARCH=wasm go test ...` 执行单个取消模块合同 | SETUP_FAIL/exit1/10.072s：官方Go.run启动区命令行+环境超限，尚无任何业务阶段；不是取消RED |
+
+当前服务器无需生产修改。WASM/浏览器在途取消及浏览器截断仍VALIDATE，原052-A真实HTTPS证据只有正常与认证篡改；不得用context/browser关闭造成的失败补填取消PASS。
+新相关race/最终CI尚NOT_RUN；Windows原生race仍BLOCKED。测试与夹具无生产数据，原始证据留ignored目录，不发布私密分享fragment或密钥。
+
+### WASM模块取消：独立RED→GREEN（不替代浏览器）
+
+官方运行器未修改，仅Node执行阶段用私密白名单preload精简环境，Go编译环境保持。主线Main.go为0b的438b273 Git blob；baseline生成后1489文件有冻结hash，9份EOL变换的canonical blob逐一与0b相同；合同结束后逐项复核Changed=0，候选Main hash仍95a9df1。
+
+| 实际执行 | 结果 |
+| --- | --- |
+| 私密 `run-module-v2.ps1`，同GOOS=js/GOARCH=wasm的单个原生流合同 | SETUP_OR_INCOMPLETE/exit1/1.052s：precreated read可能已经兑现合法前缀，旧断言误认仍pending；defer清理后异常不计RED，测试完整备份 |
+| `run-module-v3.ps1`，修正为验证合法前缀并独立验证新post-cancel read/closed/body-close，再主动释放在途Read | BUSINESS_RED/exit1/1.303s；所有固定业务阶段均成立后出现真实native controller异常，非清理倒算；仅受控模块证据 |
+| 独立候选目录的同一 `run-module-v3.ps1` 与逐字节相同test | PASS/exit0/1.356s；raceEntered=true、无late controller异常、finite worker、同一WASM实例后续正常SHA256；候选Main.go SHA256 `95a9df12230ed53d49516730df616c9dc2a01f1ef5cba0bea9329d56fc3a8b2e` |
+
+最小生产改变只有每响应取消标记及阻塞点后检查；review未发现当前js/wasm语义阻断。精确test、历史失败、运行要求已补入核实的自有未公开草稿（仍draft/published_at=null），无CVE或发布。
+
+新browser helper `go build -mod=readonly -tags=noaws -o fixture.exe .` PASS15.756s；首启因Windows绝对SQLite URL被当host:port为SETUP_FAIL，未进入浏览器业务。保留旧源码/二进制/log，再仅修child相对URL与隔离环境；重建启动ready成功。
+CUA导航 `https://127.0.0.1:<随机端口>/probe` 实际返回ERR_CERT_AUTHORITY_INVALID，未绕过。用户手动证书处理请求保持pending，真实浏览器截断/取消当前BLOCKED，不填PASS。
+一次默认沙箱Get-Process未看见提权启动的helper，不能据此判退出；同启动权限复核PID67332仍live。最终同权限确认退出并保存cleanup记录，原地址失效；不从超时/关闭推定native取消或源码不变PASS。
+
+## M4：SEC-041开发验证（2026-10-30，历史过程）
 
 实际基线65dd7ef6c7be7d1f08c00e41318b6da132aa89af，Go1.26.10 windows/amd64、CGO0；分支codex/sec-041-old-content，仅隔离合成数据。
 完整Git归档SHA256 `33e774ef4269cf47e508715b66f49ecfd6efde9727240acd404e9f920f3148c3`，源码与夹具共1475项输入哈希在运行前后相同。
