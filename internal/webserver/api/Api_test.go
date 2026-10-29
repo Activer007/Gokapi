@@ -510,9 +510,12 @@ func testDeleteUserCall(t *testing.T, apiKey string, mode int) {
 	userApiKey := generateNewKey(false, retrievedUser.Id, "", "")
 	_, ok = database.GetApiKey(userApiKey.Id)
 	test.IsEqualBool(t, ok, true)
+	// This ownership-only fixture has no payload. A safe locator lets subsequent
+	// checked cleanup confirm absence instead of seeing corruption.
 	testFile := models.File{
 		Id:                 "testFileApiDelete",
 		Name:               "testFileApiDelete",
+		SHA1:               "synthetic-user-delete-missing",
 		UserId:             retrievedUser.Id,
 		UnlimitedDownloads: true,
 		UnlimitedTime:      true,

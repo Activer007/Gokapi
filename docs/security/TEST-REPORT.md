@@ -24,7 +24,13 @@ pre-cancel/nil仅证明context入口拒绝及无DELETE，不是040-B取消删除
 `go test ./internal/test/securityfixture -count=1 -tags='test,security_cleanup' -run '^TestSEC040CleanupLocalBoundaries/permissions$' -timeout 30s -v`
 exit0/10.948s，但权限子例明确SKIP/NOT_RUN（Windows），不能记权限合同PASS；最终Linux CI需核对实际子例。
 上表tags按Go参数展示，PowerShell复现时将逗号参数加单引号，如`-tags='test,awsmock'`。
-最终CI待代码/审查冻结后一次运行；本地开发证据在ignored sec040-delete-local.secret，不借用052或M3的PASS。
+首冻结head583be126d8ac75b838677dbfd7bb0d91211b46ad的push CI40882137674（job123476150976）FAIL：
+generate与setup合同PASS，`go test ./... -parallel 8 -count=1 --tags=test,awsmock`仅API包失败，后续noaws/integration/awstest/race/build/scan均SKIPPED/NOT_RUN。
+API的TestDeleteFile/RestoreFile/List三处失败经两份独立源码审查定位：前序testDeleteUserCall留下空SHA1合成行，完整引用检查拒绝，符合unknown保留策略。
+仅给该所有权夹具补明确不存在的安全locator；不改生产guard、权限、owner或原断言。
+修正后`go test ./internal/webserver/api -count=1 -tags='test,awsmock' -timeout 2m -v` PASS/exit0/10.709s，含产生前序状态的TestUserDelete及原三失败项。
+该真实CI失败及测试输入修正要求新的最终验证；不把首轮失败或后续未执行项改记PASS。
+本地开发证据在ignored sec040-delete-local.secret，不借用052或M3的PASS。
 一次stdlib文档查询意外触发module索引联网并被sandbox阻止，非测试/非RED；改直接读取本地GOROOT源码确认Root API，未改依赖或代理。
 
 ## M4首轮：052-A优先修复（2026-10-29）
