@@ -138,3 +138,31 @@ func TestUIUploadManagementContexts(t *testing.T) {
 		}
 	}
 }
+
+func TestUIAccountAndStatusPages(t *testing.T) {
+	user := models.User{Id: 5, Name: "Fixture", UserLevel: models.UserLevelSuperAdmin, Permissions: models.UserPermissionAll}
+	for _, language := range []string{"en", "zh-CN"} {
+		for _, name := range []string{"users", "api", "logs", "e2esetup"} {
+			response := httptest.NewRecorder()
+			r := httptest.NewRequest("GET", "/?lang="+language, nil)
+			var err error
+			if name == "e2esetup" {
+				err = renderPage(response, r, name, &e2ESetupView{})
+			} else {
+				view := &AdminView{IsAdminView: true, ActiveUser: user, UserMap: map[int]*models.User{5: &user},
+					Users: []userInfo{{User: user}}, ApiKeys: []models.ApiKey{{Id: "fixture-key", PublicId: "public-key", UserId: 5}}}
+				err = renderPage(response, r, name, view)
+			}
+			if err != nil {
+				t.Fatalf("%s %s: %v", language, name, err)
+			}
+			key := map[string]string{"users": "users.group", "api": "api.help", "logs": "status.uptime", "e2esetup": "e2e.backup"}[name]
+			if !strings.Contains(response.Body.String(), i18n.New(language).T(key)) || strings.Contains(response.Body.String(), "ZgotmplZ") {
+				t.Errorf("%s %s missing localized content or invalid output", language, name)
+			}
+			if name == "users" && !strings.Contains(response.Body.String(), i18n.New(language).T("user.level.0")) {
+				t.Error("group name was not translated")
+			}
+		}
+	}
+}

@@ -117,7 +117,7 @@ async function apiAuthFriendlyName(apiKey, newName) {
             'Content-Type': 'application/json',
             'apikey': token,
             'targetKey': apiKey,
-            'friendlyName': newName
+            'friendlyName': encodeHeaderText(newName)
 
         },
     };
@@ -186,7 +186,8 @@ async function apiAuthCreate() {
         headers: {
             'Content-Type': 'application/json',
             'apikey': token,
-            'basicPermissions': 'true'
+            'basicPermissions': 'true',
+            'friendlyName': encodeHeaderText(t('api.unnamed'))
         },
     };
 
@@ -536,7 +537,7 @@ async function apiUserCreate(userName) {
         headers: {
             'Content-Type': 'application/json',
             'apikey': token,
-            'username': userName
+            'username': encodeHeaderText(userName)
 
         },
     };

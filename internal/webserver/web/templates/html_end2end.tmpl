@@ -5,27 +5,25 @@
 	<script src="./js/min/streamsaver.min.js"></script>
 	<script src="./js/min/wasm_exec.min.js"></script>
 	<script src="./js/min/admin.min.{{ template "js_admin_version"}}.js"></script>
-	<script>
-		document.title = "Gokapi - E2E Setup";
-	</script>
+
 	
 {{ if not .HasBeenSetup }}	
       <div class="row">
         <div class="col">
 		<div class="card" style="width: 50%;">
 		  <div class="card-body">
-		    <h2 class="card-title">End-to-End Encryption Setup</h2>
+            <h2 class="card-title">{{$.UI.T "e2e.title"}}</h2>
 		    <br><br>
-		    <p class="card-text">Your password for decryption is:<br>
-			<b><kbd id="decryptionpw">Generating.......</kbd></b> <button type="button" id="downpw" class="btn btn-outline-light btn-sm" disabled><i class="bi bi-download"></i></button></p>
+            <p class="card-text">{{$.UI.T "e2e.password"}}<br>
+            <b><kbd id="decryptionpw">{{$.UI.T "e2e.generating"}}</kbd></b> <button type="button" id="downpw" class="btn btn-outline-light btn-sm" disabled><i class="bi bi-download"></i></button></p>
 			<div id="errordiv" style="display:none">
 				<span id="errormessage" style="color:red"></span>
 				<br>
 				<br>
 			</div>
-		    <b>Save this password to a secure location, without it you will not be able to decrypt/share your files if your browser data gets deleted or you login from a different machine! This password will only be shown once.</b>
-		    <br><br>If you need to reset the password, run the Gokapi setup again.
-		    <br><br><button type="button" id="genbutton" class="btn btn-light" disabled onclick="window.location='./admin';">Continue</button>
+            <b>{{$.UI.T "e2e.backup"}}</b>
+            <br><br>{{$.UI.T "e2e.resetHelp"}}
+            <br><br><button type="button" id="genbutton" class="btn btn-light" disabled onclick="window.location='./admin';">{{$.UI.T "common.continue"}}</button>
 		    </div>
 		  </div>
 		</div>
@@ -47,6 +45,7 @@
 	}
 	
 function newKey() {
+    window.gokapiTransferBusy = true;
     localStorage.removeItem("e2ekey");
     let key;
     apiE2eMutexLockUnlock(false)
@@ -56,6 +55,7 @@ function newKey() {
                 if (key instanceof Error) throw key;
 
                 document.getElementById("decryptionpw").innerText = key;
+                window.gokapiBackupPending = true;
 
                 let data = GokapiE2EInfoEncrypt();
                 if (data instanceof Error) throw data;
@@ -74,12 +74,17 @@ function newKey() {
             document.getElementById("genbutton").disabled = false;
         })
         .catch(err => {
+            window.gokapiBackupPending = false;
             displayError(err);
         })
-        .finally(() => {
-            apiE2eMutexLockUnlock(true).catch(error => {
+        .finally(async () => {
+            try {
+                await apiE2eMutexLockUnlock(true);
+            } catch (error) {
                 console.error("Failed to release E2E mutex after newKey: " + error);
-            });
+            } finally {
+                window.gokapiTransferBusy = false;
+            }
         });
 }
 
@@ -92,9 +97,9 @@ function newKey() {
         <div class="col">
 		<div class="card" style="width: 50%;">
 		  <div class="card-body">
-		    <h2 class="card-title">End-to-End Encryption Setup</h2>
+            <h2 class="card-title">{{$.UI.T "e2e.title"}}</h2>
 		    <br><br>
-		    <p class="card-text">End-to-end encryption has been set up, however no key was found on the local machine. Please enter the password in the text field below. If you do not know the decryption password, please re-run the Gokapi setup to reset the password.</p>
+            <p class="card-text">{{$.UI.T "e2e.enterHelp"}}</p>
 		      <div class="mb-3"><br>
     			<input type="password" class="form-control" id="password" name="password">
 			<div id="errordiv" style="display:none">
@@ -102,7 +107,7 @@ function newKey() {
 				<span id="errormessage" style="color:red"></span>
 				<br>
 			</div>
-		    <br><br><button type="button"  id="enterpwbutton" class="btn btn-light"  onclick="saveKey()" >Save</button>
+            <br><br><button type="button" id="enterpwbutton" class="btn btn-light" onclick="saveKey()" disabled>{{$.UI.T "common.save"}}</button>
   			</div>
 		  </div>
 		</div>

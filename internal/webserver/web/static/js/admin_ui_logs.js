@@ -14,7 +14,7 @@ function filterLogs(tag) {
 
 function setTrafficInfo(totalTraffic, recordingSince) {
     insertReadableSizeTwoOutputs(totalTraffic, 'totalTraffic', 'totalTrafficUnit');
-    document.getElementById('cardTraffic').title= "Traffic since "+formatUnixTimestamp(recordingSince);
+    document.getElementById('cardTraffic').title= t("status.trafficSince", {date: formatUnixTimestamp(recordingSince)});
 }
 
 function setMemoryUsage(used, total) {
@@ -67,7 +67,7 @@ function formatDuration(seconds) {
     const remainder = seconds % first.value;
     const secondAmount = Math.floor(remainder / second.value);
 
-    return `${firstAmount}${first.label} ${secondAmount}${second.label}`;
+    return `${firstAmount}${t("time." + first.label)} ${secondAmount}${t("time." + second.label)}`;
 }
 
 function addUptime() {
@@ -129,7 +129,7 @@ async function loadLogs(timestamp) {
     } catch (error) {
         lastLogUpdate = 0;
         console.error("Failed to load logs:", error);
-        textarea.value = "Error loading logs. See console for details.";
+        textarea.value = t("status.loadFailed");
     }
 }
 
@@ -180,8 +180,8 @@ function deleteLogs() {
     if (cutoff == "none" || cutoff == "") {
         return;
     }
-    if (!confirm("Do you want to delete the selected logs?")) {
-        document.getElementById('deleteLogs').selectedIndex = 0;
+    if (!confirm(t("status.confirmDelete"))) {
+        delSelector.selectedIndex = 0;
         return;
     }
     let timestamp = Math.floor(Date.now() / 1000)
@@ -209,14 +209,14 @@ function deleteLogs() {
             location.reload();
         })
         .catch(error => {
-            alert("Unable to delete logs: " + error);
+            alert(t("status.deleteFailed") + error);
             console.error('Error:', error);
         });
 }
 
 
 function resetTrafficStat() {
-    if (!confirm("Do you want to reset the traffic statistics?")) {
+    if (!confirm(t("status.confirmReset"))) {
         return;
     }
 
@@ -225,7 +225,7 @@ function resetTrafficStat() {
             location.reload();
         })
         .catch(error => {
-            alert("Unable to reset stats: " + error);
+            alert(t("status.resetFailed") + error);
             console.error('Error:', error);
         });
 }

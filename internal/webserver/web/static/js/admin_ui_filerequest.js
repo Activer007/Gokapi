@@ -285,7 +285,7 @@ function editFileRequest(id, name, maxFiles, maxSize, expiry, notes) {
 function saveFileRequest() {
     const buttonSave = document.getElementById("b_fr_save");
     const id = document.getElementById("freqId").value;
-    const name = document.getElementById("mFriendlyName").value;
+    const name = document.getElementById("mFriendlyName").value || t("request.unnamed");
     const notes = document.getElementById("mNotes").value;
     let maxFiles = 0;
     let maxSize = 0;
