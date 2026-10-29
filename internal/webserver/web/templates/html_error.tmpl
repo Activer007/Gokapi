@@ -8,59 +8,59 @@
 
     {{ if eq .ErrorId 0 }}
         <h2 class="card-title">
-          File not found
+          {{.UI.T "error.notFound.title"}}
         </h2>
         <br>
-          The link may have expired or the file has been downloaded too many times.
+          {{.UI.T "error.notFound.help"}}
     {{ end }}
     
     {{ if eq .ErrorId 1 }}
         <h2 class="card-title">
-          Unable to upload files
+          {{.UI.T "error.upload.title"}}
         </h2>
         <br>
-          This can happen for one of the following reasons:
+          {{.UI.T "error.upload.reasons"}}
           <i><ul class="list-unstyled mt-2">
-            <li>- The upload request has expired (time limit reached)</li>
-            <li>- The file limit for this upload request has been reached</li>
-            <li>- An invalid upload URL was submitted</li>
+            <li>- {{.UI.T "error.upload.expired"}}</li>
+            <li>- {{.UI.T "error.upload.limit"}}</li>
+            <li>- {{.UI.T "error.upload.invalidURL"}}</li>
           </ul></i>
    {{ end }}
    
    {{ if eq .ErrorId 2 }}
         <h2 class="card-title">
-          Missing or invalid decryption key
+          {{.UI.T "error.cipher.title"}}
         </h2>
         <br>
-          This file is encrypted, but no key was provided or the key is invalid.<br><br>
-          Please contact the uploader and make sure the complete URL is used, including the value after the hash.
+          {{.UI.T "error.cipher.help"}}<br><br>
+          {{.UI.T "error.cipher.contact"}}
    {{ end }}
    
    {{ if eq .ErrorId 3 }}
-       <h2 class="card-title">Unauthorised user</h2>
+       <h2 class="card-title">{{.UI.T "error.unauthorized.title"}}</h2>
 		    <br>
-		    <p class="card-text">Login with OAuth provider was sucessful, however this user is not authorised to use Gokapi.</p><br><br>
-		    <a href="./login?consent=true" class="card-link">Log in as different user</a>
+		    <p class="card-text">{{.UI.T "error.unauthorized.help"}}</p><br><br>
+		    <a href="./login?consent=true" class="card-link">{{.UI.T "error.otherUser"}}</a>
    {{ end }}
     
 {{ else }}
    
    {{ if eq .ErrorId 4 }}
-		 <h2 class="card-title">OIDC Provider Error: {{.ErrorTitle}}</h2>
+		 <h2 class="card-title">{{.UI.T "error.oidc.title"}} {{.UI.T .ErrorTitle}}</h2>
 				    <br>
-				    <p class="card-text"><b>Login with OAuth provider was not sucessful, the following error was raised:</b></p>
+				    <p class="card-text"><b>{{.UI.T "error.oidc.help"}}</b></p>
 		{{ if .ErrorOauthMessage }}
 				 <p class="text-monospace">{{ .ErrorOauthMessage }}</p>
 		{{ end}}
-				 <p class="text-monospace">{{ .ErrorMessage }}</p><br>
-				    <a href="./login?consent=true" class="card-link">Try again</a>
+				 <p class="text-monospace">{{.UI.T .ErrorMessage}}</p><br>
+				    <a href="./login?consent=true" class="card-link">{{.UI.T "common.retry"}}</a>
    {{ else }}
    
         <h2 class="card-title">
-          {{ .ErrorTitle }}
+          {{.UI.T .ErrorTitle}}
         </h2>
         <br>
-          {{ .ErrorMessage }}
+          {{.UI.T .ErrorMessage}}
    {{ end }}
 
 {{ end }}

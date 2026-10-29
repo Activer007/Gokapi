@@ -3,6 +3,7 @@
 package webserver
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -20,9 +21,11 @@ func TestUIPresentationAndCookie(t *testing.T) {
 		FooterText: `<img src=x onerror=alert(1)>`, FooterLinks: []models.FooterLink{{Text: "Help", URL: "https://example.com/help"}}}
 	request := httptest.NewRequest("GET", "/login?lang=zh-CN", nil)
 	response := httptest.NewRecorder()
-	if err := renderPage(response, request, "login", &LoginView{PublicName: config.PublicName}); err != nil {
-		t.Fatal(err)
-	}
+	withLanguagePreference(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := renderPage(w, r, "login", &LoginView{PublicName: config.PublicName}); err != nil {
+			t.Fatal(err)
+		}
+	})).ServeHTTP(response, request)
 	body := response.Body.String()
 	for _, want := range []string{`lang="zh-CN"`, "用户名", "登录 · &lt;script&gt;", "&lt;img", `https://example.com/help`, `window.gokapiMessages = {`} {
 		if !strings.Contains(body, want) {
@@ -67,6 +70,42 @@ func TestUIPasswordTitlesHideFilename(t *testing.T) {
 		}
 		if strings.Contains(response.Body.String(), "secret-file.txt") || !strings.Contains(response.Body.String(), "需要密码") {
 			t.Errorf("password-protected %s exposes filename or has incorrect title", name)
+		}
+	}
+}
+
+func TestUIPublicPages(t *testing.T) {
+	for _, language := range []string{"en", "zh-CN"} {
+		for _, tc := range []struct {
+			name   string
+			view   interface{ setUI(pageUI) }
+			en, zh string
+		}{
+			{"forgotpw", &genericView{}, "If you forgot your user password", "如果忘记了用户密码"},
+			{"changepw", &genericView{ErrorMessage: "password.tooShort"}, "Password is too short", "密码过短"},
+			{"download", &DownloadView{Name: "example.txt", IsDownloadView: true}, "Download", "下载文件"},
+			{"download", &DownloadView{Name: "ciphertext", Id: "encrypted", IsDownloadView: true, ClientSideDecryption: true, EndToEndEncryption: true}, "Decrypting...", "正在解密"},
+			{"publicUpload", &publicUploadView{FileRequest: &models.FileRequest{Notes: "Literal note", MaxFiles: 2, MaxSize: 10}}, "Upload restrictions", "上传限制"},
+			{"error", &genericView{IsGenericError: true, ErrorId: 0}, "File not found", "文件不存在"},
+			{"error", &genericView{IsGenericError: true, ErrorId: 1}, "Unable to upload files", "无法上传文件"},
+			{"error", &genericView{IsGenericError: true, ErrorId: 2}, "Missing or invalid decryption key", "解密密钥缺失或无效"},
+			{"error", &genericView{IsGenericError: true, ErrorId: 3}, "Unauthorised user", "无权访问"},
+			{"error", &genericView{ErrorTitle: "error.unknownID.title", ErrorMessage: "error.unknownID.help"}, "Unknown error ID", "错误信息已失效"},
+		} {
+			response := httptest.NewRecorder()
+			if err := renderPage(response, httptest.NewRequest("GET", "/?lang="+language, nil), tc.name, tc.view); err != nil {
+				t.Fatalf("%s %s: %v", language, tc.name, err)
+			}
+			want := tc.en
+			if language == "zh-CN" {
+				want = tc.zh
+			}
+			if !strings.Contains(response.Body.String(), want) {
+				t.Errorf("%s %s is missing %q", language, tc.name, want)
+			}
+			if strings.Contains(response.Body.String(), "ZgotmplZ") {
+				t.Errorf("%s %s has a contextual template error", language, tc.name)
+			}
 		}
 	}
 }

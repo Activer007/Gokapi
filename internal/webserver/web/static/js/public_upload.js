@@ -5,7 +5,7 @@ function createUploadBox() {
 
             if (file.size > MAX_FILE_SIZE) {
                 document.getElementById('span-modal-error').innerText =
-                    `The file "${file.name}" exceeds the maximum allowed size of ${formatSize(MAX_FILE_SIZE)}.`;
+                    t("request.tooLarge", {name: file.name, size: formatSize(MAX_FILE_SIZE)});
                 errorModal.show();
                 return;
             }
@@ -21,7 +21,7 @@ function createUploadBox() {
 
             const progressText = document.createElement('span');
             progressText.className = 'upload-status';
-            progressText.textContent = 'Ready';
+            progressText.textContent = t("upload.ready");
 
             const progressBar = document.createElement('progress');
             progressBar.className = 'upload-progress';
@@ -39,7 +39,7 @@ function createUploadBox() {
 
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
-            removeBtn.title = 'Remove';
+            removeBtn.title = t("common.remove");
             removeBtn.className = 'btn btn-sm btn-link text-light p-0';
             removeBtn.innerHTML = '<i class="bi bi-x-circle"></i>';
             removeBtn.onclick = async () => {
@@ -197,18 +197,18 @@ function showModal(modalCode) {
 
         case "maxfiles":
             if (maxFilesRemaining == 1) {
-                message = "Too many files are selected for upload. Please only select 1 file.";
+                message = t("request.selectOne");
             } else {
-                message = "Too many files are selected for upload. Please only select " + maxFilesRemaining + " files or fewer.";
+                message = t("request.selectLimit", {count: maxFilesRemaining});
             }
             break;
 
         case "maxfilesdynamic":
-            message = "Some files could not be uploaded because the server rejected the request. This likely occurred because another user was uploading files at the same time and the maximum file limit was reached.";
+            message = t("request.concurrentLimit");
             break;
 
         case "expired":
-            message = "The upload request exceeded the permitted time limit, and uploading additional files is no longer possible.";
+            message = t("request.timeLimit");
             break;
     }
     document.getElementById('span-modal-error').innerText = message;
@@ -323,12 +323,12 @@ async function startUpload() {
         let lastSpeedText = "";
 
         try {
-            elements.progressText.textContent = "Reserving...";
+            elements.progressText.textContent = t("upload.reserving");
             const serverUuid = await reserveChunk(elements);
             entry.serverUuid = serverUuid;
 
             elements.removeBtn.innerHTML = '<i class="bi bi-stop-circle text-danger"></i>';
-            elements.removeBtn.title = "Cancel Upload";
+            elements.removeBtn.title = t("upload.cancel");
 
             let offset = 0;
             // do-while so that add chunk is run for 0byte files as well
@@ -383,7 +383,7 @@ async function startUpload() {
                         };
 
                         xhr.onerror = () => {
-                            const err = new Error(`Server Error`);
+                            const err = new Error(t("common.serverError"));
                             err.status = xhr.status;
                             reject(err);
                         };
@@ -393,10 +393,10 @@ async function startUpload() {
                 }, {
                     signal: entry.controller.signal,
                     onWait: () => {
-                        elements.progressText.textContent = "Waiting for upload slot...";
+                        elements.progressText.textContent = t("upload.waiting");
                     },
                     onRetry: (a, e) => {
-                        elements.progressText.textContent = `Retry ${a}/3: ${e.message}${lastSpeedText}`;
+                        elements.progressText.textContent = t("upload.retrySpeed", {attempt:a,error:e.message,speed:lastSpeedText});
                     }
                 });
 
@@ -406,7 +406,7 @@ async function startUpload() {
             await finaliseUpload(file, serverUuid, elements);
 
             entry.status = 'completed';
-            elements.progressText.textContent = "Completed";
+            elements.progressText.textContent = t("upload.completed");
             elements.item.style.opacity = "0.6";
             elements.removeBtn.remove(); // Remove button only on success
 
@@ -422,12 +422,12 @@ async function startUpload() {
             }
 
             entry.status = 'error';
-            elements.progressText.textContent = err.message || "Upload failed";
+            elements.progressText.textContent = err.message || t("upload.failed");
             elements.progressText.style.color = "#ff6b6b";
             elements.progressBar.style.display = "none";
 
             elements.removeBtn.innerHTML = '<i class="bi bi-trash"></i>';
-            elements.removeBtn.title = "Remove from list";
+            elements.removeBtn.title = t("upload.remove");
         }
     }
 }
@@ -455,21 +455,21 @@ async function parseErrorResponse(response) {
         let message;
         switch (data.ErrorCode) {
             case 9:
-                message = "File size limit exceeded";
+                message = apiErrorMessage(data);
                 break;
             case 14:
-                message = "Upload request has expired";
+                message = apiErrorMessage(data);
                 showModal("expired");
                 break;
             case 15:
-                message = "Maximum file count reached";
+                message = apiErrorMessage(data);
                 showModal("maxfilesdynamic");
                 break;
             case 16:
-                message = "Too many requests, please try again later";
+                message = apiErrorMessage(data);
                 break;
             default:
-                message = data.ErrorMessage || "Unknown upload error";
+                message = apiErrorMessage(data);
         }
         const err = new Error(message);
         err.status = response.status;
@@ -496,11 +496,11 @@ async function reserveChunk(elements) {
             throw await parseErrorResponse(response);
         }
         const data = await response.json();
-        if (!data.Uuid) throw new Error("Invalid reserve response");
+        if (!data.Uuid) throw new Error(t("upload.invalidReservation"));
         return data.Uuid;
     }, {
         onRetry: (a, e) => {
-            elements.progressText.textContent = `Retry ${a}/3: ${e.message}`;
+            elements.progressText.textContent = t("upload.retry", {attempt:a,error:e.message});
         }
     });
 }
@@ -524,7 +524,7 @@ async function finaliseUpload(file, uuid, elements) {
         }
     }, {
         onRetry: (a, e) => {
-            elements.progressText.textContent = `Retry ${a}/3: ${e.message}`;
+            elements.progressText.textContent = t("upload.retry", {attempt:a,error:e.message});
         }
     });
 }

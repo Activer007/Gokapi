@@ -64,7 +64,7 @@ func RedirectGenericErrorPage(w http.ResponseWriter, r *http.Request, genericTyp
 		cardWidth = WidthWide
 	default:
 		redirectToError(w, r, DisplayedError{
-			Title:     "Unknown error",
+			Title:     "error.unknown.title",
 			Message:   "Gokapi cannot display this error (error code " + strconv.Itoa(genericType) + ")",
 			CardWidth: WidthWide,
 			expiry:    time.Now().Add(ttl).Unix(),
@@ -84,8 +84,8 @@ func RedirectGenericErrorPage(w http.ResponseWriter, r *http.Request, genericTyp
 func RedirectToOAuthErrorPage(w http.ResponseWriter, r *http.Request, errorMessage string, err error) {
 	if r.URL.Query().Get("error") == "access_denied" {
 		result := DisplayedError{
-			Title:     "Access denied",
-			Message:   "The request was denied by the user or authentication provider.",
+			Title:     "error.accessDenied.title",
+			Message:   "error.accessDenied.help",
 			expiry:    time.Now().Add(ttl).Unix(),
 			ErrorId:   TypeOAuthNonGeneric,
 			IsGeneric: false,
@@ -132,8 +132,8 @@ func Get(r *http.Request) DisplayedError {
 	displayedError, ok := tokens[r.URL.Query().Get("e")]
 	if !ok {
 		return DisplayedError{
-			Title:     "Unknown error ID",
-			Message:   "Unfortunately, an error occurred and the error message could not be displayed.",
+			Title:     "error.unknownID.title",
+			Message:   "error.unknownID.help",
 			CardWidth: WidthDefault,
 		}
 	}

@@ -13,6 +13,7 @@ import (
 type pageUI struct {
 	i18n.Locale
 	Title       string
+	SiteTitle   string
 	Description string
 	FooterText  string
 	FooterLinks []models.FooterLink
@@ -25,6 +26,14 @@ type pageView struct {
 
 func (p *pageView) setUI(ui pageUI) { p.UI = ui }
 
+func withLanguagePreference(next http.Handler) http.Handler {
+	cookiePath := "/"
+	if base, err := url.Parse(configuration.Get().ServerUrl); err == nil && strings.HasPrefix(base.Path, "/") {
+		cookiePath = base.Path
+	}
+	return i18n.RememberPreference(next, cookiePath, configuration.UsesHTTPS())
+}
+
 // renderPage adds request-local UI data without exposing the server configuration.
 func renderPage(w http.ResponseWriter, r *http.Request, name string, view interface{ setUI(pageUI) }) error {
 	config := configuration.Get()
@@ -33,15 +42,6 @@ func renderPage(w http.ResponseWriter, r *http.Request, name string, view interf
 		settings = *config.UI
 	}
 	locale := i18n.Select(r, settings.DefaultLanguage)
-	if language := r.URL.Query().Get("lang"); i18n.Supported(language) {
-		cookiePath := "/"
-		if base, err := url.Parse(config.ServerUrl); err == nil && strings.HasPrefix(base.Path, "/") {
-			cookiePath = base.Path
-		}
-		http.SetCookie(w, &http.Cookie{Name: i18n.CookieName, Value: locale.Language,
-			Path: cookiePath, MaxAge: 365 * 24 * 60 * 60, HttpOnly: true,
-			SameSite: http.SameSiteLaxMode, Secure: configuration.UsesHTTPS()})
-	}
 	baseTitle := settings.Title
 	if baseTitle == "" {
 		baseTitle = config.PublicName
@@ -70,7 +70,7 @@ func renderPage(w http.ResponseWriter, r *http.Request, name string, view interf
 			label, description = data.Name, data.Size
 		}
 	}
-	view.setUI(pageUI{Locale: locale, Title: label + " · " + baseTitle, Description: description,
+	view.setUI(pageUI{Locale: locale, Title: label + " · " + baseTitle, SiteTitle: baseTitle, Description: description,
 		FooterText: settings.FooterText, FooterLinks: settings.FooterLinks, ShowVersion: showVersion})
 	addNoCacheHeader(w)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

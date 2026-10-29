@@ -53,3 +53,10 @@ test('interpolation treats substituted values literally', () => {
     assert.equal(vm.runInContext("t('greeting', {name: '$&<script>'})", sandbox), 'Hello $&<script>');
     assert.equal(vm.runInContext("t('unknown')", sandbox), 'unknown');
 });
+
+test('upload error codes use translations and preserve unknown details', () => {
+    const { sandbox } = context();
+    sandbox.window.gokapiMessages['api.error.21'] = '配额已满';
+    assert.equal(vm.runInContext("apiErrorMessage({ErrorCode:21,ErrorMessage:'quota full'})", sandbox), '配额已满');
+    assert.equal(vm.runInContext("apiErrorMessage({ErrorCode:999,ErrorMessage:'specific provider detail'})", sandbox), 'specific provider detail');
+});
