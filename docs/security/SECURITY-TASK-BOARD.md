@@ -14,7 +14,16 @@
 
 G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BLOCKED 详见 [TEST-REPORT](TEST-REPORT.md)。初始M0仅测试/证据，后续生产实现及ADR以各增补条目为准。
 
-## 当前 SEC-030 分片与请求增量：代码 Gate GREEN
+## 当前 SEC-030 复制增量：目标 GREEN、CI_PENDING
+
+PR22已合并为c657d547，合并后CI40804164086成功且输入匹配。当前复制小增量：
+codex/sec-030-duplicate-admission，ADR-018；隔离HTTP ASSERTION_RED及核心/双provider目标GREEN已获得。
+核心/双provider整包及最终12组HTTP回归PASS；独立审查的FR跨owner兼容问题先RED后修复。CI及合并状态见关联PR。
+G0/G1已完成；G2的Linux CI待最终head一次运行，G4发布/部署NOT_RUN。完整M3仍OPEN。
+按用户最新要求，相关定向为主；同一代码只做一次必要完整验证，文档不追加全仓、未改流式路径不跑大文件。
+CI按head合并push/PR重复事件；新复制合同只在现有race步骤运行一次，不增加独立大矩阵。
+
+## SEC-030 分片与请求增量：代码 Gate GREEN
 
 起点57e5116，分支codex/sec-030-chunk-admission；整文件PR21已合并，合并后CI40783153865成功。
 用户最新确认默认owner5GiB、instance20GiB，其他数量/active/staging不变；按此更新PR22并重新验证。

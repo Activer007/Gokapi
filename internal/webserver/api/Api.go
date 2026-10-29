@@ -770,9 +770,9 @@ func apiDuplicateFile(w http.ResponseWriter, r requestParser, user models.User, 
 		0,     // is not being used by storage.DuplicateFile
 		"")
 	uploadConfig.UserId = user.Id
-	newFile, err := storage.DuplicateFile(file, request.RequestedChanges, request.FileName, uploadConfig)
+	newFile, err := storage.DuplicateFileContext(chunkRequestContext(request.Request), file, request.RequestedChanges, request.FileName, uploadConfig)
 	if err != nil {
-		sendError(w, http.StatusInternalServerError, errorcodes.InternalServer, err.Error())
+		sendUploadAdmissionError(w, fileupload.UploadAdmissionError(err))
 		return
 	}
 	outputFileApiInfo(w, newFile)

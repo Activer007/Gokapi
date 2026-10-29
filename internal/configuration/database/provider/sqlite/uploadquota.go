@@ -21,6 +21,18 @@ func (p DatabaseProvider) ApplyUploadQuota(ctx context.Context, change uploadquo
 		if err != nil {
 			return err
 		}
+		if change.Action == uploadquota.DuplicateMetadata {
+			if change.Source == nil || change.Source.UserId <= 0 {
+				return uploadquota.ErrInvalid
+			}
+			current, err := readDuplicateSource(ctx, conn, change.Source.Id)
+			if err != nil {
+				return err
+			}
+			if err := uploadquota.CheckDuplicateSource(*change.Source, current, change.Now); err != nil {
+				return err
+			}
+		}
 		effective := change
 		if change.RequiresRequestPolicy() {
 			policy, err := readRequestPolicy(ctx, conn, change.Upload.RequestID)

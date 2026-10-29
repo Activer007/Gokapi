@@ -36,6 +36,15 @@ func (err wholeUploadFailure) Error() string {
 	return message
 }
 
+// UploadAdmissionError applies the same opaque quota response to related
+// metadata operations without exposing database errors or storage locators.
+func UploadAdmissionError(err error) error {
+	if err == nil {
+		return nil
+	}
+	return wholeUploadFailure{err}
+}
+
 // WholeUploadErrorResponse never exposes provider errors, storage paths,
 // encryption material or internal identifiers from the durable upload path.
 func WholeUploadErrorResponse(err error) (int, int, string) {

@@ -438,15 +438,34 @@ func isChangeRequested(parametersToChange, parameter int) bool {
 
 // DuplicateFile creates a copy of an existing file with new parameters
 func DuplicateFile(file models.File, parametersToChange int, newFileName string, fileParameters models.UploadParameters) (models.File, error) {
+	return DuplicateFileContext(context.Background(), file, parametersToChange, newFileName, fileParameters)
+}
+
+// DuplicateFileContext publishes only metadata for an existing blob. It shares
+// atomic logical accounting with uploads without creating an upload session.
+func DuplicateFileContext(ctx context.Context, file models.File, parametersToChange int, newFileName string, fileParameters models.UploadParameters) (models.File, error) {
+	if ctx == nil || fileParameters.UserId <= 0 {
+		return models.File{}, uploadquota.ErrInvalid
+	}
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	limits, err := duplicateLimits()
+	if err != nil {
+		return models.File{}, err
+	}
 
 	// apiDuplicateFile expects fileParameters.IsEndToEndEncrypted and fileParameters.RealSize not to be used,
 	// change in apiDuplicateFile if using in this function!
-	unlock, err := lockBlobPublication(context.Background(), file)
+	unlock, err := lockBlobPublication(ctx, file)
 	if err != nil {
 		return models.File{}, err
 	}
 	defer unlock()
-	if !FileExists(file, configuration.Get().DataDir) {
+	exists, _, err := probeWholeBlob(ctx, file)
+	if err != nil {
+		return models.File{}, err
+	}
+	if !exists {
 		return models.File{}, ErrorFileNotFound
 	}
 
@@ -479,9 +498,16 @@ func DuplicateFile(file models.File, parametersToChange int, newFileName string,
 	newFile.Id = createNewId()
 	newFile.DownloadCount = 0
 	newFile.UserId = fileParameters.UserId
-	AddHotlink(&newFile)
-
-	database.SaveMetaData(newFile)
+	newFile.HotlinkId = ""
+	setHotlinkCandidate(&newFile)
+	_, err = database.ApplyUploadQuota(ctx, uploadquota.Change{
+		Action: uploadquota.DuplicateMetadata, Source: &file, File: &newFile,
+		Upload: uploadquota.Reservation{ID: newFile.Id, UserID: newFile.UserId, RequestID: newFile.UploadRequestId, BytesKnown: true, Bytes: newFile.SizeBytes},
+		Limits: limits, Now: time.Now().Unix(), CheckRequestPolicy: newFile.UploadRequestId != "",
+	})
+	if err != nil {
+		return models.File{}, err
+	}
 	return newFile, nil
 }
 
