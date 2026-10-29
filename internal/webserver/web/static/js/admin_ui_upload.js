@@ -994,8 +994,12 @@ function changeRowCount(add, row) {
         datatable.row.add(row).draw(false);
     } else {
         row.classList.add("rowDeleting");
+        // Remove the table record now. An immediate Undo may add the same ID
+        // before the fade ends; a delayed row lookup could remove that new row.
+        datatable.row(row).remove();
         setTimeout(() => {
-            datatable.row(row).remove().draw(false);
+            row.remove();
+            datatable.draw(false);
         }, 290);
     }
 }

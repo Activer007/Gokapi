@@ -106,18 +106,24 @@ test('uploaded and removed rows redraw through DataTables so search and counts r
     const api={draw(reset){assert.equal(reset,false);redraws++;return this;}};
     const rowApi=row=>({remove(){removed=row;return api;}});
     rowApi.add=row=>{added=row;return api;};
-    const context=vm.createContext({$:()=>({DataTable:()=>({row:rowApi})}),
+    const context=vm.createContext({$:()=>({DataTable:()=>({row:rowApi,draw:api.draw})}),
         setTimeout:callback=>{scheduled=callback;}});
     vm.runInContext(fs.readFileSync(path.join(__dirname,'../../internal/webserver/web/static/js/admin_ui_upload.js'),'utf8'),context);
-    const row={classList:{add(){}}};
+    const row={classList:{add(){}},remove(){this.detached=true;}};
     context.changeRowCount(true,row);
     assert.equal(added,row);
     assert.equal(redraws,1);
     context.changeRowCount(false,row);
-    assert.equal(removed,undefined);
+    assert.equal(removed,row);
+    assert.equal(row.detached,undefined);
+    // Restore before the deletion animation ends; its table entry stays added.
+    const restored={classList:{add(){}}};
+    context.changeRowCount(true,restored);
     scheduled();
     assert.equal(removed,row);
-    assert.equal(redraws,2);
+    assert.equal(added,restored);
+    assert.equal(row.detached,true);
+    assert.equal(redraws,3);
 });
 
 test('replacement choices include filtered rows and use plain filename text', () => {

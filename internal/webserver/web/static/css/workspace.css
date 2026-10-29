@@ -117,6 +117,24 @@ body.admin-shell::after { display: none; }
 .admin-shell .api-name { color: var(--ss-link); font-size: inherit; overflow-wrap: anywhere; }
 [data-permission][hidden] { display: none !important; }
 .admin-shell footer { padding: 28px 0 20px; text-align: center; color: var(--ss-muted) !important; font-size: 13px; }
+/* Give taller desktop windows the hierarchy and artwork scale of the concept. */
+@media (min-height: 951px) and (min-width: 1101px) {
+    .workspace-brand { font-size: 28px; }
+    .admin-shell .workspace-primary-nav { gap: 28px; }
+    .admin-shell .nav-masthead .nav-link { font-size: 16px; }
+    .admin-shell .page-heading h1 { font-size: 40px; }
+    .admin-shell .page-heading p { font-size: 18px; }
+    .admin-shell .primary-upload { min-height: 56px; font-size: 18px; }
+    .admin-shell .upload-box, .admin-shell .upload-box .dz-message { min-height: 176px; }
+    .upload-brand-art { width: 280px; height: 176px; }
+    .admin-shell #uploadBoxTitle { font-size: 30px !important; }
+    .admin-shell #uploadBoxSubtitle { font-size: 18px; }
+    .upload-summary { font-size: 17px; }
+    .admin-shell .files-heading { font-size: 26px; }
+    .admin-shell .table { font-size: 16px; }
+    .admin-shell .table thead th { font-size: 14px; }
+    .admin-shell .file-actions .btn { font-size: 15px; }
+}
 @media (max-width: 1350px) {
     .admin-shell .admin-layout { padding: 0 28px !important; }
     .workspace-navigation { gap: 24px; }
@@ -130,7 +148,10 @@ body.admin-shell::after { display: none; }
     .workspace-account { order: 2; }
     .admin-shell .workspace-primary-nav { order: 3; width: 100%; flex-wrap: wrap; gap: 8px 24px; }
     .admin-shell .nav-masthead .nav-link { padding: 12px 2px; }
-    .admin-shell #maintable { table-layout: auto; }
+    .admin-shell #maintable { table-layout: auto; min-width: 960px; }
+    .admin-shell .file-table-container { overflow-x: auto; padding-bottom: 12px; }
+    .admin-shell .file-actions .dropdown-menu { position: static !important; transform: none !important; }
+    .admin-shell .file-actions .dropdown:has(.show) { white-space: normal; }
     .admin-shell #maintable th:last-child { width: auto !important; }
     .admin-shell .file-actions { flex-wrap: wrap; }
     .admin-shell .table { font-size: 14px; }
@@ -144,10 +165,6 @@ body.admin-shell::after { display: none; }
     .admin-shell .upload-options-grid, .permission-fields { grid-template-columns: 1fr; }
     .upload-settings > summary { align-items: flex-start; }
     .files-search { flex-wrap: wrap; max-width: 100%; }
-    .admin-shell .file-table-container { overflow-x: auto; padding-bottom: 12px; }
-    .admin-shell .file-actions .dropdown-menu { position: static !important; transform: none !important; }
-    .admin-shell .file-actions .dropdown:has(.show) { white-space: normal; }
-    .admin-shell #maintable { min-width: 650px; }
 }
 @media (max-height: 780px) and (min-width: 1101px) {
     .admin-shell .workspace-header { margin-bottom: 24px; }
