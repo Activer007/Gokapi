@@ -2,6 +2,16 @@
 
 研究日期：2026-10-27（Asia/Shanghai）。范围为个人 VPS / 小团队的单体 Go 服务。本文是源码与测试基线，不是安全认证。只向用户已独立的 **Activer007/Gokapi** 交付；Forceu/Gokapi 只读，不创建上游 PR、不推送、不触发其工作流。
 
+## SEC-030 复制准入增量（2026-10-29）
+
+工作基线c657d547322c8ef0339287dde6dddd5688384763；本地Go1.26.10 windows/amd64，未部署。
+CONFIRMED_CODE（基线）：DuplicateFile复用blob却先AddHotlink再raw SaveMetaData，未经过累计准入。
+隔离归档叠加仅HTTP合同的12组竞争实际RED；当前代码已接入原子逻辑准入与源状态复核。
+核心及双provider完整包回归PASS；最终12组HTTP合同与现有复制兼容PASS，CI结果见关联PR。
+独立审查发现的FR跨owner副本再次复制误拒绝已获小用例RED并修正；保留原request计费，见ADR-018。
+VALIDATE：其他正向metadata入口、统一物理协调、崩溃恢复及真实Redis/S3/浏览器仍开放。
+本轮未修改流式I/O、schema、加密格式或依赖；不重复大文件测试，不将前轮CI扩大到新代码。
+
 ## SEC-030 分片/请求准入增量：代码 Gate 通过（2026-10-29）
 
 当前起点57e5116，Go1.26.10 windows/amd64；本地tracked基线干净，保留用户两个未跟踪目录。

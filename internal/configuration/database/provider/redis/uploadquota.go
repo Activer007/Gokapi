@@ -21,11 +21,23 @@ const (
 )
 
 func (p DatabaseProvider) ApplyUploadQuota(ctx context.Context, change uploadquota.Change) (uploadquota.Reservation, error) {
+	if change.Action == uploadquota.DuplicateMetadata && change.Source == nil {
+		return uploadquota.Reservation{}, uploadquota.ErrInvalid
+	}
 	return p.changeUploadQuota(ctx, func(conn redigo.Conn, ledger uploadquota.Ledger) (uploadquota.Ledger, uploadquota.Reservation, *models.File, error) {
 		// Trusted cleanup transitions cannot add usage or metadata. Unrelated
 		// corrupt metadata must not prevent confirming already completed cleanup.
 		if change.Action == uploadquota.Abort || change.Action == uploadquota.ReleaseStaging {
 			return uploadquota.Apply(ledger, nil, change)
+		}
+		if change.Action == uploadquota.DuplicateMetadata {
+			source, err := p.readDuplicateSource(ctx, conn, change.Source.Id)
+			if err != nil {
+				return uploadquota.Ledger{}, uploadquota.Reservation{}, nil, err
+			}
+			if err = uploadquota.CheckDuplicateSource(*change.Source, source, change.Now); err != nil {
+				return uploadquota.Ledger{}, uploadquota.Reservation{}, nil, err
+			}
 		}
 		effective := change
 		if change.RequiresRequestPolicy() {

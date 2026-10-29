@@ -2,6 +2,29 @@
 
 日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/Gokapi 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
 
+## SEC-030 复制准入增量（2026-10-29）
+
+起点c657d547322c8ef0339287dde6dddd5688384763，便携Go1.26.10 windows/amd64；SQLite临时目录及loopback miniredis，未部署。
+原始日志位于ignored `evidence/sec030-duplicate-local.secret/`；不包含真实数据。基线归档仅叠加新HTTP合同后执行RED。
+
+| 真实命令 / 输入 | 结果 |
+| --- | --- |
+| c657归档：`go test ./internal/webserver/api -count=1 -tags=test,noaws,security_whole,security_duplicate -run '^TestSEC030DuplicateQuota$' -timeout 2m -v` | ASSERTION_RED，退出1，9.738s；12组均到达业务竞争断言，非编译/auth/setup失败 |
+| 首次实现：`go test ./internal/webserver/api ./internal/storage ./internal/uploadquota -count=1 -tags=test,noaws,security_whole,security_duplicate -run '^TestSEC030DuplicateQuota$\|^TestDuplicateFile$' -timeout 2m -v` | PASS；API8.863s、storage5.982s；uploadquota无匹配测试，不计核心合同已执行 |
+| 审查兼容用例：`go test ./internal/uploadquota -count=1 -tags=test,noaws,security_duplicate -run '^TestSEC030DuplicateManagementRequestOwnership$' -timeout 30s -v` | ASSERTION_RED，退出1，2.304s；FR跨owner副本误拒绝，随后修正 |
+| 最终核心/双provider：`go test ./internal/uploadquota ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,noaws,security_duplicate -timeout 2m` | PASS，2.818s / 7.098s / 6.684s；含原有整包回归及新源变化、损坏投影、WATCH合同 |
+| 最终HTTP/兼容：`go test ./internal/webserver/api ./internal/storage -count=1 -tags=test,noaws,security_whole,security_duplicate -run '^TestSEC030DuplicateQuota$\|^TestDuplicateFile$' -timeout 2m -v` | PASS，API9.211s、storage5.697s；含跨owner副本再次复制及12组10/50竞争 |
+| 路由生成：在build/go-generate下 `go run updateApiRouting.go` | PASS，无内容diff；第一次从仓库根运行因相对路径错误FAIL，已纠正，不作为产品RED |
+| PR24首轮CI40811235737，合并候选1cd3fb9（含已合并UI PR23） | FAIL：生成/编译器检查通过，awsmock整包仅TestDuplicateFile因前序testget/testhash夹具UserId为0失败；后续步骤SKIPPED，不能记PASS |
+| 夹具修正后的顺序回归：`go test ./internal/storage -count=1 -tags=test,awsmock -run '^TestGetFile$\|^TestGetEncInfoFromExistingFile$\|^TestDuplicateFile$' -timeout 90s -v` | PASS，5.930s；三项按原顺序运行，全部旧断言保留 |
+
+最小修复为这两个既有合成fixture补正UserId，不改旧断言或生产校验；不引入数据库切换/清库框架。
+
+Linux完整CI/race在最终head运行一次，结果记录于关联PR审查，避免补文档重复触发CI。
+本地完整go generate、Windows全仓、native race、大文件/慢速/浏览器/真实Redis/S3：NOT_RUN，本增量不触及流式I/O、依赖或生成页面。
+Native race仍受既有CGO0/无gcc限制，本轮不重复尝试；Linux执行相关race。历史PR22结果不扩大为本轮PASS。
+完整M3仍OPEN：replace/owner transfer/bulk metadata准入、跨写者物理协调及崩溃恢复继续单独验证。
+
 ## SEC-030 分片/请求接线：代码 Gate 通过（2026-10-29）
 
 基线57e5116；Windows便携Go1.26.10，仍不启动/修复WSL。独立归档及当前临时SQLite/loopback Redis

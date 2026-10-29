@@ -16,7 +16,7 @@ func (change Change) RequiresRequestPolicy() bool {
 		return false
 	}
 	switch change.Action {
-	case Reserve, Bind, Claim, Commit:
+	case Reserve, Bind, Claim, Commit, DuplicateMetadata:
 		return true
 	default:
 		return false
@@ -33,6 +33,17 @@ func ApplyRequestPolicy(ledger Ledger, change Change, policy RequestPolicy) (Cha
 		policy.UserID <= 0 || policy.MaxFiles < 0 || policy.MaxSizeMB < 0 || policy.Expiry < 0 ||
 		policy.MaxSizeMB > math.MaxInt64/(1<<20) {
 		return Change{}, ErrInvalid
+	}
+	if change.Action == DuplicateMetadata {
+		// This is an authenticated management copy of existing content, not a
+		// new public upload. Preserve cross-owner copies and expired-request
+		// management while retaining the original request's logical capacity.
+		// Copies and ownership transfers retain the original request charge;
+		// the authorized current source may therefore have a different owner.
+		if change.Source == nil || change.Source.UserId <= 0 || change.Source.UploadRequestId != change.Upload.RequestID {
+			return Change{}, ErrConflict
+		}
+		return withRequestFileLimit(change, policy), nil
 	}
 	if policy.UserID != int64(change.Upload.UserID) {
 		return Change{}, ErrConflict
@@ -58,9 +69,13 @@ func ApplyRequestPolicy(ledger Ledger, change Change, policy RequestPolicy) (Cha
 	}
 	// Old zero cancels only the original request-specific count layer. It
 	// still resolves to the finite enclosing instance capacity, never infinity.
+	return withRequestFileLimit(change, policy), nil
+}
+
+func withRequestFileLimit(change Change, policy RequestPolicy) Change {
 	change.Limits.Request.Files = change.Limits.Instance.Files
 	if policy.MaxFiles != 0 {
 		change.Limits.Request.Files = min(policy.MaxFiles, change.Limits.Instance.Files)
 	}
-	return change, nil
+	return change
 }

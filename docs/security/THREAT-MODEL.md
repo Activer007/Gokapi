@@ -4,6 +4,14 @@
 
 基线 a9c25d453aab0c25f2d6e6926ec7312628638844，证据及分类见 [SECURITY-BASELINE](SECURITY-BASELINE.md)。模型面向个人 VPS / 小团队；不改变单体 Go、SQLite/Redis、本地/S3 或现有 API 架构。
 
+## SEC-030 复制准入不变量
+
+复制增量不变量：每份metadata按完整逻辑大小计数，含源request归属；与已有预约同事务争额。
+源权限相关身份/blob/encryption状态须仍匹配，拒绝不发布metadata/hotlink；不增加上传会话或物理暂存。
+源pending/过期/下载耗尽均拒绝，Redis同时WATCH源key，SQLite在BEGIN IMMEDIATE内复核。
+跨owner复制/转移后仍按原request计量；管理复制不要求parent owner等于当前文件owner，公开上传的owner检查不变。
+当前request计数/累计上限仍生效，parent缺失/损坏拒绝；管理复制不新增公开入口的expiry/单文件门槛。
+
 ## SEC-030 分片/请求接线：本增量已验证
 
 以57e5116为基线，ADR-017要求按owner/request稳定ID先冻结总声明，再使用有界持久范围回执；

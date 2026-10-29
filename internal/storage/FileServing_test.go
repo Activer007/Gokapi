@@ -65,6 +65,7 @@ func TestGetFile(t *testing.T) {
 		Id:                 "testget",
 		Name:               "testget",
 		SHA1:               "testget",
+		UserId:             1,
 		UnlimitedDownloads: true,
 		UnlimitedTime:      true,
 	}
@@ -106,6 +107,7 @@ func TestGetEncInfoFromExistingFile(t *testing.T) {
 			DecryptionKey: nil,
 			Nonce:         nil,
 		},
+		UserId:             1,
 		UnlimitedDownloads: true,
 		UnlimitedTime:      true,
 	}
@@ -484,7 +486,7 @@ func TestDuplicateFile(t *testing.T) {
 	retrievedFile.DownloadCount = 5
 	database.SaveMetaData(retrievedFile)
 
-	newFile, err := DuplicateFile(retrievedFile, 0, "123", models.UploadParameters{})
+	newFile, err := DuplicateFile(retrievedFile, 0, "123", models.UploadParameters{UserId: retrievedFile.UserId})
 	test.IsNil(t, err)
 	test.IsEqualInt(t, newFile.DownloadCount, 0)
 	test.IsEqualInt(t, newFile.DownloadsRemaining, 1)
@@ -495,6 +497,7 @@ func TestDuplicateFile(t *testing.T) {
 	test.IsEqualString(t, newFile.Name, "test.dat")
 
 	uploadRequest := models.UploadParameters{
+		UserId:            retrievedFile.UserId,
 		AllowedDownloads:  5,
 		Expiry:            5,
 		ExpiryTimestamp:   200000,
