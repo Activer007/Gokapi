@@ -2,6 +2,8 @@ package api
 
 import (
 	"bytes"
+	"context"
+	"crypto/rand"
 	"encoding/json"
 	"io"
 	"mime/multipart"
@@ -20,8 +22,11 @@ import (
 	"github.com/forceu/gokapi/internal/models"
 	"github.com/forceu/gokapi/internal/storage"
 	"github.com/forceu/gokapi/internal/storage/chunking"
+	"github.com/forceu/gokapi/internal/storage/chunking/chunksession"
 	"github.com/forceu/gokapi/internal/test"
 	"github.com/forceu/gokapi/internal/test/testconfiguration"
+	"github.com/forceu/gokapi/internal/uploadquota"
+	"github.com/forceu/gokapi/internal/webserver/errorHandling/errorcodes"
 	"github.com/forceu/gokapi/internal/webserver/ratelimiter"
 )
 
@@ -1505,6 +1510,11 @@ func TestChunkUpload(t *testing.T) {
 	Process(w, r)
 	test.IsEqualInt(t, w.Code, 200)
 	test.ResponseBodyIs(t, w, `{"result":"OK"}`)
+	t.Cleanup(func() {
+		if err := storage.ChunkSessions().Cancel(context.Background(), chunksession.Scope{ClientID: "tmpupload123", UserID: idUser}); err != nil {
+			t.Error("test chunk cleanup failed", err)
+		}
+	})
 
 	body, formcontent = test.FileToMultipartFormBody(t, test.HttpTestConfig{
 		UploadFileName:  "test/tmpupload",
@@ -1537,10 +1547,12 @@ func TestChunkComplete(t *testing.T) {
 	apiKey := generateNewKey(false, idUser, "", "")
 	apiKey.GrantPermission(models.ApiPermUpload)
 	database.SaveApiKey(apiKey)
+	uuid := "complete-test-" + rand.Text()
+	seedRuntimeChunk(t, apiKey, uuid, []byte("chunktestfile"))
 
 	w, r := test.GetRecorder("POST", "/api/chunk/complete", nil, []test.Header{
 		{Name: "apikey", Value: apiKey.Id},
-		{Name: "uuid", Value: "tmpupload123"},
+		{Name: "uuid", Value: uuid},
 		{Name: "filename", Value: "test.upload"},
 		{Name: "filesize", Value: "13"}},
 		nil)
@@ -1562,15 +1574,97 @@ func TestChunkComplete(t *testing.T) {
 
 	w, r = test.GetRecorder("POST", "/api/chunk/complete", nil, []test.Header{
 		{Name: "apikey", Value: apiKey.Id},
-		{Name: "uuid", Value: "tmpupload123"},
+		{Name: "uuid", Value: uuid},
 		{Name: "filename", Value: "test.upload"},
 		{Name: "filesize", Value: "15"}}, nil)
 	Process(w, r)
-	test.IsEqualInt(t, w.Code, 400)
-	test.ResponseBodyIs(t, w, `{"Result":"error","ErrorMessage":"chunk file does not exist","ErrorCode":0}`)
+	test.IsEqualInt(t, w.Code, http.StatusConflict)
+	test.ResponseBodyIs(t, w, `{"Result":"error","ErrorMessage":"Upload could not be completed","ErrorCode":`+strconv.Itoa(errorcodes.ResourceCanNotBeEdited)+`}`)
+	if stored, found := database.GetMetaDataById(result.FileInfo.Id); !found || stored.UserId != idUser || stored.Name != "test.upload" || stored.SizeBytes != 13 {
+		t.Fatal("mismatched completion changed the committed receipt metadata")
+	}
 
 	defer test.ExpectPanic(t)
 	apiChunkComplete(w, &paramAuthCreate{}, models.User{Id: 7}, apiKey)
+}
+
+// Seed complete coverage through the real entry point, retaining its current
+// admission and permission checks instead of manufacturing an old chunk path.
+func seedRuntimeChunk(t *testing.T, key models.ApiKey, uuid string, payload []byte) {
+	t.Helper()
+	var body bytes.Buffer
+	form := multipart.NewWriter(&body)
+	for _, field := range [][2]string{{"uuid", uuid}, {"filesize", strconv.Itoa(len(payload))}, {"offset", "0"}} {
+		if err := form.WriteField(field[0], field[1]); err != nil {
+			t.Fatal(err)
+		}
+	}
+	part, err := form.CreateFormFile("file", "synthetic.bin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := part.Write(payload); err != nil {
+		t.Fatal(err)
+	}
+	if err := form.Close(); err != nil {
+		t.Fatal(err)
+	}
+	w, r := test.GetRecorder(http.MethodPost, "/api/chunk/add", nil, []test.Header{{Name: "apikey", Value: key.Id}}, &body)
+	r.Header.Set("Content-Type", form.FormDataContentType())
+	Process(w, r)
+	if w.Code != http.StatusOK || w.Body.String() != `{"result":"OK"}` {
+		t.Fatalf("runtime chunk fixture rejected: status=%d body=%s", w.Code, w.Body.String())
+	}
+	t.Cleanup(func() {
+		if err := storage.ChunkSessions().Cancel(context.Background(), chunksession.Scope{ClientID: uuid, UserID: key.UserId}); err != nil {
+			t.Error("runtime chunk fixture cleanup failed", err)
+		}
+	})
+}
+
+func testRuntimeChunkLimits(t *testing.T) uploadquota.Limits {
+	t.Helper()
+	env := configuration.GetEnvironment()
+	if err := env.ValidateWholeUploadLimits(); err != nil {
+		t.Fatal(err)
+	}
+	if err := env.ValidateRequestUploadLimits(); err != nil {
+		t.Fatal(err)
+	}
+	const mib = 1 << 20
+	return uploadquota.Limits{User: uploadquota.Usage{Bytes: env.UploadUserTotalMB * mib, Files: env.UploadUserMaxFiles}, Request: uploadquota.Usage{Bytes: env.UploadRequestTotalMB * mib, Files: env.UploadInstanceMaxFiles}, Instance: uploadquota.Usage{Bytes: env.UploadInstanceTotalMB * mib, Files: env.UploadInstanceMaxFiles}, UserActive: env.UploadUserActive, RequestActive: env.UploadRequestActive, InstanceActive: env.UploadInstanceActive, StagingBytes: env.UploadStagingMB * mib}
+}
+
+func assertRuntimeChunkBytes(t *testing.T, scope chunksession.Scope, payload []byte) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	ledger, err := database.ReadUploadQuota(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	record, found := ledger.Records[chunksession.ID(scope)]
+	if !found || record.UserID != scope.UserID || record.RequestID != scope.RequestID || !record.BytesKnown || record.Bytes != int64(len(payload)) || record.Completing || record.StagingReleased {
+		t.Fatal("chunk fixture lost scope or fixed total declaration")
+	}
+	lease, err := storage.ChunkSessions().Prepare(ctx, scope, chunking.FileHeader{Size: int64(len(payload))}, "inspect-test-"+rand.Text(), testRuntimeChunkLimits(t))
+	if err != nil {
+		t.Fatal("accepted chunk lacks complete coverage", err)
+	}
+	defer func() {
+		defer lease.Release()
+		if err := lease.CloseInput(); err != nil {
+			t.Error("inspected input cleanup failed", err)
+			return
+		}
+		if _, err := database.ApplyUploadQuota(context.Background(), uploadquota.Change{Action: uploadquota.Abort, Upload: lease.Upload, Now: time.Now().Unix(), Terminal: uploadquota.Aborted, CleanupConfirmed: true, CheckRequestPolicy: scope.RequestID != ""}); err != nil {
+			t.Error("unpublished inspection claim cleanup failed", err)
+		}
+	}()
+	actual, err := io.ReadAll(lease.Input)
+	if err != nil || !bytes.Equal(actual, payload) {
+		t.Fatal("accepted payload differs from confirmed scoped input", err)
+	}
 }
 
 func TestMinorFunctions(t *testing.T) {
@@ -1780,10 +1874,8 @@ func TestChunkCompleteSanitisation(t *testing.T) {
 
 	for _, tc := range dangerousCases {
 		t.Run(tc.name, func(t *testing.T) {
-			// Write a temporary chunk file for the upload to succeed.
-			chunkUUID := "sanitisetest123"
-			err := os.WriteFile("test/data/chunk-"+chunking.StorageID(chunkUUID, idUser, ""), []byte("testcontent"), 0600)
-			test.IsNil(t, err)
+			chunkUUID := "sanitize-test-" + rand.Text()
+			seedRuntimeChunk(t, apiKey, chunkUUID, []byte("testcontent"))
 
 			w, r := test.GetRecorder("POST", "/api/chunk/complete", nil, []test.Header{
 				{Name: "apikey", Value: apiKey.Id},
@@ -1799,7 +1891,7 @@ func TestChunkCompleteSanitisation(t *testing.T) {
 			result := struct {
 				FileInfo models.FileApiOutput `json:"FileInfo"`
 			}{}
-			err = json.Unmarshal(w.Body.Bytes(), &result)
+			err := json.Unmarshal(w.Body.Bytes(), &result)
 			test.IsNil(t, err)
 
 			// The stored filename must not contain any dangerous sequences.

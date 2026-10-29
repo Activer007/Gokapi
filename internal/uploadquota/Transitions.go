@@ -114,6 +114,11 @@ func Apply(ledger Ledger, files map[string]models.File, change Change) (Ledger, 
 			}
 			return rejected(ErrInProgress)
 		}
+		if change.CheckRequestPolicy {
+			if err := checkCapacity(next, files, r, change.Limits); err != nil {
+				return rejected(err)
+			}
+		}
 		if _, ok := files[change.FileID]; ok {
 			return rejected(ErrConflict)
 		}

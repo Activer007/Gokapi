@@ -23,8 +23,8 @@ import (
 	"github.com/forceu/gokapi/internal/configuration"
 	"github.com/forceu/gokapi/internal/configuration/database"
 	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/storage/chunking"
-	"github.com/forceu/gokapi/internal/storage/chunking/chunkreservation"
+	"github.com/forceu/gokapi/internal/storage"
+	"github.com/forceu/gokapi/internal/storage/chunking/chunksession"
 	"github.com/forceu/gokapi/internal/storage/filesystem"
 	"github.com/forceu/gokapi/internal/webserver/errorHandling/errorcodes"
 )
@@ -106,7 +106,11 @@ func TestSEC031UploadSizeSemantics(t *testing.T) {
 				if w.Code != http.StatusOK || json.Unmarshal(w.Body.Bytes(), &result) != nil || result.Uuid == "" {
 					t.Fatalf("reserve failed: status=%d", w.Code)
 				}
-				t.Cleanup(func() { chunkreservation.SetComplete(request.Id, result.Uuid) })
+				t.Cleanup(func() {
+					if err := storage.ChunkSessions().Cancel(context.Background(), chunksession.Scope{ClientID: result.Uuid, UserID: user.Id, RequestID: request.Id}); err != nil {
+						t.Error("synthetic request reservation cleanup failed", err)
+					}
+				})
 				return result.Uuid
 			}
 			chunk := func(uuid string, payload []byte, unknownLength bool) *httptest.ResponseRecorder {
@@ -148,10 +152,16 @@ func TestSEC031UploadSizeSemantics(t *testing.T) {
 				uuid := reserve()
 				if i == 0 {
 					t.Run("minimum-free-space", func(t *testing.T) {
+						probeID := reserve()
+						defer func() {
+							if err := storage.ChunkSessions().Cancel(context.Background(), chunksession.Scope{ClientID: probeID, UserID: user.Id, RequestID: request.Id}); err != nil {
+								t.Error(err)
+							}
+						}()
 						// A synthetic floor above this isolated host's capacity;
 						// never allocate or fill a real disk to test refusal.
 						t.Setenv("GOKAPI_MIN_FREE_SPACE", "2147483647")
-						message := checkError(chunk(uuid, []byte("abc"), false), http.StatusInsufficientStorage, errorcodes.CannotAllocateFile)
+						message := checkError(chunk(probeID, []byte("abc"), false), http.StatusInsufficientStorage, errorcodes.CannotAllocateFile)
 						if !strings.Contains(message, "space") {
 							t.Fatal("upload was not rejected by the disk-space check")
 						}
@@ -173,13 +183,21 @@ func TestSEC031UploadSizeSemantics(t *testing.T) {
 								t.Fatal("rejected upload created staged data")
 							}
 							for _, entry := range files {
-								if entry.Name() != ".gokapi-receive-v1" {
+								if entry.Name() != ".gokapi-receive-v1" && entry.Name() != ".gokapi-chunks-v1" {
 									t.Fatal("rejected upload created chunk or blob data")
 								}
 								owned, err := os.ReadDir(filepath.Join(configuration.Get().DataDir, entry.Name()))
 								if err != nil || len(owned) != 1 || owned[0].Name() != ".owner" || !owned[0].Type().IsRegular() {
-									t.Fatal("rejected upload left receive payload or unexpected spool entry")
+									t.Fatal("rejected upload left receive/session payload or unexpected spool entry")
 								}
+							}
+							ledger, err := database.ReadUploadQuota(context.Background())
+							if err != nil {
+								t.Fatal(err)
+							}
+							record, found := ledger.Records[chunksession.ID(chunksession.Scope{ClientID: uuid, UserID: user.Id, RequestID: request.Id})]
+							if !found || record.BytesKnown || record.Bytes != 0 || record.StagingBytes != 0 {
+								t.Fatal("over-limit body changed its existing unbound reservation")
 							}
 						})
 					}
@@ -191,18 +209,13 @@ func TestSEC031UploadSizeSemantics(t *testing.T) {
 						unknown bool
 					}{{"exact-payload-limit", 1024 * 1024, false}, {"unknown-length-last-chunk", 3, true}} {
 						t.Run(item.name, func(t *testing.T) {
+							probeID := reserve()
 							payload := bytes.Repeat([]byte{0x32}, item.size)
-							w := chunk(uuid, payload, item.unknown)
+							w := chunk(probeID, payload, item.unknown)
 							if w.Code != http.StatusOK {
 								t.Fatalf("valid payload rejected: status=%d", w.Code)
 							}
-							data, err := os.ReadFile(filepath.Join(configuration.Get().DataDir, "chunk-"+uuid))
-							if err != nil || !bytes.Equal(data, payload) {
-								t.Fatal("accepted payload differs from stored chunk")
-							}
-							if err := chunking.DeleteChunk(uuid); err != nil {
-								t.Fatal(err)
-							}
+							assertRuntimeChunkBytes(t, chunksession.Scope{ClientID: probeID, UserID: user.Id, RequestID: request.Id}, payload)
 						})
 					}
 				}

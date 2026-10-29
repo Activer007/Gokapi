@@ -150,11 +150,17 @@ Available environment variables
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 | GOKAPI_UPLOAD_INSTANCE_MAX_FILES    |                                                                                        | No              | 5000                        |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
-| GOKAPI_UPLOAD_INSTANCE_TOTAL_MB     | Instance logical limits are independent of actual disk free space.                     | No              | 102400                      |
+| GOKAPI_UPLOAD_INSTANCE_TOTAL_MB     | Instance logical limits are independent of actual disk free space.                     | No              | 20480                       |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 | GOKAPI_UPLOAD_RECEIVE_MB            | Bounds transient upload reception and processing copies in MiB. This is                | No              | 12288                       |
 |                                     |                                                                                        |                 |                             |
 |                                     | not the persisted chunk ledger or a user's cumulative logical quota.                   |                 |                             |
++-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
+| GOKAPI_UPLOAD_REQUEST_ACTIVE        |                                                                                        | No              | 2                           |
++-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
+| GOKAPI_UPLOAD_REQUEST_TOTAL_MB      | File Requests share these finite cumulative and active capacities. Their               | No              | 20480                       |
+|                                     |                                                                                        |                 |                             |
+|                                     | existing MaxSize remains a separate per-file restriction.                              |                 |                             |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 | GOKAPI_UPLOAD_STAGING_MB            | Bounds durable staging declarations, separately from reception copies.                 | No              | 12288                       |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
@@ -162,7 +168,7 @@ Available environment variables
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 | GOKAPI_UPLOAD_USER_MAX_FILES        |                                                                                        | No              | 1000                        |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
-| GOKAPI_UPLOAD_USER_TOTAL_MB         | Logical owner limits apply across all of that owner's upload credentials.              | No              | 20480                       |
+| GOKAPI_UPLOAD_USER_TOTAL_MB         | Logical owner limits apply across all of that owner's upload credentials.              | No              | 5120                        |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 | GOKAPI_USE_CLOUDFLARE               | Set this to true if you are using Cloudflare                                           | No              | false                       |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
@@ -525,14 +531,14 @@ Example: Deleting a file
 Chunk Sizes / Considerations for servers with limited or high amount of RAM
 *****************************************************************************
 
-By default, Gokapi uploads files in 45MB chunks stored in RAM. Up to 3 chunks are sent in parallel to enhance upload speed, requiring up to 150MB of RAM per file during upload in the standard configuration.
+The client defaults to 45MB chunks and up to 3 parallel transfers per file. The server now streams received parts into its private bounded disk spool; the chunk tuning value does not allocate that many complete chunks in RAM. The shared reception limits also apply across clients. See :ref:`uploadreceptionlimits`.
 
 Servers with limited RAM
 ================================
 
 To conserve RAM, you can either 
 
-* configure Gokapi to save the chunks on disk instead of RAM, by setting the ``MaxMemory`` setting to a value lower than your chunk size
+* keep the shared reception/body limits appropriate for the server's disk and workload; ``MaxMemory`` does not bypass the bounded receiver or select its spool location
 * reduce the chunk size by setting the ``ChunkSize`` to a lower value
 * decrease the amount of parallel uploads by setting ``MaxParallelUploads`` to a lower value
 
@@ -604,35 +610,54 @@ These limits cover reception and synchronous whole-file processing; persistent
 chunks and cumulative user/File Request quotas require their separate upload
 accounting. They do not make multiple Gokapi processes sharing a DataDir safe.
 
-Whole-file API quotas
----------------------
+Upload quotas
+-------------
 
 ``/api/files/add`` also reserves durable capacity after reception, using the
-actual file-part size. ``GOKAPI_UPLOAD_USER_TOTAL_MB`` (20480 MiB),
+actual file-part size. ``GOKAPI_UPLOAD_USER_TOTAL_MB`` (5120 MiB),
 ``GOKAPI_UPLOAD_USER_MAX_FILES`` (1000) and ``GOKAPI_UPLOAD_USER_ACTIVE`` (4)
 apply to the authenticated owner across all their API keys. Instance defaults
-are 102400 MiB, 5000 files and 8 active reservations, configured through
+are 20480 MiB, 5000 files and 8 active reservations, configured through
 ``GOKAPI_UPLOAD_INSTANCE_TOTAL_MB``, ``GOKAPI_UPLOAD_INSTANCE_MAX_FILES`` and
 ``GOKAPI_UPLOAD_INSTANCE_ACTIVE``. ``GOKAPI_UPLOAD_STAGING_MB`` defaults to
-12288 MiB; each upload conservatively reserves four times its payload plus
-64 KiB. These are strict positive startup settings and require a restart.
+12288 MiB; whole-file uploads reserve four times their payload plus 64 KiB,
+and chunk sessions reserve four times their total declaration plus 1 MiB.
+These are strict positive startup settings and require a restart.
 
 Each metadata record counts its logical size, including shared content and
 pending deletion. Client E2E uploads count received ciphertext bytes; the
 claimed plaintext size is only for display. Existing files are preserved if
-their usage already exceeds a limit, but new whole-file uploads are rejected.
+their usage already exceeds a limit, but new upload admission is rejected.
 Logical byte/file exhaustion returns HTTP 413/code 21; active capacity returns
 429/code 22, staging capacity 507, and receipt/transaction backpressure 503.
 
-These cumulative limits currently apply only to the whole-file API. Chunked
-uploads, File Requests and metadata operations require their remaining
-admission work. The owner's active limit starts after reception; the shared
-receiver bounds bodies before then. Cleanup or publication uncertainty retains
+Whole-file API, ordinary API/browser chunks and File Requests share owner and
+instance admission. File Requests additionally use
+``GOKAPI_UPLOAD_REQUEST_TOTAL_MB`` (20480 MiB) and
+``GOKAPI_UPLOAD_REQUEST_ACTIVE`` (2), retaining ``Max Size`` as a per-file limit.
+The request's current owner, count, size and expiry policy is checked during
+the provider transaction. Metadata duplication, replacement and ownership
+transfer still require their remaining admission work. The owner's active
+limit starts after reception; the shared receiver bounds bodies before then.
+Cleanup or publication uncertainty retains
 capacity and may return an error even after metadata was committed. A failed
-response does not guarantee rollback, and blind HTTP retries are not idempotent.
+response does not guarantee rollback. Whole-file HTTP retries are not idempotent.
+Chunk retries keep the same scoped UUID and total size: identical ranges are
+idempotent, conflicting or overlapping ranges are rejected, and complete
+coverage is required before completion. A session has an absolute 24-hour
+lifetime and at most 4096 range receipts. Use larger chunks for larger files.
+Completion claims a fixed file identity before asynchronous processing; work
+observes a finite service lifetime. A committed receipt can recover its current
+authorized result, but cannot recreate deleted or transferred metadata.
 Do not clear the ledger or delete shared blobs to recover capacity. See
 ``docs/security/ADR-016-WHOLE-UPLOAD-ADMISSION.md`` for compatibility and recovery
-limits, including the local filesystem's hard-link requirement.
+limits, including the local filesystem's hard-link requirement, and
+``docs/security/ADR-017-CHUNK-UPLOAD-ADMISSION.md`` for chunk upgrade and rollback.
+Stop uploads before upgrading: legacy flat chunks lack trusted range receipts
+and must finish on the old version or be retransmitted. Preserve a matching
+database, DataDir and configuration/key backup. Claimed work after a crash
+and uncertain publication retain capacity pending recovery; automatic target
+reconciliation remains unfinished.
 
 .. _autodeployment:
 

@@ -42,10 +42,24 @@ func GetAllForUser(userId int) []models.UploadStatus {
 
 // Set saves the upload status for 24 hours
 func Set(status models.UploadStatus) {
+	set(status, false)
+}
+
+// SetCommitted is reserved for callers that have checked a durable committed
+// receipt and its currently authorized metadata. A prior cleanup error must not
+// hide a later successful receipt replay.
+func SetCommitted(status models.UploadStatus) {
+	if status.CurrentStatus != 2 || status.FileId == "" || status.UserId <= 0 || status.ChunkId == "" || status.ErrorMessage != "" {
+		return
+	}
+	set(status, true)
+}
+
+func set(status models.UploadStatus, committed bool) {
 	statusMutex.Lock()
 	key := uploadKey{userId: status.UserId, chunkId: status.ChunkId}
 	oldStatus, ok := statusMap[key]
-	if ok && oldStatus.CurrentStatus > status.CurrentStatus {
+	if ok && !committed && oldStatus.CurrentStatus > status.CurrentStatus {
 		statusMutex.Unlock()
 		return
 	}

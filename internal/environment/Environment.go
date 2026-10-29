@@ -59,17 +59,22 @@ type Environment struct {
 	UploadReceiveMB int64 `env:"UPLOAD_RECEIVE_MB" envDefault:"12288"`
 
 	// Logical owner limits apply across all of that owner's upload credentials.
-	UploadUserTotalMB  int64 `env:"UPLOAD_USER_TOTAL_MB" envDefault:"20480"`
+	UploadUserTotalMB  int64 `env:"UPLOAD_USER_TOTAL_MB" envDefault:"5120"`
 	UploadUserMaxFiles int64 `env:"UPLOAD_USER_MAX_FILES" envDefault:"1000"`
 	UploadUserActive   int64 `env:"UPLOAD_USER_ACTIVE" envDefault:"4"`
 
 	// Instance logical limits are independent of actual disk free space.
-	UploadInstanceTotalMB  int64 `env:"UPLOAD_INSTANCE_TOTAL_MB" envDefault:"102400"`
+	UploadInstanceTotalMB  int64 `env:"UPLOAD_INSTANCE_TOTAL_MB" envDefault:"20480"`
 	UploadInstanceMaxFiles int64 `env:"UPLOAD_INSTANCE_MAX_FILES" envDefault:"5000"`
 	UploadInstanceActive   int64 `env:"UPLOAD_INSTANCE_ACTIVE" envDefault:"8"`
 
 	// Bounds durable staging declarations, separately from reception copies.
 	UploadStagingMB int64 `env:"UPLOAD_STAGING_MB" envDefault:"12288"`
+
+	// File Requests share these finite cumulative and active capacities. Their
+	// existing MaxSize remains a separate per-file restriction.
+	UploadRequestTotalMB int64 `env:"UPLOAD_REQUEST_TOTAL_MB" envDefault:"20480"`
+	UploadRequestActive  int64 `env:"UPLOAD_REQUEST_ACTIVE" envDefault:"2"`
 	// Sets the maximum number of files that can be uploaded per file requests created by
 	// non-admin users
 	// Set to 0 to allow unlimited file count for all users
@@ -161,6 +166,18 @@ func (e Environment) ValidateWholeUploadLimits() error {
 	return nil
 }
 
+// ValidateRequestUploadLimits is separate from reception and whole-upload
+// validation so existing synthetic configurations keep their original scope.
+func (e Environment) ValidateRequestUploadLimits() error {
+	if e.UploadRequestTotalMB <= 0 || e.UploadRequestTotalMB > math.MaxInt64/(1024*1024) {
+		return fmt.Errorf("GOKAPI_UPLOAD_REQUEST_TOTAL_MB must be positive and fit an int64 byte budget")
+	}
+	if e.UploadRequestActive <= 0 {
+		return fmt.Errorf("GOKAPI_UPLOAD_REQUEST_ACTIVE must be positive")
+	}
+	return nil
+}
+
 // New parses the env variables
 func New() Environment {
 	result := Environment{
@@ -194,6 +211,12 @@ func parseEnvVars(result Environment) Environment {
 		return Environment{}
 	}
 	validated, err = parseWholeUploadEnvironment(validated)
+	if err != nil {
+		fmt.Println("Error parsing env variables:", err)
+		osExit(1)
+		return Environment{}
+	}
+	validated, err = parseRequestUploadEnvironment(validated)
 	if err != nil {
 		fmt.Println("Error parsing env variables:", err)
 		osExit(1)
@@ -235,8 +258,8 @@ func parseReceiveEnvironment(result Environment) (Environment, error) {
 }
 
 func parseWholeUploadEnvironment(result Environment) (Environment, error) {
-	result.UploadUserTotalMB, result.UploadUserMaxFiles, result.UploadUserActive = 20480, 1000, 4
-	result.UploadInstanceTotalMB, result.UploadInstanceMaxFiles, result.UploadInstanceActive = 102400, 5000, 8
+	result.UploadUserTotalMB, result.UploadUserMaxFiles, result.UploadUserActive = 5120, 1000, 4
+	result.UploadInstanceTotalMB, result.UploadInstanceMaxFiles, result.UploadInstanceActive = 20480, 5000, 8
 	result.UploadStagingMB = 12288
 	for _, field := range []struct {
 		name   string
@@ -259,6 +282,29 @@ func parseWholeUploadEnvironment(result Environment) (Environment, error) {
 		}
 	}
 	if err := result.ValidateWholeUploadLimits(); err != nil {
+		return Environment{}, err
+	}
+	return result, nil
+}
+
+func parseRequestUploadEnvironment(result Environment) (Environment, error) {
+	result.UploadRequestTotalMB, result.UploadRequestActive = 20480, 2
+	for _, field := range []struct {
+		name   string
+		target *int64
+	}{
+		{"GOKAPI_UPLOAD_REQUEST_TOTAL_MB", &result.UploadRequestTotalMB},
+		{"GOKAPI_UPLOAD_REQUEST_ACTIVE", &result.UploadRequestActive},
+	} {
+		if raw, exists := os.LookupEnv(field.name); exists {
+			value, err := strconv.ParseInt(raw, 10, 64)
+			if err != nil {
+				return Environment{}, fmt.Errorf("invalid integer configuration for %s", field.name)
+			}
+			*field.target = value
+		}
+	}
+	if err := result.ValidateRequestUploadLimits(); err != nil {
 		return Environment{}, err
 	}
 	return result, nil

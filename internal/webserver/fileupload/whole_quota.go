@@ -9,6 +9,7 @@ import (
 	"github.com/forceu/gokapi/internal/storage"
 	"github.com/forceu/gokapi/internal/uploadquota"
 	"github.com/forceu/gokapi/internal/webserver/errorHandling/errorcodes"
+	"github.com/forceu/gokapi/internal/webserver/fileupload/uploadservice"
 )
 
 func wholeUploadLimits(env environment.Environment) (uploadquota.Limits, error) {
@@ -30,6 +31,11 @@ type wholeUploadFailure struct{ error }
 
 func (err wholeUploadFailure) Unwrap() error { return err.error }
 
+func (err wholeUploadFailure) Error() string {
+	_, _, message := WholeUploadErrorResponse(err)
+	return message
+}
+
 // WholeUploadErrorResponse never exposes provider errors, storage paths,
 // encryption material or internal identifiers from the durable upload path.
 func WholeUploadErrorResponse(err error) (int, int, string) {
@@ -48,6 +54,12 @@ func WholeUploadErrorResponse(err error) (int, int, string) {
 		return http.StatusRequestEntityTooLarge, errorcodes.FileTooLarge, "Upload limit exceeded"
 	case errors.Is(err, uploadquota.ErrFull), errors.Is(err, uploadquota.ErrRetry):
 		return http.StatusServiceUnavailable, errorcodes.UploadQuotaBusy, "Upload capacity is busy; retry later"
+	case errors.Is(err, uploadservice.ErrClosing):
+		return http.StatusServiceUnavailable, errorcodes.UploadQuotaBusy, "Upload service is shutting down"
+	case errors.Is(err, uploadquota.ErrExpired):
+		return http.StatusGone, errorcodes.InvalidChunkReservation, "Upload reservation has expired"
+	case errors.Is(err, uploadquota.ErrNotFound):
+		return http.StatusBadRequest, errorcodes.InvalidChunkReservation, "Upload reservation was not found"
 	case errors.Is(err, uploadquota.ErrConflict), errors.Is(err, uploadquota.ErrInProgress):
 		return http.StatusConflict, errorcodes.ResourceCanNotBeEdited, "Upload could not be completed"
 	case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded):

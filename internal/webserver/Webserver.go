@@ -17,10 +17,12 @@ import (
 	"io"
 	"io/fs"
 	"log"
+	"net"
 	"net/http"
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	templatetext "text/template"
 	"time"
 
@@ -47,6 +49,7 @@ import (
 	"github.com/forceu/gokapi/internal/webserver/errorHandling"
 	"github.com/forceu/gokapi/internal/webserver/favicon"
 	"github.com/forceu/gokapi/internal/webserver/fileupload"
+	"github.com/forceu/gokapi/internal/webserver/fileupload/uploadservice"
 	"github.com/forceu/gokapi/internal/webserver/ratelimiter"
 	"github.com/forceu/gokapi/internal/webserver/sse"
 	"github.com/forceu/gokapi/internal/webserver/ssl"
@@ -91,10 +94,12 @@ var customStaticInfo customStatic
 var imageExpiredPicture []byte
 
 // srv is the web server that is used for this module
-var srv http.Server
+var srvMu sync.Mutex
+var srv *http.Server
 
 // Start the webserver on the port set in the config
 func Start() {
+	workers := uploadservice.Current()
 	initTemplates(templateFolderEmbedded)
 	webserverDir, _ := fs.Sub(staticFolderEmbedded, "web/static")
 	var err error
@@ -140,14 +145,22 @@ func Start() {
 	}
 
 	fmt.Println("Binding webserver to " + configuration.Get().Port)
-	srv = http.Server{
+	server := &http.Server{
 		Addr:              configuration.Get().Port,
 		ReadHeaderTimeout: 5 * time.Second,
 		IdleTimeout:       time.Minute,
 		ReadTimeout:       timeOutWebserverRead,
 		WriteTimeout:      timeOutWebserverWrite,
 		Handler:           withManagementBudget(mux, managementBudget),
+		BaseContext:       func(net.Listener) context.Context { return workers.Context() },
 	}
+	srvMu.Lock()
+	if workers.Context().Err() != nil {
+		srvMu.Unlock()
+		return
+	}
+	srv = server
+	srvMu.Unlock()
 	infoMessage := "Webserver can be accessed at " + configuration.Get().ServerUrl + "admin\nPress CTRL+C to stop Gokapi"
 	if strings.Contains(configuration.Get().ServerUrl, "127.0.0.1") {
 		if configuration.Get().UseSsl {
@@ -159,13 +172,13 @@ func Start() {
 	if configuration.Get().UseSsl {
 		ssl.GenerateIfInvalidCert(configuration.Get().ServerUrl, false)
 		fmt.Println(infoMessage)
-		err = srv.ListenAndServeTLS(ssl.GetCertificateLocations())
+		err = server.ListenAndServeTLS(ssl.GetCertificateLocations())
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal(err)
 		}
 	} else {
 		fmt.Println(infoMessage)
-		err = srv.ListenAndServe()
+		err = server.ListenAndServe()
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal(err)
 		}
@@ -199,13 +212,37 @@ func loadExpiryImage() {
 	imageExpiredPicture = buf.Bytes()
 }
 
-// Shutdown closes the webserver gracefully
-func Shutdown() {
+// Shutdown reports whether HTTP handlers and admitted upload workers drained.
+// It does not assert that every legacy timer or unrelated goroutine has exited.
+func Shutdown() bool {
+	workers := uploadservice.Current()
+	workers.BeginShutdown()
 	sse.Shutdown()
-	err := srv.Shutdown(context.Background())
-	if err != nil {
-		log.Println(err)
+	srvMu.Lock()
+	server := srv
+	srvMu.Unlock()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	return shutdownUploads(ctx, server, workers)
+}
+
+func shutdownUploads(ctx context.Context, server *http.Server, workers *uploadservice.Generation) bool {
+	if ctx == nil || workers == nil {
+		return false
 	}
+	workers.BeginShutdown()
+	var httpErr error
+	if server != nil {
+		httpErr = server.Shutdown(ctx)
+	}
+	if httpErr != nil {
+		log.Print("HTTP upload drain incomplete; durable reservations retained")
+	}
+	workerErr := workers.Wait(ctx)
+	if workerErr != nil {
+		log.Print("Upload worker drain incomplete; durable reservations retained")
+	}
+	return httpErr == nil && workerErr == nil
 }
 
 // Initialises the templateFolder variable by scanning through all the templates.
@@ -1031,7 +1068,7 @@ func uploadChunk(w http.ResponseWriter, r *http.Request) {
 		}
 		w.WriteHeader(status)
 		body, _ := json.Marshal(struct {
-			Result string `json:"Result"`
+			Result       string `json:"Result"`
 			ErrorMessage string `json:"ErrorMessage"`
 		}{"error", err.Error()})
 		_, _ = w.Write(body)

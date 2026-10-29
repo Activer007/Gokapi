@@ -686,6 +686,7 @@ func (p *paramChunkUploadRequestAdd) GetRequest() *http.Request {
 }
 
 type paramChunkComplete struct {
+	Request            *http.Request
 	Uuid               string `header:"uuid" required:"true"`
 	FileName           string `header:"filename" required:"true" supportBase64:"true"`
 	FileSize           int64  `header:"filesize" required:"true"`
@@ -702,7 +703,8 @@ type paramChunkComplete struct {
 	foundHeaders       map[string]bool
 }
 
-func (p *paramChunkComplete) ProcessParameter(_ *http.Request) error {
+func (p *paramChunkComplete) ProcessParameter(r *http.Request) error {
+	p.Request = r
 
 	if !p.foundHeaders["realsize"] {
 		if !p.IsE2E {
@@ -743,25 +745,30 @@ func (p *paramChunkComplete) ProcessParameter(_ *http.Request) error {
 }
 
 type paramChunkReserve struct {
+	Request      *http.Request
 	Id           string `header:"id" required:"true"`
 	foundHeaders map[string]bool
 }
 
-func (p *paramChunkReserve) ProcessParameter(_ *http.Request) error {
+func (p *paramChunkReserve) ProcessParameter(r *http.Request) error {
+	p.Request = r
 	return nil
 }
 
 type paramChunkUnreserve struct {
+	Request      *http.Request
 	Id           string `header:"id" required:"true"`
 	Uuid         string `header:"uuid" required:"true"`
 	foundHeaders map[string]bool
 }
 
-func (p *paramChunkUnreserve) ProcessParameter(_ *http.Request) error {
+func (p *paramChunkUnreserve) ProcessParameter(r *http.Request) error {
+	p.Request = r
 	return nil
 }
 
 type paramChunkUploadRequestComplete struct {
+	Request       *http.Request
 	Uuid          string `header:"uuid" required:"true"`
 	FileName      string `header:"filename" required:"true" supportBase64:"true"`
 	FileRequestId string `header:"fileRequestId" required:"true"`
@@ -773,7 +780,8 @@ type paramChunkUploadRequestComplete struct {
 	foundHeaders  map[string]bool
 }
 
-func (p *paramChunkUploadRequestComplete) ProcessParameter(_ *http.Request) error {
+func (p *paramChunkUploadRequestComplete) ProcessParameter(r *http.Request) error {
+	p.Request = r
 	p.ContentType = helper.SanitiseContentType(p.ContentType)
 	p.FileName = helper.SanitiseFilename(p.FileName)
 	p.FileHeader = chunking.FileHeader{

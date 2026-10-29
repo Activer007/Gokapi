@@ -1,0 +1,87 @@
+{
+  "formatVersion": 1,
+  "repository": "Activer007/Gokapi",
+  "baseline": "57e5116b466e9be15ae8b63f5ba088f1120c1635",
+  "codeCommit": "143f041162605a160c98f9cf0420033260d8bded",
+  "pullRequest": 22,
+  "environment": {
+    "runnerImage": "ubuntu-24.04",
+    "go": "go1.26.10 linux/amd64"
+  },
+  "runs": [
+    {
+      "id": 40798733852,
+      "event": "pull_request",
+      "job": 123201426624,
+      "conclusion": "success",
+      "url": "https://github.com/Activer007/Gokapi/actions/runs/40798733852"
+    },
+    {
+      "id": 40798813978,
+      "event": "workflow_dispatch",
+      "job": 123201692066,
+      "conclusion": "success",
+      "url": "https://github.com/Activer007/Gokapi/actions/runs/40798813978"
+    }
+  ],
+  "defaults": {
+    "userMiB": 5120,
+    "userFiles": 1000,
+    "userActive": 4,
+    "instanceMiB": 20480,
+    "instanceFiles": 5000,
+    "instanceActive": 8,
+    "stagingMiB": 12288,
+    "requestMiB": 20480,
+    "requestActive": 2
+  },
+  "gates": {
+    "generate": "PASS",
+    "fullSuites": [
+      "test,awsmock",
+      "test,noaws",
+      "test,noaws,integration",
+      "test,awstest"
+    ],
+    "receiverRace": "PASS",
+    "quotaTarget": "PASS",
+    "quotaRace": "PASS",
+    "currentVulnerabilityScan": "PASS",
+    "historicalCompilerContract": "PASS (expected scanner exit 3)",
+    "dockerBuilds": "PASS (server/CLI/builder; no push)",
+    "wholeLarge": "PASS",
+    "chunkLarge": "PASS"
+  },
+  "chunkMetrics": [
+    {
+      "bytes": 1073741824,
+      "kind": "ordinary",
+      "encrypted": false,
+      "seconds": 15.78,
+      "MiBps": 64.89,
+      "heapPeakBytes": 3512472,
+      "rssPeakBytes": 27406336,
+      "apparentPeakBytes": 2147498459,
+      "allocatedPeakBytes": 2147516416,
+      "sha256": "3a33d58aa8ee1e9d21fd4f510cc5d1ce8d25ba5e24363d19c28e2bf866f4185c"
+    },
+    {
+      "bytes": 2147483648,
+      "kind": "fr",
+      "encrypted": true,
+      "seconds": 35.248,
+      "MiBps": 58.1,
+      "heapPeakBytes": 3594128,
+      "rssPeakBytes": 28213248,
+      "apparentPeakBytes": 6423946408,
+      "allocatedPeakBytes": 6423973888,
+      "sha256": "72d03317b1c036b233f258bb93cf690b75e8abe40ac6638004453e5fb91cb443"
+    }
+  ],
+  "limits": [
+    "Resource peaks are sampled every 20 ms, not a guarantee about every instant.",
+    "Large uploads use SQLite/local storage: ordinary 1 GiB plain and File Request 2 GiB server-encrypted.",
+    "Real Redis/S3 services, actual browser/WASM and complete M3 recovery/physical coordination remain unverified.",
+    "No deployment or image publication."
+  ]
+}

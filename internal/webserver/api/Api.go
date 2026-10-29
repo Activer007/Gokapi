@@ -1,12 +1,12 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -20,8 +20,6 @@ import (
 	"github.com/forceu/gokapi/internal/logging/serverstats"
 	"github.com/forceu/gokapi/internal/models"
 	"github.com/forceu/gokapi/internal/storage"
-	"github.com/forceu/gokapi/internal/storage/chunking"
-	"github.com/forceu/gokapi/internal/storage/chunking/chunkreservation"
 	"github.com/forceu/gokapi/internal/storage/filerequest"
 	"github.com/forceu/gokapi/internal/storage/presign"
 	"github.com/forceu/gokapi/internal/webserver/api/mutex/apimutex"
@@ -363,25 +361,21 @@ func apiChunkAdd(w http.ResponseWriter, r requestParser, user models.User, _ mod
 	}
 }
 
-func apiChunkReserve(w http.ResponseWriter, r requestParser, _ models.User, apikey models.ApiKey) {
+func apiChunkReserve(w http.ResponseWriter, r requestParser, user models.User, apikey models.ApiKey) {
 	request, ok := r.(*paramChunkReserve)
 	if !ok {
 		panic("invalid parameter passed")
 	}
-	fileRequest, ok, status, errorCode, errorMsg := checkFileRequestAndApiKey(request.Id, apikey)
+	fileRequest, ok, status, code, message := checkFileRequestAndApiKey(request.Id, apikey)
 	if !ok {
-		sendError(w, status, errorCode, errorMsg)
+		sendError(w, status, code, message)
 		return
 	}
-	if fileRequest.FilesRemaining() <= 0 && !fileRequest.IsUnlimitedFiles() {
-		sendError(w, http.StatusBadRequest, errorcodes.CannotUploadMoreFiles, "No more files can be uploaded for this file request")
+	uuid, err := fileupload.ReserveFileRequestUpload(chunkRequestContext(request.Request), user.Id, fileRequest.Id)
+	if err != nil {
+		sendUploadAdmissionError(w, err)
 		return
 	}
-	if fileRequest.IsUnlimitedFiles() && !ratelimiter.IsAllowedNewUuid(fileRequest.Id) {
-		sendError(w, http.StatusTooManyRequests, errorcodes.RateLimited, "Too many reservations for this file request. Please wait a few seconds before reserving a new uuid.")
-		return
-	}
-	uuid := chunkreservation.New(fileRequest.Id)
 	result, err := json.Marshal(struct {
 		Result string `json:"Result"`
 		Uuid   string `json:"Uuid"`
@@ -390,25 +384,20 @@ func apiChunkReserve(w http.ResponseWriter, r requestParser, _ models.User, apik
 	_, _ = w.Write(result)
 }
 
-func apiChunkUnreserve(w http.ResponseWriter, r requestParser, _ models.User, apikey models.ApiKey) {
+func apiChunkUnreserve(w http.ResponseWriter, r requestParser, user models.User, apikey models.ApiKey) {
 	request, ok := r.(*paramChunkUnreserve)
 	if !ok {
 		panic("invalid parameter passed")
 	}
-	fileRequest, ok, status, errorCode, errorMsg := checkFileRequestAndApiKey(request.Id, apikey)
+	// Existing upload cleanup requires the current capability and its request
+	// scope, but cannot be prevented by the request's count or expiry limit.
+	fileRequest, ok, status, code, message := fileRequestForCredential(request.Id, apikey)
 	if !ok {
-		sendError(w, status, errorCode, errorMsg)
+		sendError(w, status, code, message)
 		return
 	}
-	err := chunkreservation.Cancel(fileRequest.Id, request.Uuid, func() error {
-		err := chunking.DeleteChunk(request.Uuid)
-		if errors.Is(err, os.ErrNotExist) {
-			return nil // A reserved upload may be cancelled before its first chunk.
-		}
-		return err
-	})
-	if err != nil {
-		sendError(w, http.StatusInternalServerError, errorcodes.InternalServer, "Unable to cancel upload; please retry")
+	if err := fileupload.CancelFileRequestUpload(chunkRequestContext(request.Request), user.Id, fileRequest.Id, request.Uuid); err != nil {
+		sendUploadAdmissionError(w, err)
 		return
 	}
 	_, _ = w.Write([]byte(`{"Result":"OK"}`))
@@ -437,21 +426,29 @@ func apiChunkUploadRequestAdd(w http.ResponseWriter, r requestParser, user model
 	}
 }
 
-func checkFileRequestAndApiKey(fileRequestId string, apiKey models.ApiKey) (models.FileRequest, bool, int, int, string) {
-	fileRequest, ok := filerequest.Get(fileRequestId)
+func fileRequestForCredential(id string, key models.ApiKey) (models.FileRequest, bool, int, int, string) {
+	request, ok := filerequest.Get(id)
 	if !ok {
 		return models.FileRequest{}, false, http.StatusNotFound, errorcodes.NotFound, "FileRequest does not exist with the given ID"
 	}
-	if fileRequest.ApiKey != apiKey.Id {
+	if request.ApiKey != key.Id {
 		return models.FileRequest{}, false, http.StatusUnauthorized, errorcodes.InvalidApiKey, "Invalid API key"
 	}
-	if !fileRequest.IsUnlimitedTime() && fileRequest.Expiry < time.Now().Unix() {
+	return request, true, 0, 0, ""
+}
+
+func checkFileRequestAndApiKey(id string, key models.ApiKey) (models.FileRequest, bool, int, int, string) {
+	request, ok, status, code, message := fileRequestForCredential(id, key)
+	if !ok {
+		return request, ok, status, code, message
+	}
+	if !request.IsUnlimitedTime() && request.Expiry < time.Now().Unix() {
 		return models.FileRequest{}, false, http.StatusUnauthorized, errorcodes.RequestExpired, "Filerequest has expired"
 	}
-	if !fileRequest.IsUnlimitedFiles() && fileRequest.UploadedFiles >= fileRequest.MaxFiles {
+	if !request.IsUnlimitedFiles() && request.UploadedFiles >= request.MaxFiles {
 		return models.FileRequest{}, false, http.StatusUnauthorized, errorcodes.CannotUploadMoreFiles, "Max file count has already been reached for this file request"
 	}
-	return fileRequest, true, 0, 0, ""
+	return request, true, 0, 0, ""
 }
 
 type chunkParams interface {
@@ -479,39 +476,72 @@ func apiChunkComplete(w http.ResponseWriter, r requestParser, user models.User, 
 	if !ok {
 		panic("invalid parameter passed")
 	}
-	// Reject missing caller-owned chunks before either processing or enqueueing.
-	if !chunking.FileExists(chunking.StorageID(request.Uuid, user.Id, "")) {
-		sendError(w, http.StatusBadRequest, errorcodes.UnspecifiedError, "chunk file does not exist")
+	params := fileupload.CreateUploadConfig(request.AllowedDownloads, request.ExpiryDays, request.Password,
+		request.UnlimitedTime, request.UnlimitedDownloads, request.IsE2E, request.RealSize, "")
+	task, err := fileupload.PrepareChunkCompletion(chunkRequestContext(request.Request), request.Uuid, request.FileHeader, user.Id, params)
+	if err != nil {
+		sendUploadAdmissionError(w, err)
 		return
 	}
-	uploadParams := fileupload.CreateUploadConfig(request.AllowedDownloads,
-		request.ExpiryDays,
-		request.Password,
-		request.UnlimitedTime,
-		request.UnlimitedDownloads,
-		request.IsE2E,
-		request.FileSize,
-		"")
-	if request.IsNonBlocking {
-		go doBlockingPartCompleteChunk(nil, request.Uuid, request.FileHeader, user, uploadParams)
+	dispatchChunkCompletion(w, task, user, params, request.IsNonBlocking)
+}
+
+func chunkRequestContext(request *http.Request) context.Context {
+	if request == nil {
+		return context.Background()
+	} // direct internal/test calls
+	return request.Context()
+}
+
+func sendUploadAdmissionError(w http.ResponseWriter, err error) {
+	if w == nil {
+		return
+	}
+	status, code, message := fileupload.WholeUploadErrorResponse(err)
+	if status == http.StatusTooManyRequests || status == http.StatusServiceUnavailable {
+		w.Header().Set("Retry-After", "1")
+	}
+	sendError(w, status, code, message)
+}
+
+func dispatchChunkCompletion(w http.ResponseWriter, task *fileupload.PreparedCompletion, user models.User, params models.UploadParameters, asynchronous bool) {
+	if asynchronous {
+		if task.AlreadyCommitted() {
+			defer task.Done()
+			if _, err := task.Run(); err != nil {
+				sendUploadAdmissionError(w, err)
+				return
+			}
+		} else {
+			// Prepare has frozen the upload and durably claimed its fixed FileID.
+			// Distinct workers are bounded by durable active/staging admission.
+			go completePreparedChunk(nil, task, user, params, true)
+		}
 		_, _ = io.WriteString(w, "{\"result\":\"OK\"}")
 		return
 	}
-	doBlockingPartCompleteChunk(w, request.Uuid, request.FileHeader, user, uploadParams)
+	completePreparedChunk(w, task, user, params, false)
 }
 
-func doBlockingPartCompleteChunk(w http.ResponseWriter, uuid string, fileHeader chunking.FileHeader, user models.User, uploadParameters models.UploadParameters) {
-	file, err := fileupload.CompleteChunk(uuid, fileHeader, user.Id, uploadParameters)
+func completePreparedChunk(w http.ResponseWriter, task *fileupload.PreparedCompletion, user models.User, params models.UploadParameters, detached bool) {
+	// Run finishes storage work before returning. Logging still reads the
+	// database, so service shutdown must wait through the entire worker tail.
+	defer task.Done()
+	var file models.File
+	var err error
+	if detached {
+		file, err = task.RunDetached()
+	} else {
+		file, err = task.Run()
+	}
 	if err != nil {
-		_ = chunking.DeleteChunk(chunking.StorageID(uuid, user.Id, uploadParameters.FileRequestId))
-		sendError(w, http.StatusBadRequest, errorcodes.UnspecifiedError, err.Error())
+		sendUploadAdmissionError(w, err)
 		return
 	}
-	if uploadParameters.FileRequestId != "" {
-		chunkreservation.SetComplete(uploadParameters.FileRequestId, uuid)
+	if !task.AlreadyCommitted() {
+		request, _ := filerequest.Get(params.FileRequestId)
+		logging.LogUpload(file, user, request)
 	}
-	fr, _ := filerequest.Get(uploadParameters.FileRequestId)
-	logging.LogUpload(file, user, fr)
 	outputFileJson(w, file)
 }
 
@@ -520,25 +550,24 @@ func apiChunkUploadRequestComplete(w http.ResponseWriter, r requestParser, user 
 	if !ok {
 		panic("invalid parameter passed")
 	}
-	fileRequest, ok, status, errorCode, errorMsg := checkFileRequestAndApiKey(request.FileRequestId, apikey)
+	// Capacity is checked atomically against the current request in Prepare and
+	// Commit. A committed receipt can be replayed even when the count is full.
+	fileRequest, ok, status, code, message := fileRequestForCredential(request.FileRequestId, apikey)
 	if !ok {
-		sendError(w, status, errorCode, errorMsg)
+		sendError(w, status, code, message)
 		return
 	}
-	// Validate scope before starting either processing path or its error cleanup.
-	if !chunkreservation.IsValid(fileRequest.Id, request.Uuid) {
-		sendError(w, http.StatusBadRequest, errorcodes.InvalidChunkReservation, "chunk reservation has expired or was not requested")
+	if fileRequest.IsExpired() {
+		sendError(w, http.StatusUnauthorized, errorcodes.RequestExpired, "Filerequest has expired")
 		return
 	}
-	uploadParams := fileupload.CreateUploadConfig(0,
-		0, "", true, true,
-		false, request.FileSize, fileRequest.Id)
-	if request.IsNonBlocking {
-		go doBlockingPartCompleteChunk(nil, request.Uuid, request.FileHeader, user, uploadParams)
-		_, _ = io.WriteString(w, "{\"result\":\"OK\"}")
+	params := fileupload.CreateUploadConfig(0, 0, "", true, true, false, request.FileSize, fileRequest.Id)
+	task, err := fileupload.PrepareChunkCompletion(chunkRequestContext(request.Request), request.Uuid, request.FileHeader, user.Id, params)
+	if err != nil {
+		sendUploadAdmissionError(w, err)
 		return
 	}
-	doBlockingPartCompleteChunk(w, request.Uuid, request.FileHeader, user, uploadParams)
+	dispatchChunkCompletion(w, task, user, params, request.IsNonBlocking)
 }
 
 func apiVersionInfo(w http.ResponseWriter, _ requestParser, _ models.User, _ models.ApiKey) {

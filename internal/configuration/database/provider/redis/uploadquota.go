@@ -27,11 +27,22 @@ func (p DatabaseProvider) ApplyUploadQuota(ctx context.Context, change uploadquo
 		if change.Action == uploadquota.Abort || change.Action == uploadquota.ReleaseStaging {
 			return uploadquota.Apply(ledger, nil, change)
 		}
+		effective := change
+		if change.RequiresRequestPolicy() {
+			policy, err := p.readRequestPolicy(ctx, conn, change.Upload.RequestID)
+			if err != nil {
+				return uploadquota.Ledger{}, uploadquota.Reservation{}, nil, err
+			}
+			effective, err = uploadquota.ApplyRequestPolicy(ledger, change, policy)
+			if err != nil {
+				return uploadquota.Ledger{}, uploadquota.Reservation{}, nil, err
+			}
+		}
 		files, err := p.quotaMetadata(ctx, conn)
 		if err != nil {
 			return uploadquota.Ledger{}, uploadquota.Reservation{}, nil, err
 		}
-		return uploadquota.Apply(ledger, files, change)
+		return uploadquota.Apply(ledger, files, effective)
 	})
 }
 

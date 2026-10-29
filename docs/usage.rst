@@ -124,7 +124,9 @@ To create a new request, click the *Plus* icon at the top right. To modify an ex
 .. note::
    By default, non-admin users can request up to 100 files, with a maximum size of 10240 MiB (10 GiB) for each file. ``Max Size`` and ``GOKAPI_MAX_SIZE_GUESTUPLOAD`` are per-file limits; they do not impose a cumulative byte quota on the request. The server's maximum file size also applies. To change these limits, set ``GOKAPI_MAX_FILES_GUESTUPLOAD`` and ``GOKAPI_MAX_SIZE_GUESTUPLOAD``. See :ref:`availenvvar` for details.
 
-   Upload limits currently apply to the entire multipart request body, including its protocol overhead. A file exactly at the configured size limit may therefore be rejected. Chunk uploads currently require a known request length. These are current implementation limits, not recommendations for client validation; the server enforces them.
+   Each request also has a cumulative logical byte limit, ``GOKAPI_UPLOAD_REQUEST_TOTAL_MB`` (default 20480 MiB), and an active reservation limit, ``GOKAPI_UPLOAD_REQUEST_ACTIVE`` (default 2). Files still present in metadata, including pending deletion, and active reservations consume these limits. Shared content counts separately for each file. These are strict positive environment settings read at startup; existing request records need no migration. Owner and instance quotas also apply, including when an older request has an unlimited setting.
+
+   The upload receiver limits the actual file-part bytes separately from bounded multipart overhead. File-first fields and unknown HTTP Content-Length are accepted within the server's reception budget. Cumulative quota and durable chunk admission are separate controls; see :ref:`uploadreceptionlimits` for their implemented scope.
 
 
 
@@ -218,7 +220,7 @@ User Ranks
 There are three different user ranks:
 
 * **Super Admin**: A single person with all access which cannot be modified by other users.
-* **Admin**: Has all rights by default. Is able to delete system logs and can change file owners. Can create upload requests with unlimited files and file size.
+* **Admin**: Has all rights by default. Is able to delete system logs and can change file owners. Can remove the request-specific file count and per-file restriction; the server's finite upload budgets still apply.
 * **User**: Has less rights by default.
 
 

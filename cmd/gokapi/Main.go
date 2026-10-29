@@ -7,6 +7,7 @@ Main routine
 */
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/signal"
@@ -30,6 +31,7 @@ import (
 	"github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem/aws"
 	"github.com/forceu/gokapi/internal/webserver"
 	"github.com/forceu/gokapi/internal/webserver/authentication"
+	"github.com/forceu/gokapi/internal/webserver/fileupload/uploadservice"
 	"github.com/forceu/gokapi/internal/webserver/ssl"
 )
 
@@ -70,21 +72,29 @@ func main() {
 	logging.LogStartup()
 	showDeprecationWarnings()
 	serverstats.Init()
+	uploadservice.Start(context.Background())
 	go webserver.Start()
 
-	c := make(chan os.Signal)
+	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	<-c
-	shutdown()
-	os.Exit(0)
+	exitCode := 0
+	if !shutdown() {
+		exitCode = 1
+	}
+	os.Exit(exitCode)
 }
 
-func shutdown() {
+func shutdown() bool {
 	fmt.Println("Shutting down...")
-	webserver.Shutdown()
+	if !webserver.Shutdown() {
+		fmt.Println("Upload shutdown incomplete; database remains open until process exit")
+		return false
+	}
 	serverstats.Shutdown()
 	logging.LogShutdown()
 	database.Close()
+	return true
 }
 
 // Checks for command line arguments that have to be parsed before loading the configuration
