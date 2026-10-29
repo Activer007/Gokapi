@@ -171,61 +171,41 @@ function allowScroll() {
 }
 
 
-function deleteLogs() {
-    const delSelector = document.getElementById("deleteLogsSel");
-    if (!delSelector) {
-        return;
-    }
-    const cutoff = delSelector.value;
-    if (cutoff == "none" || cutoff == "") {
-        return;
-    }
-    if (!confirm(t("status.confirmDelete"))) {
-        delSelector.selectedIndex = 0;
-        return;
-    }
-    let timestamp = Math.floor(Date.now() / 1000)
-    switch (cutoff) {
-        case "all":
-            timestamp = 0;
-            break;
-        case "2":
-            timestamp = timestamp - 2 * 24 * 60 * 60;
-            break;
-        case "7":
-            timestamp = timestamp - 7 * 24 * 60 * 60;
-            break;
-        case "14":
-            timestamp = timestamp - 14 * 24 * 60 * 60;
-            break;
-        case "30":
-            timestamp = timestamp - 30 * 24 * 60 * 60;
-            break;
-        default:
-            return;
-    }
-    apiLogsDelete(timestamp)
-        .then(data => {
-            location.reload();
-        })
-        .catch(error => {
-            alert(t("status.deleteFailed") + error);
-            console.error('Error:', error);
-        });
+// Keep destructive actions in an explicit page dialog, with the shared busy/error behavior.
+function showStatusAction(title, help, action, success, trigger, onClose) {
+    const element = document.getElementById('statusActionModal');
+    const confirm = document.getElementById('statusActionConfirm');
+    document.getElementById('statusActionTitle').textContent = title;
+    document.getElementById('statusActionHelp').textContent = help;
+    document.getElementById('statusActionError').textContent = '';
+    element.addEventListener('hidden.bs.modal', () => {
+        confirm.onclick = null;
+        if (onClose) onClose();
+        if (trigger && trigger.isConnected) trigger.focus();
+    }, {once: true});
+    confirm.onclick = () => runModalSave('statusActionModal', confirm, async () => {
+        await action();
+        document.getElementById('statusActionResult').textContent = success;
+    }, document.getElementById('statusActionError'));
+    bootstrap.Modal.getOrCreateInstance(element).show();
 }
 
+function deleteLogs(trigger) {
+    const selector = document.getElementById('deleteLogsSel');
+    if (!selector) return;
+    const cutoff = selector.value;
+    const days = {"2": 2, "7": 7, "14": 14, "30": 30};
+    if (cutoff !== 'all' && !Object.hasOwn(days, cutoff)) return;
+    const timestamp = cutoff === 'all' ? 0 : Math.floor(Date.now() / 1000) - days[cutoff] * 86400;
+    showStatusAction(t('status.deleteLogs'), t('status.confirmDelete'), async () => {
+        await apiLogsDelete(timestamp);
+        await loadLogs(0);
+    }, t('status.logsDeleted'), trigger, () => { selector.value = 'none'; });
+}
 
-function resetTrafficStat() {
-    if (!confirm(t("status.confirmReset"))) {
-        return;
-    }
-
-    apiLogResetTraffic()
-        .then(data => {
-            location.reload();
-        })
-        .catch(error => {
-            alert(t("status.resetFailed") + error);
-            console.error('Error:', error);
-        });
+function resetTrafficStat(trigger) {
+    showStatusAction(t('status.resetTraffic'), t('status.confirmReset'), async () => {
+        await apiLogResetTraffic();
+        await loadStatus();
+    }, t('status.trafficReset'), trigger);
 }

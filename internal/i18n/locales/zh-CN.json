@@ -321,7 +321,7 @@
   "status.deleteAll": "删除全部日志",
   "status.execute": "执行",
   "status.trafficSince": "流量统计起始时间：{date}",
-  "status.loadFailed": "日志加载失败，详情请查看控制台。",
+  "status.loadFailed": "暂时无法加载日志，正在自动重试。",
   "status.confirmDelete": "确定删除所选日志吗？",
   "status.deleteFailed": "无法删除日志：",
   "status.confirmReset": "确定重置流量统计吗？",
@@ -588,5 +588,13 @@
   "request.publicHelp": "选择文件，确认上传限制后开始上传。",
   "request.queue": "已选文件",
   "request.startUpload": "开始上传",
-  "request.remainingCount": "剩余可上传文件："
+  "request.remainingCount": "剩余可上传文件：",
+  "users.workspaceHelp": "管理团队账户、交付登录信息，并查看和调整权限。",
+  "api.workspaceHelp": "管理脚本与集成使用的访问凭据。",
+  "api.emptyTitle": "暂无 API 密钥",
+  "api.emptyHelp": "创建密钥，为其设置明确名称并检查访问权限。",
+  "status.workspaceHelp": "查看服务器资源使用情况与活动日志。",
+  "status.noEvents": "当前筛选下暂无日志。",
+  "status.logsDeleted": "已删除所选范围的日志。",
+  "status.trafficReset": "流量统计已重置。"
 }

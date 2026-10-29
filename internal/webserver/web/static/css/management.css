@@ -1,0 +1,39 @@
+/* Account, integration and server administration surfaces. */
+.management-workspace, .status-workspace { width: 100%; }
+.management-table { border: 1px solid var(--ss-border); border-radius: var(--ss-radius); }
+.management-table > table { min-width: 1040px; margin: 0; }
+.management-table thead { background: var(--ss-surface); }
+.management-table td:first-child { min-width: 130px; max-width: 250px; overflow-wrap: anywhere; font-weight: 600; }
+.management-table td:last-child { white-space: nowrap; }
+.management-table .btn-group { gap: 6px; }
+.management-table .btn-group .btn { border-radius: 7px !important; }
+.management-help { color: var(--ss-muted); line-height: 1.7; margin: 0 0 24px; }
+.management-help a { color: var(--ss-link); }
+.management-empty { display: none; border: 1px solid var(--ss-border); border-radius: var(--ss-radius); padding: 56px 24px; text-align: center; background: var(--ss-surface); }
+.management-empty > .bi { display: block; font-size: 36px; color: var(--ss-link); margin-bottom: 16px; }
+.management-empty h2 { font-size: 22px; margin: 0 0 12px; }
+.management-empty p { color: var(--ss-muted); margin: 0; }
+.api-workspace:not(:has(#apitable > tr)) .management-empty { display: block; }
+.api-workspace:not(:has(#apitable > tr)) .management-table { display: none; }
+.credential-delivery > div.mb-3 { padding: 14px 16px; border: 1px solid var(--ss-border); border-radius: 8px; background: #20252c; }
+.credential-delivery .form-label { color: var(--ss-muted); font-size: 14px; }
+.credential-delivery input { font-family: ui-monospace, Consolas, monospace; }
+.credential-delivery > p:first-child { color: var(--ss-text); line-height: 1.6; }
+.status-metrics { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; margin-bottom: 28px; }
+.admin-shell .status-workspace .stat-card { height: 100%; background: var(--ss-surface); border: 1px solid var(--ss-border); box-shadow: none; }
+.status-workspace .stat-label { font-size: 13px; color: var(--ss-muted); font-weight: 550; margin-bottom: 12px; }
+.status-workspace .stat-card .h5 { font-size: 20px; line-height: 1.4; }
+.status-workspace .progress-stat { height: 4px; margin-top: 12px; background: #3b414b; }
+.status-log-panel { border: 1px solid var(--ss-border); border-radius: var(--ss-radius); overflow: hidden; }
+.status-log-heading { padding: 18px 22px; background: var(--ss-surface); border-bottom: 1px solid var(--ss-border); }
+.status-log-heading h2 { font-size: 20px; font-weight: 650; }
+.admin-shell .status-workspace #logviewer { background: #191e25; color: #cbd5e3; border: 0; border-radius: 0; padding: 20px 22px; font-size: 13px; line-height: 1.7; resize: vertical; min-height: 240px; }
+.status-workspace #logviewer:focus-visible { outline: 2px solid var(--ss-link); outline-offset: -3px; box-shadow: none; }
+.status-log-tools { padding: 16px 22px; border-top: 1px solid var(--ss-border); background: var(--ss-surface); }
+.status-workspace #logviewer::-webkit-scrollbar { width: 10px; }
+.status-workspace #logviewer::-webkit-scrollbar-thumb { background: #566170; border-radius: 5px; }
+@media (max-width: 1439px) { .status-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 800px) { .status-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.credential-modal { max-width: 600px; }
+.status-action-result { margin: 16px 0 0; color: var(--ss-muted); }
