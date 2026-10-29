@@ -23,7 +23,7 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | 052-A | IMPLEMENTED / CI_GREEN / [PR43](https://github.com/Activer007/SupaShare/pull/43) | 本地真实HTTP与Chromium/WASM正负合同GREEN，CI40870398244及聚焦race成功；ADR-023，精确证据私密保留 |
 | 040-A | IMPLEMENTED / CI_GREEN / [PR44](https://github.com/Activer007/SupaShare/pull/44) | CI40887732123，四组全仓/相关race及Linux权限/链接PASS；失败、重启重试、共享引用与ADR-022；无schema迁移 |
 | 040-B | IMPLEMENTED / CI_GREEN / [PR48](https://github.com/Activer007/SupaShare/pull/48) | 冻结cf30b57含主线PR47；CI40922295319四组/全部相关race/build/scan PASS；两私密候选、FR Commit/跨owner、明确WATCH中止/unknown边界GREEN；ADR-024；普通用户全在途原子隔离仍VALIDATE |
-| 041 | P0 / LOCAL_GREEN / CI_PENDING | 基线65dd7ef业务RED；SQLite17/Redis10候选、全ID引用、token退休、迁库、进程exit97及loopback S3本地GREEN；普通GC交互RED→GREEN；ADR-025；最终Linux/race/CI待完成 |
+| 041 | IMPLEMENTED / CI_GREEN / [PR50](https://github.com/Activer007/SupaShare/pull/50) | 冻结d26875d，CI40932505670四组/相关race/build/scan PASS；原合同RED→GREEN、进程exit97、共享/重新引用、旧token/满容量/故障/迁库及完整GC交互；SQLite17/Redis10，ADR-025；真实持久化/断电仍NOT_RUN |
 | 052其余 | P1 / VALIDATE | 小型中断合同与其他支持组合仍需本项证据，不用一个Chromium正负例声称全覆盖 |
 | 051 | P1 / VALIDATE | 初始限定浏览器预检，不以头缺失判XSS；结果见TEST-REPORT，未形成全路径安全结论 |
 | 050 | P1 / NOT_STARTED | 最小响应头、兼容及渐进CSP |

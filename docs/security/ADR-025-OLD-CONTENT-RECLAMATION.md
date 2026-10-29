@@ -1,6 +1,6 @@
 # ADR-025：替换旧内容的持久回收候选
 
-状态：ACCEPTED / LOCAL_VALIDATED / CI_PENDING，2026-10-30，SEC-041；基线65dd7ef6c7be7d1f08c00e41318b6da132aa89af。
+状态：ACCEPTED / CI_GREEN，2026-10-30，SEC-041；基线65dd7ef6c7be7d1f08c00e41318b6da132aa89af；PR50，冻结d26875d，最终CI40932505670 SUCCESS。
 面向单个Go进程与可信小团队；不改变分享权限、配额计量、加密格式或公开API。
 
 ## 安全不变量与RED
@@ -13,7 +13,7 @@
 
 隔离65dd7ef完整归档上的正常重启合同已得到业务RED：真实替换成功、子进程正常退出，fresh SQLite和成功GC后旧内容仍在，新内容与两份metadata正确。
 首次SETUP_FAIL因child未启用verbose而缺阶段标记；修正后才取得业务断言，不将环境失败算漏洞。
-该合同不证明恶意可利用性或断电持久性；提交后骤停、双provider、共享/重新引用及loopback S3本地合同已通过，并发race及最终CI待运行。
+该合同不证明恶意可利用性或断电持久性；提交后骤停、双provider、共享/重新引用及loopback S3本地合同已通过，最终CI的相关race、四组全仓/build/scan均通过。
 
 ## 最小持久结构
 

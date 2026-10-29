@@ -34,6 +34,33 @@ Windows原生race缺CGO工具链为BLOCKED，冻结后使用现有Linux CI执行
 provider合同覆盖重连、全ID引用、同locator去重/token刷新、旧ack拒绝、4096满容量、坏结构拒绝且不patch、SQLite16→17/Redis9→10、迁库候选/token保持。Redis明确WATCH中止可重算、owner冲突拒绝、已提交却回复未知仅一次EXEC且不假回滚。
 一次性代码审查已分别交叉检查双provider与worker锁/锚点，不存在外部独立批准声明。全仓、生成、Linux相关race及build/scan均留到最终冻结CI；此处尚NOT_RUN，不借040-B的CI证明本轮通过。
 
+### 冻结候选与原合同回放
+
+[PR50](https://github.com/Activer007/SupaShare/pull/50)，代码冻结d26875de358729bf0762454d8bb56748ccc2c291，tree51f17dbdad534c90b70511488ca9d1b0abc7888c。
+实际PR合并候选af4cf98838eaf4294f0771a01922d94039c76d2d，父65dd7ef+d26875d，树与冻结提交一致。
+原正常重启夹具文件保持完全相同，仅独立嵌套module的replace改指冻结工作树；再次执行原命令 `go test -mod=readonly -count=1 -tags='test,noaws' -run '^TestSEC041ReplaceRestartRetiresOldLocator$' -timeout 90s -v .`，PASS7.089s（合同1.64s），1487项tracked/fixture输入前后无变化。
+原RED归档、夹具及manifest未改写；不是通过改变负例断言取得GREEN。审查COMMENT5703100257锚定d26875d，最终CI40932505670单独记录，不预填结果。
+
+### 最终CI：SUCCESS
+
+[CI40932505670](https://github.com/Activer007/SupaShare/actions/runs/40932505670)，job123654387934，冻结d26875d，实际checkoutaf4cf988（日志明确记录），tree51f17db与冻结树一致；Ubuntu24.04.5/image20261025.353.1、Go1.26.10 linux/amd64。
+完整命令、16个新增根合同的实际race耗时与逐项退出码见[脱敏摘要](evidence/sec041-d26875d/ci-summary.txt)。
+
+| 实际执行 | 结果 |
+| --- | --- |
+| `go generate ./...`、`git diff --exit-code`，配置端口占用setup合同 | PASS，生成无tracked差异 |
+| `go test ./...` 的 `test,awsmock`、`test,noaws`、`test,noaws,integration`、`test,awstest` | 四组PASS；awstest使用合成loopback配置，非真实云 |
+| 既有receiver/052失败/040清理/删除状态相关 `-race` | PASS |
+| `go test -race ./internal/blobreclaim ./internal/storage ./internal/configuration/database ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,noaws,security_reclaim -run 'TestSEC041\|TestCandidateRecordBoundary' -timeout 3m -v` | PASS，含实际exit97/fresh verifier、共享/重新引用、全pass未知发布、批次、迁库、满容量及Redis unknown控制 |
+| `go test -race ./internal/test/securityfixture -count=1 -tags=test,security_cleanup,security_reclaim -run '^TestSEC041OldContentS3RetryKeepsReplacement$' -timeout 2m -v` | PASS，真实SDK+loopback故障根合同19.74s |
+| `bash docs/security/tools/run-sec030-whole.sh target` 与 `race` | PASS，10项结果均0，两次source-unchanged均0 |
+| `bash docs/security/tools/run-sec062-toolchain.sh scan` | PASS，19项均0；generator/server/CLI构建与BuildInfo/source/WASM/binary扫描已执行 |
+
+扫描仍有模块级GO-2026-5932、GO-2022-0646/0635提示，实际测试构建图报告affected0；未修改依赖，不声称依赖全部修复。
+push run40932435884被PR事件的同head concurrency取消，不是测试失败；只完成上述一次最终CI，无盲目重跑。
+NOT_RUN：真实Redis持久化/真实S3与历史版本、断电、生产恢复/部署；historical/container/large仅手动opt-in，本轮未运行。Windows原生race仍BLOCKED，相关Linux race实际PASS。
+仅安全Markdown/脱敏txt收尾不改变运行时、测试、module、模板或workflow；最终合并状态以PR50权威记录为准，不预写合并SHA。
+
 ## M4：SEC-040-B最终验证（2026-10-30）
 
 [PR48](https://github.com/Activer007/SupaShare/pull/48)，冻结cf30b576020b187a20450e14b03cbfebb7294ba3；
