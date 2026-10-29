@@ -2,7 +2,7 @@
 {{ template "header" . }}
 <div class="row">
     <div class="col">
-        <div id="container" class="card" style="width: 80%">
+        <div id="container" class="card" style="width: 100%">
     <div class="card-body">
 		<div class="container">
 		  <div class="row mb-4">
@@ -63,28 +63,29 @@
                                 <td>{{ .User.Name }}</td>
                                 <td  id="userlevel_{{ .User.Id }}">{{$.UI.UserLevel .User.UserLevel}}</td>
             			<td><span id="cell-lastonline-{{ .User.Id }}"></span></td>
-				   <script>insertLastOnlineDate({{ .User.LastOnline }}, "cell-lastonline-{{ .User.Id }}");</script>
+				   <script>
+insertLastOnlineDate({{ .User.LastOnline }}, "cell-lastonline-{{ .User.Id }}");</script>
                                 <td>{{ .UploadCount }}</td>
             			<td class="prevent-select">
             			
             			
-        <i id="perm_guest_upload_{{ .User.Id }}" class="bi bi-box-arrow-in-down {{if not .User.HasPermissionCreateFileRequests}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionCreateFileRequests) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.createRequest"}}" onclick='changeUserPermission("{{ .User.Id }}","PERM_GUEST_UPLOAD", "perm_guest_upload_{{ .User.Id }}");'></i>
+        <i id="perm_guest_upload_{{ .User.Id }}" class="bi bi-box-arrow-in-down {{if not .User.HasPermissionCreateFileRequests}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionCreateFileRequests) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.createRequest"}}" data-permission="PERM_GUEST_UPLOAD"></i>
             			
-        <i id="perm_replace_{{ .User.Id }}" class="bi bi-recycle {{if not .User.HasPermissionReplace}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionReplace) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.replaceOwn"}}" onclick='changeUserPermission("{{ .User.Id }}","PERM_REPLACE", "perm_replace_{{ .User.Id }}");'></i>
+        <i id="perm_replace_{{ .User.Id }}" class="bi bi-recycle {{if not .User.HasPermissionReplace}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionReplace) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.replaceOwn"}}" data-permission="PERM_REPLACE"></i>
 		
-        <i id="perm_list_{{ .User.Id }}" class="bi bi-eye {{if not .User.HasPermissionListOtherUploads}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionListOtherUploads) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.listOther"}}" onclick='changeUserPermission("{{ .User.Id }}","PERM_LIST", "perm_list_{{ .User.Id }}");'></i>
+        <i id="perm_list_{{ .User.Id }}" class="bi bi-eye {{if not .User.HasPermissionListOtherUploads}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionListOtherUploads) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.listOther"}}" data-permission="PERM_LIST"></i>
 		
-        <i id="perm_edit_{{ .User.Id }}" class="bi bi-pencil {{if not .User.HasPermissionEditOtherUploads}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionEditOtherUploads) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.editOther"}}" onclick='changeUserPermission("{{ .User.Id }}","PERM_EDIT", "perm_edit_{{ .User.Id }}");'></i>
+        <i id="perm_edit_{{ .User.Id }}" class="bi bi-pencil {{if not .User.HasPermissionEditOtherUploads}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionEditOtherUploads) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.editOther"}}" data-permission="PERM_EDIT"></i>
 		
-        <i id="perm_delete_{{ .User.Id }}" class="bi bi-trash3 {{if not .User.HasPermissionDeleteOtherUploads}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionDeleteOtherUploads) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.deleteOther"}}" onclick='changeUserPermission("{{ .User.Id }}","PERM_DELETE", "perm_delete_{{ .User.Id }}");'></i>
+        <i id="perm_delete_{{ .User.Id }}" class="bi bi-trash3 {{if not .User.HasPermissionDeleteOtherUploads}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionDeleteOtherUploads) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.deleteOther"}}" data-permission="PERM_DELETE"></i>
 		
-        <i id="perm_replace_other_{{ .User.Id }}" class="bi bi-arrow-left-right {{if not .User.HasPermissionReplaceOtherUploads}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionReplaceOtherUploads) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.replaceOther"}}" onclick='changeUserPermission("{{ .User.Id }}","PERM_REPLACE_OTHER", "perm_replace_other_{{ .User.Id }}");'></i>
+        <i id="perm_replace_other_{{ .User.Id }}" class="bi bi-arrow-left-right {{if not .User.HasPermissionReplaceOtherUploads}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionReplaceOtherUploads) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.replaceOther"}}" data-permission="PERM_REPLACE_OTHER"></i>
 		
-        <i id="perm_logs_{{ .User.Id }}" class="bi bi-card-list {{if not .User.HasPermissionManageLogs}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionManageLogs) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.manageLogs"}}" onclick='changeUserPermission("{{ .User.Id }}","PERM_LOGS", "perm_logs_{{ .User.Id }}");'></i>
+        <i id="perm_logs_{{ .User.Id }}" class="bi bi-card-list {{if not .User.HasPermissionManageLogs}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionManageLogs) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.manageLogs"}}" data-permission="PERM_LOGS"></i>
 
-        <i id="perm_users_{{ .User.Id }}" class="bi bi-people {{if not .User.HasPermissionManageUsers}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionManageUsers) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.manage"}}" onclick='changeUserPermission("{{ .User.Id }}","PERM_USERS", "perm_users_{{ .User.Id }}");'></i>
+        <i id="perm_users_{{ .User.Id }}" class="bi bi-people {{if not .User.HasPermissionManageUsers}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionManageUsers) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.manage"}}" data-permission="PERM_USERS"></i>
 
-        <i id="perm_api_{{ .User.Id }}" class="bi bi-sliders2 {{if not .User.HasPermissionManageApi}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionManageApi) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.manageAPI"}}" onclick='changeUserPermission("{{ .User.Id }}","PERM_API", "perm_api_{{ .User.Id }}");'></i>
+        <i id="perm_api_{{ .User.Id }}" class="bi bi-sliders2 {{if not .User.HasPermissionManageApi}}perm-notgranted{{else}}perm-granted{{end}} {{if or (not $.ActiveUser.HasPermissionManageApi) (or (.User.IsSuperAdmin) (eq .User.Id $.ActiveUser.Id))}}perm-nochange{{end}}" title="{{$.UI.T "users.manageAPI"}}" data-permission="PERM_API"></i>
 		
 		
             			</td>
@@ -148,7 +149,7 @@
         <h5 class="modal-title" id="newUserModalLabel">{{$.UI.T "users.create"}}</h5>
 	      </div>
 	      <div class="modal-body">
-		<form id="newUserForm">
+		<form id="newUserForm" onsubmit="event.preventDefault(); addNewUser();">
 		  <div class="mb-3">
 		  <div class="text-start">
             <label for="e_userName" class="form-label">{{$.UI.T "login.username"}}</label>
@@ -156,12 +157,12 @@
             <input type="text" class="form-control" id="e_userName" minlength="2" placeholder="{{$.UI.T "users.enterName"}}" required>
 	         </div>
 		</form>
+	      </div>
 	      <div class="modal-footer">
         <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">{{$.UI.T "common.cancel"}}</button>
-        <button type="submit" form="newUserForm" onclick="addNewUser();" id="mb_addUser" class="btn btn-primary">{{$.UI.T "users.add"}}</button>
+        <button type="submit" form="newUserForm" id="mb_addUser" class="btn btn-primary">{{$.UI.T "users.add"}}</button>
 	      </div>
 	    </div>
-	  </div>
 	  </div>
 	  </div>
 	
@@ -215,7 +216,7 @@
 		<div id="randomPasswordContainer" class="mt-3" style="display: none;">
 		  <label class="form-label">
             {{$.UI.T "users.newPassword"}}
-            <span class="highlighted-password" id="l_returnedPw"></span> <button type="button" id="copypwclip" title="{{$.UI.T "users.copyPassword"}}" class="copyurl btn btn-outline-light btn-sm"><i class="bi bi-copy"></i></button>
+            <span class="highlighted-password" id="l_returnedPw"></span> <button type="button" id="copypwclip" title="{{$.UI.T "users.copyPassword"}}" class="btn btn-outline-light btn-sm"><i class="bi bi-copy"></i></button>
 		  </label>
 		</div>
 	      </div>
@@ -233,7 +234,9 @@
     </div>
 </div>
 
+{{template "permission_editor" .UI}}
 <script src="./js/min/admin.min.{{ template "js_admin_version"}}.js"></script>
+<script>initPermissionEditors("user");</script>
 <script>
 	var isInternalAuth = {{.IsInternalAuth}};
 	var isAdmin = {{.ActiveUser.IsAdmin}};

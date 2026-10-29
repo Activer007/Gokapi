@@ -46,7 +46,7 @@ test('key deletion waits for confirmation, blocks duplicates and recovers from f
     };
     let calls = 0, resolve, reject, hidden = false;
     const context = vm.createContext({
-        document:{getElementById:el}, t:key=>key, showToast:()=>{},
+        document:{getElementById:el}, window:{}, t:key=>key, showToast:()=>{},
         bootstrap:{Modal:{getOrCreateInstance:()=>({show(){},hide(){hidden=true;}})}},
         apiAuthDelete:()=>{calls++; return new Promise((yes,no)=>{resolve=yes;reject=no;});}
     });

@@ -3,50 +3,6 @@
 // go generate ./...
 
 
-function changeApiPermission(userId, permission, buttonId) {
-
-    var indicator = document.getElementById(buttonId);
-    if (indicator.classList.contains("perm-processing") || indicator.classList.contains("perm-nochange")) {
-        return;
-    }
-    var wasGranted = indicator.classList.contains("perm-granted");
-    indicator.classList.add("perm-processing");
-    indicator.classList.remove("perm-granted");
-    indicator.classList.remove("perm-notgranted");
-
-    var modifier = "GRANT";
-    if (wasGranted) {
-        modifier = "REVOKE";
-    }
-
-
-    apiAuthModify(userId, permission, modifier)
-        .then(data => {
-            if (wasGranted) {
-                indicator.classList.add("perm-notgranted");
-                indicator.classList.add("perm-nownotgranted");
-            } else {
-                indicator.classList.add("perm-granted");
-                indicator.classList.add("perm-nowgranted");
-            }
-            indicator.classList.remove("perm-processing");
-            setTimeout(() => {
-                 indicator.classList.remove("perm-nowgranted");
-                 indicator.classList.remove("perm-nownotgranted");
-            }, 1000);
-        })
-        .catch(error => {
-            if (wasGranted) {
-                indicator.classList.add("perm-granted");
-            } else {
-                indicator.classList.add("perm-notgranted");
-            }
-            indicator.classList.remove("perm-processing");
-            alert(t("users.permissionFailed") + error);
-            console.error('Error:', error);
-        });
-}
-
 function deleteApiKey(apiKey) {
     const element = document.getElementById('deleteApiModal');
     const confirm = document.getElementById('confirmDeleteApi');
@@ -68,6 +24,7 @@ function deleteApiKey(apiKey) {
     confirm.onclick = async () => {
         if (busy) return;
         busy = true;
+        window.gokapiFormBusy = true;
         confirm.disabled = cancel.disabled = true;
         confirm.textContent = t('common.deleting');
         errorMessage.textContent = '';
@@ -80,6 +37,7 @@ function deleteApiKey(apiKey) {
         } catch (error) {
             errorMessage.textContent = t('api.deleteFailed') + error.message;
         } finally {
+            window.gokapiFormBusy = false;
             busy = false;
             confirm.disabled = cancel.disabled = false;
             confirm.textContent = t('common.delete');
@@ -100,57 +58,31 @@ function newApiKey() {
         .catch(error => {
             alert(t("api.createFailed") + error);
             console.error('Error:', error);
-        });
+        }).finally(() => { document.getElementById('button-newapi').disabled = false; });
 }
 
 
 
 
 function addFriendlyNameChange(apiKey) {
-    let cell = document.getElementById("friendlyname-" + apiKey);
-    if (cell.classList.contains("isBeingEdited"))
-        return;
-    cell.classList.add("isBeingEdited");
-    let currentName = cell.innerText;
-    let input = document.createElement("input");
-    input.size = 5;
-    input.value = currentName;
-    let allowEdit = true;
-
-    let submitEntry = function() {
-        if (!allowEdit)
-            return;
-        allowEdit = false;
-        let newName = input.value;
-        if (newName == "") {
-            newName = t("api.unnamed");
-        }
-        cell.innerText = newName;
-
-        cell.classList.remove("isBeingEdited");
-
-        apiAuthFriendlyName(apiKey, newName)
-            .catch(error => {
-                alert(t("api.nameFailed") + error);
-                console.error('Error:', error);
-            });
+    const trigger = document.getElementById('friendlyname-' + apiKey);
+    const modal = document.getElementById('renameApiModal');
+    const input = document.getElementById('renameApiValue');
+    const error = document.getElementById('renameApiError');
+    input.value = trigger.textContent;
+    error.textContent = '';
+    modal.addEventListener('shown.bs.modal', () => {input.focus(); input.select();}, {once:true});
+    modal.addEventListener('hidden.bs.modal', () => trigger.focus(), {once:true});
+    document.getElementById('renameApiSave').onclick = () => {
+        const name = input.value.trim() || t('api.unnamed');
+        runModalSave('renameApiModal', document.getElementById('renameApiSave'), async () => {
+            await apiAuthFriendlyName(apiKey, name);
+            trigger.textContent = name;
+            showToast(3500,t('settings.saved'));
+        }, error);
     };
-
-    input.onblur = submitEntry;
-    input.addEventListener("keyup", function(event) {
-        // Enter
-        if (event.keyCode === 13) {
-            event.preventDefault();
-            submitEntry();
-        }
-    });
-    cell.innerText = "";
-    cell.appendChild(input);
-    input.focus();
+    bootstrap.Modal.getOrCreateInstance(modal).show();
 }
-
-
-
 
 function addRowApi(apiKey, publicId) {
 
@@ -182,11 +114,13 @@ function addRowApi(apiKey, publicId) {
     cellButtons.classList.add("newApiKey");
 
 
-    cellFriendlyName.innerText = t("api.unnamed");
-    cellFriendlyName.id = "friendlyname-" + publicId;
-    cellFriendlyName.onclick = function() {
-        addFriendlyNameChange(publicId);
-    };
+    const nameButton = document.createElement('button');
+    nameButton.type = 'button';
+    nameButton.className = 'api-name btn btn-link text-start p-0';
+    nameButton.textContent = t('api.unnamed');
+    nameButton.id = 'friendlyname-' + publicId;
+    nameButton.onclick = () => addFriendlyNameChange(publicId);
+    cellFriendlyName.appendChild(nameButton);
     cellId.innerText = apiKey;
     cellId.classList.add("font-monospace");
     cellLastUsed.innerText = t("common.neverUsed");
@@ -297,7 +231,7 @@ function addRowApi(apiKey, publicId) {
         i.id = id;
         i.className = `bi ${icon} ${granted ? 'perm-granted' : 'perm-notgranted'}`;
         i.title = title;
-        i.setAttribute('onclick', `changeApiPermission("${publicId}","${perm}", "${id}");`);
+        i.dataset.permission = perm;
         cellPermissions.appendChild(i);
         cellPermissions.appendChild(document.createTextNode(' '));
     });
@@ -324,6 +258,7 @@ function addRowApi(apiKey, publicId) {
         cell.classList.add("perm-nochange");
     }
 
+    initPermissionEditors("api", row);
     setTimeout(() => {
         cellFriendlyName.classList.remove("newApiKey");
         cellId.classList.remove("newApiKey");
