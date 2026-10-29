@@ -16,6 +16,9 @@ func Apply(ledger Ledger, files map[string]models.File, change Change) (Ledger, 
 	if change.Now <= 0 || change.Now > math.MaxInt64-MaxLifetime || !validIdentity(change.Upload) {
 		return rejected(ErrInvalid)
 	}
+	if change.Action == DuplicateMetadata {
+		return duplicateMetadata(ledger, files, change)
+	}
 	next := EmptyLedger()
 	for id, record := range ledger.Records {
 		next.Records[id] = record
@@ -201,6 +204,10 @@ func rejected(err error) (Ledger, Reservation, *models.File, error) {
 }
 
 func checkCapacity(ledger Ledger, files map[string]models.File, candidate Reservation, limits Limits) error {
+	return checkCapacityMode(ledger, files, candidate, limits, false)
+}
+
+func checkCapacityMode(ledger Ledger, files map[string]models.File, candidate Reservation, limits Limits, logicalOnly bool) error {
 	for _, n := range []int64{limits.User.Bytes, limits.User.Files, limits.Request.Bytes, limits.Request.Files, limits.Instance.Bytes, limits.Instance.Files, limits.UserActive, limits.RequestActive, limits.InstanceActive, limits.StagingBytes} {
 		if n < 0 {
 			return ErrInvalid
@@ -276,6 +283,9 @@ func checkCapacity(ledger Ledger, files map[string]models.File, candidate Reserv
 		if !ok {
 			return ErrQuota
 		}
+	}
+	if logicalOnly {
+		return nil
 	}
 	if userActive >= limits.UserActive || allActive >= limits.InstanceActive || (candidate.RequestID != "" && requestActive >= limits.RequestActive) {
 		return ErrActive

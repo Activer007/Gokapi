@@ -84,12 +84,13 @@ type Limits struct {
 type Action string
 
 const (
-	Reserve        Action = "reserve"
-	Bind           Action = "bind"
-	Claim          Action = "claim"
-	Commit         Action = "commit"
-	Abort          Action = "abort"
-	ReleaseStaging Action = "release-staging"
+	Reserve           Action = "reserve"
+	Bind              Action = "bind"
+	Claim             Action = "claim"
+	Commit            Action = "commit"
+	Abort             Action = "abort"
+	ReleaseStaging    Action = "release-staging"
+	DuplicateMetadata Action = "duplicate-metadata"
 )
 
 // Change is an internal database command, not a public request parser. Upload
@@ -105,6 +106,9 @@ type Change struct {
 	Terminal           State
 	CleanupConfirmed   bool
 	CheckRequestPolicy bool
+	// Source is a trusted authorization snapshot, rechecked inside the provider
+	// transaction for an instantaneous metadata duplicate. It is not persisted.
+	Source *models.File
 }
 
 func EmptyLedger() Ledger {

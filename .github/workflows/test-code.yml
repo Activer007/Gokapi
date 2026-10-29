@@ -4,6 +4,11 @@ on: [workflow_dispatch, push, pull_request]
 permissions:
   contents: read
 
+# A push followed by its PR event should validate the head only once.
+concurrency:
+  group: tests-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest

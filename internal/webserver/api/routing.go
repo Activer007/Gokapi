@@ -393,6 +393,7 @@ func (p *paramFilesChangeOwner) ProcessParameter(_ *http.Request) error {
 }
 
 type paramFilesDuplicate struct {
+	Request            *http.Request
 	Id                 string `header:"id" required:"true"`
 	AllowedDownloads   int    `header:"allowedDownloads"`
 	ExpiryDays         int    `header:"expiryDays"`
@@ -406,6 +407,7 @@ type paramFilesDuplicate struct {
 }
 
 func (p *paramFilesDuplicate) ProcessParameter(r *http.Request) error {
+	p.Request = r
 	if p.foundHeaders["allowedDownloads"] {
 		p.RequestedChanges |= storage.ParamDownloads
 		if p.AllowedDownloads == 0 {
