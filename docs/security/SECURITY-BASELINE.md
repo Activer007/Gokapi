@@ -4,11 +4,14 @@
 
 ## 当前M4：可靠删除与下载内容边界
 
-SEC-040-A当前主线c434e099，隔离开发保留已测试provider工作并同步该主线；当前CONFIRMED_CODE：
+SEC-040-A以主线c434e099开始，隔离开发保留已测试provider工作并同步该主线；CONFIRMED_CODE（原c434）：
 删除失败仍可丢管理锚点，最新业务RED12.290s。最小修复采用checked完整扫描/探测/删除/条件退休，复用metadata重试，见[ADR-022](ADR-022-RETRYABLE-DELETION.md)。
 本地相关合同GREEN：loopback DELETE失败、HEAD未知、假成功、另一进程重启重试、跨owner共享及路径边界；双provider完整引用/条件退休GREEN。
+收尾[PR44](https://github.com/Activer007/SupaShare/pull/44)：CI40887732123 SUCCESS，实际6af21ff/tree68eac331与冻结e1fd952一致；
+四组全仓、相关race、Linux实际权限/symlink、构建/扫描均PASS。开发期两次真实CI失败及夹具修正均在TEST-REPORT保留。
 本地路径别名及case-only歧义先取得候选防御合同RED后修复，不据此声称远程攻击者可利用；S3保持精确key身份。
-VALIDATE：040-B取消/恢复/旧timer与明确外部反馈、041旧内容候选、真实Redis/S3及崩溃中断窗口仍OPEN；040-A不能关闭整个M4。
+040-B取消/恢复/旧timer协调另有窄隔离业务RED，精确证据留自有私密审查；修复及外部反馈仍OPEN，不推定越权链/发布版本影响。
+VALIDATE：041旧内容候选、真实Redis/S3及崩溃中断窗口仍OPEN；040-A不能关闭整个M4。
 
 基线8c39931733be853dd68d11ad5b193088c4d928d5，v2.11.0；范围见[M4-GOAL](M4-GOAL.md)，阶段ACTIVE，M3保持完成。
 HISTORICAL_FIXED（PR43）：052本地服务器加密下载的限定真实HTTP终态合同曾触发P0 Gate，已做最小错误传播修复；

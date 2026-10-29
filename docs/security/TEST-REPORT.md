@@ -4,6 +4,28 @@
 
 ## M4续作：SEC-040-A可靠删除（2026-10-29）
 
+最终验证：[PR44](https://github.com/Activer007/SupaShare/pull/44)，冻结heade1fd9523bcdfd5e71015a62c5cef420167594d63；
+[CI40887732123](https://github.com/Activer007/SupaShare/actions/runs/40887732123) SUCCESS，job123495867631。
+实际checkout6af21ff45d634b85620464c3e13ae62085efafc0，父c434e099+e1fd952；tree68eac331b8440ad8ce5b63baf36b924e0084ece3与冻结head一致。
+Ubuntu24.04、Go1.26.10 linux/amd64；逐项结果与实际完整命令见[脱敏摘要](evidence/sec040-e1fd952/ci-summary.txt)。
+
+| 最终CI真实命令 | 结果 |
+| --- | --- |
+| `go generate ./...` | PASS；既有scan内再生成也成功 |
+| `go test ./... -parallel 8 -count=1 --tags=test,awsmock` | PASS |
+| `go test ./... -parallel 8 -count=1 --tags=test,noaws` | PASS |
+| `go test ./... --tags=test,noaws,integration -count=1` | PASS |
+| 既有合成AWS环境：`go test ./... --tags=test,awstest -count=1` | PASS，非真实S3 |
+| `go test -race ./internal/test/securityfixture ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,security_cleanup -run '^TestSEC040Cleanup' -timeout 3m -v` | PASS，fixture17.236s/SQLite1.463s/miniredis1.149s；Linux symlink及permissions均实际PASS，无跳过 |
+| 既有receiver/download failure race、`bash docs/security/tools/run-sec030-whole.sh target` / `race` | PASS；两次source-unchanged均0；完整命令见摘要 |
+| `bash docs/security/tools/run-sec062-toolchain.sh scan` | PASS，全部19项返回码0；构建/实际BuildInfo/默认、noaws、WASM及二进制扫描已核实 |
+
+模块级GO-2026-5932、GO-2022-0646/0635提示仍保留，受测调用图未报affected调用，不宣称依赖已修复。
+原生Windows race/权限NOT_RUN记录保持原状，Linux最终结果独立列示；真实Redis持久化、真实S3/历史版本、断电/崩溃窗口、生产演练仍NOT_RUN。
+收尾只改安全文档/脱敏摘要，不改运行代码、模板、module、生成器或CI，不重复全仓。
+040-B另有两个窄竞态业务RED，精确负例留自有私密审查；尚未修复，未证明发布版本影响或越权链，不据A通过关闭B/041/M4。
+以下开发期RED/FAIL/SKIP均保留；最终成功不覆盖原始失败。
+
 主线c434e0997e61d368dd9c4705d3ba4e10a0a01882；040先保存provider草稿1c56bed，再同步主线为a58659d。
 未触碰用户工作树；旧M4草稿只移入ignored备份，沿用PR43已合并目标。环境portable Go1.26.10 Windows/amd64、CGO0/无gcc。
 测试使用临时SQLite、miniredis、真实SDK+loopback S3及子进程，不使用生产数据或真实云凭据。
