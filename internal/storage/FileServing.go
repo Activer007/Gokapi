@@ -50,6 +50,9 @@ var ErrorChunkTooSmall = errors.New("chunk is too small")
 // ErrorReplaceE2EFile is caused when an end-to-end encrypted file is replaced
 var ErrorReplaceE2EFile = errors.New("end-to-end encrypted files cannot be replaced")
 
+// ErrorReplaceRequestFile retains the public restriction on File Request targets.
+var ErrorReplaceRequestFile = errors.New("file request targets cannot be replaced")
+
 // ErrorFileNotFound is raised when an invalid ID is passed or the file has expired
 var ErrorFileNotFound = errors.New("file not found")
 
@@ -406,30 +409,7 @@ func ReplaceFile(fileId, newFileContentId string, delete bool) (models.File, err
 	if !ok {
 		return models.File{}, ErrorFileNotFound
 	}
-	if file.Encryption.IsEndToEndEncrypted || newFileContent.Encryption.IsEndToEndEncrypted {
-		return models.File{}, ErrorReplaceE2EFile
-	}
-	unlock, err := lockBlobPublication(context.Background(), newFileContent)
-	if err != nil {
-		return models.File{}, err
-	}
-	defer unlock()
-	if !FileExists(newFileContent, configuration.Get().DataDir) {
-		return models.File{}, ErrorFileNotFound
-	}
-
-	file.Name = newFileContent.Name
-	file.Size = newFileContent.Size
-	file.SHA1 = newFileContent.SHA1
-	file.ContentType = newFileContent.ContentType
-	file.AwsBucket = newFileContent.AwsBucket
-	file.SizeBytes = newFileContent.SizeBytes
-	file.Encryption = newFileContent.Encryption
-	database.SaveMetaData(file)
-	if delete {
-		DeleteFile(newFileContent.Id, true)
-	}
-	return file, nil
+	return ReplaceFileContext(context.Background(), file, newFileContent, delete)
 }
 
 func isChangeRequested(parametersToChange, parameter int) bool {

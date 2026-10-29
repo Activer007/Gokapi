@@ -1228,7 +1228,7 @@
           "files"
         ],
         "summary": "Replaces an uploaded file",
-        "description": "This API replaces the content of an uploaded file with the content of a different (already uplaoded) file. Note: Replacing end-to-end ecrypted files is NOT possible and will result in an error. Requires API permission REPLACE. To replace a file that was not uploaded by the user, the user needs to have the user permission REPLACE_OTHERS. To replace a file with the content uploaded by another user, the user needs to have the user permission LIST. To delete a file after replacing, the API key requires the permission DELETE. To delete a file that does not belong to the user, the user needs to have the permission DELETE_OTHER_FILES.",
+        "description": "Replaces content using an already uploaded file. Requires API REPLACE and the applicable replace/read permissions; deleting the source also requires API DELETE and source delete permission. File Request targets and either end-to-end encrypted file remain unsupported. Positive byte growth is atomically checked against target-owner and instance quotas, including active reservations. Equal-sized or smaller replacements need no added capacity. Source expiration commits with the replacement and does not refund quota before cleanup. Using the same ID with deleteNewFile=true returns 409 without changes; false remains idempotent.",
         "operationId": "replacefile",
         "security": [
           {
@@ -1285,6 +1285,12 @@
           },
           "404": {
             "description": "Invalid ID provided or file has expired"
+          },
+          "409": {
+            "description": "An authorized source/target changed, or the same file would delete itself"
+          },
+          "413": {
+            "description": "Replacement growth exceeds logical upload quota (ErrorCode 21)"
           }
         }
       }
