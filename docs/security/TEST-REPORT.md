@@ -21,6 +21,17 @@ timer沿用原断言；恢复候选明确改变旧的强制成功排序前提，
 `node --test build/tests/ui-workspace.test.cjs build/tests/ui-e2e-workspace.test.cjs` PASS/exit0，8 tests/0 skipped，152.2362ms；只是现有静态/VM契约，不冒称真实浏览器重测。
 私密安全入口已补候选结果，仍draft/published_at=null。之后只更新文档；最终CI/合并另记录，不借用PR44或PR45的PASS覆盖整树。
 
+首最终head14f173a（与1d25225只有文档差异）已创建[PR48](https://github.com/Activer007/SupaShare/pull/48)，完成COMMENT审查；
+[CI40910070138](https://github.com/Activer007/SupaShare/actions/runs/40910070138)，job123575467819 FAIL。
+generate及tracked diff guard、setup合同PASS；awsmock全仓仅API TestList失败（14项，原断言12）；其余三组、race、build/scan均SKIPPED/NOT_RUN。
+同head push40909956558被既有并发规则取消，不冒称测试失败或通过。
+源码逐项对账：基础deletedfile123456789与用户删除400负例留下的testFileApiDelete均为未过期但已知缺源合成记录，
+旧全局GC顺带清走它们；单项删除不承诺该全局副作用。没有修改apiList、数量12、权限或生产cleanup guard。
+第一次仅测试预置尝试使用全局CleanUpContext；`go test ./internal/webserver/api -count=1 -tags='test,awsmock' -timeout 2m -v` FAIL/20.015s，
+只有TestList预置收到pending错误，其他合同PASS；该尝试未提交，改为仅对上述两个已知ID做checked单项清理，避免全局其他夹具影响。
+新自动副本上`go test ./internal/webserver/api -count=1 -tags='test,awsmock' -run '^(TestUserDelete|TestDeleteFile|TestRestoreFile|TestList)$' -timeout 90s -v`
+PASS/exit0/11.170s，四root全部通过。当前只改测试与文档，生产运行输入仍为1d25225，不重复私密/浏览器/大文件合同；最终新CI待执行。
+
 ### 历史局部进度（2026-10-29）
 
 基线dee4382f19d0801cb4022ed3ec897beda297e1df；codex/sec-040-delete-state，未提交开发工作。
