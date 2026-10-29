@@ -109,3 +109,32 @@ func TestUIPublicPages(t *testing.T) {
 		}
 	}
 }
+
+func TestUIUploadManagementContexts(t *testing.T) {
+	user := models.User{Id: 5, Name: "fixture", UserLevel: models.UserLevelSuperAdmin, Permissions: models.UserPermissionAll}
+	for _, language := range []string{"en", "zh-CN"} {
+		for _, name := range []string{"admin", "uploadreq"} {
+			view := &AdminView{IsAdminView: true, ActiveUser: user, UserMap: map[int]*models.User{5: &user},
+				Items: []models.FileApiOutput{{Id: "file1", Name: "literal-name.txt", UploaderId: 5, UnlimitedTime: true, UnlimitedDownloads: true}},
+				FileRequests: []models.FileRequest{{Id: "request1", Name: "Literal request", UserId: 5, UploadedFiles: 1,
+					FileIdList: []string{"file2"}, Files: []models.File{{Id: "file2", Name: "literal-upload.txt", UserId: 5}}},
+					{Id: "request2", Name: "Zip request", UserId: 5, UploadedFiles: 2, FileIdList: []string{"file3", "file4"}}}}
+			response := httptest.NewRecorder()
+			if err := renderPage(response, httptest.NewRequest("GET", "/?lang="+language, nil), name, view); err != nil {
+				t.Fatalf("%s %s: %v", language, name, err)
+			}
+			body := response.Body.String()
+			for _, key := range []string{"common.delete", "common.saveChanges"} {
+				if name == "uploadreq" && key == "common.saveChanges" {
+					key = "request.deleteTitle"
+				}
+				if !strings.Contains(body, i18n.New(language).T(key)) {
+					t.Errorf("%s %s missing subtemplate message %s", language, name, key)
+				}
+			}
+			if strings.Contains(body, "ZgotmplZ") || strings.Contains(body, "<no value>") {
+				t.Errorf("%s %s has invalid template output", language, name)
+			}
+		}
+	}
+}

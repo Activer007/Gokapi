@@ -16,6 +16,14 @@ function initDropzone() {
     Dropzone.options.uploaddropzone = {
         paramName: "file",
         dictDefaultMessage: "",
+        dictFallbackMessage: t('dropzone.unsupported'),
+        dictFileTooBig: t('dropzone.fileTooBig'),
+        dictInvalidFileType: t('dropzone.invalidType'),
+        dictResponseError: t('dropzone.responseError'),
+        dictCancelUpload: t('dropzone.cancel'),
+        dictCancelUploadConfirmation: t('dropzone.cancelConfirm'),
+        dictRemoveFile: t('dropzone.remove'),
+        dictMaxFilesExceeded: t('dropzone.tooMany'),
         createImageThumbnails: false,
         chunksUploaded: function(file, done) {
             sendChunkComplete(file, done);
@@ -39,18 +47,18 @@ function initDropzone() {
                 console.log(errorMessage);
                 if (xhr) {
                     if (xhr.status === 413) {
-                        showError(file, "File too large to upload. If you are using a reverse proxy, make sure that the allowed body size is at least 70MB.");
+                        showError(file, t("files.uploadTooLarge"));
                         return;
                     }
                     try {
                         console.log(xhr);
                         errInfo = JSON.parse(xhr.responseText);
-                        showError(file, "Error: " + errInfo.ErrorMessage);
+                        showError(file, t("common.error") + ": " + apiErrorMessage(errInfo));
                     } catch (ignored) {
-                        showError(file, "Error: " + xhr.responseText);
+                        showError(file, t("common.error") + ": " + xhr.responseText);
                     }
                 } else {
-                    showError(file, "Error: " + errorMessage);
+                    showError(file, t("common.error") + ": " + errorMessage);
                 }
             });
             this.on("uploadprogress", function(file, progress, bytesSent) {
@@ -103,7 +111,7 @@ function initDropzone() {
 
     window.addEventListener('beforeunload', (event) => {
         if (isUploading) {
-            event.returnValue = 'Upload is still in progress. Do you want to close this page?';
+            event.returnValue = t("files.leave");
         }
     });
 }
@@ -227,7 +235,7 @@ function sendChunkComplete(file, done) {
             done();
             let progressText = document.getElementById(`us-progress-info-${file.upload.uuid}`);
             if (progressText != null)
-                progressText.innerText = "In Queue...";
+                progressText.innerText = t("files.queue");
         })
         .catch(error => {
             console.error('Error:', error);
@@ -312,26 +320,26 @@ function parseProgressStatus(eventData) {
     let text;
     switch (eventData.upload_status) {
         case 0:
-            text = "Processing file...";
+            text = t("files.processing");
             break;
         case 1:
-            text = "Saving file...";
+            text = t("files.saving");
             break;
         case 2:
-            text = "Finalising...";
+            text = t("files.finalising");
             requestFileInfo(eventData.file_id, eventData.chunk_id);
             break;
         case 3:
             text = "Error";
             let file = dropzoneGetFile(eventData.chunk_id);
             if (eventData.error_message == "")
-                eventData.error_message = "Server Error";
+                eventData.error_message = t("common.serverError");
             if (file != null) {
                 dropzoneUploadError(file, eventData.error_message);
             }
             return;
         default:
-            text = "Unknown status";
+            text = t("files.unknownStatus");
             break;
     }
     document.getElementById(`us-progress-info-${eventData.chunk_id}`).innerText = text;
@@ -354,7 +362,7 @@ function editFile() {
     let allowedDownloads = document.getElementById('mi_edit_down').value;
     let expiryTimestamp = document.getElementById('mi_edit_expiry').value;
     let password = document.getElementById('mi_edit_pw').value;
-    let originalPassword = (password === '(unchanged)');
+    let originalPassword = (password === t("files.unchanged"));
 
     if (!document.getElementById('mc_download').checked) {
         allowedDownloads = 0;
@@ -385,13 +393,13 @@ function editFile() {
                     location.reload();
                 })
                 .catch(error => {
-                    alert("Unable to edit file: " + error);
+                    alert(t("files.editFailed") + error);
                     console.error('Error:', error);
                     button.disabled = false;
                 });
         })
         .catch(error => {
-            alert("Unable to edit file: " + error);
+            alert(t("files.editFailed") + error);
             console.error('Error:', error);
             button.disabled = false;
         });
@@ -434,7 +442,7 @@ function showEditModal(filename, id, downloads, expiry, password, unlimitedown, 
     }
 
     if (password) {
-        document.getElementById("mi_edit_pw").value = "(unchanged)";
+        document.getElementById("mi_edit_pw").value = t("files.unchanged");
         document.getElementById("mi_edit_pw").disabled = false;
         document.getElementById("mc_password").checked = true;
     } else {
@@ -455,9 +463,9 @@ function showEditModal(filename, id, downloads, expiry, password, unlimitedown, 
             }
         } else {
             document.getElementById("mc_replace").disabled = true;
-            document.getElementById("mc_replace").title = "Replacing content is not available for end-to-end encrypted files";
-            selectReplace.add(new Option("Unavailable", 0));
-            selectReplace.title = "Replacing content is not available for end-to-end encrypted files";
+            document.getElementById("mc_replace").title = t("files.e2eNoReplace");
+            selectReplace.add(new Option(t("common.unavailable"), 0));
+            selectReplace.title = t("files.e2eNoReplace");
             selectReplace.value = "0";
         }
     } else {
@@ -470,7 +478,7 @@ function showEditModal(filename, id, downloads, expiry, password, unlimitedown, 
 }
 
 function selectTextForPw(input) {
-    if (input.value === "(unchanged)") {
+    if (input.value === t("files.unchanged")) {
         input.setSelectionRange(0, input.value.length);
     }
 }
@@ -508,7 +516,7 @@ function deleteFile(id) {
             notifyWorker({ type: "fileDeleted", id: id });
         })
         .catch(error => {
-            alert("Unable to delete file: " + error);
+            alert(t("files.deleteFailed") + error);
             console.error('Error:', error);
         });
 }
@@ -607,7 +615,7 @@ function registerChangeHandler() {
                     console.error("SSE worker connection error:", event.data.detail);
                 } else if (event.data.type === "shutdown") {
                     // Another tab logged out — the session is gone for everyone.
-                    setTimeout(function() {  
+                    setTimeout(function() {
                    	 window.location.href = "./login";
 		     }, 1000);
                 } else if (event.data.type === "fileAdded") {
@@ -755,13 +763,13 @@ function addRow(item) {
     cellDownloadCount.id = "cell-downloads-" + item.Id;
     cellFileSize.innerText = item.Size;
     if (item.UnlimitedDownloads) {
-        cellRemainingDownloads.innerText = "Unlimited";
+        cellRemainingDownloads.innerText = t("common.unlimited");
     } else {
         cellRemainingDownloads.innerText = item.DownloadsRemaining;
         cellRemainingDownloads.id = "cell-downloadsRemaining-" + item.Id;
     }
     if (item.UnlimitedTime) {
-        cellStoredUntil.innerText = "Unlimited";
+        cellStoredUntil.innerText = t("common.unlimited");
     } else {
         cellStoredUntil.innerText = formatUnixTimestamp(item.ExpireAt);
     }
@@ -779,7 +787,7 @@ function addRow(item) {
     if (item.IsPasswordProtected === true) {
         const icon = document.createElement('i');
         icon.className = 'bi bi-key';
-        icon.title = 'Password protected';
+        icon.title = t("files.passwordProtected");
         cellUrl.appendChild(document.createTextNode(' '));
         cellUrl.appendChild(icon);
     }
@@ -815,7 +823,7 @@ function createButtonGroup(item) {
     copyUrlBtn.className = 'copyurl btn btn-outline-light btn-sm';
     copyUrlBtn.dataset.clipboardText = item.UrlDownload;
     copyUrlBtn.id = 'url-button-' + item.Id;
-    copyUrlBtn.title = 'Copy URL';
+    copyUrlBtn.title = t("common.copyURL");
 
     const copyIcon = document.createElement('i');
     copyIcon.className = 'bi bi-copy';
@@ -844,14 +852,14 @@ function createButtonGroup(item) {
     const aDr1 = document.createElement("a");
     if (item.UrlHotlink !== "") {
         aDr1.className = "dropdown-item copyurl";
-        aDr1.title = "Copy hotlink";
+        aDr1.title = t("files.copyHotlink");
         aDr1.style.cursor = "pointer";
         aDr1.setAttribute("data-clipboard-text", item.UrlHotlink);
         aDr1.onclick = () => showToast(1000);
-        aDr1.innerHTML = `<i class="bi bi-copy"></i> Hotlink`;
+        aDr1.innerHTML = `<i class="bi bi-copy"></i> ${t("files.hotlink")}`;
     } else {
         aDr1.className = "dropdown-item";
-        aDr1.innerText = "Hotlink not available";
+        aDr1.innerText = t("files.noHotlink");
     }
     liDr1.appendChild(aDr1);
     dropdown1.appendChild(liDr1);
@@ -861,23 +869,23 @@ function createButtonGroup(item) {
     const btnShare = document.createElement("button");
     btnShare.type = "button";
     btnShare.className = "btn btn-outline-light btn-sm";
-    btnShare.title = "Share";
+    btnShare.title = t("common.share");
     btnShare.onclick = () => shareUrl(event, item.Id);
-    // For some reason bi-share does not always show up, using the svg fixes it 
+    // For some reason bi-share does not always show up, using the svg fixes it
     btnShare.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
- 				 <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5m-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3"/>
+        <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5m-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3"/>
 			</svg>`;
     group1.appendChild(btnShare);
 
 
-    // Dropdown toggle 
+    // Dropdown toggle
     const btnDropdown2 = document.createElement("button");
     btnDropdown2.type = "button";
     btnDropdown2.className = "btn btn-outline-light btn-sm dropdown-toggle dropdown-toggle-split";
     btnDropdown2.setAttribute("data-bs-toggle", "dropdown");
     btnDropdown2.setAttribute("aria-expanded", "false");
     btnDropdown2.id = `shareDropdown-${item.Id}`;
-    
+
     group1.appendChild(btnDropdown2);
 
     const dropdown2 = document.createElement("ul");
@@ -889,20 +897,20 @@ function createButtonGroup(item) {
     qrA.className = "dropdown-item";
     qrA.id = `qrcode-${item.Id}`;
     qrA.style.cursor = "pointer";
-    qrA.title = "Open QR Code";
+    qrA.title = t("files.openQR");
     qrA.onclick = () => showQrCode(item.UrlDownload);
-    qrA.innerHTML = `<i class="bi bi-qr-code"></i> QR Code`;
+    qrA.innerHTML = `<i class="bi bi-qr-code"></i> ${t("files.qr")}`;
     qrLi.appendChild(qrA);
     dropdown2.appendChild(qrLi);
 
     const emailLi = document.createElement("li");
     const emailA = document.createElement("a");
     emailA.className = "dropdown-item";
-    emailA.title = "Share via email";
+    emailA.title = t("files.emailShare");
     emailA.id = `email-${item.Id}`;
     emailA.target = "_blank";
     emailA.href = `mailto:?body=${encodeURIComponent(item.UrlDownload)}`;
-    emailA.innerHTML = `<i class="bi bi-envelope"></i> Email`;
+    emailA.innerHTML = `<i class="bi bi-envelope"></i> ${t("files.email")}`;
     emailLi.appendChild(emailA);
     dropdown2.appendChild(emailLi);
     group1.appendChild(dropdown2);
@@ -911,13 +919,13 @@ function createButtonGroup(item) {
     const group2 = document.createElement("div");
     group2.className = "btn-group";
     group2.setAttribute("role", "group");
-    
-    
+
+
     // === Button: Download ===
     const btnDownload = document.createElement('button');
     btnDownload.type = 'button';
     btnDownload.className = 'btn btn-outline-light btn-sm';
-    btnDownload.title = 'Download';
+    btnDownload.title = t("common.download");
     if (item.RequiresClientSideDecryption) {
         btnDownload.classList.add("disabled");
     }
@@ -936,7 +944,7 @@ function createButtonGroup(item) {
     const btnEdit = document.createElement('button');
     btnEdit.type = 'button';
     btnEdit.className = 'btn btn-outline-light btn-sm';
-    btnEdit.title = 'Edit';
+    btnEdit.title = t("common.edit");
 
     const editIcon = document.createElement('i');
     editIcon.className = 'bi bi-pencil';
@@ -962,7 +970,7 @@ function createButtonGroup(item) {
     const btnDelete = document.createElement('button');
     btnDelete.type = 'button';
     btnDelete.className = 'btn btn-outline-danger btn-sm';
-    btnDelete.title = 'Delete';
+    btnDelete.title = t("common.delete");
     btnDelete.id = 'button-delete-' + item.Id;
 
     const deleteIcon = document.createElement('i');
@@ -1003,9 +1011,9 @@ function changeRowCount(add, row) {
 
     let infoEmpty = document.getElementsByClassName("dataTables_empty")[0];
     if (typeof infoEmpty !== "undefined") {
-        infoEmpty.innerText = "Files stored: " + rowCount;
+        infoEmpty.innerText = t("files.count", {count: rowCount});
     } else {
-        document.getElementsByClassName("dataTables_info")[0].innerText = "Files stored: " + rowCount;
+        document.getElementsByClassName("dataTables_info")[0].innerText = t("files.count", {count: rowCount});
     }
 }
 
@@ -1063,7 +1071,7 @@ function handleUndo(button) {
             }
         })
         .catch(error => {
-            alert("Unable to restore file: " + error);
+            alert(t("files.restoreFailed") + error);
             console.error('Error:', error);
         });
 }

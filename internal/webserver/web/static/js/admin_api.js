@@ -5,6 +5,19 @@
 
 const storedTokens = new Map();
 
+async function apiFailure(response) {
+    const text = await response.text();
+    let data;
+    try { data = JSON.parse(text); } catch { /* retain non-JSON diagnostics */ }
+    const fallback = t('api.requestFailed', {status: response.status});
+    const message = data && (data.ErrorCode !== undefined || data.ErrorMessage)
+        ? apiErrorMessage(data) : (text || fallback);
+    const error = new Error(message);
+    error.status = response.status;
+    if (data) { error.code = data.ErrorCode; error.raw = data; }
+    return error;
+}
+
 async function getToken(permission, forceRenewal) {
     const apiUrl = './auth/token';
 
@@ -29,11 +42,11 @@ async function getToken(permission, forceRenewal) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
         const data = await response.json();
         if (!data.hasOwnProperty("key")) {
-            throw new Error(`Invalid response when trying to get token`);
+            throw new Error(t("api.invalidToken"));
         }
         storedTokens.set(permission, {
             key: data.key,
@@ -76,7 +89,7 @@ async function apiAuthModify(apiKey, permission, modifier) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
     } catch (error) {
         console.error("Error in apiAuthModify:", error);
@@ -112,7 +125,7 @@ async function apiAuthFriendlyName(apiKey, newName) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
     } catch (error) {
         console.error("Error in apiAuthModify:", error);
@@ -146,7 +159,7 @@ async function apiAuthDelete(apiKey) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
     } catch (error) {
         console.error("Error in apiAuthDelete:", error);
@@ -181,7 +194,7 @@ async function apiAuthCreate() {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
         const data = await response.json();
         return data;
@@ -230,18 +243,7 @@ async function apiChunkComplete(uuid, filename, filesize, realsize, contenttype,
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            let errorMessage;
-
-            // Attempt to parse JSON, fallback to text if parsing fails
-            try {
-                const errorResponse = await response.json();
-                errorMessage = errorResponse.ErrorMessage || `Request failed with status: ${response.status}`;
-            } catch {
-                // Handle non-JSON error
-                const errorText = await response.text();
-                errorMessage = errorText || `Request failed with status: ${response.status}`;
-            }
-            throw new Error(errorMessage);
+            throw await apiFailure(response);
         }
         const data = await response.json();
         return data;
@@ -282,7 +284,7 @@ async function apiFilesReplace(id, newId) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
         const data = await response.json();
         return data;
@@ -316,7 +318,7 @@ async function apiFilesListById(fileId) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
         const data = await response.json();
         return data;
@@ -352,7 +354,7 @@ async function apiFilesListDownloadSingle(fileId) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
         const data = await response.json();
         return data;
@@ -390,7 +392,7 @@ async function apiFilesListDownloadZip(fileIds, filename) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
         const data = await response.json();
         return data;
@@ -429,7 +431,7 @@ async function apiFilesModify(id, allowedDownloads, expiry, password, originalPw
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
         const data = await response.json();
         return data;
@@ -467,7 +469,7 @@ async function apiFilesDelete(id, delay) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
     } catch (error) {
         console.error("Error in apiFilesDelete:", error);
@@ -501,7 +503,7 @@ async function apiFilesRestore(id) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
         const data = await response.json();
         return data;
@@ -545,7 +547,7 @@ async function apiUserCreate(userName) {
             if (response.status == 409) {
                 throw new Error("duplicate");
             }
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
         const data = await response.json();
         return data;
@@ -584,7 +586,7 @@ async function apiUserModify(userId, permission, modifier) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
     } catch (error) {
         console.error("Error in apiUserModify:", error);
@@ -620,7 +622,7 @@ async function apiUserChangeRank(userId, newRank) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
     } catch (error) {
         console.error("Error in apiUserModify:", error);
@@ -654,7 +656,7 @@ async function apiUserDelete(id, deleteFiles) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
     } catch (error) {
         console.error("Error in apiUserDelete:", error);
@@ -690,7 +692,7 @@ async function apiUserResetPassword(id, generatePw) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
         const data = await response.json();
         return data;
@@ -728,7 +730,7 @@ async function apiLogSystemStatus() {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
         const data = await response.json();
         return data;
@@ -762,7 +764,7 @@ async function apiLogResetTraffic() {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
     } catch (error) {
         console.error("Error in apiLogResetTraffic:", error);
@@ -795,7 +797,7 @@ async function apiLogGet(timestamp) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
         const data = await response.json();
         return data;
@@ -831,7 +833,7 @@ async function apiLogsDelete(timestamp) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
     } catch (error) {
         console.error("Error in apiLogsDelete:", error);
@@ -866,7 +868,7 @@ async function apiE2eGet() {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
         return await response.text();
     } catch (error) {
@@ -903,7 +905,7 @@ async function apiE2eMutexLockUnlock(doUnlock) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
         return await response.text();
     } catch (error) {
@@ -941,7 +943,7 @@ async function apiE2eStore(content) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
     } catch (error) {
         console.error("Error in apiE2eStore:", error);
@@ -977,7 +979,7 @@ async function apiURequestDelete(id) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
     } catch (error) {
         console.error("Error in apiURequestDelete:", error);
@@ -1017,7 +1019,7 @@ async function apiURequestSave(id, name, maxfiles, maxsize, expiry, notes) {
     try {
         const response = await fetch(apiUrl, requestOptions);
         if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            throw await apiFailure(response);
         }
         const data = await response.json();
         return data;

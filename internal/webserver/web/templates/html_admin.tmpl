@@ -4,18 +4,18 @@
         <div class="col">
 		<div id="container" class="card" style="width: 80%">
 		  <div class="card-body">
-		    <h3 class="card-title">Upload</h3>
+            <h3 class="card-title">{{$.UI.T "nav.upload"}}</h3>
 		    <br>
 		    <p class="card-text">
 		    
 			<form action="./uploadChunk" class="dropzone upload-box text-center w-100" id="uploaddropzone">
 				<div class="dz-message">
 {{ if .EndToEndEncryption }}
-				    <p id="uploadBoxTitle" class="mb-2 fs-5">Please wait</p>
-				    <p id="uploadBoxSubtitle" class="mb-0 opacity-75">Loading end-to-end encryption...</p>
+                    <p id="uploadBoxTitle" class="mb-2 fs-5">{{$.UI.T "common.wait"}}</p>
+                    <p id="uploadBoxSubtitle" class="mb-0 opacity-75">{{$.UI.T "files.loadingE2E"}}</p>
 {{ else }}
-				    <p id="uploadBoxTitle" class="mb-2 fs-5">Drag & drop files here</p>
-				    <p id="uploadBoxSubtitle" class="mb-0 opacity-75">or paste or click to select.</p>
+                    <p id="uploadBoxTitle" class="mb-2 fs-5">{{$.UI.T "request.drop"}}</p>
+                    <p id="uploadBoxSubtitle" class="mb-0 opacity-75">{{$.UI.T "files.selectHint"}}</p>
 {{ end }}
 				</div>
 			</form>
@@ -32,20 +32,20 @@
 		    <div class="upload-option-header">
 		      <div class="d-flex align-items-center gap-2">
 		        <i class="bi bi-arrow-down-circle upload-option-icon"></i>
-		        <span class="upload-option-label">Download Limit</span>
+                <span class="upload-option-label">{{$.UI.T "files.downloadLimit"}}</span>
 		      </div>
 		      <div class="form-check form-switch mb-0">
 		        <input class="form-check-input upload-option-toggle" type="checkbox" role="switch"
 		               name="enableDownloadLimit" id="enableDownloadLimit"
 		               onchange="checkBoxChanged(this, 'allowedDownloads')" checked
-		               aria-label="Enable Download Limit">
+                       aria-label="{{$.UI.T "files.enableDownloads"}}">
 		      </div>
 		    </div>
 		    <div class="input-group upload-option-input-group">
 		      <input type="number" class="form-control admin-input" value="1"
 		             name="allowedDownloads" id="allowedDownloads" min="1"
 		             style="text-align: right;" data-allow-regular-paste>
-		      <span class="input-group-text upload-option-suffix">Downloads</span>
+              <span class="input-group-text upload-option-suffix">{{$.UI.T "files.downloads"}}</span>
 		    </div>
 		  </div>
 
@@ -53,20 +53,20 @@
 		    <div class="upload-option-header">
 		      <div class="d-flex align-items-center gap-2">
 		        <i class="bi bi-calendar-x upload-option-icon"></i>
-		        <span class="upload-option-label">Expiry</span>
+                <span class="upload-option-label">{{$.UI.T "common.expiry"}}</span>
 		      </div>
 		      <div class="form-check form-switch mb-0">
 		        <input class="form-check-input upload-option-toggle" type="checkbox" role="switch"
 		               name="enableTimeLimit" id="enableTimeLimit"
 		               onchange="checkBoxChanged(this, 'expiryDays')" checked
-		               aria-label="Enable Time Limit">
+                       aria-label="{{$.UI.T "files.enableTime"}}">
 		      </div>
 		    </div>
 		    <div class="input-group upload-option-input-group">
 		      <input type="number" class="form-control admin-input" value="14"
 		             name="expiryDays" id="expiryDays" min="1" max="100000"
 		             style="text-align: right;" data-allow-regular-paste>
-		      <span class="input-group-text upload-option-suffix">Days</span>
+              <span class="input-group-text upload-option-suffix">{{$.UI.T "files.days"}}</span>
 		    </div>
 		  </div>
 
@@ -74,17 +74,17 @@
 		    <div class="upload-option-header">
 		      <div class="d-flex align-items-center gap-2">
 		        <i class="bi bi-key upload-option-icon"></i>
-		        <span class="upload-option-label">Password</span>
+                <span class="upload-option-label">{{$.UI.T "common.password"}}</span>
 		      </div>
 		      <div class="form-check form-switch mb-0">
 		        <input class="form-check-input upload-option-toggle" type="checkbox" role="switch"
 		               name="enablePassword" id="enablePassword"
 		               onchange="checkBoxChanged(this, 'password')"
-		               aria-label="Enable Password Protection">
+                       aria-label="{{$.UI.T "files.enablePassword"}}">
 		      </div>
 		    </div>
 		    <input class="form-control admin-input upload-option-input-group" value=""
-		           name="password" id="password" placeholder="No password" disabled
+                   name="password" id="password" placeholder="{{$.UI.T "files.noPassword"}}" disabled
 		           data-allow-regular-paste>
 		  </div>
 
@@ -97,46 +97,46 @@
 			<table id="maintable" class="table table-dark">
 				<thead>
 					<tr>
-						<th scope="col" style="text-align: center;">Filename</th>
-						<th scope="col" style="text-align: center;">Size</th>
-						<th scope="col" style="text-align: center;">Downloads remaining</th>
-						<th scope="col" style="text-align: center;">Stored until</th>
-						<th scope="col" style="text-align: center;">Downloads</th>
+                        <th scope="col" style="text-align: center;">{{$.UI.T "common.filename"}}</th>
+                        <th scope="col" style="text-align: center;">{{$.UI.T "common.size"}}</th>
+                        <th scope="col" style="text-align: center;">{{$.UI.T "files.remaining"}}</th>
+                        <th scope="col" style="text-align: center;">{{$.UI.T "files.storedUntil"}}</th>
+                        <th scope="col" style="text-align: center;">{{$.UI.T "files.downloads"}}</th>
 						<th scope="col" style="text-align: center;">ID</th>
-						<th scope="col" style="text-align: center; min-width:13em;">Actions</th>
+                        <th scope="col" style="text-align: center; min-width:13em;">{{$.UI.T "common.actions"}}</th>
 					</tr>
 				</thead>
 				<tbody id="downloadtable">
 {{ range .Items }}
-	{{ if not (or .IsPendingDeletion .IsFileRequest) }}	
+	{{ if not (or .IsPendingDeletion .IsFileRequest) }}
 		{{ if  or (gt .ExpireAt $.TimeNow) (.UnlimitedTime) }}
 			{{ if or (gt .DownloadsRemaining 0) (.UnlimitedDownloads) }}
 					<tr id="row-{{ .Id }}">
 						<td id="cell-name-{{ .Id }}">{{ .Name }}</td>
 						<td data-order="{{ .SizeBytes }}">{{ .Size }}</td>
 				{{ if .UnlimitedDownloads }}
-						<td>Unlimited</td>
+                        <td>{{$.UI.T "common.unlimited"}}</td>
 				{{ else }}
 						<td id="cell-downloadsRemaining-{{ .Id }}">{{ .DownloadsRemaining }}</td>
 				{{ end }}
 				{{ if .UnlimitedTime }}
-						<td>Unlimited</td>
+                        <td>{{$.UI.T "common.unlimited"}}</td>
 				{{ else }}
 						<td><span id="cell-expireatstring-{{ .Id }}"></span></td>
 						 <script>insertFormattedDate({{ .ExpireAt }}, "cell-expireatstring-{{ .Id }}");</script>
 				{{ end }}
 						<td id="cell-downloads-{{ .Id }}">{{ .DownloadCount }}</td>
-						<td><a id="url-href-{{ .Id }}" target="_blank" href="{{ .UrlDownload }}">{{ .Id }}</a>{{ if .IsPasswordProtected }}  <i title="Password protected" class="bi bi-key"></i>{{ end }}</td>
+                        <td><a id="url-href-{{ .Id }}" target="_blank" href="{{ .UrlDownload }}">{{ .Id }}</a>{{ if .IsPasswordProtected }}  <i title="{{$.UI.T "files.passwordProtected"}}" class="bi bi-key"></i>{{ end }}</td>
 						<td>
 						<div class="btn-toolbar justify-content-end" role="toolbar" >
 						  <div class="btn-group me-2" role="group">
-						     {{ template "admin_button_copyurl" (newAdminButtonContext . $.ActiveUser)}}
-						     {{ template "admin_button_share" (newAdminButtonContext . $.ActiveUser)}}
+						     {{ template "admin_button_copyurl" (newAdminButtonContext . $.ActiveUser $.UI)}}
+						     {{ template "admin_button_share" (newAdminButtonContext . $.ActiveUser $.UI)}}
 						  </div>
 						  <div class="btn-group" role="group">
-						     {{ template "admin_button_download" (newAdminButtonContext . $.ActiveUser) }}
-						     {{ template "admin_button_edit" (newAdminButtonContext . $.ActiveUser) }}
-						     {{ template "admin_button_delete" (newAdminButtonContext . $.ActiveUser) }}
+						     {{ template "admin_button_download" (newAdminButtonContext . $.ActiveUser $.UI) }}
+						     {{ template "admin_button_edit" (newAdminButtonContext . $.ActiveUser $.UI) }}
+						     {{ template "admin_button_delete" (newAdminButtonContext . $.ActiveUser $.UI) }}
 						 </div>
 						</div></td>
 					</tr>
@@ -152,16 +152,16 @@
 	    </div>
    	 </div>
 	
-	{{ template "admin_modal_edit" }}
+	{{ template "admin_modal_edit" . }}
 	
 
-	<div id="toastnotification" class="toastnotification" data-default="URL copied to clipboard">Toast Text</div>
+    <div id="toastnotification" class="toastnotification" data-default="{{$.UI.T "files.copyToast"}}"></div>
 	<div id="toastnotificationUndo" class="toastnotification">
-	  File deleted: <span id="toastFilename"></span>
-  	   <span id="toastUndoButton" class="toast-undo" onclick="handleUndo(this)">Restore</span>
+      {{$.UI.T "files.deleted"}} <span id="toastFilename"></span>
+       <span id="toastUndoButton" class="toast-undo" onclick="handleUndo(this)">{{$.UI.T "common.restore"}}</span>
 	</div>
 	<div id="toastDeprecation" class="toastnotification toastdeprecation">
-	  Warning! This server is using a deprecated feature. Detailed information can be found in the system logs.
+      {{$.UI.T "files.deprecated"}}
 	</div>
 	<div id="qroverlay">
 	  <div id="qrcode"></div>
@@ -194,8 +194,9 @@
 		} ],
 	    "paging": false,
 	    "language": {
-	      "info": "Files stored: _TOTAL_",
-	      "emptyTable": "No files stored yet",
+	      ...tableLanguage(),
+	      "info": t("files.tableCount"),
+	      "emptyTable": t("files.empty"),
 	      "infoEmpty": "",
 	    }
 	    });
@@ -217,7 +218,7 @@
         <script src="./js/min/wasm_exec.min.js"></script>
 	<script src="./js/min/end2end_admin.min.{{ template "js_e2eversion"}}.js"></script>
 	<script>
-	{{ if .IncludeFilename }} 
+	{{ if .IncludeFilename }}
 		const IncludeFilename = true;
 	{{ else }}
 		const IncludeFilename = false;
@@ -245,7 +246,7 @@
 {{ define "admin_button_download" }}
 			<button
 			    type="button"
-			    title="Download"
+                title="{{$.UI.T "common.download"}}"
 			    class="btn btn-outline-light btn-sm {{if .CurrentFile.RequiresClientSideDecryption}}disabled{{end}}"
 			    onclick="downloadFileWithPresign('{{.CurrentFile.Id }}');">
 		   	    <i class="bi bi-download"></i>
@@ -256,7 +257,7 @@
 {{ define "admin_button_edit" }}
 			<button
 			    type="button"
-			    title="Edit"
+                title="{{$.UI.T "common.edit"}}"
 			    {{ if and (ne .ActiveUser.Id .CurrentFile.UploaderId) (not .ActiveUser.HasPermissionEditOtherUploads) }}
 			    	disabled
 			    {{ end }}
@@ -277,7 +278,7 @@
 {{ define "admin_button_delete" }}
 			<button id="button-delete-{{ .CurrentFile.Id}}"
 			   type="button"
-			   title="Delete"
+               title="{{$.UI.T "common.delete"}}"
 			    {{ if and (ne .ActiveUser.Id .CurrentFile.UploaderId) (not .ActiveUser.HasPermissionDeleteOtherUploads) }}
 			    	disabled
 			    {{ end }}
@@ -289,21 +290,21 @@
 
 {{ define "admin_button_copyurl" }}
 		    <button id="url-button-{{ .CurrentFile.Id }}" type="button" onclick="showToast(1000)"
-		    	data-clipboard-text="{{ .CurrentFile.UrlDownload }}" class="copyurl btn btn-outline-light btn-sm" title="Copy URL"><i class="bi bi-copy"></i> URL</button>
+                data-clipboard-text="{{ .CurrentFile.UrlDownload }}" class="copyurl btn btn-outline-light btn-sm" title="{{$.UI.T "common.copyURL"}}"><i class="bi bi-copy"></i> URL</button>
 		    <button type="button" class="btn btn-outline-light btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
 		    </button>
 			<ul class="dropdown-menu dropdown-menu-end" data-bs-theme="dark" >
 	{{ if ne .CurrentFile.UrlHotlink "" }}
-			    <li style="cursor: pointer;"><a class="dropdown-item copyurl" title="Copy hotlink" onclick="showToast(1000)"
-			    	data-clipboard-text="{{ .CurrentFile.UrlHotlink }}"><i class="bi bi-copy"></i> Hotlink</a></li>
+                <li style="cursor: pointer;"><a class="dropdown-item copyurl" title="{{$.UI.T "files.copyHotlink"}}" onclick="showToast(1000)"
+                    data-clipboard-text="{{ .CurrentFile.UrlHotlink }}"><i class="bi bi-copy"></i> {{$.UI.T "files.hotlink"}}</a></li>
 		{{ else }}
-			    <li><a class="dropdown-item disabled">Hotlink not available</a></li>
+                <li><a class="dropdown-item disabled">{{$.UI.T "files.noHotlink"}}</a></li>
 	{{ end }}
 			</ul>
 {{ end }}
 
 {{ define "admin_button_share" }}
-		    <button type="button" class="btn btn-outline-light btn-sm" title="Share" onclick="shareUrl(event, '{{ .CurrentFile.Id }}',
+            <button type="button" class="btn btn-outline-light btn-sm" title="{{$.UI.T "common.share"}}" onclick="shareUrl(event, '{{ .CurrentFile.Id }}',
 		       '{{ .CurrentFile.UrlDownload }}')">
 		       <!-- For some reason bi-share does not always show up, using the svg fixes it -->
 		       	<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
@@ -313,9 +314,9 @@
 		    <button type="button" id="shareDropdown-{{ .CurrentFile.Id }}" class="btn btn-outline-light btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
 		    </button>
 			<ul class="dropdown-menu dropdown-menu-end" data-bs-theme="dark" >
-			    <li style="cursor: pointer;"><a class="dropdown-item" id="qrcode-{{ .CurrentFile.Id }}" title="Open QR Code" onclick="showQrCode('{{ .CurrentFile.UrlDownload }}');"><i class="bi bi-qr-code"></i> QR Code</a></li>
+                <li style="cursor: pointer;"><a class="dropdown-item" id="qrcode-{{ .CurrentFile.Id }}" title="{{$.UI.T "files.openQR"}}" onclick="showQrCode('{{ .CurrentFile.UrlDownload }}');"><i class="bi bi-qr-code"></i> {{$.UI.T "files.qr"}}</a></li>
 			    <li style="cursor: pointer;"><a class="dropdown-item" id="email-{{ .CurrentFile.Id }}" href="mailto:?body={{ .CurrentFile.UrlDownload | urlquery}}"
-			       target="_blank" title="Share via email"><i class="bi bi-envelope"></i> Email</a></li>
+                   target="_blank" title="{{$.UI.T "files.emailShare"}}"><i class="bi bi-envelope"></i> {{$.UI.T "files.email"}}</a></li>
 			</ul>
 {{ end }}
 
@@ -325,43 +326,43 @@
 	  <div class="modal-dialog  modal-lg gokapi-dialog">
 	    <div class="modal-content gokapi-dialog">
 	      <div class="modal-header">
-		<h1 class="modal-title fs-5" id="m_filenamelabel">Filename</h1>
+        <h1 class="modal-title fs-5" id="m_filenamelabel">{{$.UI.T "common.filename"}}</h1>
 	      </div>
 	      <div class="modal-body">
 		<div class="input-group mb-3">
 		  <div class="input-group-text">
-      			<input type="checkbox" id="mc_download"  checked aria-label="Limit downloads" title="Limit downloads"  data-toggle-target="mi_edit_down" onchange="handleEditCheckboxChange(this)">
+                <input type="checkbox" id="mc_download"  checked aria-label="{{$.UI.T "files.limitDownloads"}}" title="{{$.UI.T "files.limitDownloads"}}"  data-toggle-target="mi_edit_down" onchange="handleEditCheckboxChange(this)">
    		 </div>
-		  <span class="input-group-text modal-samesize-input-edit" id="edit_down">Limit Downloads</span>
-		  <input type="number" min="1" id="mi_edit_down" class="form-control" aria-label="Downloads Remaining" aria-describedby="edit_down" data-allow-regular-paste>
+          <span class="input-group-text modal-samesize-input-edit" id="edit_down">{{$.UI.T "files.limitDownloads"}}</span>
+          <input type="number" min="1" id="mi_edit_down" class="form-control" aria-label="{{$.UI.T "files.remaining"}}" aria-describedby="edit_down" data-allow-regular-paste>
 		</div>
 		<div class="input-group mb-3">
 		  <div class="input-group-text">
-      			<input id="mc_expiry" type="checkbox" checked aria-label="Expire files" title="Expire files"  data-toggle-target="mi_edit_expiry" data-timestamp="" onchange="handleEditCheckboxChange(this)" >
+                <input id="mc_expiry" type="checkbox" checked aria-label="{{$.UI.T "files.expire"}}" title="{{$.UI.T "files.expire"}}"  data-toggle-target="mi_edit_expiry" data-timestamp="" onchange="handleEditCheckboxChange(this)" >
    		 </div>
-		  <span class="input-group-text modal-samesize-input-edit" id="edit_expdate">Expiry</span>
-		  <input type="text" id="mi_edit_expiry" class="form-control" aria-label="Expiry" aria-describedby="edit_expdate"  data-allow-regular-paste>
+          <span class="input-group-text modal-samesize-input-edit" id="edit_expdate">{{$.UI.T "common.expiry"}}</span>
+          <input type="text" id="mi_edit_expiry" class="form-control" aria-label="{{$.UI.T "common.expiry"}}" aria-describedby="edit_expdate"  data-allow-regular-paste>
 		</div>
 		<div class="input-group mb-3">
 		  <div class="input-group-text">
-      			<input type="checkbox" id="mc_password" aria-label="Require password" title="Require password" data-toggle-target="mi_edit_pw" onchange="handleEditCheckboxChange(this)">
+                <input type="checkbox" id="mc_password" aria-label="{{$.UI.T "files.requirePassword"}}" title="{{$.UI.T "files.requirePassword"}}" data-toggle-target="mi_edit_pw" onchange="handleEditCheckboxChange(this)">
    		 </div>
-		  <span class="input-group-text modal-samesize-input-edit" id="edit_pw">Password</span>
-		  <input type="text" id="mi_edit_pw" class="form-control" aria-label="Password" disabled onclick="selectTextForPw(this)" aria-describedby="edit_pw"  data-allow-regular-paste>
+          <span class="input-group-text modal-samesize-input-edit" id="edit_pw">{{$.UI.T "common.password"}}</span>
+          <input type="text" id="mi_edit_pw" class="form-control" aria-label="{{$.UI.T "common.password"}}" disabled onclick="selectTextForPw(this)" aria-describedby="edit_pw"  data-allow-regular-paste>
 		</div>
 		
 	      <div class="input-group mb-3" id="replaceGroup">
 		  <div class="input-group-text">
-		    <input type="checkbox" id="mc_replace" aria-label="Replace file content" title="Replace file content" data-toggle-target="mi_edit_replace" onchange="handleEditCheckboxChange(this)">
+            <input type="checkbox" id="mc_replace" aria-label="{{$.UI.T "files.replaceLabel"}}" title="{{$.UI.T "files.replaceLabel"}}" data-toggle-target="mi_edit_replace" onchange="handleEditCheckboxChange(this)">
 		  </div>
-		  <span class="input-group-text modal-samesize-input-edit" id="edit_replace">Replace Content</span>
-		  <select id="mi_edit_replace" class="form-select" aria-label="Replace File Content" disabled>
+          <span class="input-group-text modal-samesize-input-edit" id="edit_replace">{{$.UI.T "files.replace"}}</span>
+          <select id="mi_edit_replace" class="form-select" aria-label="{{$.UI.T "files.replaceLabel"}}" disabled>
 		  </select>
 		</div>
 	      </div>
 	      <div class="modal-footer">
-		<button type="button" class="btn btn-outline-light"  aria-label="Close" data-bs-dismiss="modal">Close</button>
-		<button type="button" class="btn btn-primary" data-fileid="" id="mb_save" onclick="editFile();">Save changes</button>
+        <button type="button" class="btn btn-outline-light"  aria-label="{{$.UI.T "common.close"}}" data-bs-dismiss="modal">{{$.UI.T "common.close"}}</button>
+        <button type="button" class="btn btn-primary" data-fileid="" id="mb_save" onclick="editFile();">{{$.UI.T "common.saveChanges"}}</button>
 	      </div>
 	    </div>
 	  </div>

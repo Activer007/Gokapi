@@ -16,7 +16,7 @@
 1. 语言与展示基础：配置校验、重新配置保留 UI、请求级语言、公共标题/页脚/
    导航/切换入口、登录页、基础回归检查。
 2. 公共页面：下载、密码、错误、改密、文件收集上传及动态提示；加密和传输保护。
-3. 管理页面：上传管理、文件收集管理、用户、API 密钥、状态与前端组件。
+3. 管理页面分两批中等规模 PR：上传/文件收集/组件；用户/API 密钥/状态/加密设置。
 4. 安装向导与验收：向导/校验文案，补齐词条，实际浏览器及本地全量验证。
 
 每批创建中等规模 PR。开始和合并前 fetch origin；远端变化时同步并重新验证。
@@ -67,4 +67,20 @@ Node 内置测试检查语言切换/插值；最终使用桌面浏览器验证�
   写入完成前禁止语言切换、结束后恢复。这不是加密文件字节正确性测试。
 * 浏览器重复验证最初因复用夹具消耗名额、成功弹窗阻挡按钮而失败；每次使用独立合成数据目录后通过。
 
-以上是前两批范围的验证；管理页面、安装向导和全仓验证仍属于后续批次。
+第二批已合并：`PR #25 <https://github.com/Activer007/Gokapi/pull/25>`_，
+主线合并提交 ``0f618ed``。
+
+第三批第一部分（基于最新 ``0f618ed``）：
+
+* 上传管理、文件收集、子模板和新增行的动态按钮接入词典。
+* DataTables、Dropzone、Flatpickr 使用本地词条；日期存储/排序仍使用时间戳。
+* 后台 API 失败统一解析：翻译已知错误码，保留未知错误详情，正文只读取一次。
+* ``go generate ./...``、生产 noaws 构建通过。
+* ``go test ./internal/i18n ./internal/webserver -tags=test,noaws -count=1``：通过。
+* ``go test -race ./internal/i18n ./internal/webserver -tags=test,noaws -run 'TestUI|TestPreference|TestSelect|TestDictionaries' -count=1``：通过，包含最终的单文件/多文件子模板分支。
+* ``node --test build/tests/ui.test.cjs build/tests/public-upload.test.cjs build/tests/admin-ui.test.cjs``：8 项通过。
+* 桌面 Chrome 1600×1100 实际登录、中文搜索/编辑日历、实际上传与动态按钮、
+  Dropzone 超限中文提示、中文文件收集创建/编辑、英文切换重载均通过，0 page error。
+* 初次浏览器复验发现关闭按钮文字与可访问名称不一致，修正 aria-label 后通过。
+
+以上是当前交付范围的验证；用户/API/状态/加密设置、安装向导和全仓验证仍待完成。

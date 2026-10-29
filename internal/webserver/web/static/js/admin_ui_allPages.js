@@ -30,10 +30,33 @@ function hideToast() {
 
 var calendarInstance = null;
 
+function tableLanguage() {
+    return {
+        search: t('table.search'), zeroRecords: t('table.noMatches'),
+        lengthMenu: t('table.length'), infoFiltered: t('table.filtered'),
+        processing: t('table.processing'), loadingRecords: t('common.loading'),
+        paginate: {first: t('table.first'), previous: t('table.previous'), next: t('table.next'), last: t('table.last')},
+        aria: {sortAscending: t('table.sortAscending'), sortDescending: t('table.sortDescending')}
+    };
+}
+
+function calendarLanguage() {
+    if (document.documentElement.lang !== 'zh-CN') return 'default';
+    return {
+        weekdays: {shorthand: t('calendar.weekdaysShort').split('|'), longhand: t('calendar.weekdaysLong').split('|')},
+        months: {shorthand: t('calendar.months').split('|'), longhand: t('calendar.months').split('|')},
+        firstDayOfWeek: 1, rangeSeparator: t('calendar.range'),
+        scrollTitle: t('calendar.scroll'), toggleTitle: t('calendar.toggle'),
+        yearAriaLabel: t('calendar.year'), monthAriaLabel: t('calendar.month'),
+        hourAriaLabel: t('calendar.hour'), minuteAriaLabel: t('calendar.minute')
+    };
+}
+
 function createCalendar(element, timestamp) {
     const expiryDate = new Date(timestamp * 1000);
 
     calendarInstance = flatpickr(document.getElementById(element), {
+        locale: calendarLanguage(),
         enableTime: true,
         dateFormat: 'U', // Unix timestamp
         altInput: true,
@@ -69,7 +92,7 @@ function downloadFileWithPresign(id) {
     apiFilesListDownloadSingle(id)
         .then(data => {
             if (!data.hasOwnProperty("downloadUrl")) {
-                throw new Error("Unable to get presigned key");
+                throw new Error(t("presign.failed"));
             }
             const a = document.createElement('a');
             a.href = data.downloadUrl;
@@ -80,7 +103,7 @@ function downloadFileWithPresign(id) {
             a.remove();
         })
         .catch(error => {
-            alert("Unable to download: " + error);
+            alert(t("download.failed") + error);
             console.error('Error:', error);
         });
 }
@@ -89,7 +112,7 @@ function downloadFilesZipWithPresign(ids, filename) {
     apiFilesListDownloadZip(ids, filename)
         .then(data => {
             if (!data.hasOwnProperty("downloadUrl")) {
-                throw new Error("Unable to get presigned key");
+                throw new Error(t("presign.failed"));
             }
             const a = document.createElement('a');
             a.href = data.downloadUrl;
@@ -100,7 +123,7 @@ function downloadFilesZipWithPresign(ids, filename) {
             a.remove();
         })
         .catch(error => {
-            alert("Unable to download: " + error);
+            alert(t("download.failed") + error);
             console.error('Error:', error);
         });
 }
