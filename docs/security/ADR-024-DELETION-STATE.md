@@ -1,6 +1,6 @@
 # ADR-024：删除状态协调与兼容反馈
 
-状态：ACCEPTED / CI_PENDING，2026-10-30；SEC-040-B，初始基线dee4382f，代码冻结1d25225。未通过最终CI，不表示可合并。
+状态：ACCEPTED，2026-10-30；SEC-040-B，初始基线dee4382f，最终代码cf30b57；PR48，CI40922295319 SUCCESS。
 
 ## 决策
 
@@ -40,6 +40,6 @@ File Request删除、保存与owner迁移共用独立的有界stripe域；删除
 
 ## Gate
 
-两项私密候选在冻结1d25225上GREEN：timer保留原断言；恢复候选改为串行门禁结果判定，非原先强制成功前提的同夹具回放。
+两项私密候选在最终cf30b57上GREEN：timer保留原断言；恢复候选改为串行门禁结果判定，非原先强制成功前提的同夹具回放。
 双provider字段保留/冲突/缺失不复活，旧timer、FR Claim/Commit及跨owner、API/CLI和既有兼容局部GREEN。
-相关Linux race与最终完整CI仍OPEN，不借用040-A或UI PR45的PASS。
+最终Linux四组全仓、相关race、M3 target/race和构建/扫描全部通过，实际checkout与冻结代码tree相同；不借用040-A或其他UI PR的PASS。

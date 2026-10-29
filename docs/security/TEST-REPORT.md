@@ -2,7 +2,35 @@
 
 日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/SupaShare 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
 
-## M4执行安排与040-B局部进度（2026-10-29）
+## M4：SEC-040-B最终验证（2026-10-30）
+
+[PR48](https://github.com/Activer007/SupaShare/pull/48)，冻结cf30b576020b187a20450e14b03cbfebb7294ba3；
+[CI40922295319](https://github.com/Activer007/SupaShare/actions/runs/40922295319) SUCCESS，job123618732730。
+实际checkout46aa8b955391e053e6dc36f229f1c124978fc631，父ef690e8+cf30b57，tree de6f9430fe87c4e0fb826cb9ac20d468354decaa与冻结head一致。
+环境Ubuntu24.04.5、Go1.26.10 linux/amd64；完整命令/返回码见[脱敏摘要](evidence/sec040b-cf30b57/ci-summary.txt)。
+
+| 实际最终命令 | 结果 |
+| --- | --- |
+| `go generate ./...` 及 `git diff --exit-code` | PASS，生成未改变tracked输入 |
+| `go test ./... -parallel 8 -count=1 --tags=test,awsmock` | PASS |
+| `go test ./... -parallel 8 -count=1 --tags=test,noaws` | PASS |
+| `go test ./... --tags=test,noaws,integration -count=1` | PASS |
+| 既有合成AWS环境 `go test ./... --tags=test,awstest -count=1` | PASS，非真实S3 |
+| receiver及独立SEC052 failure的既有race命令 | PASS，完整命令见摘要；052原synctest断言保留 |
+| `go test -race ./internal/test/securityfixture ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,security_cleanup -run '^TestSEC040Cleanup' -timeout 3m -v` | PASS；含明确WATCH中止/owner变化/已提交unknown四边界，Linux symlink/permissions均实际PASS |
+| `go test -race ./internal/storage ./internal/storage/filerequest ./internal/webserver/api ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis ./internal/webserver/api/mutex/apimutex ./cmd/cli-uploader/cliapi -count=1 -tags=test,noaws,security_deletion,security_replace -run 'TestSEC040\|TestSEC030ReplaceLocks' -timeout 3m -v` | PASS；timer、条件patch、恢复资格、FR Claim/Commit及cross-owner、API/CLI与锁取消 |
+| `bash docs/security/tools/run-sec030-whole.sh target` / `race` | PASS，两个source-unchanged均0；原共享引用GC合同两backend在普通/race均PASS，保留所有原断言 |
+| `bash docs/security/tools/run-sec062-toolchain.sh scan` | PASS，19项全部0；默认/noaws/WASM、generator/server/CLI build与实际BuildInfo、源码/二进制扫描 |
+
+扫描仍提示模块级GO-2026-5932、GO-2022-0646/0635，受测调用图未报affected调用，不宣称依赖已修复或无漏洞。
+最终cf30b57两私密候选实际exit0：timer8.704s、恢复12.205s；1479输入及原RED前后hash核对，完整命令/复现仅留未公开审查。
+原始RED与各轮候选不覆盖；旧成功前提与新恢复候选合同的差别见下文，不把候选称作原样回放。
+14项Node UI契约在a022285的UI输入PASS；之后UI输入未改，不重复浏览器/大文件矩阵。
+本机Windows/CGO0 race仍BLOCKED；真实Redis持久化、真实S3/历史版本、断电及生产演练NOT_RUN；手动historical/container/large Gate本轮NOT_RUN。
+普通用户删除与全部在途/新认证上传原子隔离仍VALIDATE。041/052余项/051/050继续OPEN，M4未完成。
+收尾仅安全Markdown及本脱敏txt，不改runtime、测试、模板、module或workflow；不重复完整CI。前三次CI失败/最小修正的原始记录如下保留。
+
+## M4执行安排与040-B开发记录（2026-10-29起）
 
 2026-10-30续作：远端新增自有PR45，保存040-B为22ce805后merge b7a5f85得到0c2e07，无冲突，Go仍1.26.10 windows/amd64。
 新增FR当前policy边界合同与独立请求stripe域，保持单进程、无schema。以下是续作实际执行，原始失败均保留：
