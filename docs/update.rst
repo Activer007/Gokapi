@@ -39,6 +39,11 @@ The bundled Compose file builds from the local source tree. If you use a
 separately published image, update and pull that explicit image reference
 instead. Keep the existing config/data mounts when recreating the container.
 
+When migrating an existing Gokapi Compose deployment, stop it with the old
+Compose file before switching to this repository's ``supashare`` service.
+Keep its volumes and bind directories; do not run old and new services
+against the same state at the same time.
+
 
 *******************
 Native deployment
