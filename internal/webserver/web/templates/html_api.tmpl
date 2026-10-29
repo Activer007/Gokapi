@@ -1,27 +1,10 @@
 {{ define "api" }}{{ template "header" . }}
-<div class="row">
-    <div class="col">
-        <div id="container" class="card" style="width: 100%">
-            <div class="card-body">
-		<div class="container">
-		  <div class="row mb-4">
-		    <div class="col">
-		    </div>
-		    <div class="col text-center">
-              <h3 class="card-title mb-0">{{$.UI.T "api.keys"}}</h3>
-		    </div>
-		    <div class="col text-end">
-		      <button id="button-newapi" class="btn btn-outline-light" onclick="newApiKey()">
-                    <i class="bi bi-plus-lg" aria-hidden="true"></i> {{$.UI.T "api.new"}}
-                </button>
-		    </div>
-		  </div>
-		</div>
-		
-                {{$.UI.T "api.docsBefore"}} <a target="_blank" href="./apidocumentation">{{$.UI.T "api.docs"}}</a> {{$.UI.T "api.docsAfter"}}<br>{{$.UI.T "api.help"}}
-                <br>
-                <br>
-                <div class="table-responsive">
+<section id="container" class="management-workspace api-workspace" aria-labelledby="managementTitle">
+<div class="page-heading"><div><h1 id="managementTitle">{{$.UI.T "api.keys"}}</h1><p>{{$.UI.T "api.workspaceHelp"}}</p></div>
+<button id="button-newapi" type="button" class="btn btn-primary primary-upload" onclick="newApiKey()"><i class="bi bi-plus-lg" aria-hidden="true"></i>{{$.UI.T "api.new"}}</button></div>
+<p class="management-help">{{$.UI.T "api.docsBefore"}} <a target="_blank" href="./apidocumentation">{{$.UI.T "api.docs"}}</a> {{$.UI.T "api.docsAfter"}}<br>{{$.UI.T "api.help"}}</p>
+<div class="management-empty"><i class="bi bi-key" aria-hidden="true"></i><h2>{{$.UI.T "api.emptyTitle"}}</h2><p>{{$.UI.T "api.emptyHelp"}}</p></div>
+<div class="table-responsive management-table">
                     <table class="table table-dark">
                         <thead>
                             <tr>
@@ -103,11 +86,8 @@ insertDateWithNegative({{ .LastUsed }}, "cell-lastused-{{ .PublicId }}");</scrip
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
+</section>
     <div id="toastnotification" class="toastnotification" role="status" aria-live="polite" aria-atomic="true" data-default="{{$.UI.T "api.copySuccess"}}"></div>
-    </div>
-</div>
 
 <div class="modal fade" id="deleteApiModal" tabindex="-1" aria-labelledby="deleteApiTitle" aria-describedby="deleteApiHelp" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">

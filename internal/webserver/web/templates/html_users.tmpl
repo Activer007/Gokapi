@@ -1,24 +1,9 @@
 {{ define "users" }}
 {{ template "header" . }}
-<div class="row">
-    <div class="col">
-        <div id="container" class="card" style="width: 100%">
-    <div class="card-body">
-		<div class="container">
-		  <div class="row mb-4">
-		    <div class="col">
-		    </div>
-		    <div class="col text-center">
-              <h3 class="card-title mb-0">{{$.UI.T "nav.users"}}</h3>
-		    </div>
-		    <div class="col text-end">
-		      <button id="add-user-btn" class="btn btn-outline-light" onclick="showAddUserModal()">
-                    <i class="bi bi-plus-lg" aria-hidden="true"></i> {{$.UI.T "users.add"}}
-                </button>
-		    </div>
-		  </div>
-		</div>
-                <div class="table-responsive">
+<section id="container" class="management-workspace users-workspace" aria-labelledby="managementTitle">
+<div class="page-heading"><div><h1 id="managementTitle">{{$.UI.T "nav.users"}}</h1><p>{{$.UI.T "users.workspaceHelp"}}</p></div>
+<button id="add-user-btn" type="button" class="btn btn-primary primary-upload" onclick="showAddUserModal()"><i class="bi bi-plus-lg" aria-hidden="true"></i>{{$.UI.T "users.add"}}</button></div>
+<div class="table-responsive management-table">
                     <table class="table table-dark">
                         <thead>
                             <tr>
@@ -111,16 +96,15 @@ insertLastOnlineDate({{ .User.LastOnline }}, "cell-lastonline-{{ .User.Id }}");<
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
+</section>
     <div id="toastnotification" class="toastnotification" role="status" aria-live="polite" aria-atomic="true" data-default="{{$.UI.T "users.invalidNotice"}}"></div>
 	
 	<!-- Modal for deletion confirmation -->
-	<div class="modal" tabindex="-1" id="deleteModal">
+	<div class="modal" tabindex="-1" id="deleteModal" aria-labelledby="deleteUserTitle">
 	  <div class="modal-dialog gokapi-dialog">
 	    <div class="modal-content gokapi-dialog">
 	      <div class="modal-header">
-        <h5 class="modal-title">{{$.UI.T "users.delete"}}</h5>
+        <h2 class="modal-title fs-5" id="deleteUserTitle">{{$.UI.T "users.delete"}}</h2>
 	      </div>
 	      <div class="modal-body">
         <p>{{$.UI.T "users.deleteBefore"}} <span id="deleteModalBody" class="fw-bold"></span>{{$.UI.T "users.deleteAfter"}}</p>
@@ -143,10 +127,10 @@ insertLastOnlineDate({{ .User.LastOnline }}, "cell-lastonline-{{ .User.Id }}");<
 	
 	<!-- Bootstrap Modal for Adding a New User -->
 	<div class="modal fade" id="newUserModal" tabindex="-1" aria-labelledby="newUserModalLabel" aria-hidden="true">
-	  <div class="modal-dialog gokapi-dialog">
+	  <div class="modal-dialog modal-dialog-scrollable credential-modal">
 	    <div class="modal-content gokapi-dialog">
 	      <div class="modal-header">
-        <h5 class="modal-title" id="newUserModalLabel">{{$.UI.T "users.create"}}</h5>
+        <h2 class="modal-title fs-5" id="newUserModalLabel">{{$.UI.T "users.create"}}</h2>
 	      </div>
 	      <div class="modal-body">
 		<form id="newUserForm" data-credential-entry onsubmit="event.preventDefault(); addNewUser();">
@@ -172,11 +156,11 @@ insertLastOnlineDate({{ .User.LastOnline }}, "cell-lastonline-{{ .User.Id }}");<
 	
 	<!-- Modal for Reset Password -->
 	<div class="modal  fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
-	  <div class="modal-dialog gokapi-dialog text-start">
+	  <div class="modal-dialog modal-dialog-scrollable credential-modal text-start">
 	    <div class="modal-content gokapi-dialog">
 	      <!-- Modal Header -->
 	      <div class="modal-header">
-        <h5 class="modal-title" id="resetPasswordModalLabel">{{$.UI.T "users.resetPassword"}}</h5>
+        <h2 class="modal-title fs-5" id="resetPasswordModalLabel">{{$.UI.T "users.resetPassword"}}</h2>
 	      </div>
 
 	      <!-- Modal Body -->
@@ -226,11 +210,6 @@ insertLastOnlineDate({{ .User.LastOnline }}, "cell-lastonline-{{ .User.Id }}");<
 	    </div>
 	  </div>
 	  </div>
-
-
-    </div>
-</div>
-
 {{template "permission_editor" .UI}}
 <script src="./js/min/admin.min.{{ template "js_admin_version"}}.js"></script>
 <script>initPermissionEditors("user");</script>
@@ -252,7 +231,7 @@ insertLastOnlineDate({{ .User.LastOnline }}, "cell-lastonline-{{ .User.Id }}");<
 {{ end }}
 
 {{define "user_credentials"}}
-<div data-user-credentials class="text-start" hidden>
+<div data-user-credentials class="text-start credential-delivery" hidden>
     <p class="mb-3">{{.T "users.firstLoginHelp"}}</p>
     <div class="mb-3">
         <label class="form-label w-100">{{.T "login.username"}}

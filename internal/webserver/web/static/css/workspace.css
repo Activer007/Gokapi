@@ -49,6 +49,11 @@ body.admin-shell::after { display: none; }
 .admin-shell .card { border: 1px solid var(--ss-border); border-radius: var(--ss-radius); overflow: visible; }
 .admin-shell .card-body { background: var(--ss-surface); border-radius: var(--ss-radius); padding: 24px; }
 .admin-shell .card-title { font-weight: 650; }
+.admin-shell .modal-content { background: var(--ss-surface); color: var(--ss-text); border: 1px solid var(--ss-border); border-radius: var(--ss-radius); text-align: left; }
+.admin-shell .modal-header, .admin-shell .modal-footer { border-color: var(--ss-border); padding: 18px 24px; }
+.admin-shell .modal-body { padding: 24px; }
+.admin-shell .modal-title { font-weight: 650; }
+
 .admin-shell .file-workspace { width: 100%; max-width: none; padding: 0; margin: 0; }
 .admin-shell .upload-box { padding: 8px 24px; min-height: 140px; margin: 0; border: 1px dashed #6d809b; border-radius: var(--ss-radius); background: var(--ss-surface); cursor: pointer; }
 .admin-shell .upload-box .dz-message { display: flex; align-items: center; justify-content: flex-start; gap: 28px; margin: 0; text-align: left; min-height: 140px; }

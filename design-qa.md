@@ -1,8 +1,8 @@
-# SupaShare design QA — foundation batch
+# SupaShare design QA — workspace and administration batches
 
 final result: passed
 
-Scope: B1 workspace and B2 collection visual validation only. This is not acceptance of the full B0–B6 upgrade.
+Scope: B1 workspace, B2 collection and B3 administration visual validation only. This is not acceptance of the full B0–B6 upgrade.
 
 Source: `docs/images/ui-concepts/ui-enhanced-compact.png`, 1586×992 pixels.
 Implementation: `docs/images/ui-upgrade/foundation-zh.jpg`, 1586×992 pixels, CSS viewport 1586×992, devicePixelRatio 1. Source and final implementation were displayed together in the same comparison tool result on 2026-10-29, without resizing or browser chrome. Original iteration captures remain under `local-ui.secret/ui-upgrade/foundation/`.
@@ -46,3 +46,15 @@ The selected workspace concept supplies the visual language for collection pages
 - Fixed functional clarity: remaining capacity no longer appears under a maximum-count label. Successful completion can be dismissed; removal controls identify their file.
 - English 1280×720 management and Chinese 1920×1080 public completion remain readable. The final wide public capture uses full-page screenshot mode to avoid a browser screenshot/viewport synchronization artifact; DOM checks confirmed 1920×1080, DPR 1 and no horizontal page overflow.
 - No remaining P0/P1/P2 visual issue found in these B2 surfaces. Public error/login styling and shared public-header polish continue in B4. Full B0–B6 acceptance is still pending.
+
+## B3 administration adaptation
+
+Final result for B3 visual scope: passed.
+
+The selected concept and final users/API/status captures were displayed together on 2026-10-30 at CSS viewport 1586×992, DPR 1. Users and API captures are 1586×992; status uses a taller full-page capture with a scrollbar. These pages inherit the concept's design language; no separate administration mockup was supplied.
+
+- Shared left-aligned headings, charcoal table surfaces, blue primary actions and top navigation are consistent with B1. Permission columns and masked keys remain legible.
+- Fixed P2: a tall credential delivery dialog could hide its footer at 720px height. Its body now scrolls within a 600px dialog; the final English 1280×720 capture shows the Close button fully inside the viewport.
+- Six status cards form one row on wide screens and two rows at 1280px. Log controls wrap without page-level horizontal overflow; longer logs use normal vertical page scrolling.
+- Explicit status confirmation dialogs match other administration dialogs, retain error feedback and restore focus on close. Final cancel verification leaves logs and traffic untouched.
+- No remaining P0/P1/P2 visual issue observed in these B3 surfaces. First-login, public authentication/download pages and complete acceptance continue in B4–B6.

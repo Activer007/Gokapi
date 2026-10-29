@@ -34,7 +34,7 @@ Limitations: 720×450 tests effective narrow desktop layout; actual browser zoom
 Delivered as PR #45: https://github.com/Activer007/SupaShare/pull/45. Final head `41c4ef3` passed GitHub CI. After explicit user confirmation, merged into master as `b7a5f85`. CI annotations concern runner/action runtime migrations, not test failures. The full B0–B6 upgrade is not complete.
 
 
-## Collections batch — verified, preparing PR
+## Collections batch — PR #46, awaiting merge approval
 
 Branch: `codex/ui-upgrade-collections`, based on merged B1 `b7a5f85`.
 
@@ -53,3 +53,24 @@ Validation:
 - Tracked screenshots: `docs/images/ui-upgrade/collections-zh.jpg`, `docs/images/ui-upgrade/public-upload-zh.jpg`. Additional synthetic evidence: `local-ui.secret/ui-upgrade/collections/`.
 
 Scope limits: collection expiry/active-reservation concurrency and exhaustive network failure behavior retain existing automated coverage and remain part of B6 cross-page regression. Public error-page styling belongs to B4. No full-site acceptance or version increment is claimed.
+
+Delivered as PR #46: https://github.com/Activer007/SupaShare/pull/46. Head `f8563e1` passed GitHub CI. Automatic approval review required separate user confirmation for this merge; the request remains pending. PR #45's authorization was not extended to this PR.
+
+## Administration batch — locally verified
+
+Branch: `codex/ui-upgrade-management`, based on B2 `f8563e1`.
+
+- User and API pages adopt the shared heading, primary action and wide table. Existing permissions, key masking, credential delivery and DOM hooks remain intact. API empty state follows the actual table rows.
+- Credential dialogs use a scrollable body and reachable footer at 1280×720. Credentials remain confined to the existing dialog lifecycle and are cleared on close.
+- Status uses six resource summaries on wide desktops, three per row on smaller desktops, labelled log controls and a readable resizable log viewer.
+- Log deletion and traffic reset now use explicit Bootstrap confirmation with the shared pending/error handling and focus return. Cancelling clears the selection without sending the destructive request.
+
+Validation on 2026-10-30:
+
+- Native Linux generation, all 35 Node tests, and `go test ./internal/i18n ./internal/webserver -tags=test,noaws -count=1` passed. The only subsequent template change removes trailing whitespace. Generated assets were imported from this final snapshot.
+- Browser: create a synthetic user, copy delivery text, close and inspect that credential field lengths are zero; duplicate username rejection retains input; permission save and cancel; create/copy/rename API key and cancel deletion.
+- Browser: filter authentication logs; cancel both new status dialogs and verify no destructive request result. An earlier browser test of the old native confirm unexpectedly deleted only synthetic local logs; this prompted replacement by explicit page dialogs and regression tests. No production data was involved.
+- Chinese users/API/status compared with the selected concept at CSS 1586×992, DPR 1. English status and credential delivery inspected at 1280×720; credential Close bounds 631–669px remain inside the viewport. Status full-page captures include normal vertical scrolling. No warning/error captured in the final status tab.
+- Screenshots: `docs/images/ui-upgrade/users-zh.jpg`, `api-zh.jpg`, `status-zh.jpg`; additional synthetic evidence in `local-ui.secret/ui-upgrade/management/`.
+
+Limitations: the generated-password browser login attempt was inconclusive and is not accepted as first-login coverage; B4 will use a known disposable forced-reset fixture to inspect that gate. API empty-state browser coverage and full-site regression remain pending. Version remains 2.11.0.
