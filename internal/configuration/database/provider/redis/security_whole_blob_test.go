@@ -11,8 +11,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
 )
 
 func sec030RedisBlobGob(t *testing.T, values ...models.EncryptionInfo) []byte {

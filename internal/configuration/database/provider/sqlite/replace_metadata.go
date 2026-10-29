@@ -7,8 +7,8 @@ import (
 	"encoding/gob"
 	"errors"
 
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
 )
 
 // Both authorized identities and locators must still match inside the quota

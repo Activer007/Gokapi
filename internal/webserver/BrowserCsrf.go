@@ -3,9 +3,9 @@ package webserver
 import (
 	"net/http"
 
-	"github.com/forceu/gokapi/internal/configuration"
-	"github.com/forceu/gokapi/internal/helper"
-	"github.com/forceu/gokapi/internal/webserver/authentication/csrftoken"
+	"github.com/Activer007/Gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/webserver/authentication/csrftoken"
 )
 
 const browserCSRFLength = 40

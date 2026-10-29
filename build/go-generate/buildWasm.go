@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	output, err := buildWasmModule("github.com/forceu/gokapi/cmd/wasmdownloader", "../../internal/webserver/web/main.wasm")
+	output, err := buildWasmModule("github.com/Activer007/Gokapi/cmd/wasmdownloader", "../../internal/webserver/web/main.wasm")
 	if err != nil {
 		fmt.Println("ERROR: Could not compile wasmdownloader")
 		fmt.Println(err)
@@ -17,7 +17,7 @@ func main() {
 		os.Exit(2)
 	}
 	fmt.Println("Compiled Downloader WASM module")
-	output, err = buildWasmModule("github.com/forceu/gokapi/cmd/wasme2e", "../../internal/webserver/web/e2e.wasm")
+	output, err = buildWasmModule("github.com/Activer007/Gokapi/cmd/wasme2e", "../../internal/webserver/web/e2e.wasm")
 	if err != nil {
 		fmt.Println("ERROR: Could not compile wasme2e")
 		fmt.Println(err)

@@ -15,7 +15,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/forceu/gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
 )
 
 const (

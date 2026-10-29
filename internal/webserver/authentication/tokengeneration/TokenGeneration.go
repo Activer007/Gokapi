@@ -4,11 +4,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/forceu/gokapi/internal/authorization"
-	"github.com/forceu/gokapi/internal/configuration/database"
-	"github.com/forceu/gokapi/internal/helper"
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/webserver/api"
+	"github.com/Activer007/Gokapi/internal/authorization"
+	"github.com/Activer007/Gokapi/internal/configuration/database"
+	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/webserver/api"
 )
 
 func containsApiPermission(requestedPermissions models.ApiPermission, containsPermission models.ApiPermission) bool {

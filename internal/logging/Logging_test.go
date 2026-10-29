@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/test"
-	"github.com/forceu/gokapi/internal/test/testconfiguration"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/test"
+	"github.com/Activer007/Gokapi/internal/test/testconfiguration"
 )
 
 func TestMain(m *testing.M) {

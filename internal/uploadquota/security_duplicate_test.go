@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/forceu/gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/models"
 )
 
 func TestSEC030DuplicateLogicalOnly(t *testing.T) {

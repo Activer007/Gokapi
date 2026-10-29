@@ -1,8 +1,8 @@
 package storage
 
 import (
-	"github.com/forceu/gokapi/internal/configuration"
-	"github.com/forceu/gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
 )
 
 // Metadata operations have no new body, active upload or staging. Use the same

@@ -12,12 +12,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/forceu/gokapi/internal/configuration/database"
-	"github.com/forceu/gokapi/internal/helper"
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/storage/filesystem"
-	"github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem/aws"
-	"github.com/forceu/gokapi/internal/storage/processingstatus/pstatusdb"
+	"github.com/Activer007/Gokapi/internal/configuration/database"
+	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/storage/filesystem"
+	"github.com/Activer007/Gokapi/internal/storage/filesystem/s3filesystem/aws"
+	"github.com/Activer007/Gokapi/internal/storage/processingstatus/pstatusdb"
 	"github.com/johannesboyne/gofakes3"
 	"github.com/johannesboyne/gofakes3/backend/s3mem"
 )

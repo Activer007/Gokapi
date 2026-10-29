@@ -28,7 +28,7 @@ Pull the latest stable image:
 
 For the unstable (development) build, use ``latest-dev`` instead of ``latest``.
 
-If you prefer to build the image yourself, the Dockerfile is available on the `GitHub project page <https://github.com/Forceu/gokapi>`_.
+If you prefer to build the image yourself, the Dockerfile is available on the `GitHub project page <https://github.com/Activer007/Gokapi>`_.
 
 
 Native Deployment
@@ -37,7 +37,7 @@ Native Deployment
 Stable version
 """"""""""""""
 
-`Download the latest release <https://github.com/Forceu/gokapi/releases/latest>`_ and copy the executable into a new folder with write permissions.
+`Download the latest release <https://github.com/Activer007/Gokapi/releases/latest>`_ and copy the executable into a new folder with write permissions.
 
 Choose the binary that matches your system:
 
@@ -56,7 +56,7 @@ Only recommended if you are comfortable with the command line. Requires at least
 
 .. code-block:: bash
 
-   git clone https://github.com/Forceu/Gokapi.git .
+   git clone https://github.com/Activer007/Gokapi.git .
    make
 
 This compiles the source and produces a ``gokapi`` executable from the latest code.

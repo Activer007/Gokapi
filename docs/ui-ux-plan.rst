@@ -93,6 +93,7 @@ Progress
 * Browser dimensions verified: 1280 x 720 and an existing 965 x 1244 desktop
   panel. Requested 1440/1920 overrides were not reliably applied; those sizes
   are not claimed as verified. Synthetic data was used throughout.
-* Follow-up requested: migrate all repository references to Activer007/Gokapi
-  in a separate PR, including source/build paths and GitHub API URLs. Keep
-  inherited publishing workflows disabled while using local validation.
+* Repository follow-up: source/build paths, UI/documentation links and GitHub
+  API URLs migrated to Activer007/Gokapi in a separate PR. Inherited publishing
+  workflows remain disabled. See repository-identity.rst for the preserved
+  historical evidence and separate legacy download-service dependency.

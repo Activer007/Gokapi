@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/forceu/gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/helper"
 )
 
 var (

@@ -31,7 +31,7 @@ for target in $targets; do
 	fi
 
 	echo "----> Building Gokapi CLI for $target"
-	GOOS=$os GOARCH=$arch CGO_ENABLED=0 go build -ldflags="-s -w -X 'github.com/forceu/gokapi/internal/environment.Builder=Github Release Builder' -X 'github.com/forceu/gokapi/internal/environment.BuildTime=$(date)'" -o $output github.com/forceu/gokapi/cmd/cli-uploader
+	GOOS=$os GOARCH=$arch CGO_ENABLED=0 go build -ldflags="-s -w -X 'github.com/Activer007/Gokapi/internal/environment.Builder=Github Release Builder' -X 'github.com/Activer007/Gokapi/internal/environment.BuildTime=$(date)'" -o $output github.com/Activer007/Gokapi/cmd/cli-uploader
 	zip -j $zipname $output >/dev/null
 	rm $output
 done
@@ -50,7 +50,7 @@ for target in $targets; do
 	fi
 
 	echo "----> Building Gokapi for $target"
-	GOOS=$os GOARCH=$arch CGO_ENABLED=0 go build -ldflags="-s -w -X 'github.com/forceu/gokapi/internal/environment.Builder=Github Release Builder' -X 'github.com/forceu/gokapi/internal/environment.BuildTime=$(date)'" -o $output github.com/forceu/gokapi/cmd/gokapi
+	GOOS=$os GOARCH=$arch CGO_ENABLED=0 go build -ldflags="-s -w -X 'github.com/Activer007/Gokapi/internal/environment.Builder=Github Release Builder' -X 'github.com/Activer007/Gokapi/internal/environment.BuildTime=$(date)'" -o $output github.com/Activer007/Gokapi/cmd/gokapi
 	zip -j $zipname $output >/dev/null
 	rm $output
 done

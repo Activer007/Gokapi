@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/forceu/gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/models"
 )
 
 func TestSEC021PresignSingleConsumer(t *testing.T) {

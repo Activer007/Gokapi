@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/forceu/gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/helper"
 )
 
 var tokens = make(map[string]csrfToken)

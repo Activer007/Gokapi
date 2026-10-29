@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/forceu/gokapi/internal/test"
+	"github.com/Activer007/Gokapi/internal/test"
 )
 
 func TestIsInArray(t *testing.T) {

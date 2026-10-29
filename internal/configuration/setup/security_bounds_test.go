@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/forceu/gokapi/internal/webserver/ratelimiter"
+	"github.com/Activer007/Gokapi/internal/webserver/ratelimiter"
 )
 
 func TestSEC014CancelledProofDoesNotProceed(t *testing.T) {

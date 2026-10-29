@@ -40,6 +40,6 @@ M3 完整目标继续有效：用户逻辑额度与实例物理容量分开；�
 
 ## 上游只读复核
 
-2026-10-28 核实 upstream master 仍为 `a9c25d453aab0c25f2d6e6926ec7312628638844`。[#431](https://github.com/Forceu/Gokapi/issues/431) 和 [#54](https://github.com/Forceu/Gokapi/issues/54) 为开放配额需求；已读相关评论。[#436](https://github.com/Forceu/Gokapi/pull/436) head `98e43fd1ca4173795f271c9d4a34683cb6237edb` 未合并，仅将页面默认 guest 限额赋值移出列表循环，不是服务器预算。[#419](https://github.com/Forceu/Gokapi/pull/419) 是替换旧 blob 回收，归SEC-041。检索全部quota PR和开放upload/chunk/size/disk/memory PR，未见可直接复用、覆盖本阶段原子预算的修复；这不证明所有历史分支均无实现。
+2026-10-28 核实 upstream master 仍为 `a9c25d453aab0c25f2d6e6926ec7312628638844`。[#431](https://github.com/Activer007/Gokapi/issues/431) 和 [#54](https://github.com/Activer007/Gokapi/issues/54) 为开放配额需求；已读相关评论。[#436](https://github.com/Activer007/Gokapi/pull/436) head `98e43fd1ca4173795f271c9d4a34683cb6237edb` 未合并，仅将页面默认 guest 限额赋值移出列表循环，不是服务器预算。[#419](https://github.com/Activer007/Gokapi/pull/419) 是替换旧 blob 回收，归SEC-041。检索全部quota PR和开放upload/chunk/size/disk/memory PR，未见可直接复用、覆盖本阶段原子预算的修复；这不证明所有历史分支均无实现。
 
-[GHSA-45vh-rpc8-hxpp / CVE-2026-30961](https://github.com/Forceu/Gokapi/security/advisories/GHSA-45vh-rpc8-hxpp) 是 <=2.2.3 的分片单文件 MaxSize 绕过，2.2.4已修，分类 HISTORICAL_FIXED；不能改名为累计额度新问题。本轮没有向上游写入或发布安全公告。
+[GHSA-45vh-rpc8-hxpp / CVE-2026-30961](https://github.com/Activer007/Gokapi/security/advisories/GHSA-45vh-rpc8-hxpp) 是 <=2.2.3 的分片单文件 MaxSize 绕过，2.2.4已修，分类 HISTORICAL_FIXED；不能改名为累计额度新问题。本轮没有向上游写入或发布安全公告。

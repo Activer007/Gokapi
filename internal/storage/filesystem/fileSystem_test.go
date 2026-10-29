@@ -1,10 +1,10 @@
 package filesystem
 
 import (
-	"github.com/forceu/gokapi/internal/models"
-	fileInterfaces "github.com/forceu/gokapi/internal/storage/filesystem/interfaces"
-	"github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem/aws"
-	"github.com/forceu/gokapi/internal/test"
+	"github.com/Activer007/Gokapi/internal/models"
+	fileInterfaces "github.com/Activer007/Gokapi/internal/storage/filesystem/interfaces"
+	"github.com/Activer007/Gokapi/internal/storage/filesystem/s3filesystem/aws"
+	"github.com/Activer007/Gokapi/internal/test"
 	"testing"
 )
 

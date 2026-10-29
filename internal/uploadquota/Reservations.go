@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/forceu/gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/models"
 )
 
 const (

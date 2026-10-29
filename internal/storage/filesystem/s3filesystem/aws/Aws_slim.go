@@ -8,7 +8,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/forceu/gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/models"
 )
 
 const errorString = "AWS not supported in this build"

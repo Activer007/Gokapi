@@ -3,7 +3,7 @@ package models
 import (
 	"encoding/json"
 
-	"github.com/forceu/gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/helper"
 )
 
 // UserPermission contains zero or more permissions as uint16

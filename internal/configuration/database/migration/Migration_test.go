@@ -1,12 +1,12 @@
 package migration
 
 import (
-	"github.com/forceu/gokapi/internal/configuration"
-	"github.com/forceu/gokapi/internal/configuration/database"
-	"github.com/forceu/gokapi/internal/configuration/database/dbabstraction"
-	"github.com/forceu/gokapi/internal/environment/flagparser"
-	"github.com/forceu/gokapi/internal/test"
-	"github.com/forceu/gokapi/internal/test/testconfiguration"
+	"github.com/Activer007/Gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/configuration/database"
+	"github.com/Activer007/Gokapi/internal/configuration/database/dbabstraction"
+	"github.com/Activer007/Gokapi/internal/environment/flagparser"
+	"github.com/Activer007/Gokapi/internal/test"
+	"github.com/Activer007/Gokapi/internal/test/testconfiguration"
 	"os"
 	"testing"
 )
