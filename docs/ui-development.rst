@@ -50,4 +50,21 @@ Node 内置测试检查语言切换/插值；最终使用桌面浏览器验证�
 * 合成数据、本机 53844 端口，Chrome 1440×1000：登录页中英切换、Title、页脚、Cookie、
   查询参数/hash、POST 不重放、处理中阻止切换、独立浏览器语言、手机 UA 403 均通过，0 console error。
 
-以上是第一批范围的验证；其余页面和全仓验证仍属于后续批次。
+第一批已合并：`PR #23 <https://github.com/Activer007/Gokapi/pull/23>`_，
+主线合并提交 ``9cc33a1``。
+
+第二批本地验证（相同工具链，基于最新 ``9cc33a1``）：
+
+* 公共下载/密码/错误/忘记密码/改密/文件收集上传及动态提示接入中英文。
+* 显式语言选择在重定向前保存；解密后的浏览器标题使用定制 Title；流写入结束前保持切换保护。
+* ``go generate ./...`` 与生产 noaws 二进制构建通过。
+* ``go test ./internal/i18n ./internal/webserver ./internal/webserver/authentication/oauth -tags=test,noaws -count=1``：最终完整相关包通过。
+* ``go test -race ./internal/i18n ./internal/webserver -tags=test,noaws -run 'TestUI|TestPreference|TestSelect|TestDictionaries' -count=1``：通过。
+* ``node --test build/tests/ui.test.cjs build/tests/public-upload.test.cjs``：6 项通过。
+* 桌面 Chrome 1440×1000：普通下载实际内容、中文文件名上传、密码页双语、错误页、
+  忘记密码、错误重定向保留语言、待传文件阻止切换、上传后恢复切换通过，0 page error。
+* 加密页面实际加载 WASM、识别 hash 中的文件名，验证自定义 Title；以模拟延迟流验证
+  写入完成前禁止语言切换、结束后恢复。这不是加密文件字节正确性测试。
+* 浏览器重复验证最初因复用夹具消耗名额、成功弹窗阻挡按钮而失败；每次使用独立合成数据目录后通过。
+
+以上是前两批范围的验证；管理页面、安装向导和全仓验证仍属于后续批次。

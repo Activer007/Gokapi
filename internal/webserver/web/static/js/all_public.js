@@ -4,6 +4,12 @@ function t(key, parameters = {}) {
         Object.prototype.hasOwnProperty.call(parameters, name) ? String(parameters[name]) : match);
 }
 
+function apiErrorMessage(error) {
+    const key = 'api.error.' + error.ErrorCode;
+    const translated = t(key);
+    return translated !== key ? translated : (error.ErrorMessage || t('upload.unknown'));
+}
+
 function languageSwitchBusy() {
     if (typeof isUploading !== 'undefined' && isUploading) return true;
     if (typeof isUploadInProgress !== 'undefined' && isUploadInProgress) return true;
@@ -82,7 +88,7 @@ function formatUnixTimestamp(unixTimestamp) {
 
 function formatTimestampWithNegative(unixTimestamp, negative) {
     if (negative === undefined) {
-        negative = "Never";
+        negative = t("common.never");
     }
     if (unixTimestamp == 0) {
         return negative;
@@ -100,7 +106,7 @@ function insertDateWithNegative(unixTimestamp, id, negative) {
 
 function insertLastOnlineDate(unixTimestamp, id) {
     if ((Date.now() / 1000) - 120 < unixTimestamp) {
-        document.getElementById(id).innerText = "Online";
+        document.getElementById(id).innerText = t("common.online");
         return;
     }
     insertDateWithNegative(unixTimestamp, id);
@@ -108,10 +114,10 @@ function insertLastOnlineDate(unixTimestamp, id) {
 
 function formatFileRequestExpiry(unixTimestamp) {
     if (unixTimestamp == 0) {
-        return "Never";
+        return t("common.never");
     }
     if ((Date.now() / 1000) > unixTimestamp) {
-        return "Expired";
+        return t("common.expired");
     }
     return formatUnixTimestamp(unixTimestamp);
 }

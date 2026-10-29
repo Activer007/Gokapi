@@ -59,6 +59,20 @@ func Select(r *http.Request, defaultLanguage string) Locale {
 	return New(defaultLanguage)
 }
 
+// RememberPreference runs before redirects/authentication, so an explicit choice
+// survives navigation to login or an error page without changing redirect URLs.
+func RememberPreference(next http.Handler, cookiePath string, secure bool) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if language := r.URL.Query().Get("lang"); Supported(language) {
+			http.SetCookie(w, &http.Cookie{Name: CookieName, Value: language,
+				Path: cookiePath, MaxAge: 365 * 24 * 60 * 60, HttpOnly: true,
+				SameSite: http.SameSiteLaxMode, Secure: secure})
+			w.Header().Set("Cache-Control", "no-store")
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 func (l Locale) T(key string) string {
 	if message := dictionaries[l.Language][key]; message != "" {
 		return message

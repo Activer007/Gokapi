@@ -33,6 +33,7 @@ import (
 	"github.com/forceu/gokapi/internal/encryption"
 	"github.com/forceu/gokapi/internal/environment"
 	"github.com/forceu/gokapi/internal/helper"
+	"github.com/forceu/gokapi/internal/i18n"
 	"github.com/forceu/gokapi/internal/logging"
 	"github.com/forceu/gokapi/internal/logging/serverstats"
 	"github.com/forceu/gokapi/internal/models"
@@ -156,7 +157,7 @@ func Start() {
 		IdleTimeout:       time.Minute,
 		ReadTimeout:       timeOutWebserverRead,
 		WriteTimeout:      timeOutWebserverWrite,
-		Handler:           browseraccess.DesktopOnly(withManagementBudget(mux, managementBudget), defaultLanguage),
+		Handler:           browseraccess.DesktopOnly(withLanguagePreference(withManagementBudget(mux, managementBudget)), defaultLanguage),
 		BaseContext:       func(net.Listener) context.Context { return workers.Context() },
 	}
 	srvMu.Lock()
@@ -210,9 +211,14 @@ func loadExpiryImage() {
 	svgTemplate, err := templatetext.ParseFS(templateFolderEmbedded, "web/templates/expired_file_svg.tmpl")
 	helper.Check(err)
 	var buf bytes.Buffer
+	language := "en"
+	if configuration.Get().UI != nil {
+		language = configuration.Get().UI.DefaultLanguage
+	}
 	err = svgTemplate.Execute(&buf, struct {
 		PublicName string
-	}{PublicName: configuration.Get().PublicName})
+		Message    string
+	}{PublicName: configuration.Get().PublicName, Message: i18n.New(language).T("file.expired")})
 	helper.Check(err)
 	imageExpiredPicture = buf.Bytes()
 }
@@ -380,7 +386,7 @@ func changePassword(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("Invalid form data sent to server for /changePassword")
 		fmt.Println(err)
-		errMessage = "Invalid form data sent"
+		errMessage = "password.incomplete"
 	} else {
 		var ok bool
 		var pwHash string
@@ -390,7 +396,7 @@ func changePassword(w http.ResponseWriter, r *http.Request) {
 		validCsrf := pw != "" && csrftoken.IsValidBound(csrftoken.TypePasswordChange, csrf, browserCSRFBinding(r))
 		pwHash, ok, err = validateNewPassword(pw, user, validCsrf)
 		if err != nil {
-			errMessage = firstLetterUpper(err.Error())
+			errMessage = err.Error()
 		}
 		if ok {
 			user.Password = pwHash
@@ -420,14 +426,14 @@ func validateNewPassword(newPassword string, user models.User, validCsrf bool) (
 		return user.Password, false, nil
 	}
 	if !validCsrf {
-		return "", false, errors.New("form was not submitted completely")
+		return "", false, errors.New("password.incomplete")
 	}
 	if len(newPassword) < configuration.GetEnvironment().MinLengthPassword {
-		return "", false, errors.New("password is too short")
+		return "", false, errors.New("password.tooShort")
 	}
 	isSame, _ := configuration.VerifyPassword(newPassword, user.Password, "")
 	if isSame {
-		return "", false, errors.New("new password has to be different from the old password")
+		return "", false, errors.New("password.unchanged")
 	}
 	newPasswordHash := configuration.HashPassword(newPassword, false, "")
 	return newPasswordHash, true, nil
@@ -532,7 +538,7 @@ func processApi(w http.ResponseWriter, r *http.Request) {
 func showLogin(w http.ResponseWriter, r *http.Request) {
 	_, ok, err := authentication.IsAuthenticated(w, r)
 	if err != nil {
-		errorHandling.RedirectToErrorPage(w, r, "Unable to log in", "The following error was raised: "+err.Error(), errorHandling.WidthDefault)
+		errorHandling.RedirectToErrorPage(w, r, "error.login.title", err.Error(), errorHandling.WidthDefault)
 		return
 	}
 	if ok {
@@ -540,8 +546,8 @@ func showLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if configuration.Get().Authentication.Method == models.AuthenticationHeader {
-		errorHandling.RedirectToErrorPage(w, r, "Unauthorised",
-			"No login information was sent from the authentication provider.", errorHandling.WidthDefault)
+		errorHandling.RedirectToErrorPage(w, r, "error.unauthorized.title",
+			"error.header.help", errorHandling.WidthDefault)
 		return
 	}
 	if configuration.Get().Authentication.Method == models.AuthenticationOAuth2 {
@@ -1206,7 +1212,7 @@ func requireLogin(next http.HandlerFunc, isUiCall, isPwChangeView bool) http.Han
 		addNoCacheHeader(w)
 		user, isLoggedIn, err := authentication.IsAuthenticated(w, r)
 		if err != nil {
-			errorHandling.RedirectToErrorPage(w, r, "Unable to log in", "The following error was raised: "+err.Error(), errorHandling.WidthDefault)
+			errorHandling.RedirectToErrorPage(w, r, "error.login.title", err.Error(), errorHandling.WidthDefault)
 			return
 		}
 		if isLoggedIn {

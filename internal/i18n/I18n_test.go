@@ -21,6 +21,31 @@ func TestSelectLanguage(t *testing.T) {
 	}
 }
 
+func TestPreferenceSurvivesRedirect(t *testing.T) {
+	for _, language := range []string{"en", "zh-CN", "invalid"} {
+		response := httptest.NewRecorder()
+		r := httptest.NewRequest("GET", "/admin?lang="+language, nil)
+		RememberPreference(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+		}), "/share/", true).ServeHTTP(response, r)
+		cookies := response.Result().Cookies()
+		if language == "invalid" {
+			if len(cookies) != 0 {
+				t.Fatal("invalid choice was persisted")
+			}
+			continue
+		}
+		if len(cookies) != 1 || cookies[0].Path != "/share/" || !cookies[0].Secure || !cookies[0].HttpOnly {
+			t.Fatal("invalid preference cookie")
+		}
+		next := httptest.NewRequest("GET", "/login", nil)
+		next.AddCookie(cookies[0])
+		if Select(next, "en").Language != language {
+			t.Fatal("language choice lost across redirect")
+		}
+	}
+}
+
 func TestDictionariesAndConcurrentLocales(t *testing.T) {
 	for language, messages := range dictionaries {
 		for key := range dictionaries[English] {
