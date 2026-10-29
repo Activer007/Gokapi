@@ -4,6 +4,13 @@
 
 基线 a9c25d453aab0c25f2d6e6926ec7312628638844，证据及分类见 [SECURITY-BASELINE](SECURITY-BASELINE.md)。模型面向个人 VPS / 小团队；不改变单体 Go、SQLite/Redis、本地/S3 或现有 API 架构。
 
+## 当前恢复/收口范围
+
+后续只按[M3-GOAL](M3-GOAL.md)实现最小恢复。只有进程已停止、对象归属及允许清理的状态可证明、
+清理确实完成后才释放预留；不确定Claim/发布状态保额保文件，并交人工核对。
+已发布/共享canonical及未知路径不因超时、单一路径不存在或ledger状态推测而删除。
+此范围尚待三类崩溃验收；下列历史不变量与未完成限制保留，不将延期解释为通过。
+
 ## SEC-030 文件替换不变量
 
 两端授权快照在TX/CAS重读；Replace/Read/可选Delete权限及既有FR/E2E门槛不变。

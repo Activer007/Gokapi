@@ -2,7 +2,19 @@
 
 日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/Gokapi 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
 
+## 当前后续目标（2026-10-29）
+
+替换完成后按用户指令收敛至[M3-GOAL](M3-GOAL.md)。本次仅更新范围与证据文档，没有恢复代码变更；
+崩溃/重启合同NOT_RUN，不借用历史PASS。文档变更仅diff/引用/状态核对，不重复全仓或race。
+
 ## SEC-030 文件替换增量（2026-10-29）
+
+最终：[PR30](https://github.com/Activer007/Gokapi/pull/30)合并60b2fb0；[CI40823139886](https://github.com/Activer007/Gokapi/actions/runs/40823139886)
+实际SUCCESS，checkoutdda1f255bf72a531db5bda9a00dfbb1cce6e8875，tree1325ff654d27942ac78f7a086c6e70400e00a072与合并一致。
+环境Go1.26.10 linux/amd64、Ubuntu24.04；生成、awsmock/noaws/integration/awstest四组全仓、receiver及
+durable admission相关race、当前build/scan、两次source-unchanged均通过。替换4容量例6.37s+self1.11s、
+核心、双provider和锁合同在race日志明确PASS。最终命令详见PR30审查；仅取消重复push运行，未重跑合并CI。
+大文件/浏览器/真实Redis/S3/手动镜像发布NOT_RUN。下文CI_PENDING描述保留当时阶段状态，以本收尾为最终结果。
 
 基线79f2577b3827140db8de65e90bfc41e8a17685ff，Go1.26.10 windows/amd64；未部署。
 ignored证据目录 `evidence/sec030-replace-local.secret/`。生产开始前tracked internal与79f无diff，
