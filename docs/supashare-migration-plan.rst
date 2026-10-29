@@ -1,5 +1,7 @@
+:orphan:
+
 SupaShare migration and desktop layout
-=====================================
+======================================
 
 Scope
 -----

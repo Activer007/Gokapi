@@ -26,7 +26,7 @@ v2.11.0 (2026-10-29)
 
 
 v2.10.0 (fork version baseline)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Start the independent Activer007/SupaShare version line at 2.10.0 to distinguish
   this fork from upstream. The previous development identifier was 2.2.5-dev.
@@ -34,6 +34,25 @@ v2.10.0 (fork version baseline)
   desktop UI improvements and shared-footer software version display.
 * Synchronize the application, footer and API version metadata. This version
   change does not alter configuration or database schema versions.
+* Rename the maintained software and repository to SupaShare, with new default
+  branding, server/CLI build names, a compact two-row footer and top-right
+  management navigation. Preserve legacy deployment identifiers and custom UI settings.
+* Improve the desktop upload workspace, keyboard actions, clipboard failure
+  feedback, permission editing and recoverable form submissions.
+* Include the preceding scoped hardening of setup access, sessions, trusted
+  proxy handling and upload authorization/resource accounting. Add bounded
+  startup recovery for proven private upload state and an operator runbook
+  for uncertain states. See the security records for tested scope and deferred work;
+  this is not a claim that every security or recovery task is complete.
+
+
+Inherited Gokapi history
+------------------------
+
+The entries below describe releases inherited from Gokapi, not releases
+published by SupaShare. Historical issue and pull-request numbers do not
+identify SupaShare issues. SupaShare's independent version line starts above
+at 2.10.0; repository renaming does not publish new release artifacts.
 
 
 v2.2.4 (2026-03-10)
