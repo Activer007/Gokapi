@@ -182,6 +182,9 @@ function decryptFileEntries(fileMap) {
 
         // Column 0: filename
         cell.textContent = filename;
+        if (typeof decorateFileName === 'function') decorateFileName(cell);
+        // Search and sorting must use the decrypted label, not the cached name.
+        datatable.cell(i, 0).invalidate('dom');
 
         // Column 5: update link
         let urlNode = datatable.cell(i, 5).node();
@@ -207,6 +210,7 @@ function decryptFileEntries(fileMap) {
         let emailElem = document.getElementById("email-" + id);
         if (emailElem) emailElem.href = "mailto:?body=" + encodeURIComponent(url);
     }
+    datatable.draw(false);
 }
 
 

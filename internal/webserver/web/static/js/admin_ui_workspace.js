@@ -1,6 +1,8 @@
 // Shared presentation for server-rendered and live file rows. Existing action
 // nodes are moved, preserving E2E IDs, permission flags and event listeners.
 function prepareFileActions(row) {
+    const filename = row.querySelector('[id^="cell-name-"]');
+    if (filename) decorateFileName(filename);
     const toolbar = row.querySelector('.btn-toolbar');
     if (!toolbar || toolbar.dataset.prepared) return;
     const primary = toolbar.querySelector('[id^="url-button-"]');
@@ -84,4 +86,73 @@ function updateUploadSummary() {
         password: password.disabled ? t('files.summaryNoPassword') : t('files.summaryPassword')
     }) : t('files.summaryInvalid');
     summary.classList.toggle('text-warning', !valid);
+}
+
+// Keep one set of rule inputs: opening the disclosure never resets the values.
+function validateUploadRules(reveal = false) {
+    const fields = ['allowedDownloads', 'expiryDays', 'password'].map(id => document.getElementById(id));
+    const invalid = fields.find(field => !field.disabled &&
+        (field.value === '' || (field.type === 'number' && !field.checkValidity())));
+    updateUploadSummary();
+    if (invalid && reveal) {
+        document.getElementById('uploadSettings').open = true;
+        invalid.focus();
+        invalid.reportValidity();
+    }
+    return !invalid;
+}
+
+function chooseUploadFiles() {
+    const trigger = document.getElementById('selectUploadFiles');
+    if (!dropzoneObject || dropzoneObject.disabled || trigger.disabled) return;
+    if (validateUploadRules(true)) dropzoneObject.hiddenFileInput.click();
+}
+
+function initFileTable(table) {
+    const wrapper = table.table().container();
+    const filter = wrapper.querySelector('.dataTables_filter');
+    const target = document.getElementById('fileSearch');
+    if (filter && target) {
+        target.appendChild(filter);
+        const input = filter.querySelector('input');
+        input.placeholder = t('files.searchPlaceholder');
+        input.setAttribute('aria-label', t('files.searchPlaceholder'));
+        input.setAttribute('data-allow-regular-paste', '');
+    }
+    updateFileCount(table);
+}
+
+function updateFileCount(table) {
+    const count = document.getElementById('fileCount');
+    if (count) {
+        const total = table.rows().count();
+        const matched = table.rows({search: 'applied'}).count();
+        count.textContent = table.search() ? matched + ' / ' + total : String(total);
+    }
+    const clear = document.getElementById('clearFileSearch');
+    if (clear) clear.hidden = !table.search();
+}
+
+function clearFileSearch() {
+    const table = $('#maintable').DataTable();
+    table.search('').draw();
+    const input = document.querySelector('#fileSearch input');
+    if (input) { input.value = ''; input.focus(); }
+}
+
+function decorateFileName(cell) {
+    if (cell.querySelector('.file-name')) return;
+    const name = cell.textContent;
+    const extension = name.split('.').pop().toLowerCase();
+    const icon = document.createElement('i');
+    const types = {pdf:'file-earmark-pdf', png:'file-earmark-image', jpg:'file-earmark-image', jpeg:'file-earmark-image',
+        gif:'file-earmark-image', webp:'file-earmark-image', svg:'file-earmark-image', zip:'file-earmark-zip',
+        gz:'file-earmark-zip', mp4:'file-earmark-play', mp3:'file-earmark-music', md:'file-earmark-text', txt:'file-earmark-text'};
+    icon.className = 'bi ' + 'bi-' + (types[extension] || 'file-earmark') + ' file-type-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    const label = document.createElement('span');
+    label.className = 'file-name';
+    label.textContent = name;
+    label.title = name;
+    cell.replaceChildren(icon, label);
 }

@@ -1,13 +1,15 @@
 {{ define "admin" }}{{ template "header" . }}
 
-      <div class="row">
-        <div class="col">
-		<div id="container" class="card file-workspace">
-		  <div class="card-body">
-            <h2 class="card-title">{{$.UI.T "nav.upload"}}</h2>
+      <section id="container" class="file-workspace" aria-labelledby="workspaceTitle">
+        <div class="page-heading">
+          <div><h1 id="workspaceTitle">{{$.UI.T "files.yourFiles"}}</h1><p>{{$.UI.T "files.workspaceHelp"}}</p></div>
+          <button id="selectUploadFiles" type="button" class="btn btn-primary primary-upload" {{if .EndToEndEncryption}}disabled{{end}} onclick="chooseUploadFiles()"><i class="bi bi-upload" aria-hidden="true"></i>{{$.UI.T "nav.upload"}}</button>
+        </div>
 
 			<form action="./uploadChunk" class="dropzone upload-box text-center w-100" id="uploaddropzone">
 				<div class="dz-message">
+                  <img class="upload-brand-art" src="./assets/brand/share-folder-v1.png" width="240" height="160" alt="" aria-hidden="true">
+                  <div class="upload-prompt">
 {{ if .EndToEndEncryption }}
                     <p id="uploadBoxTitle" class="mb-2 fs-5">{{$.UI.T "common.wait"}}</p>
                     <p id="uploadBoxSubtitle" class="mb-0 opacity-75">{{$.UI.T "files.loadingE2E"}}</p>
@@ -15,14 +17,17 @@
                     <p id="uploadBoxTitle" class="mb-2 fs-5">{{$.UI.T "request.drop"}}</p>
                     <p id="uploadBoxSubtitle" class="mb-0 opacity-75">{{$.UI.T "files.selectHint"}}</p>
 {{ end }}
-				<button id="selectUploadFiles" type="button" class="btn btn-primary mt-3" {{if .EndToEndEncryption}}disabled{{end}} onclick="event.stopPropagation(); dropzoneObject.hiddenFileInput.click()">{{$.UI.T "files.choose"}}</button>
-				</div>
+                  </div>
+                </div>
 			</form>
 
 		<div id="uploadstatus" class="container uploads-container">
 		</div>		
 
-		<div class="upload-options-grid">
+		<details id="uploadSettings" class="upload-settings">
+          <summary><span id="uploadSummary" class="upload-summary" role="status" aria-live="polite"></span><span class="upload-settings-action">{{$.UI.T "files.adjustRules"}} <i class="bi bi-chevron-down" aria-hidden="true"></i></span></summary>
+          <p class="upload-settings-help">{{$.UI.T "files.rulesHelp"}}</p>
+          <div class="upload-options-grid">
 
 		  <div class="upload-option-card">
 		    <div class="upload-option-header">
@@ -85,11 +90,11 @@
 		  </div>
 
 		</div>
-<p id="uploadSummary" class="upload-summary" role="status" aria-live="polite"></p>
+</details>
 <div id="errordiv" class="alert alert-danger" style="display:none">
   <span id="errormessage" ></span>
 </div>
-		<h2 class="files-heading">{{$.UI.T "files.yourFiles"}}</h2>
+		<div class="files-toolbar"><h2 class="files-heading">{{$.UI.T "files.allFiles"}} <span id="fileCount" class="file-count"></span></h2><div class="files-search"><div id="fileSearch"></div><button type="button" id="clearFileSearch" class="btn btn-link" hidden onclick="clearFileSearch()">{{$.UI.T "files.clearSearch"}}</button></div></div>
 		<div class="file-table-container">
 			<table id="maintable" class="table table-dark">
 				<thead>
@@ -144,10 +149,7 @@
 				</tbody>
 			</table>
 		      </div>
-		  </div>
-		</div>
-	    </div>
-   	 </div>
+</section>
 
 	{{ template "admin_modal_edit" . }}
 
@@ -190,6 +192,9 @@
 		"orderable": false
 		} ],
 	    "paging": false,
+        "info": false, // The toolbar already displays total and filtered counts.
+        "initComplete": function () { initFileTable(this.api()); },
+        "drawCallback": function () { updateFileCount(this.api()); },
 	    "language": {
 	      ...tableLanguage(),
 	      "info": t("files.tableCount"),

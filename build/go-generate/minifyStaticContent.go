@@ -3,6 +3,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -156,7 +157,8 @@ func getAllFiles(pattern string) []byte {
 			fmt.Println(err)
 			os.Exit(3)
 		}
-		result = append(result, content...)
+		// Match staticAssetVersion's normalization, including template literals.
+		result = append(result, bytes.ReplaceAll(content, []byte("\r\n"), []byte("\n"))...)
 	}
 	return result
 }
@@ -172,6 +174,6 @@ func fileExists(filename string) bool {
 // Auto-generated content below, do not modify
 // Version codes can be changed in updateVersionNumbers.go
 
-const jsAdminVersion = "dbe8b4704f"
-const jsE2EVersion = "dbe8b4704f"
-const cssMainVersion = "dbe8b4704f"
+const jsAdminVersion = "a98c549a93"
+const jsE2EVersion = "a98c549a93"
+const cssMainVersion = "a98c549a93"
