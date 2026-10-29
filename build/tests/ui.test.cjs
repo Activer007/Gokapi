@@ -29,7 +29,7 @@ test('language switch preserves query, encrypted hash and pathname', () => {
 
 test('invalid languages and active transfers cannot navigate', () => {
     for (const extra of ['var isUploading = true;', 'var isUploadInProgress = true;',
-        "const filesMap = new Map([['id', { status: 'pending' }]]);", 'window.gokapiTransferBusy = true;']) {
+        "const filesMap = new Map([['id', { status: 'pending' }]]);", 'window.gokapiTransferBusy = true;', 'window.gokapiBackupPending = true;']) {
         const { sandbox, state } = context(extra);
         vm.runInContext("switchLanguage('en')", sandbox);
         assert.equal(state.navigated, null);

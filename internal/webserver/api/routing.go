@@ -8,6 +8,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/forceu/gokapi/internal/helper"
 	"github.com/forceu/gokapi/internal/models"
@@ -480,20 +482,24 @@ type paramFilesRestore struct {
 func (p *paramFilesRestore) ProcessParameter(_ *http.Request) error { return nil }
 
 type paramAuthCreate struct {
-	FriendlyName     string `header:"friendlyName"`
+	FriendlyName     string `header:"friendlyName" supportBase64:"true"`
 	BasicPermissions bool   `header:"basicPermissions"`
 	foundHeaders     map[string]bool
 }
 
-func (p *paramAuthCreate) ProcessParameter(_ *http.Request) error { return nil }
+func (p *paramAuthCreate) ProcessParameter(_ *http.Request) error {
+	return validateDisplayName(p.FriendlyName)
+}
 
 type paramAuthFriendlyName struct {
 	KeyId        string `header:"targetKey" required:"true"`
-	FriendlyName string `header:"friendlyName" required:"true"`
+	FriendlyName string `header:"friendlyName" required:"true" supportBase64:"true"`
 	foundHeaders map[string]bool
 }
 
-func (p *paramAuthFriendlyName) ProcessParameter(_ *http.Request) error { return nil }
+func (p *paramAuthFriendlyName) ProcessParameter(_ *http.Request) error {
+	return validateDisplayName(p.FriendlyName)
+}
 
 type paramAuthModify struct {
 	KeyId              string `header:"targetKey" required:"true"`
@@ -529,11 +535,21 @@ type paramAuthDelete struct {
 func (p *paramAuthDelete) ProcessParameter(_ *http.Request) error { return nil }
 
 type paramUserCreate struct {
-	Username     string `header:"username" required:"true"`
+	Username     string `header:"username" required:"true" supportBase64:"true"`
 	foundHeaders map[string]bool
 }
 
-func (p *paramUserCreate) ProcessParameter(_ *http.Request) error { return nil }
+func (p *paramUserCreate) ProcessParameter(_ *http.Request) error {
+	return validateDisplayName(p.Username)
+}
+
+// Encoded header values must remain valid display text, including in audit logs.
+func validateDisplayName(name string) error {
+	if !utf8.ValidString(name) || strings.IndexFunc(name, unicode.IsControl) >= 0 {
+		return errors.New("name must be valid UTF-8 without control characters")
+	}
+	return nil
+}
 
 type paramUserChangeRank struct {
 	Id           int    `header:"userid" required:"true"`

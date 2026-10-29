@@ -3,6 +3,7 @@ package webserver
 import (
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/forceu/gokapi/internal/configuration"
@@ -22,6 +23,13 @@ type pageUI struct {
 
 type pageView struct {
 	UI pageUI
+}
+
+func (p pageUI) UserLevel(rank models.UserRank) string {
+	if rank > models.UserLevelUser {
+		return p.T("user.level.invalid")
+	}
+	return p.T("user.level." + strconv.Itoa(int(rank)))
 }
 
 func (p *pageView) setUI(ui pageUI) { p.UI = ui }

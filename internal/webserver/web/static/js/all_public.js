@@ -10,6 +10,11 @@ function apiErrorMessage(error) {
     return translated !== key ? translated : (error.ErrorMessage || t('upload.unknown'));
 }
 
+function encodeHeaderText(value) {
+    const bytes = new TextEncoder().encode(value);
+    return 'base64:' + btoa(Array.from(bytes, byte => String.fromCharCode(byte)).join(''));
+}
+
 function languageSwitchBusy() {
     if (typeof isUploading !== 'undefined' && isUploading) return true;
     if (typeof isUploadInProgress !== 'undefined' && isUploadInProgress) return true;
@@ -24,6 +29,10 @@ function languageSwitchBusy() {
 
 function switchLanguage(language) {
     if (language !== 'en' && language !== 'zh-CN') return;
+    if (window.gokapiBackupPending) {
+        window.alert(t('e2e.backupBeforeLanguage'));
+        return;
+    }
     if (languageSwitchBusy()) {
         window.alert(t('language.busy'));
         return;
@@ -88,7 +97,7 @@ function formatUnixTimestamp(unixTimestamp) {
 
 function formatTimestampWithNegative(unixTimestamp, negative) {
     if (negative === undefined) {
-        negative = t("common.never");
+        negative = t("common.neverUsed");
     }
     if (unixTimestamp == 0) {
         return negative;
@@ -109,7 +118,7 @@ function insertLastOnlineDate(unixTimestamp, id) {
         document.getElementById(id).innerText = t("common.online");
         return;
     }
-    insertDateWithNegative(unixTimestamp, id);
+    insertDateWithNegative(unixTimestamp, id, t("users.neverOnline"));
 }
 
 function formatFileRequestExpiry(unixTimestamp) {
