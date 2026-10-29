@@ -846,6 +846,7 @@ func (p *paramURequestDelete) ProcessParameter(r *http.Request) error {
 }
 
 type paramURequestSave struct {
+	Request       *http.Request
 	Id            string `header:"id"`
 	Name          string `header:"name" supportBase64:"true"`
 	Notes         string `header:"notes" supportBase64:"true"`
@@ -861,7 +862,8 @@ type paramURequestSave struct {
 	foundHeaders map[string]bool
 }
 
-func (p *paramURequestSave) ProcessParameter(_ *http.Request) error {
+func (p *paramURequestSave) ProcessParameter(r *http.Request) error {
+	p.Request = r
 	if p.foundHeaders["name"] {
 		p.IsNameSet = true
 	}

@@ -5,9 +5,13 @@
 ## 当前M4：可靠删除与下载内容边界
 
 当前开发基线dee4382f19d0801cb4022ed3ec897beda297e1df，分支codex/sec-040-delete-state；未提交040-B工作保留。
+2026-10-30续作：保存实现22ce805后，无冲突合并自有PR45主线b7a5f85为0c2e07；UI/生成器改动完整保留。
+Forceu/Gokapi PR419、418本轮只读复核仍open/unmerged；未提交上游。
 当前远程仅Activer007/SupaShare；便携Go1.26.10 windows/amd64、CGO0。040-A/052-A已合并，040-B仍IN_PROGRESS。
 新增双provider条件字段更新/同锁context、storage/timer及API/CLI局部合同本地GREEN；原两个私密竞态候选GREEN与最终CI仍OPEN。
 CONFIRMED_CODE：用户删除直接退休metadata的窄故障合同已RED→GREEN；没有据此声称外部攻击链成立。
+CONFIRMED_CODE：FR清理失败后的policy及真实Claim/Commit防御合同RED→GREEN；跨owner控制通过，详见TEST-REPORT。
+普通用户删除的所有在途上传原子隔离继续VALIDATE；不扩大本轮完成声明。
 041旧locator锚点缺口为CONFIRMED_CODE；共享引用、中断后收敛和具体攻击链须各自测试，不从源码结论扩大。
 后续优先级及限定验收见[M4-GOAL](M4-GOAL.md)，不重开M3全量延期，不扩大成浏览器/真实云完整矩阵。
 

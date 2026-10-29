@@ -137,3 +137,55 @@ func TestSEC040MutexContextValidation(t *testing.T) {
 	}
 	unlock()
 }
+
+func TestSEC040MutexFileRequestDomainIsolation(t *testing.T) {
+	const key = "context-file-request-held"
+	collision := ""
+	for i := 0; i < 4096; i++ {
+		candidate := fmt.Sprintf("context-file-request-metadata-%d", i)
+		if stripeIndex(TypeMetaData, candidate) == stripeIndex(TypeFileRequest, key) {
+			collision = candidate
+			break
+		}
+	}
+	if collision == "" {
+		t.Fatal("deterministic cross-domain collision fixture missing")
+	}
+	Lock(TypeFileRequest, key)
+	held := true
+	defer func() {
+		if held {
+			Unlock(TypeFileRequest, key)
+		}
+	}()
+	ctx, cancel := context.WithTimeout(t.Context(), time.Second)
+	defer cancel()
+	// A request lifecycle gate can be held while its files are locked, even
+	// when those file IDs have the same numeric stripe index or identical key.
+	metadataUnlock, err := LockManyContext(ctx, TypeMetaData, key, collision)
+	if err != nil {
+		t.Fatal("request gate blocked the independent metadata domain", err)
+	}
+	metadataUnlock()
+	wait, cancelWait := context.WithTimeout(t.Context(), time.Second)
+	defer cancelWait()
+	cancelTimer := time.AfterFunc(50*time.Millisecond, cancelWait)
+	defer cancelTimer.Stop()
+	unlock, err := LockManyContext(wait, TypeFileRequest, key, key)
+	if unlock != nil {
+		unlock()
+		t.Fatal("same request bypassed its held lifecycle gate")
+	}
+	if !errors.Is(err, context.Canceled) {
+		t.Fatal("request gate did not honor its waiting context", err)
+	}
+	Unlock(TypeFileRequest, key)
+	held = false
+	retry, cancelRetry := context.WithTimeout(t.Context(), time.Second)
+	defer cancelRetry()
+	unlock, err = LockContext(retry, TypeFileRequest, key)
+	if err != nil {
+		t.Fatal("canceled request acquisition leaked its gate", err)
+	}
+	unlock()
+}

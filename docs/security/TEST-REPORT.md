@@ -4,6 +4,18 @@
 
 ## M4执行安排与040-B局部进度（2026-10-29）
 
+2026-10-30续作：远端新增自有PR45，保存040-B为22ce805后merge b7a5f85得到0c2e07，无冲突，Go仍1.26.10 windows/amd64。
+新增FR当前policy边界合同与独立请求stripe域，保持单进程、无schema。以下是续作实际执行，原始失败均保留：
+
+| 实际命令 | 结果 |
+| --- | --- |
+| `go test ./internal/storage/filerequest ./internal/webserver/api/mutex/apimutex -count=1 -tags='test,noaws,security_deletion,security_replace' -run '^TestSEC040(RequestDeletionRevokesClaimedCommitOnCleanupFailure\|MutexFileRequestDomainIsolation)$' -timeout 60s -v` | exit1；FR业务RED5.326s：失败后的policy仍live、Claimed Commit成功；mutex新独立域PASS2.364s；非setup错误 |
+| `go test ./internal/storage/filerequest ./internal/webserver/api ./internal/webserver/api/mutex/apimutex -count=1 -tags='test,noaws,security_deletion,security_replace' -run 'TestSEC040RequestDeletion\|TestSEC040Mutex\|TestSEC030ReplaceLocks\|^TestUserDelete$\|^TestSEC040DeleteUser\|^TestUploadRequest\|^TestURequest' -timeout 90s -v` | 整体FAIL；修复后FR PASS5.566s，含late Commit拒绝/锚点/另一owner源不变；mutex PASS1.447s。API在旧Windows测试DB碰ToDelete唯一键panic，5.403s，后续API合同NOT_RUN；未借此称业务RED。末两regex无对应root，不作为FR API执行证据 |
+| `go test ./internal/webserver/api -count=1 -tags='test,noaws,security_deletion' -run '^Test(UserDelete\|SEC040DeleteUserKeepsFailedCleanupAnchor\|SEC040FileStateAPI\|SEC040DeletionParameters)$' -timeout 90s -v` | 在已核对、无tracked/链接的自动test目录移入ignored备份后，PASS/exit0/5.513s；保留原DB/失败输出，未删除或改生产数据 |
+
+最终复核未见新的timer/metadata/blob或FR门禁阻断。FR Commit通过当前policy事务拒绝；用户删除全在途原子隔离仍VALIDATE。
+最终输入冻结、两个私密候选及CI另记录；不借用PR44或PR45的PASS覆盖本轮整树。
+
 基线dee4382f19d0801cb4022ed3ec897beda297e1df；codex/sec-040-delete-state，未提交开发工作。
 环境为便携Go1.26.10 windows/amd64、CGO0、无gcc；临时SQLite/miniredis，没有生产数据。
 以下结果是当前局部合同，不能作为040-B整体通过或可合并依据。

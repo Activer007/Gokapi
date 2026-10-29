@@ -14,6 +14,7 @@ type stripe struct {
 }
 
 var stripes [numStripes]stripe
+var fileRequestStripes [numStripes]stripe
 var stripesOnce sync.Once
 var errNilLockContext = errors.New("nil lock context")
 
@@ -22,6 +23,8 @@ func initStripes() {
 		for i := range stripes {
 			stripes[i].token = make(chan struct{}, 1)
 			stripes[i].token <- struct{}{}
+			fileRequestStripes[i].token = make(chan struct{}, 1)
+			fileRequestStripes[i].token <- struct{}{}
 		}
 	})
 }
@@ -29,7 +32,18 @@ func initStripes() {
 func getStripe(objectType int, key string) *stripe {
 	index := stripeIndex(objectType, key)
 	initStripes()
-	return &stripes[index]
+	return &stripesForType(objectType)[index]
+}
+
+func stripesForType(objectType int) *[numStripes]stripe {
+	switch objectType {
+	case TypeUser, TypeApiKey, TypeMetaData:
+		return &stripes
+	case TypeFileRequest:
+		return &fileRequestStripes
+	default:
+		panic("invalid object type")
+	}
 }
 
 func (s *stripe) Lock() {
@@ -64,7 +78,7 @@ func (s *stripe) lockContext(ctx context.Context) error {
 
 func stripeIndex(objectType int, key string) uint32 {
 	switch objectType {
-	case TypeUser, TypeApiKey, TypeMetaData:
+	case TypeUser, TypeApiKey, TypeMetaData, TypeFileRequest:
 		// valid
 	default:
 		panic("invalid object type")
@@ -102,8 +116,8 @@ func LockContext(ctx context.Context, objectType int, key string) (func(), error
 	return selected.Unlock, nil
 }
 
-// LockManyContext uses the legacy stripe set, with deduplication and ascending
-// acquisition order. Cancellation releases only acquired stripes, in reverse.
+// LockManyContext selects the type's stripe domain, with deduplication and
+// ascending acquisition order. Cancellation releases acquired stripes in reverse.
 func LockManyContext(ctx context.Context, objectType int, keys ...string) (func(), error) {
 	if ctx == nil {
 		return nil, errNilLockContext
@@ -119,15 +133,16 @@ func LockManyContext(ctx context.Context, objectType int, keys ...string) (func(
 		selected[stripeIndex(objectType, key)] = true
 	}
 	initStripes()
+	domain := stripesForType(objectType)
 	var acquired []int
 	release := func() {
 		for i := len(acquired) - 1; i >= 0; i-- {
-			stripes[acquired[i]].Unlock()
+			domain[acquired[i]].Unlock()
 		}
 	}
 	for i := range selected {
 		if selected[i] {
-			if err := stripes[i].lockContext(ctx); err != nil {
+			if err := domain[i].lockContext(ctx); err != nil {
 				release()
 				return nil, err
 			}
@@ -145,6 +160,9 @@ const (
 	TypeUser = iota
 	TypeApiKey
 	TypeMetaData
+	// TypeFileRequest gates FR lifecycle edits. Persisted expiry gates commits;
+	// its separate domain permits request deletion to lock individual files.
+	TypeFileRequest
 )
 
 func Lock(objectType int, key string) {

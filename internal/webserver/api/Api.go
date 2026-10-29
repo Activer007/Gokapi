@@ -1127,6 +1127,14 @@ func apiDeleteUser(w http.ResponseWriter, r requestParser, user models.User, _ m
 	}
 	ctx, cancel := context.WithTimeout(chunkRequestContext(request.Request), 30*time.Second)
 	defer cancel()
+	database.DeleteAllSessionsByUser(userToDelete.Id)
+
+	for _, apiKey := range database.GetAllApiKeys() {
+		if apiKey.UserId == userToDelete.Id {
+			database.DeleteApiKey(apiKey.Id)
+		}
+	}
+
 	if err := deleteUserFiles(ctx, userToDelete.Id, user.Id, request.DeleteFiles); err != nil {
 		w.Header().Set(deletionStatusHeader, storage.DeletionPending)
 		if errors.Is(err, uploadquota.ErrConflict) {
@@ -1137,14 +1145,6 @@ func apiDeleteUser(w http.ResponseWriter, r requestParser, user models.User, _ m
 		return
 	}
 	logging.LogUserDeletion(userToDelete, user)
-
-	database.DeleteAllSessionsByUser(userToDelete.Id)
-
-	for _, apiKey := range database.GetAllApiKeys() {
-		if apiKey.UserId == userToDelete.Id {
-			database.DeleteApiKey(apiKey.Id)
-		}
-	}
 
 	database.DeleteEnd2EndInfo(userToDelete.Id)
 
@@ -1157,8 +1157,27 @@ func apiDeleteUser(w http.ResponseWriter, r requestParser, user models.User, _ m
 					return
 				}
 			} else {
-				fRequest.UserId = user.Id
-				database.SaveFileRequest(fRequest)
+				if err := func() error {
+					unlock, err := apimutex.LockContext(ctx, apimutex.TypeFileRequest, fRequest.Id)
+					if err != nil {
+						return err
+					}
+					defer unlock()
+					current, found := database.GetFileRequest(fRequest.Id)
+					if !found {
+						return nil
+					}
+					if current.UserId != userToDelete.Id {
+						return uploadquota.ErrConflict
+					}
+					current.UserId = user.Id
+					database.SaveFileRequest(current)
+					return nil
+				}(); err != nil {
+					w.Header().Set(deletionStatusHeader, storage.DeletionPending)
+					sendFileDeletionError(w, err, false)
+					return
+				}
 			}
 		}
 	}
@@ -1329,6 +1348,22 @@ func apiURequestSave(w http.ResponseWriter, r requestParser, user models.User, _
 		return
 	}
 
+	if isNewRequest {
+		uploadRequest = filerequest.New(user)
+	}
+	requestID := request.Id
+	if isNewRequest {
+		requestID = uploadRequest.Id
+	}
+	ctx, cancel := context.WithTimeout(chunkRequestContext(request.Request), 5*time.Second)
+	defer cancel()
+	unlock, err := apimutex.LockContext(ctx, apimutex.TypeFileRequest, requestID)
+	if err != nil {
+		sendError(w, http.StatusServiceUnavailable, errorcodes.InternalServer, "File request operation unavailable")
+		return
+	}
+	defer unlock()
+
 	if !isNewRequest {
 		uploadRequest, ok = database.GetFileRequest(request.Id)
 		if !ok {
@@ -1340,7 +1375,10 @@ func apiURequestSave(w http.ResponseWriter, r requestParser, user models.User, _
 			return
 		}
 	} else {
-		uploadRequest = filerequest.New(user)
+		if _, exists := database.GetFileRequest(uploadRequest.Id); exists {
+			sendFileDeletionError(w, uploadquota.ErrConflict, false)
+			return
+		}
 		apiKey := generateNewKey(false, user.Id, "File Request Public Access", uploadRequest.Id)
 		uploadRequest.ApiKey = apiKey.Id
 	}
