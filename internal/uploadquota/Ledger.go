@@ -169,6 +169,16 @@ func metadataDigest(file models.File) (string, error) {
 	return hex.EncodeToString(hash[:]), nil
 }
 
+// MatchesCommittedFile is deliberately strict for startup recovery. Later
+// metadata changes require manual review instead of guessing the old commit.
+func (r Reservation) MatchesCommittedFile(file models.File) bool {
+	if r.State != Committed || r.FileID == "" || file.Id != r.FileID || file.UserId != r.UserID || file.UploadRequestId != r.RequestID || file.SizeBytes != r.Bytes {
+		return false
+	}
+	digest, err := metadataDigest(file)
+	return err == nil && digest == r.CommitDigest
+}
+
 // RecoveryBatch enumerates active or cleanup-pending records in stable ID order.
 // It does not release resources or perform physical cleanup.
 func (ledger Ledger) RecoveryBatch(after string, limit int) ([]Reservation, string, error) {

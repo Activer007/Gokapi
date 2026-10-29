@@ -1,0 +1,50 @@
+Using MOCK S3 SERVER! To test real credentials, pass REAL_AWS_CREDENTIALS=true
+To mock the API, run test with --tags test,awsmock
+=== RUN   TestSEC030RecoveryCrash
+=== RUN   TestSEC030RecoveryCrash/A
+=== RUN   TestSEC030RecoveryCrash/B
+=== RUN   TestSEC030RecoveryCrash/C
+--- PASS: TestSEC030RecoveryCrash (0.97s)
+    --- PASS: TestSEC030RecoveryCrash/A (0.25s)
+    --- PASS: TestSEC030RecoveryCrash/B (0.27s)
+    --- PASS: TestSEC030RecoveryCrash/C (0.45s)
+=== RUN   TestSEC030RecoveryNegative
+=== RUN   TestSEC030RecoveryNegative/canonical
+=== RUN   TestSEC030RecoveryNegative/whole
+--- PASS: TestSEC030RecoveryNegative (1.07s)
+    --- PASS: TestSEC030RecoveryNegative/canonical (0.31s)
+    --- PASS: TestSEC030RecoveryNegative/whole (0.76s)
+PASS
+ok  	github.com/Activer007/Gokapi/internal/storage	7.326s
+=== RUN   TestSEC030RecoveryChunkVerifyIsReadOnly
+--- PASS: TestSEC030RecoveryChunkVerifyIsReadOnly (0.07s)
+=== RUN   TestSEC030RecoveryChunkCommittedInputScope
+=== RUN   TestSEC030RecoveryChunkCommittedInputScope/committed
+=== RUN   TestSEC030RecoveryChunkCommittedInputScope/claim
+=== RUN   TestSEC030RecoveryChunkCommittedInputScope/mismatched-committed
+--- PASS: TestSEC030RecoveryChunkCommittedInputScope (0.12s)
+    --- PASS: TestSEC030RecoveryChunkCommittedInputScope/committed (0.05s)
+    --- PASS: TestSEC030RecoveryChunkCommittedInputScope/claim (0.03s)
+    --- PASS: TestSEC030RecoveryChunkCommittedInputScope/mismatched-committed (0.03s)
+PASS
+ok  	github.com/Activer007/Gokapi/internal/storage/chunking/chunksession	4.697s
+=== RUN   TestSEC030RecoveryReceiverVerifyThenPrepare
+--- PASS: TestSEC030RecoveryReceiverVerifyThenPrepare (0.03s)
+=== RUN   TestSEC030RecoveryReceiverForeignPreflight
+--- PASS: TestSEC030RecoveryReceiverForeignPreflight (0.02s)
+=== RUN   TestSEC030RecoveryReceiverCancellationAndRuntimeGuard
+--- PASS: TestSEC030RecoveryReceiverCancellationAndRuntimeGuard (0.01s)
+PASS
+ok  	github.com/Activer007/Gokapi/internal/storage/uploadreceive	1.282s
+=== RUN   TestSEC030RecoverySQLiteReadMetadata
+--- PASS: TestSEC030RecoverySQLiteReadMetadata (0.02s)
+PASS
+ok  	github.com/Activer007/Gokapi/internal/configuration/database/provider/sqlite	1.589s
+=== RUN   TestSEC030RecoveryRedisReadMetadata
+Unable to check if Redis has persistence enabled.
+--- PASS: TestSEC030RecoveryRedisReadMetadata (0.01s)
+PASS
+ok  	github.com/Activer007/Gokapi/internal/configuration/database/provider/redis	1.646s
+testing: warning: no tests to run
+PASS
+ok  	github.com/Activer007/Gokapi/cmd/gokapi	9.002s [no tests to run]
