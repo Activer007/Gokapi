@@ -2,7 +2,7 @@
 
 This report tracks implementation of the selected compact, top-navigation design. The existing local design plan and concept images predate this implementation and are preserved separately.
 
-## Foundation batch — in progress
+## Foundation batch — merged
 
 Baseline: `c434e0997e61d368dd9c4705d3ba4e10a0a01882` (2.11.0). Branch: `codex/ui-upgrade-foundation`.
 
@@ -31,4 +31,25 @@ Validation so far:
 
 Limitations: 720×450 tests effective narrow desktop layout; actual browser zoom percentages were not changed. Full E2E file-content verification, exhaustive failure states and full-site acceptance remain in B4–B6. No production deployment, image publication or release occurred. Version remains 2.11.0.
 
-Pending: final resource consistency and PR review. The full B0–B6 upgrade is not complete. No PR has been created or merged for this batch yet.
+Delivered as PR #45: https://github.com/Activer007/SupaShare/pull/45. Final head `41c4ef3` passed GitHub CI. After explicit user confirmation, merged into master as `b7a5f85`. CI annotations concern runner/action runtime migrations, not test failures. The full B0–B6 upgrade is not complete.
+
+
+## Collections batch — verified, preparing PR
+
+Branch: `codex/ui-upgrade-collections`, based on merged B1 `b7a5f85`.
+
+- Collection management now uses the shared page heading, primary creation action, count, empty state and full-width table. Existing permission-dependent columns and expandable received-file lists remain.
+- Public upload now separates collection notes, upload limits, branded file selection, queue and submission. Remaining capacity uses an explicit bilingual label and updates after each successful upload.
+- Edited collections retain their received-file toggle and working single/ZIP downloads. Download handlers retain quoted names as data rather than parsing inline JavaScript. Failed deletion requests re-enable their buttons.
+- Added accessible queue removal labels and a close action to the capacity-reached success dialog. Existing quota, reservation, upload and recovery APIs are unchanged.
+
+Validation:
+
+- Native Linux `go generate ./...`, all 32 Node tests, and `go test ./internal/i18n ./internal/webserver -tags=test,noaws -count=1`: passed on final B2 sources. Generated bundles/fingerprints were imported through the normal generator.
+- Browser: empty state → create with two-file/1 MB limits → public paste queue → reject three files → remove excess → upload two → capacity reached → server refuses further access.
+- Browser: edit a received collection to a name containing quotes and angle brackets, preserve expansion and ZIP download; inspect both ZIP entries and compare exact original UTF-8 text. Both match.
+- Browser: destructive collection deletion cancelled; final preview received-file deletion followed by immediate Restore returns the server-rendered count to 1/3 and restores its download control. The first slower restore attempt in an older preview was inconclusive and is not counted as a pass.
+- Browser: Chinese/English, keyboard expansion, final remaining-capacity text (3 → 2), 1280×720 English management, 1440×900 creation, 1586×992 visual comparison, 1920×1080 public completion. No captured warning/error in the inspected final public tab.
+- Tracked screenshots: `docs/images/ui-upgrade/collections-zh.jpg`, `docs/images/ui-upgrade/public-upload-zh.jpg`. Additional synthetic evidence: `local-ui.secret/ui-upgrade/collections/`.
+
+Scope limits: collection expiry/active-reservation concurrency and exhaustive network failure behavior retain existing automated coverage and remain part of B6 cross-page regression. Public error-page styling belongs to B4. No full-site acceptance or version increment is claimed.
