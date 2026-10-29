@@ -65,6 +65,7 @@ func TestGetFile(t *testing.T) {
 		Id:                 "testget",
 		Name:               "testget",
 		SHA1:               "testget",
+		UserId:             1,
 		UnlimitedDownloads: true,
 		UnlimitedTime:      true,
 	}
@@ -106,6 +107,7 @@ func TestGetEncInfoFromExistingFile(t *testing.T) {
 			DecryptionKey: nil,
 			Nonce:         nil,
 		},
+		UserId:             1,
 		UnlimitedDownloads: true,
 		UnlimitedTime:      true,
 	}

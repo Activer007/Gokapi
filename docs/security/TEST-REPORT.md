@@ -15,6 +15,10 @@
 | 最终核心/双provider：`go test ./internal/uploadquota ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,noaws,security_duplicate -timeout 2m` | PASS，2.818s / 7.098s / 6.684s；含原有整包回归及新源变化、损坏投影、WATCH合同 |
 | 最终HTTP/兼容：`go test ./internal/webserver/api ./internal/storage -count=1 -tags=test,noaws,security_whole,security_duplicate -run '^TestSEC030DuplicateQuota$\|^TestDuplicateFile$' -timeout 2m -v` | PASS，API9.211s、storage5.697s；含跨owner副本再次复制及12组10/50竞争 |
 | 路由生成：在build/go-generate下 `go run updateApiRouting.go` | PASS，无内容diff；第一次从仓库根运行因相对路径错误FAIL，已纠正，不作为产品RED |
+| PR24首轮CI40811235737，合并候选1cd3fb9（含已合并UI PR23） | FAIL：生成/编译器检查通过，awsmock整包仅TestDuplicateFile因前序testget/testhash夹具UserId为0失败；后续步骤SKIPPED，不能记PASS |
+| 夹具修正后的顺序回归：`go test ./internal/storage -count=1 -tags=test,awsmock -run '^TestGetFile$\|^TestGetEncInfoFromExistingFile$\|^TestDuplicateFile$' -timeout 90s -v` | PASS，5.930s；三项按原顺序运行，全部旧断言保留 |
+
+最小修复为这两个既有合成fixture补正UserId，不改旧断言或生产校验；不引入数据库切换/清库框架。
 
 Linux完整CI/race在最终head运行一次，结果记录于关联PR审查，避免补文档重复触发CI。
 本地完整go generate、Windows全仓、native race、大文件/慢速/浏览器/真实Redis/S3：NOT_RUN，本增量不触及流式I/O、依赖或生成页面。
