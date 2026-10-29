@@ -2,6 +2,7 @@ package filerequest
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/Activer007/SupaShare/internal/configuration"
@@ -10,6 +11,7 @@ import (
 	"github.com/Activer007/SupaShare/internal/models"
 	"github.com/Activer007/SupaShare/internal/storage"
 	"github.com/Activer007/SupaShare/internal/uploadquota"
+	"github.com/Activer007/SupaShare/internal/webserver/api/mutex/apimutex"
 )
 
 // New creates a new file request object. It is not stored yet,
@@ -83,10 +85,46 @@ func populateReservationDisplay(requests []models.FileRequest, read func(context
 
 // Delete all files associated with a file request and the request itself
 func Delete(request models.FileRequest) {
-	files := GetAllFiles(request)
-	storage.DeleteFiles(files, true)
-	database.DeleteFileRequest(request)
-	database.DeleteApiKey(request.ApiKey)
+	if err := DeleteContext(context.Background(), request); err != nil {
+		log.Print("File request deletion pending")
+	}
+}
+
+// DeleteContext keeps the request available for a management retry until its
+// files have been safely retired. The upload key is revoked before cleanup.
+func DeleteContext(ctx context.Context, request models.FileRequest) error {
+	if ctx == nil {
+		return uploadquota.ErrInvalid
+	}
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+	unlock, err := apimutex.LockContext(ctx, apimutex.TypeFileRequest, request.Id)
+	if err != nil {
+		return err
+	}
+	defer unlock()
+	current, found := database.GetFileRequest(request.Id)
+	if !found {
+		return storage.ErrorFileNotFound
+	}
+	if current.UserId != request.UserId || current.ApiKey != request.ApiKey {
+		return uploadquota.ErrConflict
+	}
+	// Commit checks the request policy in its own provider transaction. Freeze
+	// that policy before enumeration: earlier commits are in the snapshot and
+	// later ones are refused even if their HTTP request was already authorized.
+	current.Expiry = 1
+	database.SaveFileRequest(current)
+	database.DeleteApiKey(current.ApiKey)
+	files, err := storage.ReadDeletionFilesContext(ctx, current.UserId, current.Id)
+	if err != nil {
+		return err
+	}
+	if err := storage.DeleteFilesContext(ctx, files, true); err != nil {
+		return err
+	}
+	database.DeleteFileRequest(current)
+	return nil
 }
 
 // GetAllFiles returns a list of all files associated with a file request

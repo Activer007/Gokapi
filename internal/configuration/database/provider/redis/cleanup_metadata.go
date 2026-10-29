@@ -17,6 +17,8 @@ import (
 
 const maxCleanupFiles = 16384
 
+var errCleanupWatchAbort = errors.New("cleanup watch transaction aborted")
+
 // Return a bounded page, including a checked cursor. No metadata fields are
 // materialized while enumerating candidates.
 var readCleanupPage = redigo.NewScript(0, `
@@ -174,6 +176,19 @@ func (p DatabaseProvider) HasBlobReference(ctx context.Context, file models.File
 // RetireCleanupFile performs no physical I/O. sourceGone is evidence supplied
 // by storage after successful deletion or a checked missing-source result.
 func (p DatabaseProvider) RetireCleanupFile(ctx context.Context, expected models.File, now int64, sourceGone bool) (bool, error) {
+	// A definite WATCH abort did not execute any command. Retry once with a
+	// fresh full snapshot/hotlink check; never retry an unknown EXEC result.
+	// Physical I/O belongs to storage and is not repeated by this transaction.
+	for attempt := 0; attempt < 2; attempt++ {
+		retired, err := p.retireCleanupFileOnce(ctx, expected, now, sourceGone)
+		if !errors.Is(err, errCleanupWatchAbort) {
+			return retired, err
+		}
+	}
+	return false, uploadquota.ErrConflict
+}
+
+func (p DatabaseProvider) retireCleanupFileOnce(ctx context.Context, expected models.File, now int64, sourceGone bool) (bool, error) {
 	if ctx == nil || !recoveryFileID.MatchString(expected.Id) || expected.UserId <= 0 || expected.SizeBytes < 0 ||
 		expected.SHA1 == "" || len(expected.SHA1) > 128 || len(expected.AwsBucket) > 1024 || now <= 0 ||
 		(expected.IsLocalStorage() && !helper.IsSafeLocalBlobName(expected.SHA1)) {
@@ -268,7 +283,7 @@ func (p DatabaseProvider) RetireCleanupFile(ctx context.Context, expected models
 	}
 	multi = false
 	if reply == nil {
-		return false, uploadquota.ErrConflict
+		return false, errCleanupWatchAbort
 	}
 	if err := checkQuotaExec(reply, commands); err != nil {
 		return false, err

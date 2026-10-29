@@ -216,6 +216,17 @@ func RetireCleanupFile(ctx context.Context, file models.File, now int64, sourceG
 	return db.RetireCleanupFile(ctx, file, now, sourceGone)
 }
 
+// ApplyFileState conditionally patches only server-owned file state fields.
+func ApplyFileState(ctx context.Context, patch models.FileStatePatch) (models.File, bool, error) {
+	if ctx == nil {
+		return models.File{}, false, uploadquota.ErrInvalid
+	}
+	if db == nil {
+		return models.File{}, false, uploadquota.ErrSchema
+	}
+	return db.ApplyFileState(ctx, patch)
+}
+
 // ReadBlobEncryption reads only bounded encryption metadata for one storage
 // locator. It does not load names, passwords or all file metadata into memory.
 func ReadBlobEncryption(ctx context.Context, hash, bucket string) (models.EncryptionInfo, bool, error) {

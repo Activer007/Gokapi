@@ -26,7 +26,9 @@ jobs:
           go-version-file: go.mod
       - name: Verify reviewed Go compiler and builder policy
         run: python3 docs/security/tools/check-sec062-toolchain.py --actual "$(go env GOVERSION)"
-      - run: go generate ./...
+      - run: |
+          go generate ./...
+          git diff --exit-code
       # GREEN contract: the configured product port is occupied, while setup tests
       # use held OS-assigned listeners. Never run the historical --red mode here.
       - name: Setup tests with configured port occupied
@@ -41,13 +43,15 @@ jobs:
         run: go test -race ./internal/storage -count=1 -tags=test,noaws -run '^TestSEC052ServeFileFailure$'
       - name: Retryable cleanup and provider contracts with race
         run: go test -race ./internal/test/securityfixture ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,security_cleanup -run '^TestSEC040Cleanup' -timeout 3m -v
+      - name: Deletion state, timer and API contracts with race
+        run: go test -race ./internal/storage ./internal/storage/filerequest ./internal/webserver/api ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis ./internal/webserver/api/mutex/apimutex ./cmd/cli-uploader/cliapi -count=1 -tags=test,noaws,security_deletion,security_replace -run 'TestSEC040|TestSEC030ReplaceLocks' -timeout 3m -v
       - name: Whole and chunk upload durable admission and provider contracts
         run: bash docs/security/tools/run-sec030-whole.sh target
       - name: Whole and chunk upload durable admission with race
         run: bash docs/security/tools/run-sec030-whole.sh race
       - name: Record security source hashes
         run: |
-          git ls-files -- cmd/supashare/Main.go internal/configuration/database internal/environment internal/storage internal/uploadquota internal/webserver | grep -E '\.go$' | LC_ALL=C sort | xargs sha256sum
+          git ls-files -- cmd/supashare/Main.go cmd/cli-uploader/cliapi internal/configuration/database internal/environment internal/storage internal/uploadquota internal/webserver | grep -E '\.go$' | LC_ALL=C sort | xargs sha256sum
           sha256sum cmd/wasmdownloader/Main.go internal/webserver/web/templates/html_download.tmpl internal/webserver/web/main.wasm
       - name: Toolchain build and vulnerability gates
         run: bash docs/security/tools/run-sec062-toolchain.sh scan

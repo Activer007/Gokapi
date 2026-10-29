@@ -26,7 +26,6 @@ import (
 	templatetext "text/template"
 	"time"
 
-	"github.com/NYTimes/gziphandler"
 	"github.com/Activer007/SupaShare/internal/authorization"
 	"github.com/Activer007/SupaShare/internal/configuration"
 	"github.com/Activer007/SupaShare/internal/configuration/database"
@@ -55,6 +54,7 @@ import (
 	"github.com/Activer007/SupaShare/internal/webserver/ratelimiter"
 	"github.com/Activer007/SupaShare/internal/webserver/sse"
 	"github.com/Activer007/SupaShare/internal/webserver/ssl"
+	"github.com/NYTimes/gziphandler"
 )
 
 // TODO add 404 handler
@@ -670,8 +670,13 @@ func showDownload(w http.ResponseWriter, r *http.Request) {
 			// Migrate legacy passwords to the new format
 			// Will be removed in the future
 			if isLegacy {
-				file.PasswordHash = configuration.HashPassword(enteredPassword, false, "")
-				database.SaveMetaData(file)
+				newHash := configuration.HashPassword(enteredPassword, false, "")
+				updated, err := storage.UpgradeFilePassword(r.Context(), file.Id, file.PasswordHash, newHash)
+				if err != nil || !updated {
+					http.Error(w, "File state changed; retry the download", http.StatusConflict)
+					return
+				}
+				file.PasswordHash = newHash
 			}
 			writeFilePwCookie(w, file)
 			// redirect so that there is no post data to be resent if user refreshes page

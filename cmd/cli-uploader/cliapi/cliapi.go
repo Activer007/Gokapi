@@ -133,6 +133,9 @@ func getUrl(url string, headers []header, longTimeout bool) (string, error) {
 	case 404:
 		return "", ErrNotFound
 	}
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
+		return "", fmt.Errorf("HTTP status %d", resp.StatusCode)
+	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

@@ -4,13 +4,26 @@
 
 ## 当前M4：可靠删除与下载内容边界
 
+初始开发基线dee4382f19d0801cb4022ed3ec897beda297e1df，分支codex/sec-040-delete-state；最终代码冻结cf30b576020b187a20450e14b03cbfebb7294ba3。
+2026-10-30续作：保存实现22ce805后，无冲突合并自有PR45主线b7a5f85为0c2e07；UI/生成器改动完整保留。
+Forceu/Gokapi PR419、418本轮只读复核仍open/unmerged；未提交上游。
+当前远程仅Activer007/SupaShare；本地便携Go1.26.10 windows/amd64、CGO0。040-A/052-A已合并；040-B由[PR48](https://github.com/Activer007/SupaShare/pull/48)交付，最终CI_GREEN。
+双provider字段patch、metadata/blob门禁、有界timer、API/CLI及两私密候选GREEN；[CI40922295319](https://github.com/Activer007/SupaShare/actions/runs/40922295319) SUCCESS。
+实际checkout46aa8b9、tree de6f9430与cf30b57一致；四组全仓、相关race、构建/扫描全部通过。前三次真实CI失败与最小修正保留于TEST-REPORT。
+恢复候选使用新的门禁/并发结果合同，实际GC先完成、API明确404且独立对象GET确认404；不是原强制提前成功前提的同夹具回放。
+CONFIRMED_CODE：用户删除直接退休metadata的窄故障合同已RED→GREEN；没有据此声称外部攻击链成立。
+CONFIRMED_CODE：FR清理失败后的policy及真实Claim/Commit防御合同RED→GREEN；跨owner控制通过，详见TEST-REPORT。
+普通用户删除的所有在途上传原子隔离继续VALIDATE；不扩大本轮完成声明。
+041旧locator锚点缺口为CONFIRMED_CODE；共享引用、中断后收敛和具体攻击链须各自测试，不从源码结论扩大。
+后续优先级及限定验收见[M4-GOAL](M4-GOAL.md)，不重开M3全量延期，不扩大成浏览器/真实云完整矩阵。
+
 SEC-040-A以主线c434e099开始，隔离开发保留已测试provider工作并同步该主线；CONFIRMED_CODE（原c434）：
 删除失败仍可丢管理锚点，最新业务RED12.290s。最小修复采用checked完整扫描/探测/删除/条件退休，复用metadata重试，见[ADR-022](ADR-022-RETRYABLE-DELETION.md)。
 本地相关合同GREEN：loopback DELETE失败、HEAD未知、假成功、另一进程重启重试、跨owner共享及路径边界；双provider完整引用/条件退休GREEN。
 收尾[PR44](https://github.com/Activer007/SupaShare/pull/44)：CI40887732123 SUCCESS，实际6af21ff/tree68eac331与冻结e1fd952一致；
 四组全仓、相关race、Linux实际权限/symlink、构建/扫描均PASS。开发期两次真实CI失败及夹具修正均在TEST-REPORT保留。
 本地路径别名及case-only歧义先取得候选防御合同RED后修复，不据此声称远程攻击者可利用；S3保持精确key身份。
-040-B取消/恢复/旧timer协调另有窄隔离业务RED，精确证据留自有私密审查；修复及外部反馈仍OPEN，不推定越权链/发布版本影响。
+040-B精确业务RED及候选证据留自有未公开审查；最终Gate通过，交付/合并以PR48记录为准，不推定越权链或发布版本影响。
 VALIDATE：041旧内容候选、真实Redis/S3及崩溃中断窗口仍OPEN；040-A不能关闭整个M4。
 
 基线8c39931733be853dd68d11ad5b193088c4d928d5，v2.11.0；范围见[M4-GOAL](M4-GOAL.md)，阶段ACTIVE，M3保持完成。

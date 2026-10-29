@@ -28,6 +28,7 @@ type Database interface {
 	ReadCleanupIDs(context.Context) ([]string, error)
 	HasBlobReference(context.Context, models.File) (bool, error)
 	RetireCleanupFile(context.Context, models.File, int64, bool) (bool, error)
+	ApplyFileState(context.Context, models.FileStatePatch) (models.File, bool, error)
 	ImportUploadQuota(context.Context, uploadquota.Ledger) error
 	CheckEmptyForMigration(context.Context) error
 	// GetType returns identifier of the underlying interface

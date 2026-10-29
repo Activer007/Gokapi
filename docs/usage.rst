@@ -50,6 +50,8 @@ File deletion
 
 Every hour SupaShare runs a cleanup routine for expired shares. Clicking *Delete* revokes the share and starts cleanup; acceptance does not confirm physical deletion. Shared content stays while another share references it. Storage or metadata errors leave a retryable management record and a fixed cleanup-pending log message, without restoring public download access. A later cleanup or restart retries the remaining work. Unproxied AWS downloads retain their existing 24-hour tracking window because completion cannot be confirmed reliably. Deleting the current object does not erase backups or historical S3 versions.
 
+The file deletion API keeps its empty HTTP 200 success body and adds ``X-SupaShare-Deletion-Status``: ``accepted`` for a scheduled intent, ``deleted`` for a retired share with confirmed absent content, or ``shared`` when another reference keeps the content. A ``pending`` response with HTTP 503 means cleanup is incomplete and must be retried. HTTP 409 reports a state conflict. Restore only succeeds while the share is still live and its source can be verified; a concurrent cleanup may finish first, in which case restore is refused. CLI callers also treat non-success HTTP statuses as errors.
+
 
 File Request Menu
 ===================
@@ -144,7 +146,7 @@ Deleting Requests
 To remove a request, click the *Trash* icon.
 
 .. warning::
-   Deleting a File Request is permanent. This action also deletes all associated files currently stored on the server. This cannot be undone.
+   Deleting a File Request first expires it and revokes its upload key, then revokes and cleans up received shares still owned by the request owner. Another owner's independent copy is preserved. If cleanup fails, the expired request and failed file records remain for a management retry; the response reports failure. Physical deletion cannot be undone.
 
 
 

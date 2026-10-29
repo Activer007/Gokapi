@@ -22,13 +22,14 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | --- | --- | --- |
 | 052-A | IMPLEMENTED / CI_GREEN / [PR43](https://github.com/Activer007/SupaShare/pull/43) | 本地真实HTTP与Chromium/WASM正负合同GREEN，CI40870398244及聚焦race成功；ADR-023，精确证据私密保留 |
 | 040-A | IMPLEMENTED / CI_GREEN / [PR44](https://github.com/Activer007/SupaShare/pull/44) | CI40887732123，四组全仓/相关race及Linux权限/链接PASS；失败、重启重试、共享引用与ADR-022；无schema迁移 |
-| 040-B | P0 / PRIVATE_RED / NEXT | 两个候选窄状态竞争合同已RED，精确证据私密保留；取消/timer/恢复条件更新、兼容及明确反馈仍待实现 |
+| 040-B | IMPLEMENTED / CI_GREEN / [PR48](https://github.com/Activer007/SupaShare/pull/48) | 冻结cf30b57含主线PR47；CI40922295319四组/全部相关race/build/scan PASS；两私密候选、FR Commit/跨owner、明确WATCH中止/unknown边界GREEN；ADR-024；普通用户全在途原子隔离仍VALIDATE |
 | 041 | P0 / NOT_STARTED | 持久旧locator、引用及重启回收 |
 | 052其余 | P1 / VALIDATE | 小型中断合同与其他支持组合仍需本项证据，不用一个Chromium正负例声称全覆盖 |
 | 051 | P1 / VALIDATE | 初始限定浏览器预检，不以头缺失判XSS；结果见TEST-REPORT，未形成全路径安全结论 |
 | 050 | P1 / NOT_STARTED | 最小响应头、兼容及渐进CSP |
 
 公开只保留必要修复，私密精确负例不提交。每PR一个SEC；本PR完成不代表M4已完成。
+2026-10-29梳理后的开发安排与最小Gate见[M4执行安排](M4-GOAL.md#2026-10-29-执行安排当前工作基线-dee4382f)：040-B→041→052余项→051→050；升级须有实证，非缺头或源码猜测。
 
 ## M3完成记录：最小崩溃恢复与阶段收口
 

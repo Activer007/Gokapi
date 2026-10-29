@@ -22,6 +22,7 @@ import (
 	"github.com/Activer007/SupaShare/internal/storage"
 	"github.com/Activer007/SupaShare/internal/storage/filerequest"
 	"github.com/Activer007/SupaShare/internal/storage/presign"
+	"github.com/Activer007/SupaShare/internal/uploadquota"
 	"github.com/Activer007/SupaShare/internal/webserver/api/mutex/apimutex"
 	"github.com/Activer007/SupaShare/internal/webserver/api/mutex/e2emutex"
 	"github.com/Activer007/SupaShare/internal/webserver/authentication/downloadPasswordToken"
@@ -336,25 +337,44 @@ func renameApiKeyFriendlyName(id string, newName string) error {
 	return nil
 }
 
+const deletionStatusHeader = "X-SupaShare-Deletion-Status"
+
 func apiDeleteFile(w http.ResponseWriter, r requestParser, user models.User, _ models.ApiKey) {
 	request, ok := r.(*paramFilesDelete)
 	if !ok {
 		panic("invalid parameter passed")
 	}
-	file, ok := database.GetMetaDataById(request.Id)
-	if !ok {
-		sendError(w, http.StatusNotFound, errorcodes.NotFound, "Invalid file ID provided.")
+	ctx := chunkRequestContext(request.Request)
+	file, found, err := database.ReadRecoveryFile(ctx, request.Id)
+	if err != nil {
+		sendFileDeletionError(w, err, false)
+		return
+	}
+	if !found {
+		sendFileDeletionError(w, storage.ErrorFileNotFound, false)
 		return
 	}
 	if !authorization.Authorize(user, authorization.DeleteFile, file.UserId) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to delete this file")
 		return
 	}
-	logging.LogDelete(file, user)
+	var result storage.DeletionResult
 	if request.DelaySeconds == 0 {
-		_ = storage.DeleteFile(request.Id, true)
+		result, err = storage.DeleteFileContext(ctx, file, true)
 	} else {
-		_ = storage.DeleteFileSchedule(request.Id, request.DelaySeconds*1000, true)
+		result, err = storage.ScheduleFileDeletionContext(ctx, file, request.DelaySeconds*1000, true)
+	}
+	switch result.State {
+	case storage.DeletionAccepted, storage.DeletionPending, storage.DeletionDeleted, storage.DeletionShared:
+		w.Header().Set(deletionStatusHeader, result.State)
+		logging.LogDelete(result.File, user)
+	}
+	if err != nil {
+		if result.State == storage.DeletionPending {
+			sendError(w, http.StatusServiceUnavailable, errorcodes.InternalServer, "File cleanup pending; retry later")
+			return
+		}
+		sendFileDeletionError(w, err, false)
 	}
 }
 
@@ -363,22 +383,44 @@ func apiRestoreFile(w http.ResponseWriter, r requestParser, user models.User, _ 
 	if !ok {
 		panic("invalid parameter passed")
 	}
-	file, ok := database.GetMetaDataById(request.Id)
-	if !ok {
-		sendError(w, http.StatusNotFound, errorcodes.NotFound, "Invalid file ID provided or file has already been deleted.")
+	ctx := chunkRequestContext(request.Request)
+	file, found, err := database.ReadRecoveryFile(ctx, request.Id)
+	if err != nil {
+		sendFileDeletionError(w, err, true)
+		return
+	}
+	if !found {
+		sendFileDeletionError(w, storage.ErrorFileNotFound, true)
 		return
 	}
 	if !authorization.Authorize(user, authorization.DeleteFile, file.UserId) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to restore this file")
 		return
 	}
-	file, ok = storage.CancelPendingFileDeletion(file.Id)
-	if !ok {
-		sendError(w, http.StatusNotFound, errorcodes.NotFound, "Invalid file ID provided or file has already been deleted.")
+	file, err = storage.CancelFileDeletionContext(ctx, file)
+	if err != nil {
+		sendFileDeletionError(w, err, true)
 		return
 	}
 	logging.LogRestore(file, user)
 	outputFileJson(w, file)
+}
+
+func sendFileDeletionError(w http.ResponseWriter, err error, restore bool) {
+	switch {
+	case errors.Is(err, storage.ErrorFileNotFound):
+		message := "Invalid file ID provided."
+		if restore {
+			message = "Invalid file ID provided or file has already been deleted."
+		}
+		sendError(w, http.StatusNotFound, errorcodes.NotFound, message)
+	case errors.Is(err, uploadquota.ErrConflict):
+		sendError(w, http.StatusConflict, errorcodes.ResourceCanNotBeEdited, "File state changed; retry the request")
+	case !restore && errors.Is(err, uploadquota.ErrInvalid):
+		sendError(w, http.StatusBadRequest, errorcodes.InvalidUserInput, "Invalid file operation")
+	default:
+		sendError(w, http.StatusServiceUnavailable, errorcodes.InternalServer, "File operation unavailable")
+	}
 }
 
 func apiChunkAdd(w http.ResponseWriter, r requestParser, user models.User, _ models.ApiKey) {
@@ -1083,8 +1125,8 @@ func apiDeleteUser(w http.ResponseWriter, r requestParser, user models.User, _ m
 		sendError(w, http.StatusBadRequest, errorcodes.ResourceCanNotBeEdited, "Cannot delete yourself")
 		return
 	}
-	logging.LogUserDeletion(userToDelete, user)
-
+	ctx, cancel := context.WithTimeout(chunkRequestContext(request.Request), 30*time.Second)
+	defer cancel()
 	database.DeleteAllSessionsByUser(userToDelete.Id)
 
 	for _, apiKey := range database.GetAllApiKeys() {
@@ -1093,29 +1135,53 @@ func apiDeleteUser(w http.ResponseWriter, r requestParser, user models.User, _ m
 		}
 	}
 
+	if err := deleteUserFiles(ctx, userToDelete.Id, user.Id, request.DeleteFiles); err != nil {
+		w.Header().Set(deletionStatusHeader, storage.DeletionPending)
+		if errors.Is(err, uploadquota.ErrConflict) {
+			sendFileDeletionError(w, err, false)
+		} else {
+			sendError(w, http.StatusServiceUnavailable, errorcodes.InternalServer, "User file operation pending; retry later")
+		}
+		return
+	}
+	logging.LogUserDeletion(userToDelete, user)
+
 	database.DeleteEnd2EndInfo(userToDelete.Id)
 
 	for _, fRequest := range database.GetAllFileRequests() {
 		if fRequest.UserId == userToDelete.Id {
 			if request.DeleteFiles {
-				filerequest.Delete(fRequest)
+				if err := filerequest.DeleteContext(ctx, fRequest); err != nil {
+					w.Header().Set(deletionStatusHeader, storage.DeletionPending)
+					sendFileDeletionError(w, err, false)
+					return
+				}
 			} else {
-				fRequest.UserId = user.Id
-				database.SaveFileRequest(fRequest)
+				if err := func() error {
+					unlock, err := apimutex.LockContext(ctx, apimutex.TypeFileRequest, fRequest.Id)
+					if err != nil {
+						return err
+					}
+					defer unlock()
+					current, found := database.GetFileRequest(fRequest.Id)
+					if !found {
+						return nil
+					}
+					if current.UserId != userToDelete.Id {
+						return uploadquota.ErrConflict
+					}
+					current.UserId = user.Id
+					database.SaveFileRequest(current)
+					return nil
+				}(); err != nil {
+					w.Header().Set(deletionStatusHeader, storage.DeletionPending)
+					sendFileDeletionError(w, err, false)
+					return
+				}
 			}
 		}
 	}
 
-	for _, file := range database.GetAllMetadata() {
-		if file.UserId == userToDelete.Id {
-			if request.DeleteFiles {
-				database.DeleteMetaData(file.Id)
-			} else {
-				file.UserId = user.Id
-				database.SaveMetaData(file)
-			}
-		}
-	}
 	database.DeleteUser(userToDelete.Id)
 }
 
@@ -1237,7 +1303,11 @@ func apiURequestDelete(w http.ResponseWriter, r requestParser, user models.User,
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to delete this upload request")
 		return
 	}
-	filerequest.Delete(uploadRequest)
+	if err := filerequest.DeleteContext(chunkRequestContext(request.Request), uploadRequest); err != nil {
+		w.Header().Set("X-SupaShare-Deletion-Status", storage.DeletionPending)
+		sendError(w, http.StatusServiceUnavailable, errorcodes.InternalServer, "File request deletion pending; retry later")
+		return
+	}
 	logging.LogDeleteFileRequest(uploadRequest, user)
 	_, _ = w.Write([]byte("{\"result\":\"OK\"}"))
 }
@@ -1278,6 +1348,22 @@ func apiURequestSave(w http.ResponseWriter, r requestParser, user models.User, _
 		return
 	}
 
+	if isNewRequest {
+		uploadRequest = filerequest.New(user)
+	}
+	requestID := request.Id
+	if isNewRequest {
+		requestID = uploadRequest.Id
+	}
+	ctx, cancel := context.WithTimeout(chunkRequestContext(request.Request), 5*time.Second)
+	defer cancel()
+	unlock, err := apimutex.LockContext(ctx, apimutex.TypeFileRequest, requestID)
+	if err != nil {
+		sendError(w, http.StatusServiceUnavailable, errorcodes.InternalServer, "File request operation unavailable")
+		return
+	}
+	defer unlock()
+
 	if !isNewRequest {
 		uploadRequest, ok = database.GetFileRequest(request.Id)
 		if !ok {
@@ -1289,7 +1375,10 @@ func apiURequestSave(w http.ResponseWriter, r requestParser, user models.User, _
 			return
 		}
 	} else {
-		uploadRequest = filerequest.New(user)
+		if _, exists := database.GetFileRequest(uploadRequest.Id); exists {
+			sendFileDeletionError(w, uploadquota.ErrConflict, false)
+			return
+		}
 		apiKey := generateNewKey(false, user.Id, "File Request Public Access", uploadRequest.Id)
 		uploadRequest.ApiKey = apiKey.Id
 	}

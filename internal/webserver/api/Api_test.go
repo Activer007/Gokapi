@@ -1257,7 +1257,10 @@ func TestRestoreFile(t *testing.T) {
 		}
 	}
 	test.IsEqualInt64(t, file.PendingDeletion, 0)
-	storage.DeleteFile(fileUser.Id, true)
+	// Drain the fixture's finite cleanup before a later test changes databases.
+	if _, err := storage.DeleteFileContext(t.Context(), file, true); err != nil {
+		t.Fatal("restored fixture cleanup failed", err)
+	}
 }
 
 func testRestoreFileCall(t *testing.T, apiKey models.ApiKey, fileId string, resultCode int, expectedResponse string) {
@@ -1281,6 +1284,20 @@ func testRestoreFileCall(t *testing.T, apiKey models.ApiKey, fileId string, resu
 
 func TestList(t *testing.T) {
 	const apiUrl = "/files/list"
+	// These synthetic missing-source rows were previously retired as a side
+	// effect of deleting another share. Establish only that known precondition,
+	// without relying on a global sweep or weakening list/ownership assertions.
+	for _, id := range []string{"deletedfile123456789", "testFileApiDelete"} {
+		file, found, err := database.ReadRecoveryFile(t.Context(), id)
+		if err != nil {
+			t.Fatal("list fixture read failed", err)
+		}
+		if found {
+			if _, err := storage.DeleteFileContext(t.Context(), file, true); err != nil {
+				t.Fatal("list fixture cleanup failed", err)
+			}
+		}
+	}
 	apiKey := testAuthorisation(t, apiUrl, models.ApiPermView)
 
 	database.DeleteMetaData(idFileUser)

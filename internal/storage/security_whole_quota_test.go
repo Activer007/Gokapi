@@ -21,7 +21,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alicebob/miniredis/v2"
 	"github.com/Activer007/SupaShare/internal/configuration"
 	"github.com/Activer007/SupaShare/internal/configuration/database"
 	"github.com/Activer007/SupaShare/internal/encryption"
@@ -29,6 +28,7 @@ import (
 	"github.com/Activer007/SupaShare/internal/storage/filesystem"
 	"github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws"
 	"github.com/Activer007/SupaShare/internal/uploadquota"
+	"github.com/alicebob/miniredis/v2"
 )
 
 const wholeTestOwner = 77
@@ -473,15 +473,20 @@ func TestSEC030WholeReservedGCRechecksCommittedReference(t *testing.T) {
 			case <-ctx.Done():
 				t.Fatal("upload did not reach Commit before deadline")
 			}
-			gcStarted, gcDone := make(chan struct{}), make(chan bool, 1)
+			type gcOutcome struct {
+				result CleanupResult
+				err    error
+			}
+			gcStarted, gcDone := make(chan struct{}), make(chan gcOutcome, 1)
 			workers.Add(1)
 			go func() {
 				defer workers.Done()
 				close(gcStarted)
-				gcDone <- cleanUpBlobReference(expired.Id, expired, time.Now().Unix())
+				result, err := cleanUpBlobReferenceContext(ctx, expired, time.Now().Unix(), dir)
+				gcDone <- gcOutcome{result, err}
 			}()
 			<-gcStarted
-			var earlyGC *bool
+			var earlyGC *gcOutcome
 			select {
 			case deleted := <-gcDone:
 				earlyGC = &deleted
@@ -502,8 +507,8 @@ func TestSEC030WholeReservedGCRechecksCommittedReference(t *testing.T) {
 			if earlyGC == nil {
 				select {
 				case deleted := <-gcDone:
-					if !deleted {
-						t.Error("GC did not remove the expired metadata reference")
+					if deleted.err != nil || deleted.result.Retired != 1 {
+						t.Errorf("GC did not remove the expired metadata reference: %v (conflict=%t)", deleted.err, errors.Is(deleted.err, uploadquota.ErrConflict))
 					}
 				case <-ctx.Done():
 					t.Fatal("GC stayed blocked after publication")

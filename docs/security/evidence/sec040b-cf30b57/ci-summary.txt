@@ -1,0 +1,213 @@
+SEC-040-B final CI evidence
+PR: https://github.com/Activer007/SupaShare/pull/48
+Run: https://github.com/Activer007/SupaShare/actions/runs/40922295319
+Job: 123618732730; conclusion SUCCESS
+Head: cf30b576020b187a20450e14b03cbfebb7294ba3
+Actual checkout: 46aa8b955391e053e6dc36f229f1c124978fc631
+Parents: ef690e8c7e450e22842ceafcdf293107cb719c57 + cf30b576020b187a20450e14b03cbfebb7294ba3
+Git tree: de6f9430fe87c4e0fb826cb9ac20d468354decaa (identical to frozen head)
+Environment: Ubuntu24.04.5, Go1.26.10 linux/amd64
+Synthetic AWS credentials only; no deployment or image publication.
+Optional workflow_dispatch historical/compiler/container/large gates NOT_RUN.
+Commands, selected PASS results and script return markers follow:
+Run actions/setup-go@v5 | go version go1.26.10 linux/amd64
+Verify reviewed Go compiler and builder policy | Run python3 docs/security/tools/check-sec062-toolchain.py --actual "$(go env GOVERSION)"
+Run go generate ./... | Run go generate ./...
+Setup tests with configured port occupied | Run bash docs/security/tools/run-sec062-setup-listener.sh --occupied
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | Run go test ./... -parallel 8 -count=1 --tags=test,awsmock
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/cmd/cli-uploader/cliapi	0.012s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/configuration/database	1.702s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/configuration/database/dbabstraction	0.005s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/configuration/database/dbcache	0.003s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/configuration/database/migration	0.047s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/configuration/database/provider/redis	0.420s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/configuration/database/provider/sqlite	1.721s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/storage	10.033s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/storage/chunking	0.370s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/storage/chunking/chunkreservation	0.003s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/storage/filerequest	0.005s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem	0.003s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/interfaces	0.003s [no tests to run]
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/localstorage	0.004s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem	0.006s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws	0.003s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/storage/presign	0.002s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/storage/processingstatus	0.005s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/storage/processingstatus/pstatusdb	0.004s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/storage/uploadreceive	0.318s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/test/securityfixture	6.814s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/webserver/api	2.899s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/webserver/api/mutex/apimutex	0.207s
+Run go test ./... -parallel 8 -count=1 --tags=test,awsmock | ok  	github.com/Activer007/SupaShare/internal/webserver/api/mutex/e2emutex	0.002s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | Run go test ./... -parallel 8 -count=1 --tags=test,noaws
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/cmd/cli-uploader/cliapi	0.011s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/configuration/database	1.384s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/configuration/database/dbabstraction	0.007s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/configuration/database/dbcache	0.004s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/configuration/database/migration	0.099s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/configuration/database/provider/redis	0.384s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/configuration/database/provider/sqlite	1.153s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/storage	3.566s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/storage/chunking	0.380s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/storage/chunking/chunkreservation	0.004s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/storage/filerequest	0.005s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem	0.003s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/interfaces	0.002s [no tests to run]
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/localstorage	0.003s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem	0.003s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws	0.003s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/storage/presign	0.003s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/storage/processingstatus	0.004s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/storage/processingstatus/pstatusdb	0.004s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/storage/uploadreceive	0.245s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/test/securityfixture	5.238s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/webserver/api	2.768s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/webserver/api/mutex/apimutex	0.205s
+Run go test ./... -parallel 8 -count=1 --tags=test,noaws | ok  	github.com/Activer007/SupaShare/internal/webserver/api/mutex/e2emutex	0.002s
+Run go test ./... --tags=test,noaws,integration -count=1 | Run go test ./... --tags=test,noaws,integration -count=1
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/cmd/cli-uploader/cliapi	0.008s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/configuration/database	1.545s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/configuration/database/dbabstraction	0.005s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/configuration/database/dbcache	0.003s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/configuration/database/migration	0.060s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/configuration/database/provider/redis	0.369s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/configuration/database/provider/sqlite	1.228s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage	3.634s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/chunking	0.334s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/chunking/chunkreservation	0.003s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/filerequest	0.005s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem	0.003s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/interfaces	0.002s [no tests to run]
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/localstorage	0.004s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem	0.003s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws	0.004s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/presign	0.002s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/processingstatus	0.005s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/processingstatus/pstatusdb	0.005s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/uploadreceive	0.339s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/test/securityfixture	7.275s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/webserver/api	5.453s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/webserver/api/mutex/apimutex	0.207s
+Run go test ./... --tags=test,noaws,integration -count=1 | ok  	github.com/Activer007/SupaShare/internal/webserver/api/mutex/e2emutex	0.002s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/cmd/cli-uploader/cliapi	0.014s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/configuration/database	1.523s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/configuration/database/dbabstraction	0.007s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/configuration/database/dbcache	0.005s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/configuration/database/migration	0.067s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/configuration/database/provider/redis	0.404s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/configuration/database/provider/sqlite	1.568s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage	8.912s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/chunking	0.348s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/chunking/chunkreservation	0.003s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/filerequest	0.008s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem	0.413s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/interfaces	0.003s [no tests to run]
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/localstorage	0.005s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem	0.009s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws	0.023s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/presign	0.002s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/processingstatus	0.007s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/processingstatus/pstatusdb	0.003s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/storage/uploadreceive	0.251s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/test/securityfixture	12.818s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/webserver/api	3.377s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/webserver/api/mutex/apimutex	0.205s
+Run GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1 | ok  	github.com/Activer007/SupaShare/internal/webserver/api/mutex/e2emutex	0.002s
+Receiver contracts with race | Run go test -race ./internal/environment ./internal/storage ./internal/storage/uploadreceive ./internal/webserver/fileupload ./internal/webserver/api ./internal/webserver -count=1 -tags=test,noaws -run 'TestSEC030Receive|TestSEC031UploadSizeSemantics|TestReceive|TestSpool|TestSEC062Range'
+Receiver contracts with race | ok  	github.com/Activer007/SupaShare/internal/storage	1.308s
+Receiver contracts with race | ok  	github.com/Activer007/SupaShare/internal/storage/uploadreceive	2.382s
+Receiver contracts with race | ok  	github.com/Activer007/SupaShare/internal/webserver/api	4.082s
+Encrypted download failure contract with race | Run go test -race ./internal/storage -count=1 -tags=test,noaws -run '^TestSEC052ServeFileFailure$'
+Encrypted download failure contract with race | ok  	github.com/Activer007/SupaShare/internal/storage	1.216s
+Retryable cleanup and provider contracts with race | Run go test -race ./internal/test/securityfixture ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,security_cleanup -run '^TestSEC040Cleanup' -timeout 3m -v
+Retryable cleanup and provider contracts with race | ok  	github.com/Activer007/SupaShare/internal/test/securityfixture	17.947s
+Retryable cleanup and provider contracts with race | ok  	github.com/Activer007/SupaShare/internal/configuration/database/provider/sqlite	1.527s
+Retryable cleanup and provider contracts with race | --- PASS: TestSEC040CleanupRedisRetirementRetry (0.05s)
+Retryable cleanup and provider contracts with race | --- PASS: TestSEC040CleanupRedisRetirementRetry/one-watch-abort (0.01s)
+Retryable cleanup and provider contracts with race | --- PASS: TestSEC040CleanupRedisRetirementRetry/repeated-watch-abort (0.01s)
+Retryable cleanup and provider contracts with race | --- PASS: TestSEC040CleanupRedisRetirementRetry/owner-changed (0.02s)
+Retryable cleanup and provider contracts with race | --- PASS: TestSEC040CleanupRedisRetirementRetry/unknown-committed-exec (0.01s)
+Retryable cleanup and provider contracts with race | ok  	github.com/Activer007/SupaShare/internal/configuration/database/provider/redis	1.157s
+Deletion state, timer and API contracts with race | Run go test -race ./internal/storage ./internal/storage/filerequest ./internal/webserver/api ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis ./internal/webserver/api/mutex/apimutex ./cmd/cli-uploader/cliapi -count=1 -tags=test,noaws,security_deletion,security_replace -run 'TestSEC040|TestSEC030ReplaceLocks' -timeout 3m -v
+Deletion state, timer and API contracts with race | ok  	github.com/Activer007/SupaShare/internal/storage	1.686s
+Deletion state, timer and API contracts with race | --- PASS: TestSEC040RequestDeletionRevokesClaimedCommitOnCleanupFailure (0.12s)
+Deletion state, timer and API contracts with race | ok  	github.com/Activer007/SupaShare/internal/storage/filerequest	1.140s
+Deletion state, timer and API contracts with race | ok  	github.com/Activer007/SupaShare/internal/webserver/api	1.399s
+Deletion state, timer and API contracts with race | ok  	github.com/Activer007/SupaShare/internal/configuration/database/provider/sqlite	1.398s
+Deletion state, timer and API contracts with race | ok  	github.com/Activer007/SupaShare/internal/configuration/database/provider/redis	1.098s
+Deletion state, timer and API contracts with race | --- PASS: TestSEC040MutexFileRequestDomainIsolation (0.05s)
+Deletion state, timer and API contracts with race | ok  	github.com/Activer007/SupaShare/internal/webserver/api/mutex/apimutex	1.221s
+Deletion state, timer and API contracts with race | ok  	github.com/Activer007/SupaShare/cmd/cli-uploader/cliapi	1.020s
+Whole and chunk upload durable admission and provider contracts | Run bash docs/security/tools/run-sec030-whole.sh target
+Whole and chunk upload durable admission and provider contracts | go version go1.26.10 linux/amd64
+Whole and chunk upload durable admission and provider contracts | SEC030_WHOLE_RESULT environment 0
+Whole and chunk upload durable admission and provider contracts | ok  	github.com/Activer007/SupaShare/internal/configuration/database	0.007s [no tests to run]
+Whole and chunk upload durable admission and provider contracts | ok  	github.com/Activer007/SupaShare/internal/configuration/database/provider/sqlite	0.841s
+Whole and chunk upload durable admission and provider contracts | ok  	github.com/Activer007/SupaShare/internal/configuration/database/provider/redis	0.391s
+Whole and chunk upload durable admission and provider contracts | --- PASS: TestSEC030WholeReservedGCRechecksCommittedReference (0.08s)
+Whole and chunk upload durable admission and provider contracts | --- PASS: TestSEC030WholeReservedGCRechecksCommittedReference/sqlite (0.04s)
+Whole and chunk upload durable admission and provider contracts | --- PASS: TestSEC030WholeReservedGCRechecksCommittedReference/redis (0.04s)
+Whole and chunk upload durable admission and provider contracts | ok  	github.com/Activer007/SupaShare/internal/storage	0.642s
+Whole and chunk upload durable admission and provider contracts | ok  	github.com/Activer007/SupaShare/internal/storage/chunking/chunksession	1.863s
+Whole and chunk upload durable admission and provider contracts | ok  	github.com/Activer007/SupaShare/internal/storage/filerequest	0.007s
+Whole and chunk upload durable admission and provider contracts | ok  	github.com/Activer007/SupaShare/internal/storage/processingstatus	0.005s [no tests to run]
+Whole and chunk upload durable admission and provider contracts | ok  	github.com/Activer007/SupaShare/internal/storage/processingstatus/pstatusdb	0.004s
+Whole and chunk upload durable admission and provider contracts | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws	0.004s
+Whole and chunk upload durable admission and provider contracts | ok  	github.com/Activer007/SupaShare/internal/webserver/api	22.987s
+Whole and chunk upload durable admission and provider contracts | ok  	github.com/Activer007/SupaShare/internal/webserver/api/mutex/apimutex	0.005s [no tests to run]
+Whole and chunk upload durable admission and provider contracts | SEC030_WHOLE_RESULT whole 0
+Whole and chunk upload durable admission and provider contracts | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws	0.003s
+Whole and chunk upload durable admission and provider contracts | SEC030_WHOLE_RESULT mock 0
+Whole and chunk upload durable admission and provider contracts | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws	0.011s
+Whole and chunk upload durable admission and provider contracts | SEC030_WHOLE_RESULT sdk 0
+Whole and chunk upload durable admission and provider contracts | SEC030_WHOLE_RESULT source-unchanged 0
+Whole and chunk upload durable admission with race | Run bash docs/security/tools/run-sec030-whole.sh race
+Whole and chunk upload durable admission with race | go version go1.26.10 linux/amd64
+Whole and chunk upload durable admission with race | SEC030_WHOLE_RESULT environment 0
+Whole and chunk upload durable admission with race | ok  	github.com/Activer007/SupaShare/internal/configuration/database	1.024s [no tests to run]
+Whole and chunk upload durable admission with race | ok  	github.com/Activer007/SupaShare/internal/configuration/database/provider/sqlite	9.137s
+Whole and chunk upload durable admission with race | ok  	github.com/Activer007/SupaShare/internal/configuration/database/provider/redis	1.932s
+Whole and chunk upload durable admission with race | --- PASS: TestSEC030WholeReservedGCRechecksCommittedReference (0.13s)
+Whole and chunk upload durable admission with race | --- PASS: TestSEC030WholeReservedGCRechecksCommittedReference/sqlite (0.08s)
+Whole and chunk upload durable admission with race | --- PASS: TestSEC030WholeReservedGCRechecksCommittedReference/redis (0.05s)
+Whole and chunk upload durable admission with race | ok  	github.com/Activer007/SupaShare/internal/storage	14.454s
+Whole and chunk upload durable admission with race | ok  	github.com/Activer007/SupaShare/internal/storage/chunking/chunksession	9.334s
+Whole and chunk upload durable admission with race | ok  	github.com/Activer007/SupaShare/internal/storage/filerequest	1.025s
+Whole and chunk upload durable admission with race | ok  	github.com/Activer007/SupaShare/internal/storage/processingstatus	1.019s [no tests to run]
+Whole and chunk upload durable admission with race | ok  	github.com/Activer007/SupaShare/internal/storage/processingstatus/pstatusdb	1.015s
+Whole and chunk upload durable admission with race | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws	1.013s
+Whole and chunk upload durable admission with race | ok  	github.com/Activer007/SupaShare/internal/webserver/api	210.514s
+Whole and chunk upload durable admission with race | ok  	github.com/Activer007/SupaShare/internal/webserver/api/mutex/apimutex	1.025s
+Whole and chunk upload durable admission with race | SEC030_WHOLE_RESULT whole 0
+Whole and chunk upload durable admission with race | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws	1.013s
+Whole and chunk upload durable admission with race | SEC030_WHOLE_RESULT mock 0
+Whole and chunk upload durable admission with race | ok  	github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws	1.030s
+Whole and chunk upload durable admission with race | SEC030_WHOLE_RESULT sdk 0
+Whole and chunk upload durable admission with race | SEC030_WHOLE_RESULT source-unchanged 0
+Toolchain build and vulnerability gates | Run bash docs/security/tools/run-sec062-toolchain.sh scan
+Toolchain build and vulnerability gates | go version go1.26.10 linux/amd64
+Toolchain build and vulnerability gates | SEC062_RESULT environment 0
+Toolchain build and vulnerability gates | SEC062_RESULT policy 0
+Toolchain build and vulnerability gates | SEC062_RESULT scanner-install 0
+Toolchain build and vulnerability gates | SEC062_RESULT scanner-version 0
+Toolchain build and vulnerability gates | SEC062_RESULT scanner-buildinfo 0
+Toolchain build and vulnerability gates | SEC062_RESULT generate 0
+Toolchain build and vulnerability gates | SEC062_RESULT formatting 0
+Toolchain build and vulnerability gates | Your code is affected by 0 vulnerabilities.
+Toolchain build and vulnerability gates | SEC062_RESULT source-default 0
+Toolchain build and vulnerability gates | Your code is affected by 0 vulnerabilities.
+Toolchain build and vulnerability gates | SEC062_RESULT source-noaws 0
+Toolchain build and vulnerability gates | Your code is affected by 0 vulnerabilities.
+Toolchain build and vulnerability gates | SEC062_RESULT wasm-source 0
+Toolchain build and vulnerability gates | SEC062_RESULT generator-build 0
+Toolchain build and vulnerability gates | SEC062_RESULT generator-buildinfo 0
+Toolchain build and vulnerability gates | SEC062_RESULT generator-binary-scan 0
+Toolchain build and vulnerability gates | SEC062_RESULT server-build 0
+Toolchain build and vulnerability gates | SEC062_RESULT cli-build 0
+Toolchain build and vulnerability gates | SEC062_RESULT gokapi-buildinfo 0
+Toolchain build and vulnerability gates | Your code is affected by 0 vulnerabilities.
+Toolchain build and vulnerability gates | SEC062_RESULT gokapi-binary-scan 0
+Toolchain build and vulnerability gates | SEC062_RESULT gokapi-cli-buildinfo 0
+Toolchain build and vulnerability gates | Your code is affected by 0 vulnerabilities.
+Toolchain build and vulnerability gates | SEC062_RESULT gokapi-cli-binary-scan 0
