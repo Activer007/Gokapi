@@ -9,6 +9,8 @@
 所有运行时metadata写者应遵守现有metadata stripe；GC与恢复共用metadata→blob→短DB事务顺序。
 全局stripe通道在package init创建，避免首次测试调用把全局资源关联至某个synctest bubble；不改变索引或互斥语义。
 源探测/物理删除在blob锁内、DB事务外；状态CAS不能撤回已经执行的物理删除。
+Redis元数据退休仅对明确EXEC nil（WATCH中止）重试一次，最多两次；每次重读完整expected与hotlink，真实行冲突或未知EXEC回复不重试。
+不重跑源探测/物理删除，不移动上传私有input清理的锁序；连续冲突仍保留锚点并反馈pending。
 
 进程内使用最多16384项timer registry，区分最新token与精确deadline。取消/重排使旧token失效，
 已排队/运行的回调仍占容量直到返回；回调取得metadata锁后再次核对token与当前身份，不能只在触发时检查。

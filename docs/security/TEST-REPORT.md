@@ -45,6 +45,23 @@ cleanup/state race及后续build/scan均SKIPPED/NOT_RUN；同head push4091335033
 `go test ./internal/storage ./internal/webserver/api/mutex/apimutex -count=1 -tags='test,noaws,security_deletion,security_replace' -run '^TestSEC052ServeFileFailure$|TestSEC040Mutex|TestSEC030ReplaceLocks' -timeout 90s -v`
 PASS/exit0，storage3.999s、mutex1.420s。初始化源码实际改变，故需新冻结候选与最终CI；不把此前四组PASS冒称新SHA全套PASS。
 
+冻结bf2c89dd3cbcf93319f29228844a7266390e8929后，两个私密候选在独立第三manifest上PASS：timer13.409s、恢复16.205s，1478输入前后核对，旧记录不覆盖。
+[第三轮CI40916531435](https://github.com/Activer007/SupaShare/actions/runs/40916531435)，job123598150232 FAIL：
+生成/diff guard、setup、四组全仓、receiver/052/cleanup/新040状态race全部PASS。
+旧M3 target脚本仅TestSEC030WholeReservedGCRechecksCommittedReference/redis失败（SQLite PASS）：旧bool调用未提供具体cause，过期行未退休；blob未被误删。
+该脚本mock/sdk/source-unchanged均0，whole子命令1；后续M3 race/source hash/build/scan仍SKIPPED/NOT_RUN，不称整项通过。
+源码发现合法竞争：whole上传先释放blob锁，随后ReleaseStaging会改Redis全局metadata revision，可能打断退休WATCH。未移动该既有input/lock清理顺序。
+将原并发合同改用checked结果诊断、保留所有原断言后，单次本地`go test ./internal/storage -count=1 -tags='test,noaws,security_whole' -run '^TestSEC030WholeReservedGCRechecksCommittedReference$' -timeout 60s -v`
+PASS/6.266s；这次native未重现该CI触发，不冒称取得其精确cause。
+
+另用真实miniredis/独立连接在EXEC前确定性改revision：
+`go test ./internal/configuration/database/provider/redis -count=1 -tags='test,noaws,security_cleanup' -run '^TestSEC040CleanupRedisRetirementRetry$' -timeout 60s -v`
+业务RED/exit1/4.329s，单次/持续WATCH中止两例失败；owner变更及已提交后unknown传输对照PASS。
+仅对明确WATCH中止做一次有界metadata事务重试后，
+`go test ./internal/configuration/database/provider/redis ./internal/storage -count=1 -tags='test,noaws,security_cleanup,security_whole' -run '^TestSEC040CleanupRedisRetirementRetry$|^TestSEC030WholeReservedGCRechecksCommittedReference$' -timeout 90s -v`
+PASS/exit0，Redis4.675s/storage6.318s；四事务边界对照及原共享内容/过期行合同全部通过。
+每次重试仍完整CAS并检查hotlink；未知提交不重试、不声称回滚；不重做物理I/O。生产输入实际改变，下一最终CI需新SHA。
+
 ### 历史局部进度（2026-10-29）
 
 基线dee4382f19d0801cb4022ed3ec897beda297e1df；codex/sec-040-delete-state，未提交开发工作。
