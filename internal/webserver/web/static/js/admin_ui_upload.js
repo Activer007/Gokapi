@@ -8,8 +8,6 @@ var isE2EEnabled = false;
 
 var isUploading = false;
 
-var rowCount = -1;
-
 
 function initDropzone() {
 
@@ -25,6 +23,14 @@ function initDropzone() {
         dictRemoveFile: t('dropzone.remove'),
         dictMaxFilesExceeded: t('dropzone.tooMany'),
         createImageThumbnails: false,
+        // Dropzone's shared admission hook covers selection, drag/drop and paste.
+        accept: function(file, done) {
+            if (this.disabled || document.getElementById('selectUploadFiles').disabled) {
+                done(t('files.loadingE2E'));
+                return;
+            }
+            done(validateUploadRules(true) ? undefined : t('files.summaryInvalid'));
+        },
         chunksUploaded: function(file, done) {
             sendChunkComplete(file, done);
         },
@@ -488,10 +494,12 @@ function getAllAvailableFiles() {
     let ids = [];
     let filenames = [];
 
-    let elements = document.querySelectorAll('[id^="cell-name-"]');
-    for (let element of elements) {
+    const rows = $('#maintable').DataTable().rows().nodes();
+    for (let index = 0; index < rows.length; index++) {
+        const element = rows[index].querySelector('[id^="cell-name-"]');
+        if (!element) continue;
         ids.push(element.id.replace("cell-name-", ""));
-        filenames.push(element.innerHTML);
+        filenames.push(element.textContent);
     }
     return [ids, filenames];
 }
@@ -981,27 +989,18 @@ function sanitizeId(str) {
 }
 
 function changeRowCount(add, row) {
-    let datatable = $('#maintable').DataTable();
-    if (rowCount == -1) {
-        rowCount = datatable.rows().count();
-    }
+    const datatable = $('#maintable').DataTable();
     if (add) {
-        rowCount = rowCount + 1;
-        datatable.row.add(row);
+        datatable.row.add(row).draw(false);
     } else {
-        rowCount = rowCount - 1;
         row.classList.add("rowDeleting");
+        // Remove the table record now. An immediate Undo may add the same ID
+        // before the fade ends; a delayed row lookup could remove that new row.
+        datatable.row(row).remove();
         setTimeout(() => {
-            datatable.row(row).remove();
             row.remove();
+            datatable.draw(false);
         }, 290);
-    }
-
-    let infoEmpty = document.getElementsByClassName("dataTables_empty")[0];
-    if (typeof infoEmpty !== "undefined") {
-        infoEmpty.innerText = t("files.count", {count: rowCount});
-    } else {
-        document.getElementsByClassName("dataTables_info")[0].innerText = t("files.count", {count: rowCount});
     }
 }
 

@@ -571,5 +571,14 @@
   "users.credentialsOnce": "此密码仅在这里显示。关闭后如遗失，请通过“重置密码”重新生成。",
   "users.credentialsUnavailable": "账号已保存，但无法显示登录信息。请关闭弹窗，通过“重置密码”重新生成密码。",
   "users.infoCopied": "登录信息已复制",
-  "users.accountShare": "你的 SupaShare 账号已开通：\n\n登录地址：{loginUrl}\n用户名：{username}\n临时密码：{password}\n\n首次登录后，请按提示修改密码。"
+  "users.accountShare": "你的 SupaShare 账号已开通：\n\n登录地址：{loginUrl}\n用户名：{username}\n临时密码：{password}\n\n首次登录后，请按提示修改密码。",
+  "nav.files": "文件",
+  "nav.main": "主导航",
+  "nav.account": "账户",
+  "files.workspaceHelp": "管理文件，复制链接，轻松分享。",
+  "files.adjustRules": "调整",
+  "files.rulesHelp": "这些设置仅用于新上传文件。",
+  "files.allFiles": "全部文件",
+  "files.clearSearch": "清空搜索",
+  "files.searchPlaceholder": "搜索文件"
 }

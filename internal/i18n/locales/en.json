@@ -571,5 +571,14 @@
   "users.credentialsOnce": "This password is only shown here. If it is lost after closing, generate a new one from Reset Password.",
   "users.credentialsUnavailable": "The account was saved, but its login information could not be displayed. Close this dialog and generate a new password from Reset Password.",
   "users.infoCopied": "Login information copied",
-  "users.accountShare": "Your SupaShare account is ready.\n\nLogin address: {loginUrl}\nUsername: {username}\nTemporary password: {password}\n\nPlease choose a new password after signing in for the first time."
+  "users.accountShare": "Your SupaShare account is ready.\n\nLogin address: {loginUrl}\nUsername: {username}\nTemporary password: {password}\n\nPlease choose a new password after signing in for the first time.",
+  "nav.files": "Files",
+  "nav.main": "Main navigation",
+  "nav.account": "Account",
+  "files.workspaceHelp": "Manage files, copy links, and share with your team.",
+  "files.adjustRules": "Adjust",
+  "files.rulesHelp": "These rules apply to new uploads only.",
+  "files.allFiles": "All files",
+  "files.clearSearch": "Clear search",
+  "files.searchPlaceholder": "Search files"
 }

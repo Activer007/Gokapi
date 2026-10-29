@@ -50,26 +50,32 @@
   <div class="d-flex w-100 min-vh-100 p-3 mx-auto flex-column admin-layout">
       <header class="masthead workspace-header">
         <div class="workspace-navigation">
-          <h1 class="workspace-brand">{{.PublicName}}</h1>
-          <nav class="nav nav-masthead workspace-primary-nav">
-            <a class="nav-link {{ if eq .ActiveView 0}}active{{ end }}" {{if eq .ActiveView 0}}aria-current="page"{{end}} href="./admin">{{.UI.T "nav.upload"}}</a>
+          <a class="workspace-brand" href="./admin" title="{{.PublicName}}">{{.PublicName}}</a>
+          <nav class="nav nav-masthead workspace-primary-nav" aria-label="{{.UI.T "nav.main"}}">
+            <a class="nav-link {{ if eq .ActiveView 0}}active{{ end }}" {{if eq .ActiveView 0}}aria-current="page"{{end}} href="./admin"><i class="bi bi-folder" aria-hidden="true"></i><span>{{.UI.T "nav.files"}}</span></a>
             {{ if .ActiveUser.HasPermissionCreateFileRequests }}
-            <a class="nav-link {{ if eq .ActiveView 4 }}active{{ end }}" {{if eq .ActiveView 4}}aria-current="page"{{end}} href="./filerequests">{{.UI.T "nav.requests"}}</a>
+            <a class="nav-link {{ if eq .ActiveView 4 }}active{{ end }}" {{if eq .ActiveView 4}}aria-current="page"{{end}} href="./filerequests"><i class="bi bi-box-arrow-in-up" aria-hidden="true"></i><span>{{.UI.T "nav.requests"}}</span></a>
             {{ end }}
             {{ if and .ActiveUser.HasPermissionManageUsers .IsUserTabAvailable }}
-            <a class="nav-link {{ if eq .ActiveView 3 }}active{{ end }}" {{if eq .ActiveView 3}}aria-current="page"{{end}} href="./users">{{.UI.T "nav.users"}}</a>
+            <a class="nav-link {{ if eq .ActiveView 3 }}active{{ end }}" {{if eq .ActiveView 3}}aria-current="page"{{end}} href="./users"><i class="bi bi-people" aria-hidden="true"></i><span>{{.UI.T "nav.users"}}</span></a>
             {{ end }}
             {{ if .ShowApiMenu }}
-            <a class="nav-link {{ if eq .ActiveView 2 }}active{{ end }}" {{if eq .ActiveView 2}}aria-current="page"{{end}} href="./apiKeys">{{.UI.T "nav.api"}}</a>
+            <a class="nav-link {{ if eq .ActiveView 2 }}active{{ end }}" {{if eq .ActiveView 2}}aria-current="page"{{end}} href="./apiKeys"><i class="bi bi-code-slash" aria-hidden="true"></i><span>{{.UI.T "nav.api"}}</span></a>
             {{ end }}
             {{ if .ActiveUser.HasPermissionManageLogs }}
-            <a class="nav-link {{ if eq .ActiveView 1 }}active{{ end }}" {{if eq .ActiveView 1}}aria-current="page"{{end}} href="./logs">{{.UI.T "nav.status"}}</a>
+            <a class="nav-link {{ if eq .ActiveView 1 }}active{{ end }}" {{if eq .ActiveView 1}}aria-current="page"{{end}} href="./logs"><i class="bi bi-activity" aria-hidden="true"></i><span>{{.UI.T "nav.status"}}</span></a>
             {{ end }}
-            {{ if .IsLogoutAvailable }}<a class="nav-link" href="#" onclick="doLogout()">{{.UI.T "nav.logout"}}</a>{{ end }}
           </nav>
           <div class="workspace-account">
             {{template "language_switch" .UI}}
-            {{if .IsUserTabAvailable}}<span class="workspace-user"><i class="bi bi-person" aria-hidden="true"></i> {{.ActiveUser.Name}}</span>{{end}}
+            {{if .IsLogoutAvailable}}
+            <div class="dropdown workspace-user-menu">
+              <button class="btn workspace-user dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{.UI.T "nav.account"}}" title="{{if .IsUserTabAvailable}}{{.ActiveUser.Name}}{{else}}{{.UI.T "nav.account"}}{{end}}">
+                <i class="bi bi-person" aria-hidden="true"></i><span>{{if .IsUserTabAvailable}}{{.ActiveUser.Name}}{{else}}{{.UI.T "nav.account"}}{{end}}</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" data-bs-theme="dark"><li><button type="button" class="dropdown-item" onclick="doLogout()">{{.UI.T "nav.logout"}}</button></li></ul>
+            </div>
+            {{else if .IsUserTabAvailable}}<span class="workspace-user" title="{{.ActiveUser.Name}}"><i class="bi bi-person" aria-hidden="true"></i><span>{{.ActiveUser.Name}}</span></span>{{end}}
           </div>
         </div>
       </header>
