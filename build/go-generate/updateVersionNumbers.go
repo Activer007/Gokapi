@@ -4,10 +4,12 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -139,7 +141,7 @@ func checkFileExists(filename string) {
 
 func insertVersionNumbers(input string) string {
 	versionGokapi := parseGokapiVersion()
-	hashedVersion := getShortSHA256Hash(versionGokapi)
+	hashedVersion := staticAssetVersion(versionGokapi)
 	result := strings.ReplaceAll(input, "%gokapiversion%", versionGokapi)
 	result = strings.ReplaceAll(result, "%gokapiversionInt%", parseVersionAsInt(versionGokapi))
 	result = strings.ReplaceAll(result, "%jsadmin%", hashedVersion)
@@ -147,6 +149,30 @@ func insertVersionNumbers(input string) string {
 	result = strings.ReplaceAll(result, "%jse2e%", hashedVersion)
 	result = strings.ReplaceAll(result, "%css_main%", hashedVersion)
 	return result
+}
+
+// Source changes must invalidate caches even between builds of the same release.
+func staticAssetVersion(version string) string {
+	var input strings.Builder
+	input.WriteString(version)
+	for _, pattern := range []string{"../../internal/webserver/web/static/js/*.js", "../../internal/webserver/web/static/css/*.css"} {
+		files, err := filepath.Glob(pattern)
+		if err != nil {
+			panic(err)
+		}
+		for _, name := range files {
+			if filepath.Base(name) == "wasm_exec.js" {
+				continue // generated from the Go runtime after version generation
+			}
+			content, err := os.ReadFile(name)
+			if err != nil {
+				panic(err)
+			}
+			input.WriteString(filepath.ToSlash(name))
+			input.Write(bytes.ReplaceAll(content, []byte("\r\n"), []byte("\n")))
+		}
+	}
+	return getShortSHA256Hash(input.String())
 }
 
 func getShortSHA256Hash(data string) string {

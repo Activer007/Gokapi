@@ -11,6 +11,7 @@ type Configuration struct {
 	ServerUrl           string               `json:"ServerUrl"`
 	RedirectUrl         string               `json:"RedirectUrl"`
 	PublicName          string               `json:"PublicName"`
+	UI                  *UIConfig            `json:"UI,omitempty"`
 	DataDir             string               `json:"DataDir"`
 	DatabaseUrl         string               `json:"DatabaseUrl"`
 	ConfigVersion       int                  `json:"ConfigVersion"`

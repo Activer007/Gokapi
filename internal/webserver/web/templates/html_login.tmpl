@@ -3,43 +3,43 @@
         <div class="col">
 		<div id="container" class="card" style="width: 20em">
 		  <div class="card-body">
-		    <h1 class="card-title">Login</h1>
+		    <h1 class="card-title">{{.UI.T "page.login"}}</h1>
 		    <br>
 		    <p class="card-text">
 			<form method="post" action="./login" id="form" name="form" onSubmit="submitForm()">
 			    <div class="mb-3">
 				<input type="text" class="form-control mx-auto" style="max-width: 300px;" 
-				       autocomplete="username" placeholder="Username" value="{{.User}}" id="username">
+				       autocomplete="username" placeholder="{{.UI.T "login.username"}}" value="{{.User}}" id="username">
 				<input type="hidden" id="uname_hidden" name="username">
 			    </div>
 
 			    <div class="mb-3">
 				<input type="password" class="form-control mx-auto" style="max-width: 300px;" 
-				       autocomplete="current-password" placeholder="Password" id="password">
+				       autocomplete="current-password" placeholder="{{.UI.T "login.password"}}" id="password">
 				<input type="hidden" id="pw_hidden" name="password">
 			    </div>
 
 {{ if .IsFailedLogin }}
 	{{ if .IsFailedCsfr }}
 			    <div class="mb-3">
-				<span class="text-danger">The login page was open too long and expired. Please try again.</span>
+				<span class="text-danger">{{.UI.T "login.expired"}}</span>
 			    </div>
 	{{ else }}
 			    <div class="mb-3">
-				<span class="text-danger">Incorrect username or password!</span>
+				<span class="text-danger">{{.UI.T "login.invalid"}}</span>
 			    </div>
 	{{ end }}
 {{ end }}
 
 			    <div class="mt-4">
 				<button type="submit" id="submitbutton" class="btn btn-primary w-100 mx-auto" style="max-width: 300px;">
-				    Login
+				    {{.UI.T "page.login"}}
 				</button>
 			    </div>
 				<input type="hidden" id="csrf-token" name="csrf-token" value="{{.CsrfToken}}">
 			</form>
 			<br><br>
-			<a href="./forgotpw">Forgot password</a></p>
+			<a href="./forgotpw">{{.UI.T "login.forgot"}}</a></p>
 		  </div>
 		</div>
 	    </div>
@@ -56,5 +56,5 @@ function submitForm(){
 </script>
 {{ template "pagename" "Login"}}
 {{ template "customjs" .}}
-{{ template "footer" }}
+{{template "footer" .UI}}
 {{end}}

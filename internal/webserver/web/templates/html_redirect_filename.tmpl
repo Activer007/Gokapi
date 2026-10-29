@@ -1,21 +1,11 @@
 {{define "redirect_filename"}}<!doctype html>
-<html><head>
+<html lang="{{.UI.Language}}"><head>
 
-       {{ if .PasswordRequired }}
-          <title>{{.PublicName}}: Password required</title>
-	  <meta name="title" content="{{.PublicName}}">
-    	  <meta name="description" content="Password required">
-    	  
-    	  <meta property="og:title" content="{{.PublicName}}"/>
-  	  <meta property="og:description" content="Password required"/>
-       {{ else }}
-          <title>{{.PublicName}}: {{.Name}}</title>
-	  <meta name="title" content="{{.PublicName}}: {{.Name}}">
-    	  <meta name="description" content="{{.Size}}">
-    	  
-    	  <meta property="og:title" content="{{.Name}}"/>
-  	  <meta property="og:description" content="{{.Size}}"/>
-       {{end }}
+       <title>{{.UI.Title}}</title>
+       <meta name="title" content="{{.UI.Title}}">
+       <meta name="description" content="{{.UI.Description}}">
+       <meta property="og:title" content="{{.UI.Title}}">
+       <meta property="og:description" content="{{.UI.Description}}">
           <meta property="og:url" content="{{.BaseUrl}}"/>
           <meta name="robots" content="noindex, nofollow">
 

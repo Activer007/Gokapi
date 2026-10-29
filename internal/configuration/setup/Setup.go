@@ -37,6 +37,7 @@ import (
 	"github.com/forceu/gokapi/internal/helper"
 	"github.com/forceu/gokapi/internal/models"
 	"github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem/aws"
+	"github.com/forceu/gokapi/internal/webserver/browseraccess"
 	"github.com/forceu/gokapi/internal/webserver/ratelimiter"
 )
 
@@ -185,7 +186,11 @@ func startSetupWebserver(listen setupListenerFactory) {
 	}))
 	mux.HandleFunc("/setup/testaws", basicAuth(handleTestAws))
 
-	server.Handler = mux
+	defaultLanguage := "en"
+	if !isInitialSetup && configuration.Get().UI != nil {
+		defaultLanguage = configuration.Get().UI.DefaultLanguage
+	}
+	server.Handler = browseraccess.DesktopOnly(mux, defaultLanguage)
 	if debugDisableAuth {
 		server.Addr = "127.0.0.1:" + port
 		fmt.Println("Authentication is disabled by debug flag. Setup only accessible by localhost")
@@ -327,6 +332,7 @@ func toConfiguration(formObjects *[]jsonFormObject) (models.Configuration, *clou
 		result.Authentication.SaltAdmin = helper.GenerateRandomString(30)
 	} else {
 		result.Authentication = configuration.Get().Authentication
+		result.UI = configuration.Get().UI
 	}
 
 	err = parseDatabaseSettings(&result, formObjects)

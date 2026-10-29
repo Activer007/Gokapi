@@ -86,7 +86,7 @@ Available environment variables
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 | GOKAPI_DISABLE_CORS_CHECK           | Disables the CORS check on startup and during setup, if set to true                    | No              | false                       |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
-| GOKAPI_DISABLE_DOCKER_TRUSTED_PROXY | Disables automatically adding Docker subnet to trusted proxies, if set to true         | No              | true (fork SEC-013)         |
+| GOKAPI_DISABLE_DOCKER_TRUSTED_PROXY | Disables automatic Docker subnet trust by default; false is a legacy opt-in.           | No              | true                        |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 | GOKAPI_ENABLE_HOTLINK_VIDEOS        | Allow hotlinking of videos. Note: Due to buffering, playing a video might count as     | No              | false                       |
 |                                     |                                                                                        |                 |                             |
@@ -134,9 +134,9 @@ Available environment variables
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 | GOKAPI_PORT                         | Sets the webserver port                                                                | Yes             | 53842                       |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
-| GOKAPI_TRUSTED_PROXIES              | Trusts these peers for client IP and Header Authentication (fork SEC-013)              | No              | 127.0.0.1                   |
+| GOKAPI_TRUSTED_PROXIES              | Sets a list of trusted proxies. If set, the webserver will trust the IP addresses sent | No              | 127.0.0.1                   |
 |                                     |                                                                                        |                 |                             |
-|                                     | Covers X-Forwarded-For, X-Real-IP and enabled CF-Connecting-IP                         |                 |                             |
+|                                     | by these proxies with the X-Forwarded-For and X-REAL-IP header                         |                 |                             |
 |                                     |                                                                                        |                 |                             |
 |                                     | List is comma separated; entries can be fixed IPs ("10.0.0.1, 10.0.0.2")               |                 |                             |
 |                                     |                                                                                        |                 |                             |
@@ -707,6 +707,46 @@ If you are using a Docker image, this has to be done by starting a container wit
 ********************************
 Customising
 ********************************
+
+Language, page titles and footer
+===============================
+
+The optional ``UI`` object in the existing ``config/config.json`` configures the
+Web interface. Merge it into your configuration; do not replace authentication
+or storage settings. Restart Gokapi after editing. Example::
+
+  "PublicName": "Team files",
+  "UI": {
+    "DefaultLanguage": "zh-CN",
+    "Title": "Team file centre",
+    "FooterText": "Internal use only / 仅供内部使用",
+    "FooterLinks": [
+      {"Text": "Help / 使用说明", "URL": "https://example.com/help"}
+    ]
+  }
+
+``DefaultLanguage`` accepts ``en`` or ``zh-CN`` and defaults to English.
+``Title`` defaults to ``PublicName``; pages prepend their translated page name
+or the visible filename. Password-protected pages keep a generic title until
+the password has been verified. ``FooterText`` and ``FooterLinks`` add text and
+links alongside the existing product credit. Links accept HTTP(S) addresses or
+site-relative paths beginning with ``/``. Custom text is displayed literally;
+use bilingual text if desired. These settings survive the reconfiguration wizard.
+
+The language buttons choose an explicit ``lang=en`` or ``lang=zh-CN`` parameter
+and remember it in a browser cookie. The order is URL, cookie, site default.
+Switching preserves other query parameters and the encrypted link fragment.
+Transfers and file processing must finish or be cancelled before switching.
+The first delivery translates shared navigation and login; the remaining pages
+are tracked in ``ui-development.rst``.
+
+This deployment targets desktop browsers. The main server and setup server
+reject common phone/tablet User-Agent identifiers with HTTP 403 and a desktop
+access message. This is a browser policy, not device attestation: a client can
+spoof its User-Agent. Normal desktop browsers and API/CLI clients remain usable.
+
+Custom assets
+=============
 
 If you want to change the layout (e.g. add your company logo or add/disable certain features), follow these steps:
 

@@ -42,6 +42,18 @@ func TestLoad(t *testing.T) {
 	Load()
 }
 
+func TestLoadRejectsInvalidUI(t *testing.T) {
+	file := t.TempDir() + "/config.json"
+	for _, input := range []string{`{"UI":{"DefaultLanguage":"fr"}}`, `{"UI":{"FooterLinks":[{"Text":"Help","URL":"javascript:alert(1)"}]}}`} {
+		if err := os.WriteFile(file, []byte(input), 0600); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := loadFromFile(file); err == nil || !strings.Contains(err.Error(), "UI.") {
+			t.Fatal("invalid UI was accepted or did not identify the configuration field")
+		}
+	}
+}
+
 func TestLoadFromSetup(t *testing.T) {
 	newConfig := models.Configuration{
 		Authentication: models.AuthenticationConfig{},
