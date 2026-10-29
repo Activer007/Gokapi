@@ -1,13 +1,11 @@
 {{ define "admin" }}{{ template "header" . }}
- 
+
       <div class="row">
         <div class="col">
-		<div id="container" class="card" style="width: 80%">
+		<div id="container" class="card file-workspace">
 		  <div class="card-body">
-            <h3 class="card-title">{{$.UI.T "nav.upload"}}</h3>
-		    <br>
-		    <p class="card-text">
-		    
+            <h2 class="card-title">{{$.UI.T "nav.upload"}}</h2>
+
 			<form action="./uploadChunk" class="dropzone upload-box text-center w-100" id="uploaddropzone">
 				<div class="dz-message">
 {{ if .EndToEndEncryption }}
@@ -17,17 +15,14 @@
                     <p id="uploadBoxTitle" class="mb-2 fs-5">{{$.UI.T "request.drop"}}</p>
                     <p id="uploadBoxSubtitle" class="mb-0 opacity-75">{{$.UI.T "files.selectHint"}}</p>
 {{ end }}
-				<button id="selectUploadFiles" type="button" class="btn btn-outline-light mt-3" {{if .EndToEndEncryption}}disabled{{end}} onclick="event.stopPropagation(); dropzoneObject.hiddenFileInput.click()">{{$.UI.T "files.choose"}}</button>
+				<button id="selectUploadFiles" type="button" class="btn btn-primary mt-3" {{if .EndToEndEncryption}}disabled{{end}} onclick="event.stopPropagation(); dropzoneObject.hiddenFileInput.click()">{{$.UI.T "files.choose"}}</button>
 				</div>
 			</form>
-		
+
 		<div id="uploadstatus" class="container uploads-container">
 		</div>		
-		<p></p>
-		
-		<br>
-		<div class="upload-options-grid">
 
+		<div class="upload-options-grid">
 
 		  <div class="upload-option-card">
 		    <div class="upload-option-header">
@@ -44,7 +39,7 @@
 		    </div>
 		    <div class="input-group upload-option-input-group">
 		      <input type="number" class="form-control admin-input" value="1"
-		             name="allowedDownloads" id="allowedDownloads" min="1"
+		             name="allowedDownloads" id="allowedDownloads" min="1" aria-label="{{$.UI.T "files.downloadLimit"}}"
 		             style="text-align: right;" data-allow-regular-paste>
               <span class="input-group-text upload-option-suffix">{{$.UI.T "files.downloads"}}</span>
 		    </div>
@@ -65,7 +60,7 @@
 		    </div>
 		    <div class="input-group upload-option-input-group">
 		      <input type="number" class="form-control admin-input" value="14"
-		             name="expiryDays" id="expiryDays" min="1" max="100000"
+		             name="expiryDays" id="expiryDays" min="1" aria-label="{{$.UI.T "common.expiry"}}" max="100000"
 		             style="text-align: right;" data-allow-regular-paste>
               <span class="input-group-text upload-option-suffix">{{$.UI.T "files.days"}}</span>
 		    </div>
@@ -85,16 +80,17 @@
 		      </div>
 		    </div>
 		    <input class="form-control admin-input upload-option-input-group" value=""
-                   name="password" id="password" placeholder="{{$.UI.T "files.noPassword"}}" disabled
+                   name="password" id="password" aria-label="{{$.UI.T "common.password"}}" placeholder="{{$.UI.T "files.noPassword"}}" disabled
 		           data-allow-regular-paste>
 		  </div>
 
 		</div>
+<p id="uploadSummary" class="upload-summary" role="status" aria-live="polite"></p>
 <div id="errordiv" class="alert alert-danger" style="display:none">
   <span id="errormessage" ></span>
 </div>
-		<br><br>
-		<div class="table-responsive">
+		<h2 class="files-heading">{{$.UI.T "files.yourFiles"}}</h2>
+		<div class="file-table-container">
 			<table id="maintable" class="table table-dark">
 				<thead>
 					<tr>
@@ -104,7 +100,7 @@
                         <th scope="col" style="text-align: center;">{{$.UI.T "files.storedUntil"}}</th>
                         <th scope="col" style="text-align: center;">{{$.UI.T "files.downloads"}}</th>
 						<th scope="col" style="text-align: center;">ID</th>
-                        <th scope="col" style="text-align: center; min-width:13em;">{{$.UI.T "common.actions"}}</th>
+                        <th scope="col" style="text-align: center; min-width:11em;">{{$.UI.T "common.actions"}}</th>
 					</tr>
 				</thead>
 				<tbody id="downloadtable">
@@ -152,14 +148,13 @@
 		</div>
 	    </div>
    	 </div>
-	
+
 	{{ template "admin_modal_edit" . }}
-	
 
     <div id="toastnotification" class="toastnotification" role="status" aria-live="polite" aria-atomic="true" data-default="{{$.UI.T "files.copyToast"}}"></div>
-	<div id="toastnotificationUndo" class="toastnotification">
+	<div id="toastnotificationUndo" class="toastnotification" role="status">
       {{$.UI.T "files.deleted"}} <span id="toastFilename"></span>
-       <span id="toastUndoButton" class="toast-undo" onclick="handleUndo(this)">{{$.UI.T "common.restore"}}</span>
+       <button type="button" id="toastUndoButton" class="toast-undo btn btn-sm btn-outline-light" onclick="handleUndo(this)">{{$.UI.T "common.restore"}}</button>
 	</div>
 	<div id="toastDeprecation" class="toastnotification toastdeprecation">
       {{$.UI.T "files.deprecated"}}
@@ -170,7 +165,7 @@
 
 	<script src="./js/min/admin.min.{{ template "js_admin_version"}}.js"></script>
 	<script>
-	
+
 	initDropzone();
 
 	Dropzone.options.uploaddropzone["maxFilesize"] = {{ .MaxFileSize }};
@@ -183,9 +178,10 @@
 	Dropzone.options.uploaddropzone["retryChunksLimit"] = 3;
 	Dropzone.options.uploaddropzone["retryChunks"] = true;
 	Dropzone.options.uploaddropzone["previewsContainer"] = false;
-	
+
 	$(document).ready(function () {
-	
+
+	    document.querySelectorAll('#downloadtable tr').forEach(prepareFileActions);
 	    $('#maintable').DataTable({
 	    "responsive": true,
 	    "order": [], // disables initial sorting
@@ -202,16 +198,17 @@
 	    }
 	    });
 	});
-	
+
 	registerChangeHandler();
-		
+
 	var canReplaceOwnFiles = {{.ActiveUser.HasPermissionReplace}};
 	setUploadDefaults();
-	
+	initUploadSummary();
+
 {{ if .ShowDeprecationNotice }}
 	showDeprecationNotice();
 {{ end }}
-	
+
 	</script>
         <script src="./js/min/uuid.min.js"></script>
 
@@ -225,24 +222,20 @@
 		const IncludeFilename = false;
 	{{ end }}
 		isE2EEnabled = true;
-	
+
 		Blob.prototype.arrayBuffer ??= function() {
 		    return new Response(this).arrayBuffer()
 		}
-		
+
 		checkIfE2EKeyIsSet();
 	</script>
 {{ end }}
-        
-        
+
 {{ template "pagename" "FileRequest"}}
 {{ template "customjs" .}}
 
-
 {{template "footer" .UI}}
 {{ end }}
-
-
 
 {{ define "admin_button_download" }}
 			<button
@@ -274,7 +267,6 @@
 			</button>
 
 {{ end }}
-
 
 {{ define "admin_button_delete" }}
 			<button id="button-delete-{{ .CurrentFile.Id}}"
@@ -351,7 +343,7 @@
           <span class="input-group-text modal-samesize-input-edit" id="edit_pw">{{$.UI.T "common.password"}}</span>
           <input type="text" id="mi_edit_pw" class="form-control" aria-label="{{$.UI.T "common.password"}}" disabled onclick="selectTextForPw(this)" aria-describedby="edit_pw"  data-allow-regular-paste>
 		</div>
-		
+
 	      <div class="input-group mb-3" id="replaceGroup">
 		  <div class="input-group-text">
             <input type="checkbox" id="mc_replace" aria-label="{{$.UI.T "files.replaceLabel"}}" title="{{$.UI.T "files.replaceLabel"}}" data-toggle-target="mi_edit_replace" onchange="handleEditCheckboxChange(this)">

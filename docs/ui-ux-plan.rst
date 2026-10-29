@@ -72,4 +72,11 @@ Progress
   verified admin/public keyboard uploads, copy success notification and
   deletion cancellation. The browser tool's virtual clipboard cannot inspect
   ClipboardJS's native clipboard; failure/success handling is covered by Node.
-* Batches 2 and 3: pending.
+* Batch 2: compact desktop navigation, restrained surfaces, upload setting
+  summary and named file actions implemented. ID cells stay in the DOM for
+  E2E compatibility and remain searchable; the More menu opens the current
+  download link. Local Node tests (14), Go UI/i18n checks and build pass.
+  Browser verified a 1280 x 720 desktop, bilingual views, setting summaries,
+  ID search, no-match state and keyboard menus. Fixed viewport requests on
+  existing in-app tabs were not honored; actual dimensions are recorded.
+* Batch 3: pending.

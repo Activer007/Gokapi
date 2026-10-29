@@ -528,5 +528,17 @@
   "api.deleteHelp": "使用此密钥的应用将立即失去访问权限，此操作无法撤销。",
   "api.deleted": "API 密钥已删除",
   "request.limitHelp": "勾选后启用对应限制；未勾选时仍受服务器设置的上限约束。",
-  "request.notesPublic": "打开收集链接的人可以看到此说明。"
+  "request.notesPublic": "打开收集链接的人可以看到此说明。",
+  "files.yourFiles": "我的文件",
+  "common.more": "更多",
+  "files.summary": "新上传文件：{downloads} · {expiry} · {password}",
+  "files.summaryDownloads": "可下载 {count} 次",
+  "files.summaryDays": "保留 {count} 天",
+  "files.summaryUnlimitedDownloads": "下载次数不限",
+  "files.summaryUnlimitedTime": "永不过期",
+  "files.summaryPassword": "密码保护",
+  "files.summaryNoPassword": "无密码",
+  "files.summaryInvalid": "请在选择文件前填写完整已启用的上传设置。",
+  "common.copyLink": "复制链接",
+  "files.openPage": "打开下载页面"
 }
