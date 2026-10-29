@@ -1,8 +1,21 @@
 # M0 安全基线
 
-研究日期：2026-10-27（Asia/Shanghai）。范围为个人 VPS / 小团队的单体 Go 服务。本文是源码与测试基线，不是安全认证。只向用户已独立的 **Activer007/SupaShare** 交付；Activer007/SupaShare 只读，不创建上游 PR、不推送、不触发其工作流。
+研究日期：2026-10-27（Asia/Shanghai）。范围为个人 VPS / 小团队的单体 Go 服务。本文是源码与测试基线，不是安全认证。只向用户已独立的 **Activer007/SupaShare** 交付；Forceu/Gokapi 只读，不创建上游 PR、不推送、不触发其工作流。
 
-## 当前阶段：最小恢复与收口（2026-10-29）
+## 当前M4：可靠删除与下载内容边界
+
+基线8c39931733be853dd68d11ad5b193088c4d928d5，v2.11.0；范围见[M4-GOAL](M4-GOAL.md)，阶段ACTIVE，M3保持完成。
+CONFIRMED_CODE：052本地服务器加密下载的限定真实HTTP终态合同触发P0 Gate，先做最小错误传播修复；
+精确复现及原始输出保留在已核实的自有私密入口，公开不带构造细节。未证明远程利用链。
+修复在密钥元数据前置检查失败时返回500、后置流失败时中断响应；正常字节/密钥/schema不变，见[ADR-023](ADR-023-ENCRYPTED-DOWNLOAD-ERROR.md)。
+一个Chromium+HTTPS真实E2E/WASM预检：正常native下载SHA256一致；认证失败显示错误但下载/busy悬挂，未观察到自然正常完成。
+此错误传播缺陷单独成立，最小修复将失败传递至流控制器并中止输出；GREEN与最终CI结果见TEST-REPORT。
+收尾[PR43](https://github.com/Activer007/SupaShare/pull/43)：最终CI40870398244 SUCCESS，实际候选48ea753/tree4dcb15ee与冻结headd9d03ad一致。
+正常SHA256与两条失败终态已取得独立GREEN；最终只补文档，不重跑未变化构建输入。
+VALIDATE：其他浏览器、真实S3/ZIP及其他组合不能借用本地或单Chromium结论；未证明客户端残留安全擦除。
+040已有最新业务RED但尚未合并修复；041/051/050仍需各自Gate。上游419/418当前只读REST复核仍open，非同一052修复。
+
+## M3：最小恢复与收口（2026-10-29，冻结范围已完成）
 
 用户在替换项完成后明确收敛后续开发，按[M3-GOAL](M3-GOAL.md)执行；本轮实现基线c3058ed。
 CONFIRMED_CODE：启动原先直接运行常规GC；新恢复门禁置于GC/HTTP/上传准入之前，复用ledger及私有namespace。

@@ -28,7 +28,7 @@ Several environment variables can be passed to SupaShare. They can be used to mo
 .. _passingenv:
 
 Passing environment variables to SupaShare
-=========================================
+==========================================
 
 
 Docker
@@ -187,27 +187,27 @@ Available environment variables
 
 All values that are described in :ref:`cloudstorage` can be passed as environment variables as well. No values are persistent; therefore, they need to be set on every start.
 
-+---------------------------+-----------------------------------------+-----------------------------+
-| Name                      | Action                                  | Example                     |
-+===========================+=========================================+=============================+
-| GOKAPI_AWS_BUCKET         | Sets the bucket name                    | gokapi                      |
-+---------------------------+-----------------------------------------+-----------------------------+
-| GOKAPI_AWS_REGION         | Sets the region name                    | eu-central-000              |
-+---------------------------+-----------------------------------------+-----------------------------+
-| GOKAPI_AWS_KEY            | Sets the API key                        | 123456789                   |
-+---------------------------+-----------------------------------------+-----------------------------+
-| GOKAPI_AWS_KEY_SECRET     | Sets the API key secret                 | abcdefg123                  |
-+---------------------------+-----------------------------------------+-----------------------------+
-| GOKAPI_AWS_ENDPOINT       | Sets the endpoint                       | eu-central-000.provider.com |
-+---------------------------+-----------------------------------------+-----------------------------+
-| GOKAPI_AWS_PROXY_DOWNLOAD | If true, users will not be redirected   | true                        |
-|                           |                                         |                             |
-|                           | to a pre-signed S3 URL for downloading. |                             |
-|                           |                                         |                             |
++---------------------------+--------------------------------------------+-----------------------------+
+| Name                      | Action                                     | Example                     |
++===========================+============================================+=============================+
+| GOKAPI_AWS_BUCKET         | Sets the bucket name                       | gokapi                      |
++---------------------------+--------------------------------------------+-----------------------------+
+| GOKAPI_AWS_REGION         | Sets the region name                       | eu-central-000              |
++---------------------------+--------------------------------------------+-----------------------------+
+| GOKAPI_AWS_KEY            | Sets the API key                           | 123456789                   |
++---------------------------+--------------------------------------------+-----------------------------+
+| GOKAPI_AWS_KEY_SECRET     | Sets the API key secret                    | abcdefg123                  |
++---------------------------+--------------------------------------------+-----------------------------+
+| GOKAPI_AWS_ENDPOINT       | Sets the endpoint                          | eu-central-000.provider.com |
++---------------------------+--------------------------------------------+-----------------------------+
+| GOKAPI_AWS_PROXY_DOWNLOAD | If true, users will not be redirected      | true                        |
+|                           |                                            |                             |
+|                           | to a pre-signed S3 URL for downloading.    |                             |
+|                           |                                            |                             |
 |                           | Instead, SupaShare will download the file  |                             |
-|                           |                                         |                             |
-|                           | and proxy it to the user                |                             |
-+---------------------------+-----------------------------------------+-----------------------------+
+|                           |                                            |                             |
+|                           | and proxy it to the user                   |                             |
++---------------------------+--------------------------------------------+-----------------------------+
 
 
 
@@ -727,7 +727,7 @@ Customising
 ********************************
 
 Language, page titles and footer
-===============================
+================================
 
 The optional ``UI`` object in the existing ``config/config.json`` configures the
 Web interface. Merge it into your configuration; do not replace authentication

@@ -99,6 +99,8 @@
 
         async function DownloadEncrypted() {
             window.gokapiTransferBusy = true;
+            let reader;
+            let writer;
             try {
                 {{ if .EndToEndEncryption }}
                 let key = sessionStorage.getItem("key-{{ .Id }}");
@@ -114,7 +116,7 @@
                 }
                 
                 const readableStream = response.body;
-                const reader = response.body.getReader();
+                reader = response.body.getReader();
                 {{ if .UsesHttps }}
                 streamSaver.mitm = './serviceworker/index.html';
                 {{ else }}
@@ -127,7 +129,8 @@
                 const fileStream = streamSaver.createWriteStream({{.Name }});
                 {{ end }}
                          
-                window.writer = fileStream.getWriter();
+                writer = fileStream.getWriter();
+                window.writer = writer;
 
                 const pump = () => reader.read()
                     .then(res => res.done ?
@@ -136,6 +139,9 @@
 
                 await pump();
             } catch (err) {
+                // Propagate a failed read to the output so a partial download
+                // cannot remain open or be closed as a successful file.
+                await Promise.allSettled([reader?.cancel(err), writer?.abort(err)]);
                 if (err.message.includes("Failed to fetch")) {
                     console.log(err);
                 displayError(t("download.cors"));

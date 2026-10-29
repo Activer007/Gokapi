@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"net/http"
 	"net/http/httptest"
 	"net/textproto"
 	"os"
@@ -625,9 +626,12 @@ func TestServeFile(t *testing.T) {
 		}
 		testconfiguration.DisableS3()
 	}
+}
+
+func TestSEC052ServeFileFailure(t *testing.T) {
 	newFile, err := createTestFile()
 	test.IsNil(t, err)
-	file = newFile.File
+	file := newFile.File
 	database.SaveMetaData(file)
 	cipher, err := encryption.GetRandomCipher()
 	test.IsNil(t, err)
@@ -640,10 +644,37 @@ func TestServeFile(t *testing.T) {
 	file.Encryption.IsEncrypted = true
 	file.Encryption.DecryptionKey = cipher
 	file.Encryption.Nonce = nonce
-	r = httptest.NewRequest("GET", "/", nil)
-	w = httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/", nil)
+	w := httptest.NewRecorder()
 	ServeFile(file, w, r, true, true, false, false)
-	test.ResponseBodyContains(t, w, "Error decrypting file")
+	if w.Code != http.StatusInternalServerError || w.Header().Get("Content-Disposition") != "" {
+		t.Fatal("invalid encryption metadata must fail before attachment headers")
+	}
+
+	// Valid key metadata with an invalid stream must follow the transfer-abort
+	// path, rather than the pre-header key error checked above.
+	var streamInfo models.EncryptionInfo
+	var encoded bytes.Buffer
+	if err := encryption.Encrypt(&streamInfo, bytes.NewReader([]byte("synthetic stream")), &encoded); err != nil {
+		t.Fatal(err)
+	}
+	file.Encryption = streamInfo
+	w = httptest.NewRecorder()
+	aborted := false
+	func() {
+		defer func() {
+			if recovered := recover(); recovered != nil {
+				if recovered != http.ErrAbortHandler {
+					panic(recovered)
+				}
+				aborted = true
+			}
+		}()
+		ServeFile(file, w, r, true, true, false, false)
+	}()
+	if !aborted || w.Body.Len() != 0 {
+		t.Fatal("failed decryption must abort without appending attachment data")
+	}
 }
 
 func TestCleanUp(t *testing.T) {
