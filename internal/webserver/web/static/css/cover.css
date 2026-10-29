@@ -861,6 +861,9 @@ tr.no-bottom-border td {
     *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 /* Desktop administration: stable hierarchy and quiet, readable surfaces. */
+.site-footer .footer-note { margin: 0 0 .35rem; }
+.site-footer .footer-meta { display: flex; justify-content: center; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; margin: 0; }
+.site-footer .footer-separator { opacity: .6; }
 body.admin-shell {
     --workspace-bg: #17191d;
     --workspace-surface: #202329;
@@ -871,13 +874,13 @@ body.admin-shell {
 }
 body.admin-shell::after { display: none; }
 .admin-shell .admin-layout { max-width: 1600px; height: auto !important; }
-.admin-shell .workspace-header { margin: 0 0 28px; padding: 8px 8px 20px; border-bottom: 1px solid var(--workspace-border); }
-.workspace-navigation { display: flex; align-items: center; flex-wrap: wrap; gap: 20px 32px; }
-.admin-shell .workspace-brand { font-size: 1.3rem; font-weight: 650; margin: 0; overflow-wrap: anywhere; max-width: 28rem; text-align: left; }
-.admin-shell .nav-masthead { float: none; gap: 4px; }
-.admin-shell .nav-masthead .nav-link { margin: 0; padding: 8px 12px; border: 0; border-radius: 8px; font-size: .925rem; font-weight: 500; color: #bbc2cd; }
+.admin-shell .workspace-header { margin: 0 0 24px; padding: 4px 8px 16px; border-bottom: 1px solid var(--workspace-border); }
+.workspace-navigation { display: grid; grid-template-columns: minmax(12rem, 1fr) auto; align-items: start; gap: 8px 32px; }
+.admin-shell .workspace-brand { grid-column: 1; grid-row: 1 / 3; align-self: start; padding-top: 5px; font-size: 1.3rem; font-weight: 650; line-height: 1.4; margin: 0; overflow-wrap: anywhere; max-width: 28rem; text-align: left; }
+.admin-shell .workspace-primary-nav { grid-column: 2; grid-row: 1; justify-self: end; justify-content: flex-end; flex-wrap: nowrap; float: none; gap: 4px; }
+.admin-shell .nav-masthead .nav-link { margin: 0; padding: 8px 12px; border: 0; border-radius: 8px; font-size: .925rem; font-weight: 500; color: #bbc2cd; white-space: nowrap; }
 .admin-shell .nav-masthead .nav-link.active { background: #303640; color: #fff; }
-.workspace-account { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+.workspace-account { grid-column: 2; grid-row: 2; justify-self: end; display: flex; align-items: center; justify-content: flex-end; gap: 16px; }
 .workspace-account .language-switch { margin-bottom: 0 !important; gap: 0 !important; }
 .workspace-account .language-switch button { border-color: var(--workspace-border); color: #c8ced8; }
 .workspace-account .language-switch button[aria-pressed="true"] { background: #353c48; color: white; }

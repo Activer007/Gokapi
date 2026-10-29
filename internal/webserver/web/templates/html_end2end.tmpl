@@ -34,7 +34,7 @@
 	function downloadKey(key) {
 	    const uInt8 = new TextEncoder().encode(key)
 
-	    const fileStream = streamSaver.createWriteStream('GokapiE2E.txt', {
+    const fileStream = streamSaver.createWriteStream('SupaShareE2E.txt', {
 		size: uInt8.byteLength
 	    })
 

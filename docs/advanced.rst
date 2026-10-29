@@ -303,7 +303,10 @@ The SupaShare CLI tool enables seamless file uploads and downloads directly from
 Installation
 ============
 
-Official binaries for Linux, Windows, and macOS are available on the `GitHub releases page <https://github.com/Activer007/SupaShare/releases>`_.
+Use explicitly published SupaShare binaries from the `GitHub releases page
+<https://github.com/Activer007/SupaShare/releases>`_ when available. Inherited
+upstream release assets do not contain this fork's changes; otherwise build
+the CLI from this repository's source.
 
 To build the tool from source:
 

@@ -1,10 +1,12 @@
 {{define "footer"}}
   </main>
 
-  <footer class="mt-auto text-white-50">
-          {{if .FooterText}}<p class="mb-1">{{.FooterText}}</p>{{end}}
-          {{if .FooterLinks}}<p class="mb-1">{{range .FooterLinks}}<a class="mx-2" href="{{.URL}}" target="_blank" rel="noopener noreferrer">{{.Text}}</a>{{end}}</p>{{end}}
-          <p> {{.T "footer.poweredBy"}} <a href="https://github.com/Activer007/Gokapi" target="_blank" rel="noopener noreferrer">Gokapi v{{template "version"}}</a></p>
+  <footer class="mt-auto text-white-50 site-footer">
+          {{if .FooterText}}<p class="footer-note">{{.FooterText}}</p>{{end}}
+          <p class="footer-meta">
+            {{range .FooterLinks}}<a href="{{.URL}}" target="_blank" rel="noopener noreferrer">{{.Text}}</a><span class="footer-separator" aria-hidden="true">·</span>{{end}}
+            <span>{{.T "footer.poweredBy"}} <a href="https://github.com/Activer007/SupaShare" target="_blank" rel="noopener noreferrer">SupaShare v{{template "version"}}</a></span>
+          </p>
   </footer>
 </div>
   </body>

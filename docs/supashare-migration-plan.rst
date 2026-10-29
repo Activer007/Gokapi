@@ -44,3 +44,22 @@ Acceptance
   navigation in Chinese and English, with representative navigation, language
   switching and file-action interactions working.
 * Preserve the desktop-only access policy. Do not redesign for mobile devices.
+
+Verified delivery
+-----------------
+
+* The GitHub repository was renamed to Activer007/SupaShare with the original
+  repository ID 1435784593 retained. Fetch and push succeeded on the new remote.
+  Identity migration was delivered in PR 39.
+* The independent identity commit passed the complete native Linux local CI,
+  server version and CLI help checks, with no generated resource drift.
+  Compatibility coverage verified empty/legacy/custom public names and retained
+  custom UI settings and storage/public-URL configuration.
+* The final layout snapshot passed the same complete local CI: 18 Node tests,
+  Go packages under test,noaws and test,awsmock, focused race checks and both
+  builds. Browser verification used a measured 1280 x 720 desktop in Chinese
+  and English: navigation and brand top edges aligned at y=20; no horizontal
+  overflow; configured footer contained two 24px rows. File Requests and API
+  navigation and keyboard file menus worked; no console errors were reported.
+* Documentation uses local image rebuild commands and the new Compose service
+  name. Renaming does not publish release artifacts or deploy a running server.

@@ -1,7 +1,7 @@
 FROM golang:1.26.10-bookworm
 
 ## To compile:
-## cd Gokapi/build/
+## cd SupaShare/build/
 ## docker build . --tag supashare-builder
 ## docker run --rm -it -v ../:/src/supashare -w /src/supashare supashare-builder
 
