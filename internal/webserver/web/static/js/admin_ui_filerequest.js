@@ -426,8 +426,6 @@ function createFileRequestRow(jsonResult, user) {
     copyBtn.className = "copyurl btn btn-outline-light btn-sm";
     copyBtn.title = t("common.copyURL");
     copyBtn.setAttribute("data-clipboard-text", publicUrl);
-    copyBtn.onclick = () =>
-        showToast(1000);
 
     copyBtn.appendChild(icon("bi-copy"));
 

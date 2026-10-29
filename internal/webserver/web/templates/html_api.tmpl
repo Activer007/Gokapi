@@ -12,7 +12,7 @@
 		    </div>
 		    <div class="col text-end">
 		      <button id="button-newapi" class="btn btn-outline-light" onclick="newApiKey()">
-                    <i class="bi bi-plus-circle-fill"></i>
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i> {{$.UI.T "api.new"}}
                 </button>
 		    </div>
 		  </div>
@@ -104,8 +104,25 @@
                 </div>
             </div>
         </div>
-    <div id="toastnotification" class="toastnotification" data-default="{{$.UI.T "api.copySuccess"}}"></div>
+    <div id="toastnotification" class="toastnotification" role="status" aria-live="polite" aria-atomic="true" data-default="{{$.UI.T "api.copySuccess"}}"></div>
     </div>
+</div>
+
+<div class="modal fade" id="deleteApiModal" tabindex="-1" aria-labelledby="deleteApiTitle" aria-describedby="deleteApiHelp" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content gokapi-dialog">
+      <div class="modal-header"><h2 id="deleteApiTitle" class="modal-title fs-5">{{$.UI.T "api.deleteTitle"}}</h2></div>
+      <div class="modal-body text-start">
+        <p id="deleteApiName" class="fw-semibold text-break"></p>
+        <p id="deleteApiHelp">{{$.UI.T "api.deleteHelp"}}</p>
+        <p id="deleteApiError" class="text-danger mb-0" role="alert"></p>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelDeleteApi" type="button" class="btn btn-outline-light" data-bs-dismiss="modal">{{$.UI.T "common.cancel"}}</button>
+        <button id="confirmDeleteApi" type="button" class="btn btn-danger">{{$.UI.T "common.delete"}}</button>
+      </div>
+    </div>
+  </div>
 </div>
 <script src="./js/min/admin.min.{{ template "js_admin_version"}}.js"></script>
 <script>

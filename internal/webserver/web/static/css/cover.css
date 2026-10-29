@@ -841,3 +841,22 @@ tr.no-bottom-border td {
 .modal-samesize-input-filerequest {
    width: 7rem;
 }
+
+/* Shared form behavior: readable labels and visible keyboard focus. */
+:where(button, a, input, textarea, select):focus-visible {
+    outline: 3px solid #82b6ff;
+    outline-offset: 3px;
+}
+.settings-form .form-control, .settings-form .input-group-text {
+    background: #2b3035;
+    color: #e9ecef;
+    border-color: #495057;
+}
+.settings-form .form-control:disabled { background: #25292d; color: #adb5bd; }
+.settings-form .form-control::placeholder { color: #adb5bd; opacity: 1; }
+.settings-field .form-check-label { white-space: normal; }
+.modal-samesize-input-edit { min-width: 11rem; width: auto; white-space: normal; }
+.toastnotification { max-width: min(38rem, 90vw); }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

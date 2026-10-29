@@ -17,6 +17,7 @@
                     <p id="uploadBoxTitle" class="mb-2 fs-5">{{$.UI.T "request.drop"}}</p>
                     <p id="uploadBoxSubtitle" class="mb-0 opacity-75">{{$.UI.T "files.selectHint"}}</p>
 {{ end }}
+				<button id="selectUploadFiles" type="button" class="btn btn-outline-light mt-3" {{if .EndToEndEncryption}}disabled{{end}} onclick="event.stopPropagation(); dropzoneObject.hiddenFileInput.click()">{{$.UI.T "files.choose"}}</button>
 				</div>
 			</form>
 		
@@ -155,7 +156,7 @@
 	{{ template "admin_modal_edit" . }}
 	
 
-    <div id="toastnotification" class="toastnotification" data-default="{{$.UI.T "files.copyToast"}}"></div>
+    <div id="toastnotification" class="toastnotification" role="status" aria-live="polite" aria-atomic="true" data-default="{{$.UI.T "files.copyToast"}}"></div>
 	<div id="toastnotificationUndo" class="toastnotification">
       {{$.UI.T "files.deleted"}} <span id="toastFilename"></span>
        <span id="toastUndoButton" class="toast-undo" onclick="handleUndo(this)">{{$.UI.T "common.restore"}}</span>
@@ -289,13 +290,13 @@
 {{ end }}
 
 {{ define "admin_button_copyurl" }}
-		    <button id="url-button-{{ .CurrentFile.Id }}" type="button" onclick="showToast(1000)"
+		    <button id="url-button-{{ .CurrentFile.Id }}" type="button"
                 data-clipboard-text="{{ .CurrentFile.UrlDownload }}" class="copyurl btn btn-outline-light btn-sm" title="{{$.UI.T "common.copyURL"}}"><i class="bi bi-copy"></i> URL</button>
 		    <button type="button" class="btn btn-outline-light btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
 		    </button>
 			<ul class="dropdown-menu dropdown-menu-end" data-bs-theme="dark" >
 	{{ if ne .CurrentFile.UrlHotlink "" }}
-                <li style="cursor: pointer;"><a class="dropdown-item copyurl" title="{{$.UI.T "files.copyHotlink"}}" onclick="showToast(1000)"
+                <li style="cursor: pointer;"><a class="dropdown-item copyurl" title="{{$.UI.T "files.copyHotlink"}}"
                     data-clipboard-text="{{ .CurrentFile.UrlHotlink }}"><i class="bi bi-copy"></i> {{$.UI.T "files.hotlink"}}</a></li>
 		{{ else }}
                 <li><a class="dropdown-item disabled">{{$.UI.T "files.noHotlink"}}</a></li>

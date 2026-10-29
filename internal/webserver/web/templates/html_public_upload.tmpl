@@ -1,12 +1,12 @@
 {{define "publicUpload"}}{{template "header" .}}
 
 
-<main style="margin-top: 2rem">
+<section style="margin-top: 2rem" aria-labelledby="publicUploadTitle">
   <div class="row justify-content-center">
     <div class="col-lg-8">
       <div class="card bg-dark text-white">
         <div class="card-body">
-          <h3 class="card-title text-center mb-4">{{.UI.T "page.publicUpload"}}</h3>
+          <h2 id="publicUploadTitle" class="card-title text-center mb-4">{{.UI.T "page.publicUpload"}}</h2>
 {{ if ne .FileRequest.Notes "" }}
           <div class="info-box">
             <h6>{{.UI.T "request.notes"}}</h6>
@@ -42,11 +42,12 @@
             </ul>
           </div>
 {{ end }}
-          <label for="fileInput" id="uploadBox" class="upload-box text-center w-100">
+          <div id="uploadBox" class="upload-box text-center w-100">
             <p class="mb-2 fs-5">{{.UI.T "request.drop"}}</p>
-            <p class="mb-0 opacity-75">{{.UI.T "request.choose"}}</p>
-            <input type="file" id="fileInput" class="d-none" multiple>
-          </label>
+            <p class="mb-3 opacity-75">{{.UI.T "files.pasteHint"}}</p>
+            <button type="button" class="btn btn-outline-light" onclick="document.getElementById('fileInput').click()">{{.UI.T "files.choose"}}</button>
+            <input type="file" id="fileInput" class="d-none" multiple aria-label="{{.UI.T "files.choose"}}">
+          </div>
           <div id="fileList" class="pu-file-list"></div>
           <div class="text-center mt-4">
             <button class="btn btn-upload-custom" disabled onClick="initUpload();" id="uploadbutton">
@@ -57,7 +58,7 @@
       </div>
     </div>
   </div>
-</main>
+</section>
 
 
 <!-- Error Modal -->

@@ -12,7 +12,7 @@
 		    </div>
 		    <div class="col text-end">
 		      <button id="button-newfr" class="btn btn-outline-light" onclick="newFileRequest()">
-                    <i class="bi bi-plus-circle-fill"></i>
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i> {{$.UI.T "request.new"}}
                 </button>
 		    </div>
 		  </div>
@@ -55,7 +55,7 @@
                                 {{ template "uRDownloadbutton" (newFileRequestContext . $.UI) }}
                                 
                                 
-                                <button id="copy-{{ .Id }}" type="button" data-clipboard-text="{{ $.ServerUrl }}publicUpload?id={{ .Id }}&key={{ .ApiKey }}" class="copyurl btn btn-outline-light btn-sm" onclick="showToast(1000);" title="{{$.UI.T "common.copyURL"}}"><i class="bi bi-copy"></i></button>
+                                <button id="copy-{{ .Id }}" type="button" data-clipboard-text="{{ $.ServerUrl }}publicUpload?id={{ .Id }}&key={{ .ApiKey }}" class="copyurl btn btn-outline-light btn-sm" title="{{$.UI.T "common.copyURL"}}"><i class="bi bi-copy"></i></button>
                                 
                                 <button id="edit-{{ .Id }}" type="button" title="{{$.UI.T "request.edit"}}" class="btn btn-outline-light btn-sm" onclick="editFileRequest('{{ .Id }}', '{{ .Name }}', {{ .MaxFiles }}, {{ .MaxSize }}, {{ .Expiry }}, '{{ .Notes }}')">
 		                        	<i class="bi bi-pencil"></i></button>
@@ -116,7 +116,7 @@
                 </div>
             </div>
         </div>
-    <div id="toastnotification" class="toastnotification" data-default="{{$.UI.T "files.copyToast"}}"></div>
+    <div id="toastnotification" class="toastnotification" role="status" aria-live="polite" aria-atomic="true" data-default="{{$.UI.T "files.copyToast"}}"></div>
 	<div id="toastnotificationUndo" class="toastnotification">
       {{$.UI.T "files.deleted"}} <span id="toastFilename"></span>
        <span id="toastUndoButton" class="toast-undo" onclick="handleUndoFr(this)">{{$.UI.T "common.restore"}}</span>
@@ -168,58 +168,53 @@
 
 {{ define "urequest_modal_addedit" }}
 
-	<div class="modal fade" id="addEditModal" tabindex="-1"  aria-hidden="true">
+	<div class="modal fade" id="addEditModal" tabindex="-1" aria-labelledby="m_urequestlabel" aria-hidden="true">
 	  <div class="modal-dialog  modal-lg gokapi-dialog">
 	    <div class="modal-content gokapi-dialog">
 	      <div class="modal-header">
         <h1 class="modal-title fs-5" id="m_urequestlabel">{{$.UI.T "request.title"}}</h1>
 	      </div>
-	      <div class="modal-body">
-		<div class="input-group mb-3">
-	         <!-- Hidden checkbox to have same spacing -->
-	     	 <div class="input-group-text">
-  			<input type="checkbox" style="visibility: hidden" aria-hidden="true">
-		</div>
-          <span class="input-group-text modal-samesize-input-filerequest" id="mTitle">{{$.UI.T "request.title"}}</span>
-          <input type="text" id="mFriendlyName" class="form-control" placeholder="{{$.UI.T "request.friendlyName"}}" aria-label="{{$.UI.T "request.friendlyName"}}" aria-describedby="mTitle">
-		</div>
-
-		<div class="input-group mb-3">
-		  <div class="input-group-text">
-                <input type="checkbox" id="mc_maxfiles"  aria-label="{{$.UI.T "request.maxFiles"}}" title="{{$.UI.T "request.maxFiles"}}"  data-toggle-target="mi_maxfiles" onchange="handleEditCheckboxChange(this)">
-   		 </div>
-          <span class="input-group-text modal-samesize-input-filerequest" id="mMaxFiles">{{$.UI.T "request.maxFiles"}}</span>
-          <input type="number" min="1" id="mi_maxfiles" onChange="checkMaxNumber(this)" disabled class="form-control" aria-label="{{$.UI.T "request.maxFiles"}}" aria-describedby="mMaxFiles" data-allow-regular-paste>
-		</div>
-
-		<div class="input-group mb-3">
-		  <div class="input-group-text">
-                <input type="checkbox" id="mc_maxsize"  aria-label="{{$.UI.T "request.maxSize"}}" title="{{$.UI.T "request.maxSize"}}"
-      			 data-toggle-target="mi_maxsize" onchange="handleEditCheckboxChange(this)">
-   		 </div>
-          <span class="input-group-text modal-samesize-input-filerequest" id="tMaxSize">{{$.UI.T "request.maxSize"}}</span>
-          <input type="number" min="1" id="mi_maxsize"  onChange="checkMaxNumber(this)" disabled class="form-control" aria-label="{{$.UI.T "request.maxSize"}}" aria-describedby="tMaxSize" data-allow-regular-paste>
-		  <span class="input-group-text">MB</span>
-		</div>
-		
-		<div class="input-group mb-3">
-		  <div class="input-group-text">
-                <input id="mc_expiry" type="checkbox" aria-label="{{$.UI.T "common.expiry"}}" title="{{$.UI.T "common.expiry"}}"  data-toggle-target="mi_expiry" data-timestamp="" onchange="handleEditCheckboxChange(this)" >
-   		 </div>
-          <span class="input-group-text modal-samesize-input-filerequest" id="edit_expdate">{{$.UI.T "common.expiry"}}</span>
-          <input type="text" id="mi_expiry" disabled class="form-control" aria-label="{{$.UI.T "common.expiry"}}" aria-describedby="edit_expdate"  data-allow-regular-paste>
-		</div>
-		
-		<div class="input-group mb-3">
-	         <!-- Hidden checkbox to have same spacing -->
-	     	 <div class="input-group-text">
-  			<input type="checkbox" style="visibility: hidden" aria-hidden="true">
-		</div>
-          <span class="input-group-text modal-samesize-input-filerequest" id="mdNotes">{{$.UI.T "request.notesLabel"}}</span>
-          <input type="text" id="mNotes" class="form-control" placeholder="{{$.UI.T "request.notesHint"}}" aria-label="{{$.UI.T "request.notesLabel"}}" aria-describedby="mdNotes">
-		</div>
-	      </div>
-	      <input type="hidden" id="freqId" value="" />
+	      <div class="modal-body text-start settings-form">
+        <div class="mb-3">
+          <label class="form-label" for="mFriendlyName">{{$.UI.T "request.title"}}</label>
+          <input type="text" id="mFriendlyName" class="form-control" placeholder="{{$.UI.T "request.friendlyName"}}">
+        </div>
+        <p class="form-text text-muted" id="requestLimitsHelp">{{$.UI.T "request.limitHelp"}}</p>
+        <div class="settings-field mb-3">
+          <div class="form-check mb-2">
+            <input class="form-check-input" id="mc_maxfiles" type="checkbox" data-toggle-target="mi_maxfiles" onchange="handleEditCheckboxChange(this)">
+            <label class="form-check-label" for="mc_maxfiles">{{$.UI.T "request.maxFiles"}}</label>
+          </div>
+          <div class="input-group">
+            <input type="number" id="mi_maxfiles" min="1" onchange="checkMaxNumber(this)" disabled class="form-control" aria-label="{{$.UI.T "request.maxFiles"}}" aria-describedby="requestLimitsHelp" data-allow-regular-paste>
+          </div>
+        </div>
+        <div class="settings-field mb-3">
+          <div class="form-check mb-2">
+            <input class="form-check-input" id="mc_maxsize" type="checkbox" data-toggle-target="mi_maxsize" onchange="handleEditCheckboxChange(this)">
+            <label class="form-check-label" for="mc_maxsize">{{$.UI.T "request.maxSize"}}</label>
+          </div>
+          <div class="input-group">
+            <input type="number" id="mi_maxsize" min="1" onchange="checkMaxNumber(this)" disabled class="form-control" aria-label="{{$.UI.T "request.maxSize"}}" aria-describedby="requestLimitsHelp" data-allow-regular-paste>
+            <span class="input-group-text">MB</span>
+          </div>
+        </div>
+        <div class="settings-field mb-3">
+          <div class="form-check mb-2">
+            <input class="form-check-input" id="mc_expiry" type="checkbox" data-toggle-target="mi_expiry" onchange="handleEditCheckboxChange(this)">
+            <label class="form-check-label" for="mc_expiry">{{$.UI.T "common.expiry"}}</label>
+          </div>
+          <div class="input-group">
+            <input type="text" id="mi_expiry"  disabled class="form-control" aria-label="{{$.UI.T "common.expiry"}}" aria-describedby="requestLimitsHelp" data-allow-regular-paste>
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label" for="mNotes">{{$.UI.T "request.notesLabel"}}</label>
+          <textarea id="mNotes" rows="2" class="form-control" placeholder="{{$.UI.T "request.notesHint"}}" aria-describedby="requestNotesHelp"></textarea>
+          <p class="form-text text-muted" id="requestNotesHelp">{{$.UI.T "request.notesPublic"}}</p>
+        </div>
+      </div>
+      <input type="hidden" id="freqId" value="" />
 {{ if .EndToEndEncryption }}
 <div class="callout callout-info">
   {{$.UI.T "request.plaintextNotice"}}

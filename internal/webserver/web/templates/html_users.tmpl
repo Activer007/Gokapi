@@ -13,7 +13,7 @@
 		    </div>
 		    <div class="col text-end">
 		      <button id="add-user-btn" class="btn btn-outline-light" onclick="showAddUserModal()">
-                    <i class="bi bi-plus-circle-fill"></i>
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i> {{$.UI.T "users.add"}}
                 </button>
 		    </div>
 		  </div>
@@ -112,7 +112,7 @@
                 </div>
             </div>
         </div>
-    <div id="toastnotification" class="toastnotification" data-default="{{$.UI.T "users.invalidNotice"}}"></div>
+    <div id="toastnotification" class="toastnotification" role="status" aria-live="polite" aria-atomic="true" data-default="{{$.UI.T "users.invalidNotice"}}"></div>
 	
 	<!-- Modal for deletion confirmation -->
 	<div class="modal" tabindex="-1" id="deleteModal">

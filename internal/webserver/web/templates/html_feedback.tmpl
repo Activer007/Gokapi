@@ -1,0 +1,15 @@
+{{define "clipboard_fallback"}}
+<div class="modal fade" id="clipboardFallback" tabindex="-1" aria-labelledby="clipboardFallbackTitle" aria-describedby="clipboardFallbackHelp" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content gokapi-dialog">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="clipboardFallbackTitle">{{.T "clipboard.manual"}}</h2></div>
+      <div class="modal-body text-start">
+        <p id="clipboardFallbackHelp">{{.T "clipboard.failed"}}</p>
+        <label for="clipboardFallbackValue" class="form-label">{{.T "clipboard.value"}}</label>
+        <input id="clipboardFallbackValue" class="form-control" readonly autocomplete="off" spellcheck="false">
+      </div>
+      <div class="modal-footer"><button type="button" class="btn btn-primary" data-bs-dismiss="modal">{{.T "common.close"}}</button></div>
+    </div>
+  </div>
+</div>
+{{end}}
