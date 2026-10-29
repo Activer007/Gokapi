@@ -12,9 +12,9 @@
 - G3：密码、OIDC、E2E、schema、物理删除须兼容/迁移/回滚评审及故障测试；重大方案有 ADR。
 - G4：生成产物、二进制、镜像 digest 与源 SHA 对照；备份恢复和发布目的地核验。
 
-G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BLOCKED 详见 [TEST-REPORT](TEST-REPORT.md)。本轮无生产行为改动，无需新增架构 ADR。
+G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BLOCKED 详见 [TEST-REPORT](TEST-REPORT.md)。初始M0仅测试/证据，后续生产实现及ADR以各增补条目为准。
 
-## 当前 SEC-030 分片与请求增量：IN_PROGRESS
+## 当前 SEC-030 分片与请求增量：代码 Gate GREEN
 
 起点57e5116，分支codex/sec-030-chunk-admission；整文件PR21已合并，合并后CI40783153865成功。
 用户最新确认默认owner5GiB、instance20GiB，其他数量/active/staging不变；按此更新PR22并重新验证。
@@ -23,8 +23,13 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 新API完整目标45.622s、旧语义/处理器兼容目标及真实E2E流分段/停服目标已PASS，生成PASS。
 本机完整noaws实际FAIL（既知Windows差异及两份旧guard fixture）；修正有效夹具后，全新归档的
 完整API（含所有旧/新chunk/whole合同）PASS 48.144s，282份源码hash前后不变，不能标全仓绿色。
-Linux四组全仓/race/当前大文件Gate仍未完成，已创建草稿[PR22](https://github.com/Activer007/Gokapi/pull/22)，未合并。
-完整M3及PrepareTarget崩溃对账、其他metadata正向准入不因此关闭。
+143f041的PR CI40798733852及完整手动40798813978实际SUCCESS：四组全仓、相关race、scan、
+三镜像及原whole/新chunk 1–2GiB均通过。[PR22](https://github.com/Activer007/Gokapi/pull/22)当前
+等待最终文档CI及合并核验，合并状态以PR为准。复现证据见evidence/sec030-chunks-143f041。
+两成功job输入202 Go+2harness均匹配Git，50/50变更Go被hash清单覆盖；G0/G1/G2本增量通过，
+G3回滚及限定场景验证见ADR017，不等于完整M3/真实生产G4通过。
+完整M3及PrepareTarget崩溃对账、其他metadata正向准入不因此关闭；P0下一小闭环建议先做duplicate
+同事务准入并与预约竞争，P1继续replace/transfer、物理free模型及真实后端矩阵。
 
 ## SEC-030 整文件增量：初期历史记录
 

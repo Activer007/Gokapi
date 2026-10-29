@@ -1,6 +1,7 @@
 # ADR-017：分片与 File Request 的持久准入
 
-状态：IN_PROGRESS，2026-10-29。工作基线57e5116；未预报测试通过、PR或合并。
+状态：IMPLEMENTED（本增量Linux代码Gate通过），2026-10-29。工作基线57e5116，
+已验证代码143f041，[PR22](https://github.com/Activer007/Gokapi/pull/22)；最终文档head及合并另核实，无部署。
 延续ADR-013—016；保留单个Go进程、SQLite/Redis、本地/S3、原客户端字段和响应结构。
 
 ## 本轮不变量
@@ -67,3 +68,8 @@ File Request自己的Expiry仍生效，保留非0且小于当前Unix秒即过期
 
 全M3继续包含其他metadata正向准入、完整PrepareTarget/发布→Commit崩溃对账、
 真实Redis/S3及全部路径的大文件与慢速矩阵。本轮进度不等于这些最终Gate已经通过。
+
+本增量实际结果：四组Linux全仓、receiver/quota相关race、当前扫描、历史编译器预期RED和三镜像
+构建均通过；新分片1GiB普通明文及2GiB FR服务器加密实传/解密SHA256读回通过。
+20ms资源采样不证明所有瞬时峰值，未执行真实浏览器及真实Redis/S3服务。
+详见[TEST-REPORT](TEST-REPORT.md)与[输入及数值证据](evidence/sec030-chunks-143f041/README.md)。

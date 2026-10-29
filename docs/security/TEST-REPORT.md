@@ -2,13 +2,13 @@
 
 日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/Gokapi 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
 
-## SEC-030 分片/请求接线：IN_PROGRESS（2026-10-29）
+## SEC-030 分片/请求接线：代码 Gate 通过（2026-10-29）
 
 基线57e5116；Windows便携Go1.26.10，仍不启动/修复WSL。独立归档及当前临时SQLite/loopback Redis
 证据位于ignored sec030-chunks-local.secret和request-policy-*，不是生产数据。
 首个代码head be5f385已创建[PR22](https://github.com/Activer007/Gokapi/pull/22)。用户随后明确默认
 owner5GiB/instance20GiB，其他上限不变；旧head的PR40797560851/手动40797586038已主动取消，
-不记完整PASS，等待更新默认值后的新head完整Gate。以下本地结果均保留各自实际输入及范围。
+不记完整PASS；更新默认值后的143f041已实际通过完整Gate（见下节）。以下本地结果保留各自实际输入及范围。
 新默认值最小合同在隔离be5实现叠加当前test后真实RED：`go test ./internal/environment -count=1
 -tags=test,noaws -run '^TestSEC030WholePolicyDefaults$' -timeout 30s -v`，退出1，3.074s，实际报告
 `UploadUserTotalMB default=20480; want 5120`。当前代码的environment/fileupload两包
@@ -44,11 +44,54 @@ owner5GiB/instance20GiB，其他上限不变；旧head的PR40797560851/手动407
 首次组合regression保留FAIL：新私有payload布局使旧flat-path测试失效，Windows断线观察仍失败；
 旧fixture已改为通过冻结Lease精确读回和确认自身未发布资源清理，不删除安全断言或取消校验。
 低空间检查现覆盖N+真实密文长度+余量+MinFreeSpace，整数边界单测通过。
-本机race仍因cgo/GCC限制BLOCKED；本轮Linux四组全仓、相关race、scan、1–2GiB及真实Redis/S3
-仍NOT_RUN/待PR验证。20ms资源采样只代表采样峰值，不证明全部瞬时峰值。
+上述本地阶段race因cgo/GCC限制BLOCKED，Linux四组全仓/race/scan/1–2GiB当时尚未运行，
+后续实际结果见下节；真实Redis/S3仍NOT_RUN。20ms资源采样只代表采样峰值，不证明全部瞬时峰值。
 完整M3仍缺其他metadata正向准入、跨所有写者的物理容量协调、Claim/发布后崩溃对账及全部路径慢请求矩阵。
 有限模式扫描本轮59个待审文件未匹配私钥、GitHub Token、AWS访问Key或带敏感参数的URL；
 这不是全仓秘密审计。用户两个未跟踪目录未复制、未修改、未提交。
+
+### 最终 Linux 代码 Gate
+
+已验证代码 `143f041162605a160c98f9cf0420033260d8bded`，用户选择owner5GiB/instance20GiB；
+[PR CI40798733852](https://github.com/Activer007/Gokapi/actions/runs/40798733852)及
+[完整手动40798813978](https://github.com/Activer007/Gokapi/actions/runs/40798813978)均实际SUCCESS。
+Ubuntu24.04 runner、Go1.26.10 linux/amd64；原始decoded日志在ignored目录，
+[公开数值与复现说明](evidence/sec030-chunks-143f041/README.md)不包含敏感请求正文。
+
+| 实际命令/Gate | 结果 |
+| --- | --- |
+| `go generate ./...`、占端口setup合同 | PASS |
+| `go test ./... -parallel 8 -count=1 --tags=test,awsmock` | PASS |
+| `go test ./... -parallel 8 -count=1 --tags=test,noaws` | PASS |
+| `go test ./... --tags=test,noaws,integration -count=1` | PASS |
+| `go test ./... --tags=test,awstest -count=1`，workflow提供合成AWS mock设置 | PASS，不称真实S3服务 |
+| workflow的receiver相关`go test -race` | PASS |
+| `bash docs/security/tools/run-sec030-whole.sh target`及`race` | PASS；whole/mock/sdk/source-unchanged结果均0；包含新Chunk/Request/UploadService/UploadShutdown合同 |
+| `bash docs/security/tools/run-sec062-toolchain.sh scan` | PASS，当前源码/构建与扫描器Gate |
+| 同runner `historical` | 合同PASS，旧编译器扫描实际退出3并命中GO-2026-6609；不误写扫描命令退出0 |
+| 同runner `containers` | PASS，server/CLI/builder三镜像隔离构建，不推送、不部署 |
+| `bash docs/security/tools/run-sec030-receiver.sh large` | PASS，原whole1GiB明文/2GiB服务器加密实传及SHA256读回 |
+| `bash docs/security/tools/run-sec030-whole.sh large` | PASS，新增ordinary1GiB明文/FR2GiB服务器加密的真实未知长度8MiB分块HTTP上传、完成和流式SHA256读回 |
+
+新增chunk ordinary：15.780s、64.89MiB/s，heap/RSS采样峰值3512472/27406336 bytes；FR服务器加密：
+35.248s、58.10MiB/s，3594128/28213248 bytes。磁盘表观峰值分别2147498459/6423946408 bytes，
+分配峰值2147516416/6423973888 bytes。读回直接打开隔离canonical blob，FR先解密；
+不称HTTP下载或真实浏览器/WASM运行。20ms采样不证明全部瞬时峰值，不是生产吞吐承诺。
+Native失败及已知限制不因Linux绿色撤销；完整M3保持OPEN。
+
+### 输入与审查核验
+
+两份成功job decoded日志分别对照143f041的Git blob原始字节（不经PowerShell文本管线转换），
+范围为Main、database/environment/storage/uploadquota及完整webserver。202份Go与2份harness均匹配，
+base57→143的50份非删除Go变更50/50覆盖，0 mismatch；target/race/large的source-unchanged均退出0。
+[204项清单](evidence/sec030-chunks-143f041/source.sha256)和[核验数据](evidence/sec030-chunks-143f041/verification.json)
+明确不是全仓所有文件或语句/分支覆盖率。PR10条/手动13条SEC030结果全0，手动恰4条真实whole/chunk metric。
+
+首次简单合并全日志同路径hash得到manual MISMATCH：historical工具链步骤使用cb5868c6旧workflow，
+当前harness仍为143版本。经分开归属，两种workflow的Git blob SHA各自真实匹配；旧扫描实际退出3，
+并有published GO-2026-6609 RED marker。原误归类JSON仍保留，不通过忽略任意冲突伪造VERIFIED。
+独立只读代码/远端patch与关键blob核对无本增量剩余阻断；[GitHub COMMENT审查](https://github.com/Activer007/Gokapi/pull/22#pullrequestreview-5691708097)
+明确为工具辅助self-review，不声称独立人类审批。最终文档提交将保持全部Go/harness输入与143一致。
 
 ## SEC-030 整文件准入：代码 Gate 通过（2026-10-29）
 

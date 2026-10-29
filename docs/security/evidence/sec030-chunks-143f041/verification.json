@@ -1,0 +1,139 @@
+{
+  "formatVersion": 1,
+  "baseline": "57e5116b466e9be15ae8b63f5ba088f1120c1635",
+  "codeCommit": "143f041162605a160c98f9cf0420033260d8bded",
+  "method": "Binary git blob SHA256 compared with authenticated GitHub decoded job logs; source hashes are not test coverage",
+  "sourceRoots": [
+    "cmd/gokapi/Main.go",
+    "internal/configuration/database",
+    "internal/environment",
+    "internal/storage",
+    "internal/uploadquota",
+    "internal/webserver"
+  ],
+  "sourceCount": 202,
+  "changedGoCount": 50,
+  "harnessCount": 2,
+  "runs": [
+    {
+      "run": 40798733852,
+      "hashStatus": "VERIFIED",
+      "source": {
+        "uniqueCount": 202,
+        "observations": 203.0,
+        "expectedRootCount": 202,
+        "mismatchCount": 0,
+        "rejectedPathRows": 0,
+        "missingExpectedPaths": []
+      },
+      "changedGo": {
+        "currentCount": 50,
+        "verifiedCount": 50,
+        "coveragePercent": 100.0,
+        "missingVerifiedPaths": [],
+        "deletedCount": 0
+      },
+      "harness": {
+        "expectedCount": 2,
+        "observedCount": 2,
+        "missingPaths": []
+      },
+      "sec030Nonzero": 0
+    },
+    {
+      "run": 40798813978,
+      "hashStatus": "VERIFIED",
+      "source": {
+        "uniqueCount": 202,
+        "observations": 204.0,
+        "expectedRootCount": 202,
+        "mismatchCount": 0,
+        "rejectedPathRows": 0,
+        "missingExpectedPaths": []
+      },
+      "changedGo": {
+        "currentCount": 50,
+        "verifiedCount": 50,
+        "coveragePercent": 100.0,
+        "missingVerifiedPaths": [],
+        "deletedCount": 0
+      },
+      "harness": {
+        "expectedCount": 2,
+        "observedCount": 2,
+        "missingPaths": []
+      },
+      "sec030Nonzero": 0
+    }
+  ],
+  "historicalInput": {
+    "observations": [
+      {
+        "refCommit": "cb5868c6d45d1a3f4fc163c74976c90c756ae8a8",
+        "path": ".github/workflows/test-code.yml",
+        "reportedSha256": "ec50a6321ba637e0bf0edc820f5554e0bede9234636f84e95500d4cfcb116a21",
+        "gitBlobSha256": "ec50a6321ba637e0bf0edc820f5554e0bede9234636f84e95500d4cfcb116a21",
+        "matches": true,
+        "line": 3646
+      }
+    ],
+    "scanExitCodes": [
+      3
+    ],
+    "expectedScanExitCode": 3,
+    "publishedRedMarker": true
+  },
+  "metrics": [
+    {
+      "marker": "RECEIVE_METRIC",
+      "bytes": 1073741824,
+      "encrypted": false,
+      "seconds": 9.834,
+      "MiBps": 104.13,
+      "heap_peak": 3105816,
+      "rss_peak": 24702976,
+      "apparent_peak": 2147483683,
+      "allocated_peak": 2147495936,
+      "sha256": "3a33d58aa8ee1e9d21fd4f510cc5d1ce8d25ba5e24363d19c28e2bf866f4185c"
+    },
+    {
+      "marker": "RECEIVE_METRIC",
+      "bytes": 2147483648,
+      "encrypted": true,
+      "seconds": 31.65,
+      "MiBps": 64.71,
+      "heap_peak": 3009232,
+      "rss_peak": 26238976,
+      "apparent_peak": 6440267731,
+      "allocated_peak": 6440284160,
+      "sha256": "72d03317b1c036b233f258bb93cf690b75e8abe40ac6638004453e5fb91cb443"
+    },
+    {
+      "marker": "CHUNK_LARGE_METRIC",
+      "bytes": 1073741824,
+      "kind": "ordinary",
+      "encrypted": false,
+      "seconds": 15.78,
+      "MiBps": 64.89,
+      "heap_peak": 3512472,
+      "rss_peak": 27406336,
+      "apparent_peak": 2147498459,
+      "allocated_peak": 2147516416,
+      "sha256": "3a33d58aa8ee1e9d21fd4f510cc5d1ce8d25ba5e24363d19c28e2bf866f4185c"
+    },
+    {
+      "marker": "CHUNK_LARGE_METRIC",
+      "bytes": 2147483648,
+      "kind": "fr",
+      "encrypted": true,
+      "seconds": 35.248,
+      "MiBps": 58.1,
+      "heap_peak": 3594128,
+      "rss_peak": 28213248,
+      "apparent_peak": 6423946408,
+      "allocated_peak": 6423973888,
+      "sha256": "72d03317b1c036b233f258bb93cf690b75e8abe40ac6638004453e5fb91cb443"
+    }
+  ],
+  "scope": "GitHub job success is independently recorded in ci-runs.json. This manifest covers the listed Go roots and both harnesses, not every repository file."
+}

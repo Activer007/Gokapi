@@ -4,14 +4,15 @@
 
 基线 a9c25d453aab0c25f2d6e6926ec7312628638844，证据及分类见 [SECURITY-BASELINE](SECURITY-BASELINE.md)。模型面向个人 VPS / 小团队；不改变单体 Go、SQLite/Redis、本地/S3 或现有 API 架构。
 
-## SEC-030 分片/请求接线：待最终验证
+## SEC-030 分片/请求接线：本增量已验证
 
 以57e5116为基线，ADR-017要求按owner/request稳定ID先冻结总声明，再使用有界持久范围回执；
 现行累计字节默认按用户选择为owner5GiB、instance20GiB；旧20/100GiB是PR21历史选择。
 Truncate长度不能作为完整覆盖证明。当前request策略在事务/CAS内重读，Claim必须在创建任务之前。
 同步保留请求取消；异步有服务代际和有限截止时间，取消不代表I/O已经停止或可以退款。
-新进度、失败关闭、范围、重复完成和确认证据已获隔离局部GREEN；相关兼容目标、E2E真实writer
-分段及真实HTTP停服目标也通过，具体命令见TEST-REPORT。局部GREEN不证明完整M3或发布后恢复。
+新进度、失败关闭、范围、重复完成和确认证据、兼容目标、E2E真实writer分段及真实HTTP停服通过；
+143f041的Linux四组全仓、相关race及whole/chunk大文件也已实际通过，具体输入/命令见TEST-REPORT。
+这些结果不证明完整M3、实际浏览器或发布后恢复。
 既有ledger staging及独立receiver预算有限，但检查当前free不是跨所有写者的原子物理分配器；
 完整物理协调仍是后续Gate。未知发布/Claim后重启保额，不能将超时、cancel或无文件路径当作退款证明。
 
