@@ -52,6 +52,11 @@ deploy the binary or image to update the displayed version. Git tags and
 GitHub Releases are separate publication steps; merging a PR does not
 automatically increment the version or publish a release.
 
+When changing the source version, update the current-version paragraph in both
+``README.md`` and ``README.zh-CN.md`` and add a SupaShare changelog entry. Screenshot
+captions record the version actually captured; refresh the images before changing
+their version labels. The image guide in ``docs/images/README.md`` records their source.
+
 Deployment and provenance
 -------------------------
 

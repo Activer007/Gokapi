@@ -1,161 +1,152 @@
 # SupaShare
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/Activer007/SupaShare)](https://goreportcard.com/report/github.com/Activer007/SupaShare)
+**English** · [简体中文](README.zh-CN.md)
 
-**SupaShare** is a modern, self-hosted alternative to Firefox Send that puts you in control of your file sharing. Built with Go, it combines simplicity with powerful features like automatic file expiration, end-to-end encryption, and flexible cloud storage support.
+![SupaShare — self-hosted file sharing, with a blue folder and a sharing link on a charcoal background](docs/images/supashare-cover.png)
 
-SupaShare is independently maintained from the original Gokapi project. Existing
-Gokapi deployments can retain their configuration, environment variables and
-data volumes; see the [migration notes](docs/repository-identity.rst).
+**Share files. Collect deliveries. Keep control.**
 
-### Available for:
+SupaShare is a self-hosted file sharing and collection application for teams using desktop browsers. Share files with download limits and expiry dates, collect files through request links, and manage access from a focused dark workspace. English and Simplified Chinese are built in.
 
-- **Bare Metal** (Linux/macOS/Windows)
-- **Docker**: build this repository's image locally with the included Dockerfile.
+Developed from Gokapi and independently maintained by Activer007, SupaShare has its own interface, improvements and version line. The current source version is **2.11.0**. Build from this repository; use the [Releases page](https://github.com/Activer007/SupaShare/releases) to check for explicitly published SupaShare packages. Upstream Gokapi images do not include these changes.
 
-## Features
+[Quick start](#quick-start) · [Interface](#interface) · [Site customization](#site-customization) · [Documentation](#documentation)
 
-- **Expiring file shares:** Automatically removed after a set number of downloads or days
-- **User management with roles:** Fine-grained permission control, only registered users can upload
-- **File requests:** A shareable URL lets external parties upload files, visible only to the URL’s creator
-- **File deduplication:** Identical files use no extra space
-- **Cloud storage support:** AWS S3 (or S3 compatible like Backblaze B2), optional
-- **Built-in encryption:** Including end-to-end encrypted uploads
-- **OpenID Connect support:** Integrate with identity providers like Authelia or Keycloak
-- **REST API:** For automation and integration into other systems
-- **Customizable UI:** Adjust look and feel with custom CSS and JavaScript
+## Made for everyday team sharing
 
----
+| Capability | What you can do |
+| --- | --- |
+| Controlled sharing | Set a download limit, expiry date and optional password for a file. |
+| File collection | Give external contributors a File Request link to upload within its limits, without creating an account. |
+| Bilingual workspace | Switch between English and Simplified Chinese across setup, public pages and administration. |
+| Your site identity | Set the public name, browser title, footer text and help links in the existing configuration file. |
+| Easier account handoff | Create an internal-login user, then copy their username, generated temporary password and login URL together. The user must change the password after their first browser login. |
+| Clear administration | Review user/API-key permissions, copy file links, and use explicit save/cancel actions with recoverable error feedback. |
+| Storage choices | Store files locally or on S3-compatible storage; choose the encryption mode that fits your deployment. |
+| Automation and identity | Use the REST API and CLI, or integrate an OpenID Connect provider. |
 
-## Getting Started
+Ordinary uploads require authentication. File Request links grant their holders a limited upload capability. Deduplication is available where the storage/encryption mode supports it; end-to-end encrypted uploads do not use deduplication. See the [setup guide](docs/setup.rst) for encryption tradeoffs.
 
-You can deploy SupaShare in seconds using Docker or directly on your system.
+Independent development also includes fixes to setup credentials, session revocation, proxy trust checks and upload authorization/resource handling, plus bounded recovery of interrupted uploads. The [changelog](docs/changelog.rst) summarizes delivered changes; the [security task records](docs/security/SECURITY-TASK-BOARD.md) distinguish verified scope from deferred work.
 
-[Installation Guide](docs/setup.rst)
-[Usage Instructions](docs/usage.rst)
+## Interface
 
-**Want to give it a try?**
+The desktop workspace keeps upload settings and sharing actions close to the file list. These are real **2.11.0** application screenshots with synthetic demonstration data. The cover above is brand artwork.
 
-Build and start SupaShare with Docker:
+**English workspace**
+
+![English SupaShare workspace showing upload limits, expiry settings, three example files and Copy link actions](docs/images/workspace-en.jpg)
+
+<details>
+<summary>View the Chinese workspace and permission editor</summary>
+
+**中文工作台**
+
+![中文版 SupaShare 工作台，包含上传设置、文件列表和复制链接操作](docs/images/workspace-zh.jpg)
+
+**Reviewable permissions**
+
+![SupaShare user permission editor with named permissions and explicit Save and Cancel actions](docs/images/permissions-en.jpg)
+
+</details>
+
+## Quick start
+
+For a **new installation**, install Git and Docker with Compose, then run these commands in a POSIX shell (Linux, macOS or WSL):
 
 ```bash
-docker build -t supashare:local .
-docker run --rm \
-  --name supashare \
-  -v gokapi-data:/app/data \
-  -v gokapi-config:/app/config \
-  -p 127.0.0.1:53842:53842 \
-  -e TZ=UTC \
-  supashare:local
+git clone https://github.com/Activer007/SupaShare.git
+cd SupaShare
+cp .env.dist .env
+docker compose up -d --build
+docker compose logs --tail=80 supashare
 ```
 
-Then visit ``http://localhost:53842/setup`` and follow the setup wizard.
+The included Compose file builds `supashare:local`, stores data in `./gokapi-data` and configuration in `./gokapi-config`, and publishes port `53842` on the host's loopback interface.
 
-Fork builds containing SEC-010 require username `setup` and the password from the local credential file whose path is printed at startup. Native setup binds to `127.0.0.1`; use an SSH tunnel for a VPS. See [this fork's installation instructions](docs/setup.rst). The upstream image above does not include fork-only changes; no image has been published by this fork yet.
+1. Find the **setup credential file path** in the startup output. The password itself is not printed in logs.
+2. Replace `<printed-path>` below with that exact path and read the file:
 
-Before upgrading to fork builds containing SEC-013, explicitly configure the reverse proxy IP/CIDR in `GOKAPI_TRUSTED_PROXIES`. Header authentication and client IP headers require a trusted immediate peer; automatic trust of the entire Docker subnet is disabled by default. See [proxy migration and rollback](docs/security/ADR-003-TRUSTED-PROXY-BOUNDARY.md).
+   ```bash
+   docker compose exec supashare cat '<printed-path>'
+   ```
 
-For an explicit non-root deployment of this fork, use [docker-compose.nonroot.yaml](docker-compose.nonroot.yaml) with the [fresh-volume preparation instructions](docs/setup.rst) and a locally built/tested fork image. The original image default user is unchanged; existing volumes require a copy-and-verify migration, not automatic recursive permission changes. See [ADR-005](docs/security/ADR-005-NONROOT-COMPOSE.md).
+3. Open [http://127.0.0.1:53842/setup](http://127.0.0.1:53842/setup) in a desktop browser. Sign in with username `setup` and the password from the file, then complete the wizard. This setup credential is separate from the administrator account you create.
 
+For a remote server, open an SSH tunnel from your computer before visiting the same local URL:
 
+```bash
+ssh -N -L 53842:127.0.0.1:53842 user@your-server
+```
 
-## Screenshots
-**Main Menu**
+Use HTTPS through a reverse proxy for production access, and configure the public server URL to match the address users will visit. For trusted proxy settings, native installation and the opt-in non-root Compose deployment, follow the [installation guide](docs/setup.rst). The default Compose deployment does not enable the separate non-root profile.
 
-<a href="https://github.com/user-attachments/assets/d805a88b-dc74-4c39-bed6-ec31b9c3e17f" target="_blank">
-  <img width="300" alt="image" src="https://github.com/user-attachments/assets/d805a88b-dc74-4c39-bed6-ec31b9c3e17f" />
+**Existing installation?** Follow the [migration notes](docs/repository-identity.rst) first. Stop the old Gokapi service/container before starting SupaShare against the same data; retain the existing volumes, configuration and encryption keys.
 
-</a>
+## Site customization
 
-**File Requests**
+Merge these fields into your existing `config.json` (with the default Compose setup, `./gokapi-config/config.json`). Preserve the other settings, then restart SupaShare:
 
-<a href="https://github.com/user-attachments/assets/a6565cf8-bd2d-4027-a150-673aa93d4502" target="_blank">
- <img width="300"  alt="image" src="https://github.com/user-attachments/assets/a6565cf8-bd2d-4027-a150-673aa93d4502" />
-</a>
+```json
+{
+  "PublicName": "Team files",
+  "UI": {
+    "DefaultLanguage": "en",
+    "Title": "Team file centre",
+    "FooterText": "For our team and collaborators",
+    "FooterLinks": [
+      { "Text": "Help", "URL": "https://example.com/help" }
+    ]
+  }
+}
+```
 
+`DefaultLanguage` accepts `en` or `zh-CN`; visitors can switch languages. Custom names and footer text appear as written, so provide bilingual text when needed. The shared footer also shows the software version. These settings survive reconfiguration. See [advanced configuration](docs/advanced.rst) for custom CSS, JavaScript and favicon support.
 
+## Deployment and compatibility
 
-**User Overview**
+- **Desktop browsers:** common phone/tablet browser identifiers receive an HTTP 403 desktop-access message. This is a User-Agent policy, not device authentication. Desktop browsers and API/CLI clients remain supported.
+- **Deployment scope:** current hardening and recovery work targets a single-process deployment for a trusted small team. Multi-instance/high-availability behavior is outside the validated scope.
+- **Compatible identifiers:** `GOKAPI_*` environment variables and established data/configuration paths retain their names for existing installations. They are intentional, not stale branding.
+- **Resource planning:** allow disk space for stored files and temporary uploads. Memory, CPU and storage needs depend on file sizes, concurrency and encryption mode; the project does not claim a universal minimum or throughput benchmark.
+- **Recovery:** uncertain upload states may require operator review. Consult the [upload recovery runbook](docs/security/UPLOAD-RECOVERY-RUNBOOK.md) rather than deleting files or resetting storage blindly.
 
-<a href="https://github.com/user-attachments/assets/cbc738e4-75ae-4647-8178-da735f74a86f" target="_blank">
-  <img width="300" alt="image" src="https://github.com/user-attachments/assets/cbc738e4-75ae-4647-8178-da735f74a86f" />
-</a>
+## Documentation
 
+| Guide | Contents |
+| --- | --- |
+| [Installation](docs/setup.rst) | Docker, native builds, setup credentials, HTTPS/proxies and non-root deployment |
+| [Usage](docs/usage.rst) | Sharing, File Requests, user onboarding, permissions and API keys |
+| [Configuration](docs/advanced.rst) | Languages, branding, storage, environment variables and upload budgets |
+| [Upgrade and migration](docs/repository-identity.rst) | SupaShare identity, retained identifiers and version management |
+| [Changelog](docs/changelog.rst) | SupaShare changes and clearly separated inherited history |
+| [Troubleshooting](docs/troubleshooting.rst) | Operational diagnostics |
+| [Security policy](SECURITY.md) | How to report a vulnerability privately |
 
-**API Overview**
-
-<a href="https://github.com/user-attachments/assets/c480af8e-772c-4f8b-9f0e-28c8aceb9b49" target="_blank">
-  <img width="300" alt="image" src="https://github.com/user-attachments/assets/c480af8e-772c-4f8b-9f0e-28c8aceb9b49" />
-</a>
-
-**Status Overview**
-
-<a href="https://github.com/user-attachments/assets/70d5ab07-e60f-48d5-8739-fa038129e5ae" target="_blank">
-<img width="300" alt="image" src="https://github.com/user-attachments/assets/70d5ab07-e60f-48d5-8739-fa038129e5ae" />
-</a>
-
-
-**Download Link**
-
-<a href="https://github.com/user-attachments/assets/fd9c032b-733d-4657-9f42-f751b2634e02" target="_blank">
-  <img width="300" alt="image" src="https://github.com/user-attachments/assets/fd9c032b-733d-4657-9f42-f751b2634e02" />
-
-</a>
-
----
-
-## System Requirements
-
-### Minimum
-- **CPU**: 1 core
-- **RAM**: 256 MB
-- **Storage**: 100 MB + file storage
-- **OS**: Linux, macOS, Windows
-
-### Recommended  
-- **CPU**: 2+ cores
-- **RAM**: 512 MB+
-- **Storage**: SSD strongly recommended
+Documentation in this repository is the reference for SupaShare. Upstream Gokapi documentation describes a different maintained project and may not match this version. The legacy encrypted-download helper used over HTTP remains an external dependency; see the migration notes.
 
 ## Development
 
-### Building from Source
+Use the Go toolchain declared in [go.mod](go.mod). From the repository root, on Linux/macOS or WSL:
 
 ```bash
-# Clone the repository
-git clone https://github.com/Activer007/SupaShare.git
-cd SupaShare
-
-# Build the binary
-make build
-
-# Run tests
-make test
-
-# Build Docker image
-docker build -t supashare:local .
+make build       # Generate assets and build the SupaShare server
+make build-cli   # Build supashare-cli
+make test        # Run Go tests with the mock S3 backend
 ```
 
-## License
+For the broader local validation workflow, install Node.js as well and run from a **native Linux filesystem** (including WSL's Linux filesystem, not `/mnt/c` or `/mnt/e`):
 
-This project is licensed under the AGPL3 - see the [LICENSE.md](LICENSE.md) file for details
+```bash
+bash build/test-ui-local.sh
+```
 
-## Contributors
-<a href="https://github.com/Activer007/SupaShare/graphs/contributors">
-  <img src="https://contributors-img.web.app/image?repo=Activer007/SupaShare" />
-</a>
+This runs asset generation, frontend behavior tests, both `test,noaws` and `test,awsmock` Go suites, focused UI race tests, and default/noaws server builds. It does not exercise a live S3 account. See [contributing](CONTRIBUTING.md) and the [local validation notes](docs/ui-development.rst).
 
+Report reproducible bugs and suggest features through [Issues](https://github.com/Activer007/SupaShare/issues). Use the private route in the security policy for vulnerabilities.
 
+## Origin and license
 
-## Donations
+SupaShare builds on **Gokapi**, originally created by **Marc Ole Bulling**, and the work of its contributors. We retain that provenance and the existing [GNU AGPL v3 license](LICENSE.md). SupaShare's independent development starts at version `2.10.0`; this does not imply releases `2.3` through `2.9` were published by this project.
 
-As with all Free software, the power is less in the finances and more in the collective efforts. I really appreciate every pull request and bug report offered up by our users! If however, you're not one for coding/design/documentation, and would like to contribute financially, you can do so with the link below. Every help is very much appreciated!
-
-[![paypal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=donate@bulling.mobi&lc=US&item_name=BarcodeBuddy&no_note=0&cn=&currency_code=EUR&bn=PP-DonationsBF:btn_donateCC_LG.gif:NonHosted) [![LiberaPay](https://img.shields.io/badge/Donate-LiberaPay-green.svg)](https://liberapay.com/MBulling/donate)
-
-Powered by [Jetbrains](https://jb.gg/OpenSourceSupport)
-
-
-
-
-
+Thank you to the original authors and all [contributors](https://github.com/Activer007/SupaShare/graphs/contributors) who improve the project.

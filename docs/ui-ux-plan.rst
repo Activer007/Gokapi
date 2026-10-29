@@ -1,5 +1,7 @@
+:orphan:
+
 Desktop UI/UX improvement plan
-=============================
+==============================
 
 Scope and design direction
 --------------------------

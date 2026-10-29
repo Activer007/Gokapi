@@ -1,5 +1,7 @@
+:orphan:
+
 User onboarding credentials
-==========================
+===========================
 
 Development baseline: ``0a6fcf989caa0a16cffac8f1f82e2e037322d217`` from
 ``Activer007/SupaShare`` (pulled before development, 2026-10-29).
