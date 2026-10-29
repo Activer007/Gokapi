@@ -743,9 +743,11 @@ The language buttons choose an explicit ``lang=en`` or ``lang=zh-CN`` parameter
 and remember it in a browser cookie. The order is URL, cookie, site default.
 Switching preserves other query parameters and the encrypted link fragment.
 Transfers and file processing must finish or be cancelled before switching.
-Shared navigation, login, public download/upload/password/error pages, and
-upload/File Request management are translated. The remaining administration
-and setup translations are tracked in ``ui-development.rst``.
+Navigation, public pages, upload/File Request management, users, API keys,
+status and setup are translated. Log entries and unknown provider errors keep
+their original diagnostic details. Setup asks before discarding edited values
+on a language switch and blocks switching while submitting. Back up the
+one-time encryption password and continue setup before changing its language.
 
 This deployment targets desktop browsers. The main server and setup server
 reject common phone/tablet User-Agent identifiers with HTTP 403 and a desktop

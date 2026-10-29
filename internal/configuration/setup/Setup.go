@@ -35,6 +35,7 @@ import (
 	"github.com/forceu/gokapi/internal/encryption"
 	"github.com/forceu/gokapi/internal/environment"
 	"github.com/forceu/gokapi/internal/helper"
+	"github.com/forceu/gokapi/internal/i18n"
 	"github.com/forceu/gokapi/internal/models"
 	"github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem/aws"
 	"github.com/forceu/gokapi/internal/webserver/browseraccess"
@@ -190,7 +191,7 @@ func startSetupWebserver(listen setupListenerFactory) {
 	if !isInitialSetup && configuration.Get().UI != nil {
 		defaultLanguage = configuration.Get().UI.DefaultLanguage
 	}
-	server.Handler = browseraccess.DesktopOnly(mux, defaultLanguage)
+	server.Handler = browseraccess.DesktopOnly(i18n.RememberPreference(mux, "/", false), defaultLanguage)
 	if debugDisableAuth {
 		server.Addr = "127.0.0.1:" + port
 		fmt.Println("Authentication is disabled by debug flag. Setup only accessible by localhost")
@@ -767,6 +768,8 @@ func splitAndTrim(input string) []string {
 }
 
 type setupView struct {
+	UI                 i18n.Locale
+	UITitle            string
 	IsInitialSetup     bool
 	LocalhostOnly      bool
 	HasAwsFeature      bool
@@ -860,12 +863,38 @@ func handleShowSetup(w http.ResponseWriter, r *http.Request) {
 	helper.Check(err)
 	view := setupView{}
 	view.loadFromConfig()
+	defaultLanguage, siteTitle := setupPresentationDefaults()
+	view.UI = i18n.Select(r, defaultLanguage)
+	view.UITitle = view.UI.T("setup.title")
+	if siteTitle != "" {
+		view.UITitle += " · " + siteTitle
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-store")
 	err = templateFolder.ExecuteTemplate(w, "setup", view)
 	helper.Check(err)
 }
 
 func handleShowMaintenance(w http.ResponseWriter, r *http.Request) {
-	_, _ = w.Write([]byte("Server is in maintenance mode, please try again in a few minutes."))
+	defaultLanguage, _ := setupPresentationDefaults()
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-store")
+	_, _ = w.Write([]byte(i18n.Select(r, defaultLanguage).T("setup.maintenance")))
+}
+
+func setupPresentationDefaults() (language, title string) {
+	if isInitialSetup {
+		return i18n.English, ""
+	}
+	settings := configuration.Get()
+	title = settings.PublicName
+	if settings.UI != nil {
+		language = settings.UI.DefaultLanguage
+		if strings.TrimSpace(settings.UI.Title) != "" {
+			title = settings.UI.Title
+		}
+	}
+	return language, title
 }
 
 // Handling of /setupResult
@@ -940,8 +969,9 @@ type testAwsRequest struct {
 }
 
 type awsTestResponse struct {
-	Code   int    `json:"code"`
-	Result string `json:"result"`
+	Code       int    `json:"code"`
+	Result     string `json:"result"`
+	MessageKey string `json:"messageKey,omitempty"`
 }
 
 // Handling of /testaws
@@ -953,8 +983,9 @@ func handleTestAws(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(awsTestResponse{
-			Code:   http.StatusBadRequest,
-			Result: "Invalid JSON provided",
+			Code:       http.StatusBadRequest,
+			Result:     "Invalid JSON provided",
+			MessageKey: "setup.awsInvalidJSON",
 		})
 		return
 	}
@@ -965,8 +996,9 @@ func handleTestAws(w http.ResponseWriter, r *http.Request) {
 		if t.SetupPassword == "" || subtle.ConstantTimeCompare([]byte(t.SetupPassword), []byte(credentialAWSTest)) != 1 {
 			w.WriteHeader(http.StatusUnauthorized)
 			_ = json.NewEncoder(w).Encode(awsTestResponse{
-				Code:   http.StatusUnauthorized,
-				Result: "Invalid AWS test password provided",
+				Code:       http.StatusUnauthorized,
+				Result:     "Invalid AWS test password provided",
+				MessageKey: "setup.awsPasswordWrong",
 			})
 			return
 		}
@@ -999,8 +1031,9 @@ func handleTestAws(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(awsTestResponse{
-			Code:   http.StatusBadRequest,
-			Result: "Invalid or incomplete credentials provided",
+			Code:       http.StatusBadRequest,
+			Result:     "Invalid or incomplete credentials provided",
+			MessageKey: "setup.awsInvalidCredentials",
 		})
 		return
 	}
@@ -1014,15 +1047,17 @@ func handleTestAws(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		w.WriteHeader(http.StatusOK)
 		_ = json.NewEncoder(w).Encode(awsTestResponse{
-			Code:   http.StatusOK,
-			Result: "Test OK. WARNING: CORS settings do not allow encrypted downloads.",
+			Code:       http.StatusOK,
+			Result:     "Test OK. WARNING: CORS settings do not allow encrypted downloads.",
+			MessageKey: "setup.awsCORSWarning",
 		})
 		return
 	}
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(awsTestResponse{
-		Code:   http.StatusOK,
-		Result: "All tests OK.",
+		Code:       http.StatusOK,
+		Result:     "All tests OK.",
+		MessageKey: "setup.awsTestsOK",
 	})
 }
 
@@ -1049,18 +1084,24 @@ func handleAwsError(w http.ResponseWriter, err error, operation int) {
 		switch code {
 		case s3.ErrCodeNoSuchBucket:
 			response.Result = "Invalid bucket or regions provided, bucket does not exist."
+			response.MessageKey = "setup.awsBucketMissing"
 		case "Forbidden":
 			response.Result = "Invalid credentials provided, check bucket and region."
+			response.MessageKey = "setup.awsCredentialsCheck"
 		case "RequestError":
 			response.Result = "Unable to connect to server, check endpoint."
+			response.MessageKey = "setup.awsConnectionFailed"
 		case "SerializationError":
 			response.Result = "Invalid response received by server, check endpoint."
+			response.MessageKey = "setup.awsResponseInvalid"
 		case "NotFound":
 			if operation == awsOperationCors {
 				response.Code = http.StatusOK
 				response.Result = "Login OK, but could not check bucket CORS settings."
+				response.MessageKey = "setup.awsCORSUnknown"
 			} else {
 				response.Result = "The requested resource could not be found, check endpoint."
+				response.MessageKey = "setup.awsNotFound"
 			}
 		default:
 			response.Result = prefix + "Error " + awsErr.Code() + ": " + err.Error()
