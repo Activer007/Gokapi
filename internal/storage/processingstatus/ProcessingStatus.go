@@ -1,12 +1,12 @@
 package processingstatus
 
 import (
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/storage/processingstatus/pstatusdb"
-	"github.com/Activer007/Gokapi/internal/webserver/sse"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/storage/processingstatus/pstatusdb"
+	"github.com/Activer007/SupaShare/internal/webserver/sse"
 )
 
-// StatusHashingOrEncrypting indicates that the file has been completely uploaded but is now processed by Gokapi
+// StatusHashingOrEncrypting indicates that the file has been completely uploaded but is now processed by SupaShare
 const StatusHashingOrEncrypting = 0
 
 // StatusUploading indicates that the file has been processed but is now moved to the data filesystem

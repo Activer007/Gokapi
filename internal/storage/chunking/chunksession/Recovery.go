@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Activer007/Gokapi/internal/uploadquota"
+	"github.com/Activer007/SupaShare/internal/uploadquota"
 )
 
 // VerifyRecovery checks existing private inputs before startup cleanup begins.

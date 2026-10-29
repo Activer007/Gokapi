@@ -14,17 +14,17 @@ import (
 	"testing/synctest"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/configuration/cloudconfig"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/encryption"
-	"github.com/Activer007/Gokapi/internal/helper"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/storage/chunking"
-	"github.com/Activer007/Gokapi/internal/storage/filesystem/s3filesystem/aws"
-	"github.com/Activer007/Gokapi/internal/test"
-	"github.com/Activer007/Gokapi/internal/test/testconfiguration"
-	"github.com/Activer007/Gokapi/internal/webserver/downloadstatus"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/configuration/cloudconfig"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/encryption"
+	"github.com/Activer007/SupaShare/internal/helper"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/storage/chunking"
+	"github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws"
+	"github.com/Activer007/SupaShare/internal/test"
+	"github.com/Activer007/SupaShare/internal/test/testconfiguration"
+	"github.com/Activer007/SupaShare/internal/webserver/downloadstatus"
 )
 
 func TestMain(m *testing.M) {
@@ -1007,12 +1007,12 @@ func TestServeFilesAsZipSanitisation(t *testing.T) {
 	cd = w.Result().Header.Get("Content-Disposition")
 	test.IsEqualBool(t, strings.Contains(cd, "\x00"), false)
 
-	// An empty filename must fall back to "Gokapi" (the hardcoded default)
+	// An empty filename must fall back to "SupaShare" (the hardcoded default)
 	// so the Content-Disposition header is always well-formed.
 	w = httptest.NewRecorder()
 	ServeFilesAsZip([]models.File{}, "", w, r)
 	cd = w.Result().Header.Get("Content-Disposition")
-	test.IsEqualBool(t, strings.Contains(cd, "Gokapi"), true)
+	test.IsEqualBool(t, strings.Contains(cd, "SupaShare"), true)
 
 	// A clean filename must be preserved exactly (plus the .zip suffix).
 	w = httptest.NewRecorder()

@@ -1,10 +1,10 @@
 .. _index:
 
 ===========================
-Gokapi
+SupaShare
 ===========================
 
-Gokapi is a lightweight server to share files that expire after a set number of downloads or days. It is similar to the discontinued Firefox Send, with the difference that only authenticated users are allowed to upload files — anonymous visitors can only download.
+SupaShare is a lightweight server to share files that expire after a set number of downloads or days. It is similar to the discontinued Firefox Send, with the difference that only authenticated users are allowed to upload files — anonymous visitors can only download.
 
 This lets companies or individuals share files easily and have them removed automatically afterwards, saving disk space and keeping control over who can access the content.
 

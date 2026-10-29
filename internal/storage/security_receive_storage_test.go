@@ -12,8 +12,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/encryption"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/encryption"
 )
 
 // A completed encrypted work file must not rely on a future GC cycle to close

@@ -16,11 +16,11 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/test/securityfixture"
-	"github.com/Activer007/Gokapi/internal/webserver/authentication/downloadPasswordToken"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/test/securityfixture"
+	"github.com/Activer007/SupaShare/internal/webserver/authentication/downloadPasswordToken"
 )
 
 // Public sharing is an explicit read capability, independent of ownership.

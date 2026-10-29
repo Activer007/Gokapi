@@ -19,11 +19,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/webserver/authentication/csrftoken"
-	"github.com/Activer007/Gokapi/internal/webserver/sse"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/webserver/authentication/csrftoken"
+	"github.com/Activer007/SupaShare/internal/webserver/sse"
 )
 
 func TestSEC014SlowHeader(t *testing.T) {

@@ -27,34 +27,34 @@ import (
 	"time"
 
 	"github.com/NYTimes/gziphandler"
-	"github.com/Activer007/Gokapi/internal/authorization"
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/encryption"
-	"github.com/Activer007/Gokapi/internal/environment"
-	"github.com/Activer007/Gokapi/internal/helper"
-	"github.com/Activer007/Gokapi/internal/i18n"
-	"github.com/Activer007/Gokapi/internal/logging"
-	"github.com/Activer007/Gokapi/internal/logging/serverstats"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/storage"
-	"github.com/Activer007/Gokapi/internal/storage/filerequest"
-	"github.com/Activer007/Gokapi/internal/storage/presign"
-	"github.com/Activer007/Gokapi/internal/webserver/api"
-	"github.com/Activer007/Gokapi/internal/webserver/authentication"
-	"github.com/Activer007/Gokapi/internal/webserver/authentication/csrftoken"
-	"github.com/Activer007/Gokapi/internal/webserver/authentication/downloadPasswordToken"
-	"github.com/Activer007/Gokapi/internal/webserver/authentication/oauth"
-	"github.com/Activer007/Gokapi/internal/webserver/authentication/sessionmanager"
-	"github.com/Activer007/Gokapi/internal/webserver/authentication/tokengeneration"
-	"github.com/Activer007/Gokapi/internal/webserver/browseraccess"
-	"github.com/Activer007/Gokapi/internal/webserver/errorHandling"
-	"github.com/Activer007/Gokapi/internal/webserver/favicon"
-	"github.com/Activer007/Gokapi/internal/webserver/fileupload"
-	"github.com/Activer007/Gokapi/internal/webserver/fileupload/uploadservice"
-	"github.com/Activer007/Gokapi/internal/webserver/ratelimiter"
-	"github.com/Activer007/Gokapi/internal/webserver/sse"
-	"github.com/Activer007/Gokapi/internal/webserver/ssl"
+	"github.com/Activer007/SupaShare/internal/authorization"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/encryption"
+	"github.com/Activer007/SupaShare/internal/environment"
+	"github.com/Activer007/SupaShare/internal/helper"
+	"github.com/Activer007/SupaShare/internal/i18n"
+	"github.com/Activer007/SupaShare/internal/logging"
+	"github.com/Activer007/SupaShare/internal/logging/serverstats"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/storage"
+	"github.com/Activer007/SupaShare/internal/storage/filerequest"
+	"github.com/Activer007/SupaShare/internal/storage/presign"
+	"github.com/Activer007/SupaShare/internal/webserver/api"
+	"github.com/Activer007/SupaShare/internal/webserver/authentication"
+	"github.com/Activer007/SupaShare/internal/webserver/authentication/csrftoken"
+	"github.com/Activer007/SupaShare/internal/webserver/authentication/downloadPasswordToken"
+	"github.com/Activer007/SupaShare/internal/webserver/authentication/oauth"
+	"github.com/Activer007/SupaShare/internal/webserver/authentication/sessionmanager"
+	"github.com/Activer007/SupaShare/internal/webserver/authentication/tokengeneration"
+	"github.com/Activer007/SupaShare/internal/webserver/browseraccess"
+	"github.com/Activer007/SupaShare/internal/webserver/errorHandling"
+	"github.com/Activer007/SupaShare/internal/webserver/favicon"
+	"github.com/Activer007/SupaShare/internal/webserver/fileupload"
+	"github.com/Activer007/SupaShare/internal/webserver/fileupload/uploadservice"
+	"github.com/Activer007/SupaShare/internal/webserver/ratelimiter"
+	"github.com/Activer007/SupaShare/internal/webserver/sse"
+	"github.com/Activer007/SupaShare/internal/webserver/ssl"
 )
 
 // TODO add 404 handler
@@ -66,7 +66,7 @@ import (
 var staticFolderEmbedded embed.FS
 
 // templateFolderEmbedded is the embedded version of the "templates" folder
-// This contains templates that Gokapi uses for creating the HTML output
+// This contains templates that SupaShare uses for creating the HTML output
 //
 //go:embed web/templates
 var templateFolderEmbedded embed.FS
@@ -167,7 +167,7 @@ func Start() {
 	}
 	srv = server
 	srvMu.Unlock()
-	infoMessage := "Webserver can be accessed at " + configuration.Get().ServerUrl + "admin\nPress CTRL+C to stop Gokapi"
+	infoMessage := "Webserver can be accessed at " + configuration.Get().ServerUrl + "admin\nPress CTRL+C to stop SupaShare"
 	if strings.Contains(configuration.Get().ServerUrl, "127.0.0.1") {
 		if configuration.Get().UseSsl {
 			infoMessage = strings.Replace(infoMessage, "http://", "https://", 1)

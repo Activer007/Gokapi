@@ -80,7 +80,7 @@ else
         run generator-build go build -tags=tools -o "$out/minify-generator" ./build/go-generate/minifyStaticContent.go
         run generator-buildinfo go version -m "$out/minify-generator"
         run generator-binary-scan "$GOBIN/govulncheck" -show verbose -mode=binary "$out/minify-generator"
-        run server-build env CGO_ENABLED=0 go build -o "$out/gokapi" ./cmd/gokapi
+        run server-build env CGO_ENABLED=0 go build -o "$out/gokapi" ./cmd/supashare
         run cli-build env CGO_ENABLED=0 go build -o "$out/gokapi-cli" ./cmd/cli-uploader
         for name in gokapi gokapi-cli; do
             run "$name-buildinfo" go version -m "$out/$name"

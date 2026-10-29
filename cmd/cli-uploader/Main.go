@@ -9,12 +9,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliapi"
-	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliconfig"
-	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliconstants"
-	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliflags"
-	"github.com/Activer007/Gokapi/internal/environment"
-	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/SupaShare/cmd/cli-uploader/cliapi"
+	"github.com/Activer007/SupaShare/cmd/cli-uploader/cliconfig"
+	"github.com/Activer007/SupaShare/cmd/cli-uploader/cliconstants"
+	"github.com/Activer007/SupaShare/cmd/cli-uploader/cliflags"
+	"github.com/Activer007/SupaShare/internal/environment"
+	"github.com/Activer007/SupaShare/internal/helper"
 	"github.com/schollz/progressbar/v3"
 )
 
@@ -105,7 +105,7 @@ func doLogout() {
 		fmt.Println(err)
 		os.Exit(2)
 	}
-	fmt.Println("Logged out. To login again, run: gokapi-cli login")
+	fmt.Println("Logged out. To login again, run: supashare-cli login")
 }
 
 func checkDockerFolders() {

@@ -11,10 +11,10 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/Activer007/Gokapi/internal/helper"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/storage"
-	"github.com/Activer007/Gokapi/internal/storage/chunking"
+	"github.com/Activer007/SupaShare/internal/helper"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/storage"
+	"github.com/Activer007/SupaShare/internal/storage/chunking"
 )
 
 type apiRoute struct {

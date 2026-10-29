@@ -1,9 +1,12 @@
 config/
 data/
 .idea/
-Gokapi
+/Gokapi
 build/*.zip
-gokapi
+/gokapi
+/SupaShare
+/supashare
+/supashare-cli
 docs/_build
 wasmServer
 internal/webserver/web/main.wasm

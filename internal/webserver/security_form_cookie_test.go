@@ -3,8 +3,8 @@
 package webserver
 
 import (
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/webserver/authentication/csrftoken"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/webserver/authentication/csrftoken"
 	"net/http"
 	"net/http/httptest"
 	"testing"

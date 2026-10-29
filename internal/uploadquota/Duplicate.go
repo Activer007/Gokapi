@@ -3,7 +3,7 @@ package uploadquota
 import (
 	"bytes"
 
-	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/SupaShare/internal/models"
 )
 
 // CheckDuplicateSource compares the security-relevant projection read on the

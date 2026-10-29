@@ -3,7 +3,7 @@ package models
 import (
 	"testing"
 
-	"github.com/Activer007/Gokapi/internal/test"
+	"github.com/Activer007/SupaShare/internal/test"
 )
 
 func TestUserPermAll(t *testing.T) {

@@ -7,12 +7,12 @@ import (
 	"os"
 )
 
-// InstallService installs Gokapi as a systemd service
+// InstallService installs SupaShare as a systemd service
 func InstallService() {
 	invalidOS()
 }
 
-// UninstallService uninstalls Gokapi as a systemd service
+// UninstallService uninstalls SupaShare as a systemd service
 func UninstallService() {
 	invalidOS()
 }

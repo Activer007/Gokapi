@@ -23,11 +23,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/encryption"
-	"github.com/Activer007/Gokapi/internal/helper"
-	"github.com/Activer007/Gokapi/internal/uploadquota"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/encryption"
+	"github.com/Activer007/SupaShare/internal/helper"
+	"github.com/Activer007/SupaShare/internal/uploadquota"
 )
 
 const sec030ChunkLargeChild = "GOKAPI_SEC030_CHUNK_LARGE_CHILD"

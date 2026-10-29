@@ -92,7 +92,7 @@ func convertMarkdownLinksToReST(text string) string {
 
 func insertIssueUrl(text string) string {
 	re := regexp.MustCompile(`#(\d+)`)
-	return re.ReplaceAllString(text, "`#$1 <https://github.com/Activer007/Gokapi/issues/$1>`__")
+	return re.ReplaceAllString(text, "`#$1 <https://github.com/Activer007/SupaShare/issues/$1>`__")
 }
 
 func convertMarkdownItalicToReST(text string) string {
@@ -101,8 +101,8 @@ func convertMarkdownItalicToReST(text string) string {
 }
 
 func insertPullUrl(text string) string {
-	re := regexp.MustCompile(`https://github.com/Activer007/Gokapi/pull/(\d+)`)
-	return re.ReplaceAllString(text, "`#$1 <https://github.com/Activer007/Gokapi/pull/$1>`__")
+	re := regexp.MustCompile(`https://github.com/Activer007/SupaShare/pull/(\d+)`)
+	return re.ReplaceAllString(text, "`#$1 <https://github.com/Activer007/SupaShare/pull/$1>`__")
 }
 
 func insertGhsaUrl(text string) string {
@@ -168,7 +168,7 @@ func getSecret() string {
 }
 
 func loadGithubReleases(secret string) []githubRelease {
-	const url = "https://api.github.com/repos/Activer007/Gokapi/releases?per_page=1000"
+	const url = "https://api.github.com/repos/Activer007/SupaShare/releases?per_page=1000"
 
 	spaceClient := http.Client{
 		Timeout: time.Second * 20,
@@ -180,7 +180,7 @@ func loadGithubReleases(secret string) []githubRelease {
 		os.Exit(2)
 	}
 
-	req.Header.Set("User-Agent", "gokapi-changelog-updater")
+	req.Header.Set("User-Agent", "supashare-changelog-updater")
 	req.Header.Set("X-GitHub-Api-Version", "2022-11-28")
 	req.Header.Set("Authorization", "Bearer "+secret)
 

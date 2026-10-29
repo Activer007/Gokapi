@@ -1,7 +1,7 @@
 # ADR-017：分片与 File Request 的持久准入
 
 状态：IMPLEMENTED（本增量Linux代码Gate通过），2026-10-29。工作基线57e5116，
-已验证代码143f041，[PR22](https://github.com/Activer007/Gokapi/pull/22)；最终文档head及合并另核实，无部署。
+已验证代码143f041，[PR22](https://github.com/Activer007/SupaShare/pull/22)；最终文档head及合并另核实，无部署。
 延续ADR-013—016；保留单个Go进程、SQLite/Redis、本地/S3、原客户端字段和响应结构。
 
 ## 本轮不变量

@@ -1,12 +1,12 @@
 FROM golang:1.26.10-alpine AS build_base
 
 ## Usage:
-## docker build . -t gokapi
-## docker run -it -v gokapi-data:/app/data -v gokapi-config:/app/config -p 127.0.0.1:53842:53842 gokapi
+## docker build . -t supashare:local
+## docker run -it -v gokapi-data:/app/data -v gokapi-config:/app/config -p 127.0.0.1:53842:53842 supashare:local
 
 RUN mkdir /compile && apk update && apk add --no-cache git
 COPY . /compile
-RUN cd /compile && go generate ./... && CGO_ENABLED=0 go build -ldflags="-s -w -X 'github.com/Activer007/Gokapi/internal/environment.IsDocker=true' -X 'github.com/Activer007/Gokapi/internal/environment.Builder=Project Docker File' -X 'github.com/Activer007/Gokapi/internal/environment.BuildTime=$(date)'" -o /compile/gokapi github.com/Activer007/Gokapi/cmd/gokapi
+RUN cd /compile && go generate ./... && CGO_ENABLED=0 go build -ldflags="-s -w -X 'github.com/Activer007/SupaShare/internal/environment.IsDocker=true' -X 'github.com/Activer007/SupaShare/internal/environment.Builder=Project Docker File' -X 'github.com/Activer007/SupaShare/internal/environment.BuildTime=$(date)'" -o /compile/supashare github.com/Activer007/SupaShare/cmd/supashare
 
 
 FROM alpine:3.23
@@ -16,7 +16,7 @@ RUN apk update && apk add --no-cache su-exec tini ca-certificates curl tzdata &&
 	 mkdir /app && touch /app/.isdocker
 COPY dockerentry.sh /app/run.sh
 
-COPY --from=build_base /compile/gokapi /app/gokapi
+COPY --from=build_base /compile/supashare /app/supashare
 WORKDIR /app
 
 ENTRYPOINT ["/sbin/tini", "--"]

@@ -8,10 +8,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliapi"
-	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliconstants"
-	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliflags"
-	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/SupaShare/cmd/cli-uploader/cliapi"
+	"github.com/Activer007/SupaShare/cmd/cli-uploader/cliconstants"
+	"github.com/Activer007/SupaShare/cmd/cli-uploader/cliflags"
+	"github.com/Activer007/SupaShare/internal/helper"
 )
 
 type configFile struct {
@@ -27,7 +27,7 @@ var configPathLocation string
 // It will then test the connection and download the configuration.
 // If the configuration is valid, the login information will be saved.
 func CreateLogin() {
-	fmt.Print("Gokapi URL: ")
+	fmt.Print("SupaShare URL: ")
 	url := helper.ReadLine()
 	if (!strings.HasPrefix(url, "http://")) && (!strings.HasPrefix(url, "https://")) {
 		fmt.Println("ERROR: URL must start with http:// or https://")
@@ -60,8 +60,8 @@ func CreateLogin() {
 			os.Exit(1)
 		}
 		if errors.Is(err, cliapi.ErrInvalidRequest) {
-			fmt.Println("ERROR: API does not support Gokapi CLI")
-			fmt.Println("This is most likely caused by an old Gokapi version. Please make sure that your Gokapi instance is running v2.1.0 or newer.")
+			fmt.Println("ERROR: API does not support SupaShare CLI")
+			fmt.Println("This is most likely caused by an old SupaShare version. Please make sure that your SupaShare instance is running v2.1.0 or newer.")
 			os.Exit(1)
 		}
 		fmt.Println(err)
@@ -69,7 +69,7 @@ func CreateLogin() {
 	}
 
 	if vint < cliconstants.MinGokapiVersionInt {
-		fmt.Println("\nERROR: Gokapi version must be at least " + cliconstants.MinGokapiVersionStr)
+		fmt.Println("\nERROR: SupaShare version must be at least " + cliconstants.MinGokapiVersionStr)
 		fmt.Println("Your version is " + vstr)
 		os.Exit(1)
 	}
@@ -102,7 +102,7 @@ func CreateLogin() {
 				fmt.Println("ERROR: Incorrect end-to-end encryption key")
 			} else if errors.Is(err, cliapi.ErrE2eNotSetUp) {
 				fmt.Println("ERROR: End-to-end encryption has not been set up on the server yet.")
-				fmt.Println("Please complete the E2E setup in the Gokapi web interface first, then try again.")
+				fmt.Println("Please complete the E2E setup in the SupaShare web interface first, then try again.")
 			} else {
 				fmt.Println(err)
 			}
@@ -175,7 +175,7 @@ func Load() {
 	helper.Check(err)
 	if !exists {
 		fmt.Println("ERROR: No login information found")
-		fmt.Println("Please run 'gokapi-cli login' to create a login")
+		fmt.Println("Please run 'supashare-cli login' to create a login")
 		os.Exit(1)
 	}
 	data, err := os.ReadFile(getConfigPath())

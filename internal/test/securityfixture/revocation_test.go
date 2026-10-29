@@ -16,14 +16,14 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/configuration/database/dbabstraction"
-	"github.com/Activer007/Gokapi/internal/configuration/database/dbcache"
-	redisdb "github.com/Activer007/Gokapi/internal/configuration/database/provider/redis"
-	"github.com/Activer007/Gokapi/internal/configuration/database/provider/sqlite"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/webserver/authentication/sessionmanager"
-	"github.com/Activer007/Gokapi/internal/webserver/authentication/tokengeneration"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/configuration/database/dbabstraction"
+	"github.com/Activer007/SupaShare/internal/configuration/database/dbcache"
+	redisdb "github.com/Activer007/SupaShare/internal/configuration/database/provider/redis"
+	"github.com/Activer007/SupaShare/internal/configuration/database/provider/sqlite"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/webserver/authentication/sessionmanager"
+	"github.com/Activer007/SupaShare/internal/webserver/authentication/tokengeneration"
 )
 
 // Usage telemetry is not an authority to create records or restore old fields.

@@ -6,7 +6,7 @@ repo=$(cd "$(dirname "$0")/../../.." && pwd)
 out=$(mktemp -d "$repo/docs/security/evidence/sec030-whole-XXXXXX.secret")
 cd "$repo"
 git rev-parse HEAD > "$out/head.txt"
-git ls-files --cached --others --exclude-standard -- cmd/gokapi/Main.go internal/configuration/database internal/environment internal/storage internal/uploadquota internal/webserver | grep -E '\.go$' | LC_ALL=C sort -u | xargs sha256sum > "$out/source.sha256"
+git ls-files --cached --others --exclude-standard -- cmd/supashare/Main.go internal/configuration/database internal/environment internal/storage internal/uploadquota internal/webserver | grep -E '\.go$' | LC_ALL=C sort -u | xargs sha256sum > "$out/source.sha256"
 sha256sum "$0" .github/workflows/test-code.yml > "$out/harness.sha256"
 cat "$out/harness.sha256"
 export GOTOOLCHAIN=local GOFLAGS=-mod=readonly

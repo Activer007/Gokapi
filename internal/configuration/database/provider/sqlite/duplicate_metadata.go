@@ -7,8 +7,8 @@ import (
 	"encoding/gob"
 	"errors"
 
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/uploadquota"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/uploadquota"
 )
 
 // readDuplicateSource checks only the source identity, blob and live state on

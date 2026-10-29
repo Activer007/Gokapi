@@ -1,8 +1,8 @@
 package storage
 
 import (
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/uploadquota"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/uploadquota"
 )
 
 // Metadata operations have no new body, active upload or staging. Use the same

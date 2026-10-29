@@ -3,9 +3,9 @@ package end2end
 import (
 	"bytes"
 	"encoding/gob"
-	"github.com/Activer007/Gokapi/internal/encryption"
-	"github.com/Activer007/Gokapi/internal/helper"
-	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/SupaShare/internal/encryption"
+	"github.com/Activer007/SupaShare/internal/helper"
+	"github.com/Activer007/SupaShare/internal/models"
 )
 
 const e2eVersion = 1

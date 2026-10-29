@@ -12,7 +12,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/Activer007/Gokapi/internal/webserver/ratelimiter"
+	"github.com/Activer007/SupaShare/internal/webserver/ratelimiter"
 )
 
 // Authentication must not depend on whether a configuration already exists.

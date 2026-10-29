@@ -39,9 +39,9 @@ jobs:
       - name: Cross-compile binaries
         run: |
           LDFLAGS="-s -w \
-            -X 'github.com/Activer007/Gokapi/internal/environment.IsDocker=true' \
-            -X 'github.com/Activer007/Gokapi/internal/environment.Builder=Project Docker File' \
-            -X 'github.com/Activer007/Gokapi/internal/environment.BuildTime=$(date)'"
+            -X 'github.com/Activer007/SupaShare/internal/environment.IsDocker=true' \
+            -X 'github.com/Activer007/SupaShare/internal/environment.Builder=Project Docker File' \
+            -X 'github.com/Activer007/SupaShare/internal/environment.BuildTime=$(date)'"
 
           go generate ./...
 
@@ -62,10 +62,10 @@ jobs:
             [ "$VARIANT" = "$ARCH" ] && VARIANT=""
             GOARM=""
             [ -n "$VARIANT" ] && GOARM="${VARIANT//v/}"
-            OUT="bin/gokapi-${ARCH}${VARIANT:+-$VARIANT}"
+            OUT="bin/supashare-${ARCH}${VARIANT:+-$VARIANT}"
             echo "Building $OUT (GOARCH=$ARCH GOARM=$GOARM)..."
             CGO_ENABLED=0 GOOS=$OS GOARCH=$ARCH GOARM=$GOARM \
-              go build -ldflags "$LDFLAGS" -o "$OUT" github.com/Activer007/Gokapi/cmd/gokapi &
+              go build -ldflags "$LDFLAGS" -o "$OUT" github.com/Activer007/SupaShare/cmd/supashare &
           done
           wait
           echo "All binaries built."
@@ -76,12 +76,12 @@ jobs:
           docker buildx create --use --name multiarch-builder
 
           declare -A PLATFORMS=(
-            ["linux/amd64"]="gokapi-amd64"
-            ["linux/386"]="gokapi-386"
-            ["linux/arm64"]="gokapi-arm64"
-            ["linux/arm/v7"]="gokapi-arm-v7"
-            ["linux/arm/v6"]="gokapi-arm-v6"
-            ["linux/riscv64"]="gokapi-riscv64"
+            ["linux/amd64"]="supashare-amd64"
+            ["linux/386"]="supashare-386"
+            ["linux/arm64"]="supashare-arm64"
+            ["linux/arm/v7"]="supashare-arm-v7"
+            ["linux/arm/v6"]="supashare-arm-v6"
+            ["linux/riscv64"]="supashare-riscv64"
           )
 
           for platform in "${!PLATFORMS[@]}"; do

@@ -50,7 +50,7 @@ Node 内置测试检查语言切换/插值；最终使用桌面浏览器验证�
 * 合成数据、本机 53844 端口，Chrome 1440×1000：登录页中英切换、Title、页脚、Cookie、
   查询参数/hash、POST 不重放、处理中阻止切换、独立浏览器语言、手机 UA 403 均通过，0 console error。
 
-第一批已合并：`PR #23 <https://github.com/Activer007/Gokapi/pull/23>`_，
+第一批已合并：`PR #23 <https://github.com/Activer007/SupaShare/pull/23>`_，
 主线合并提交 ``9cc33a1``。
 
 第二批本地验证（相同工具链，基于最新 ``9cc33a1``）：
@@ -67,7 +67,7 @@ Node 内置测试检查语言切换/插值；最终使用桌面浏览器验证�
   写入完成前禁止语言切换、结束后恢复。这不是加密文件字节正确性测试。
 * 浏览器重复验证最初因复用夹具消耗名额、成功弹窗阻挡按钮而失败；每次使用独立合成数据目录后通过。
 
-第二批已合并：`PR #25 <https://github.com/Activer007/Gokapi/pull/25>`_，
+第二批已合并：`PR #25 <https://github.com/Activer007/SupaShare/pull/25>`_，
 主线合并提交 ``0f618ed``。
 
 第三批第一部分（基于最新 ``0f618ed``）：
@@ -90,7 +90,7 @@ Node 内置测试检查语言切换/插值；最终使用桌面浏览器验证�
   58 个包返回 ok（含一个无匹配测试），12 个包无测试；不将其称为所有构建标签的测试。
   快照 SHA256：``4d652b3304aae0ea1a05f55692cd3918d08ed3487177939fb7d7bec31caff667``。
 
-第三批第一部分已合并：`PR #26 <https://github.com/Activer007/Gokapi/pull/26>`_，
+第三批第一部分已合并：`PR #26 <https://github.com/Activer007/SupaShare/pull/26>`_，
 主线合并提交 ``95b139b``。
 
 第三批第二部分（基于最新 ``95b139b``）：
@@ -115,7 +115,7 @@ Node 内置测试检查语言切换/插值；最终使用桌面浏览器验证�
   生产构建全部通过。快照 SHA256：
   ``c6d83a338560aeb6fdbde9b20b06f0f55fed07c30d3180efea3f1e595772e819``。
 
-第三批第二部分已合并：`PR #28 <https://github.com/Activer007/Gokapi/pull/28>`_，
+第三批第二部分已合并：`PR #28 <https://github.com/Activer007/SupaShare/pull/28>`_，
 主线合并提交 ``76a77a9``。
 
 第四批（基于最新 ``76a77a9``）：

@@ -1,6 +1,6 @@
 package uploadquota
 
-import "github.com/Activer007/Gokapi/internal/models"
+import "github.com/Activer007/SupaShare/internal/models"
 
 // MaxMetadataTextBytes bounds replacement text copied from a trusted snapshot.
 const MaxMetadataTextBytes = 64 << 10

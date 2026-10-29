@@ -3,7 +3,7 @@ package pstatusdb
 import (
 	"testing"
 
-	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/SupaShare/internal/models"
 )
 
 func TestSEC030ChunkCommittedStatusRecovery(t *testing.T) {

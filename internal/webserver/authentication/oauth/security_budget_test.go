@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/webserver/authentication"
+	"github.com/Activer007/SupaShare/internal/webserver/authentication"
 	"golang.org/x/oauth2"
 )
 

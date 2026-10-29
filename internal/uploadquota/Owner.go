@@ -1,6 +1,6 @@
 package uploadquota
 
-import "github.com/Activer007/Gokapi/internal/models"
+import "github.com/Activer007/SupaShare/internal/models"
 
 // transferOwner admits only the receiving user's positive logical delta.
 // Providers must patch UserId in the same transaction, preserving all other

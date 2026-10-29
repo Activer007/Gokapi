@@ -8,7 +8,7 @@ package main
 import (
 	"encoding/base64"
 	"errors"
-	"github.com/Activer007/Gokapi/internal/encryption"
+	"github.com/Activer007/SupaShare/internal/encryption"
 	"io"
 	"net/http"
 	"syscall/js"

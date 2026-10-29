@@ -5,7 +5,7 @@ Setup
 =====
 
 .. note::
-   **Most users:** pull the Docker image, run the container, open the setup URL in your browser.
+   **Most users:** build the SupaShare Docker image, run the container, open the setup URL in your browser.
    Jump straight to :ref:`quickstart_docker` if that describes you.
    The sections below cover every option in full detail.
 
@@ -14,21 +14,22 @@ Setup
 Installation
 *****************************
 
-There are two deployment methods (Docker and native) and two release tracks (stable and unstable).
-**Stable + Docker is the recommended combination for most users.**
+There are two deployment methods (Docker and native).
+Use this repository's tested source or an explicitly published SupaShare image.
+The original ``f0rc3/gokapi`` image does not contain this fork's changes.
 
 Docker
 ^^^^^^^
 
-Pull the latest stable image:
+Build a local image from the repository root:
 
 .. code-block:: bash
 
-   docker pull docker.io/f0rc3/gokapi:latest
+   docker build -t supashare:local .
 
-For the unstable (development) build, use ``latest-dev`` instead of ``latest``.
-
-If you prefer to build the image yourself, the Dockerfile is available on the `GitHub project page <https://github.com/Activer007/Gokapi>`_.
+The Dockerfile is available on the `GitHub project page <https://github.com/Activer007/SupaShare>`_.
+The default Compose file also builds this local image. Existing bind-mounted
+``gokapi-data`` and ``gokapi-config`` directories are retained for compatibility.
 
 
 Native Deployment
@@ -37,17 +38,17 @@ Native Deployment
 Stable version
 """"""""""""""
 
-`Download the latest release <https://github.com/Activer007/Gokapi/releases/latest>`_ and copy the executable into a new folder with write permissions.
+`Download the latest release <https://github.com/Activer007/SupaShare/releases/latest>`_ and copy the executable into a new folder with write permissions.
 
 Choose the binary that matches your system:
 
-* **Windows:** ``gokapi-windows_amd64``
-* **Mac (Intel):** ``gokapi-darwin_amd64``
-* **Mac (Apple Silicon):** ``gokapi-darwin_arm64``
-* **Linux:** ``gokapi-linux_<arch>`` matching your architecture
+* **Windows:** ``supashare-windows_amd64``
+* **Mac (Intel):** ``supashare-darwin_amd64``
+* **Mac (Apple Silicon):** ``supashare-darwin_arm64``
+* **Linux:** ``supashare-linux_<arch>`` matching your architecture
 
 .. note::
-   ``gokapi-XXX`` is the main server application. ``gokapi-cli-XXX`` is the optional command-line upload/download tool — you do not need it to run the server.
+   ``supashare-XXX`` is the main server application. ``supashare-cli-XXX`` is the optional command-line upload/download tool — you do not need it to run the server.
 
 Unstable version
 """"""""""""""""
@@ -56,14 +57,14 @@ Only recommended if you are comfortable with the command line. Requires at least
 
 .. code-block:: bash
 
-   git clone https://github.com/Activer007/Gokapi.git .
+   git clone https://github.com/Activer007/SupaShare.git .
    make
 
-This compiles the source and produces a ``gokapi`` executable from the latest code.
+This compiles the source and produces a ``supashare`` executable from the latest code.
 
 
 *****************************
-Running Gokapi
+Running SupaShare
 *****************************
 
 .. _quickstart_docker:
@@ -79,7 +80,7 @@ The standard run command:
 .. code-block:: bash
 
    docker run -v gokapi-data:/app/data -v gokapi-config:/app/config \
-     -p 127.0.0.1:53842:53842 -e TZ=UTC f0rc3/gokapi:latest
+     -p 127.0.0.1:53842:53842 -e TZ=UTC supashare:local
 
 * ``-p 127.0.0.1:53842:53842`` — binds to localhost only, which is correct when using a reverse proxy.
   Replace with ``-p 53842:53842`` only if you need direct access without a proxy — note that without SSL, traffic is unencrypted.
@@ -91,7 +92,7 @@ Running as a non-root user:
 
    docker run --user "1000:1000" \
      -v ./gokapi-data:/app/data -v ./gokapi-config:/app/config \
-     -p 127.0.0.1:53842:53842 -e TZ=UTC f0rc3/gokapi:latest
+     -p 127.0.0.1:53842:53842 -e TZ=UTC supashare:local
 
 Replace ``1000:1000`` with the desired ``uid:gid``. Note that this form uses bind mounts (``./gokapi-data``) instead of named volumes — make sure the host directories exist and the user has read/write access.
 
@@ -164,7 +165,7 @@ Execute the binary from the command line or by double-clicking it.
 Initial Setup
 *****************************
 
-On the first start of this fork, Gokapi opens an authenticated setup wizard. Configuration is saved only after a successful submission. Use username ``setup`` and the password in the local ``.setup-credential-*`` file whose path is printed at startup. The password itself is never printed in service/container logs. Read that exact file as the process user (for Docker, use ``docker exec -it <container> cat <printed-path>``). Do not put this password in a URL, share it, or record it in logs.
+On the first start of this fork, SupaShare opens an authenticated setup wizard. Configuration is saved only after a successful submission. Use username ``setup`` and the password in the local ``.setup-credential-*`` file whose path is printed at startup. The password itself is never printed in service/container logs. Read that exact file as the process user (for Docker, use ``docker exec -it <container> cat <printed-path>``). Do not put this password in a URL, share it, or record it in logs.
 
 Open ``http://127.0.0.1:53842/setup`` in your browser. Native setup listens only on IPv4 loopback. For a VPS, keep setup running and open an SSH tunnel from your workstation:
 
@@ -191,7 +192,7 @@ Database
 .. warning::
    The Redis password is stored in plain text in the configuration file and will be visible if you re-run setup.
 
-By default Gokapi uses SQLite, which is fine for most deployments. Use Redis if:
+By default SupaShare uses SQLite, which is fine for most deployments. Use Redis if:
 
 * you expect high download/upload traffic, or
 * your SQLite database lives on a slow disk (e.g. a network share or SD card).
@@ -211,11 +212,11 @@ Webserver
 ^^^^^^^^^
 
 * **Bind to localhost** — only accept connections from the local machine. Enable this when running behind a reverse proxy.
-* **Use SSL** — generates a self-signed certificate. Use this only if you are *not* behind a reverse proxy. Gokapi must be restarted to renew the certificate.
+* **Use SSL** — generates a self-signed certificate. Use this only if you are *not* behind a reverse proxy. SupaShare must be restarted to renew the certificate.
 * **Save IP** — logs the downloader's IP address. This may not be GDPR-compliant depending on your jurisdiction.
 * **Include filename in download URL** — appends the filename to download links, e.g. ``/d/1234/Report.pdf`` instead of ``/d?id=1234``.
 * **Public Name** — shown in the page title; use your company or service name.
-* **Webserver Port** — the port Gokapi listens on.
+* **Webserver Port** — the port SupaShare listens on.
 * **Public Facing URL** — the externally reachable URL used when generating download links.
 * **Redirection URL** — where users are sent when they open the root URL without a valid download link.
 
@@ -223,7 +224,7 @@ Webserver
    In fork builds containing SEC-012, set **Public Facing URL** to the real external ``https://`` URL when TLS terminates at a reverse proxy. Session, download-password and OAuth callback cookies then use Secure even if the backend uses HTTP. Explicit local HTTP development remains supported. Forwarding headers do not override this setting. Existing deployments must revoke old sessions in a controlled maintenance/reconfiguration window and sign in again, since existing browser cookies cannot be updated retroactively. See ``docs/security/ADR-002-COOKIE-AND-PASSWORD-ROLLOUT.md`` for upgrade and rollback steps.
 
 .. note::
-   If you enable filename-in-URL together with end-to-end encryption, the filename is appended client-side after decryption and is therefore visible in the URL. This may be a privacy concern for sensitive filenames. You can disable the option, or simply edit the filename in the URL — Gokapi ignores it and always serves the correct file.
+   If you enable filename-in-URL together with end-to-end encryption, the filename is appended client-side after decryption and is therefore visible in the URL. This may be a privacy concern for sensitive filenames. You can disable the option, or simply edit the filename in the URL — SupaShare ignores it and always serves the correct file.
 
 .. _setup_authentication:
 
@@ -268,19 +269,19 @@ Use this to delegate authentication to an OIDC server such as Google, Authelia, 
 +---------------------+---------------------------------------------------------------------------------------------------+-----------------------------------------+
 | Scope for groups    | The OIDC scope that carries group membership                                                      | groups                                  |
 +---------------------+---------------------------------------------------------------------------------------------------+-----------------------------------------+
-| Only existing users | Do not create a new Gokapi account automatically on first OIDC login                              | checked                                 |
+| Only existing users | Do not create a new SupaShare account automatically on first OIDC login                              | checked                                 |
 +---------------------+---------------------------------------------------------------------------------------------------+-----------------------------------------+
 | Authorised groups   | Semicolon-separated list of groups. ``*`` is a wildcard.                                          | admin;dev;gokapi-\*                     |
 +---------------------+---------------------------------------------------------------------------------------------------+-----------------------------------------+
 
 .. note::
-   If a user is disabled in the OIDC provider, they can still log in to Gokapi until the *Recheck identity* interval expires.
-   To revoke access immediately, delete the user's Gokapi account from the Users page.
+   If a user is disabled in the OIDC provider, they can still log in to SupaShare until the *Recheck identity* interval expires.
+   To revoke access immediately, delete the user's SupaShare account from the Users page.
 
 .. note::
-   If the OIDC provider remembers consent, logging out through the Gokapi interface may not fully log the user out.
+   If the OIDC provider remembers consent, logging out through the SupaShare interface may not fully log the user out.
 
-When registering Gokapi as a client in your OIDC server, set the **redirect URL** to:
+When registering SupaShare as a client in your OIDC server, set the **redirect URL** to:
 ``http[s]://[your-gokapi-url]/oauth-callback``
 
 Step-by-step configuration guides for specific providers are in the :ref:`examples` section:
@@ -307,7 +308,7 @@ Disabled / Access Restriction
 .. warning::
    This option is **very dangerous**. Only use it if you fully understand the implications and your reverse proxy is correctly configured.
 
-This disables all of Gokapi's internal authentication except for API calls. The following paths **must** be protected by your reverse proxy:
+This disables all of SupaShare's internal authentication except for API calls. The following paths **must** be protected by your reverse proxy:
 
 - ``/admin``
 - ``/apiKeys``
@@ -343,7 +344,7 @@ Cloud Storage (S3-compatible)
 
 Stores files on an S3-compatible service such as Amazon S3 or Backblaze B2.
 
-Create a dedicated private bucket for Gokapi. For each download, Gokapi generates a short-lived pre-signed URL so the user downloads directly from the storage provider without routing traffic through your server. If the storage is not publicly reachable, or if you prefer not to expose storage URLs, enable the proxy download option — Gokapi will retrieve the file and stream it to the user itself.
+Create a dedicated private bucket for SupaShare. For each download, SupaShare generates a short-lived pre-signed URL so the user downloads directly from the storage provider without routing traffic through your server. If the storage is not publicly reachable, or if you prefer not to expose storage URLs, enable the proxy download option — SupaShare will retrieve the file and stream it to the user itself.
 
 Required fields:
 
@@ -361,7 +362,7 @@ Required fields:
 | Endpoint  | Custom endpoint. Leave blank for AWS S3.      | Only for Backblaze B2 | s3.eu-central-001.backblazeb2.com |
 +-----------+-----------------------------------------------+-----------------------+-----------------------------------+
 
-If you plan to use end-to-end encryption with cloud storage, configure your bucket's CORS rules to allow requests from your Gokapi URL.
+If you plan to use end-to-end encryption with cloud storage, configure your bucket's CORS rules to allow requests from your SupaShare URL.
 
 .. _setup_encryption:
 
@@ -402,13 +403,13 @@ The encryption key can be stored in the configuration file (convenient, lower se
 Changing Configuration
 *****************************
 
-To change settings after the initial setup (e.g. password, storage backend, authentication method), run Gokapi with ``--reconfigure``. Use username ``setup`` and the fresh local credential file printed by this run, following the same local browser/SSH tunnel procedure as initial setup. The old proof and previously cached browser password no longer work. No password is printed in the console.
+To change settings after the initial setup (e.g. password, storage backend, authentication method), run SupaShare with ``--reconfigure``. Use username ``setup`` and the fresh local credential file printed by this run, following the same local browser/SSH tunnel procedure as initial setup. The old proof and previously cached browser password no longer work. No password is printed in the console.
 
 Native:
 
 .. code-block:: bash
 
-   ./gokapi --reconfigure
+   ./supashare --reconfigure
 
 Docker:
 
@@ -416,7 +417,7 @@ Docker:
 
    docker run --rm -p 127.0.0.1:53842:53842 \
      -v gokapi-data:/app/data -v gokapi-config:/app/config \
-     f0rc3/gokapi:latest /app/run.sh --reconfigure
+     supashare:local /app/run.sh --reconfigure
 
 .. note::
    Stop the ``--reconfigure`` container and restart your normal container after completing the setup. All users will be logged out.
@@ -426,13 +427,13 @@ Docker:
 Reverse Proxy
 *****************************
 
-Running Gokapi behind a reverse proxy is strongly recommended for production deployments. The proxy handles SSL termination and exposes Gokapi on standard ports.
+Running SupaShare behind a reverse proxy is strongly recommended for production deployments. The proxy handles SSL termination and exposes SupaShare on standard ports.
 
 Required proxy settings:
 
 * **Timeout** — at least 300 seconds (to accommodate large file uploads).
 * **Maximum request body size** — set high enough for your largest expected upload.
-* **Forwarded headers** — pass ``X-Real-IP`` and ``X-Forwarded-For`` so Gokapi sees the real client IP.
+* **Forwarded headers** — pass ``X-Real-IP`` and ``X-Forwarded-For`` so SupaShare sees the real client IP.
 
 Fork builds containing SEC-014 allow five seconds to receive complete HTTP request headers and close idle keep-alive connections after one minute. These limits apply to setup as well. They do not replace the main server's two-hour request-body and twelve-hour response limits, or the existing SSE lifetime. Proxies should forward headers promptly and retain appropriate file-transfer timeouts. Disconnected requests leave authentication rate-limit queues; already-running storage operations are not automatically rolled back.
 
@@ -440,7 +441,7 @@ The SEC-014 management-budget follow-up applies a separate 30-second network/con
 
 If your proxy's outgoing IP is not ``127.0.0.1``, add it to ``GOKAPI_TRUSTED_PROXIES`` — see :ref:`availenvvar`.
 
-If Gokapi is behind Cloudflare, set ``GOKAPI_USE_CLOUDFLARE=true``. In fork builds containing SEC-013, ``CF-Connecting-IP`` is accepted only from a trusted immediate peer and must contain one valid IP. For direct Cloudflare connections, explicitly maintain its official IP ranges in the trust list and restrict origin access. If a local proxy forwards Cloudflare traffic, trust that proxy and ensure it removes CF headers from non-Cloudflare requests.
+If SupaShare is behind Cloudflare, set ``GOKAPI_USE_CLOUDFLARE=true``. In fork builds containing SEC-013, ``CF-Connecting-IP`` is accepted only from a trusted immediate peer and must contain one valid IP. For direct Cloudflare connections, explicitly maintain its official IP ranges in the trust list and restrict origin access. If a local proxy forwards Cloudflare traffic, trust that proxy and ensure it removes CF headers from non-Cloudflare requests.
 
 Fork builds containing SEC-013 disable automatic trust of the whole Docker subnet by default. Configure the proxy IP explicitly before upgrading. ``GOKAPI_DISABLE_DOCKER_TRUSTED_PROXY=false`` retains the old subnet-wide trust as an explicit compatibility option and trusts every member for identity headers too. Prefer a fixed proxy IP or a dedicated network containing only trusted peers. See ``docs/security/ADR-003-TRUSTED-PROXY-BOUNDARY.md`` for migration and rollback.
 
@@ -459,22 +460,22 @@ Installing as a systemd Service
 *********************************
 
 .. warning::
-   Complete the initial setup by running Gokapi manually at least once before installing it as a service.
+   Complete the initial setup by running SupaShare manually at least once before installing it as a service.
 
 .. note::
    Only supported on Linux systems using systemd. An error is shown on unsupported systems.
 
 .. code-block:: bash
 
-   sudo ./gokapi --install-service
+   sudo ./supashare --install-service
 
 To uninstall:
 
 .. code-block:: bash
 
-   sudo ./gokapi --uninstall-service
+   sudo ./supashare --uninstall-service
 
-Gokapi detects the user who invoked ``sudo`` and runs the service as that user. Running as root is not permitted.
+SupaShare detects the user who invoked ``sudo`` and runs the service as that user. Running as root is not permitted.
 
 
 .. _deprecation_nonroot:
@@ -497,6 +498,6 @@ The ``DOCKER_NONROOT`` environment variable is deprecated. To migrate to ``docke
    # Start a new container as the current user
    docker run --user "$(id -u):$(id -g)" \
      -v ./gokapi-data:/app/data -v ./gokapi-config:/app/config \
-     -p 127.0.0.1:53842:53842 -e TZ=UTC f0rc3/gokapi:latest
+     -p 127.0.0.1:53842:53842 -e TZ=UTC supashare:local
 
-Replace ``gokapi`` with your actual container name if different. Replace ``$(id -u):$(id -g)`` with explicit IDs if you want a specific user. Ensure the bind-mount directories are owned by that user.
+Replace ``supashare`` with your actual container name if different. Replace ``$(id -u):$(id -g)`` with explicit IDs if you want a specific user. Ensure the bind-mount directories are owned by that user.

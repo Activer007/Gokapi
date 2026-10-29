@@ -1,6 +1,6 @@
 # ADR-016：整文件 API 的持久配额准入
 
-状态：IMPLEMENTED（本增量Linux Gate通过），2026-10-29。工作基线 `710f4bf32ae80ac110bb5cd24e8d92848ac22bd8`，已验证代码 `9db2542`，[PR #21](https://github.com/Activer007/Gokapi/pull/21)；最终文档head及合并另核实，没有发布或部署。适用个人 VPS / 可信小团队、单个 Go 进程及可信 DataDir，沿用 [ADR-013](ADR-013-UPLOAD-BUDGETS.md)、[ADR-014](ADR-014-DURABLE-UPLOAD-RESERVATIONS.md) 和 [ADR-015](ADR-015-BOUNDED-UPLOAD-RECEPTION.md)。
+状态：IMPLEMENTED（本增量Linux Gate通过），2026-10-29。工作基线 `710f4bf32ae80ac110bb5cd24e8d92848ac22bd8`，已验证代码 `9db2542`，[PR #21](https://github.com/Activer007/SupaShare/pull/21)；最终文档head及合并另核实，没有发布或部署。适用个人 VPS / 可信小团队、单个 Go 进程及可信 DataDir，沿用 [ADR-013](ADR-013-UPLOAD-BUDGETS.md)、[ADR-014](ADR-014-DURABLE-UPLOAD-RESERVATIONS.md) 和 [ADR-015](ADR-015-BOUNDED-UPLOAD-RECEPTION.md)。
 
 ## 本轮范围与证据
 

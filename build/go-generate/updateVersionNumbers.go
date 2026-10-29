@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-const fileMain = "../../cmd/gokapi/Main.go"
+const fileMain = "../../cmd/supashare/Main.go"
 const fileApiSpecs = "../../openapi.json"
 const fileMinify = "../../build/go-generate/minifyStaticContent.go"
 const fileVersionConstants = "../../internal/webserver/web/templates/string_constants.tmpl"
@@ -219,7 +219,7 @@ func parseGokapiVersion() string {
 
 		}
 	}
-	fmt.Println("ERROR: Gokapi version not found")
+	fmt.Println("ERROR: SupaShare version not found")
 	os.Exit(5)
 	return ""
 }

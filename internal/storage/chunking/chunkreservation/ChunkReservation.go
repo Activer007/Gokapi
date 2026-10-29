@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/SupaShare/internal/helper"
 )
 
 var reservedChunks = make(map[string]map[string]reservation)

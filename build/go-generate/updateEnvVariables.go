@@ -152,7 +152,7 @@ func writeEnvDocumentationFile(vars []envVar) {
 	content := string(data)
 
 	re := regexp.MustCompile(
-		`(?s)(Available environment variables\s*=+\s*\n)(.*?)(\n\.\. \[\*] Variables that are persistent must be submitted during the first start when Gokapi creates a new config file\. They can be omitted afterwards\. Non-persistent variables need to be set on every start\.)`,
+		`(?s)(Available environment variables\s*=+\s*\n)(.*?)(\n\.\. \[\*] Variables that are persistent must be submitted during the first start when SupaShare creates a new config file\. They can be omitted afterwards\. Non-persistent variables need to be set on every start\.)`,
 	)
 
 	matches := re.FindStringSubmatchIndex(content)

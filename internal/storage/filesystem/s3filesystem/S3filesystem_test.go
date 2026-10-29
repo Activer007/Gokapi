@@ -1,7 +1,7 @@
 package s3filesystem
 
 import (
-	"github.com/Activer007/Gokapi/internal/test"
+	"github.com/Activer007/SupaShare/internal/test"
 	"testing"
 )
 

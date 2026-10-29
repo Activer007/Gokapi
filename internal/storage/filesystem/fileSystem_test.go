@@ -1,10 +1,10 @@
 package filesystem
 
 import (
-	"github.com/Activer007/Gokapi/internal/models"
-	fileInterfaces "github.com/Activer007/Gokapi/internal/storage/filesystem/interfaces"
-	"github.com/Activer007/Gokapi/internal/storage/filesystem/s3filesystem/aws"
-	"github.com/Activer007/Gokapi/internal/test"
+	"github.com/Activer007/SupaShare/internal/models"
+	fileInterfaces "github.com/Activer007/SupaShare/internal/storage/filesystem/interfaces"
+	"github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws"
+	"github.com/Activer007/SupaShare/internal/test"
 	"testing"
 )
 

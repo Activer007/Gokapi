@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Gokapi",
-    "description": "[https://github.com/Activer007/Gokapi](https://github.com/Activer007/Gokapi)\n",
+    "title": "SupaShare",
+    "description": "[https://github.com/Activer007/SupaShare](https://github.com/Activer007/SupaShare)\n",
     "version": "2.10.0"
   },
   "servers": [
@@ -50,8 +50,8 @@
         "tags": [
           "info"
         ],
-        "summary": "Outputs Gokapi version",
-        "description": "This API call returns the Gokapi server version in a readable format and as an integer.",
+        "summary": "Outputs SupaShare version",
+        "description": "This API call returns the SupaShare server version in a readable format and as an integer.",
         "operationId": "version",
         "responses": {
           "200": {
@@ -75,8 +75,8 @@
         "tags": [
           "info"
         ],
-        "summary": "Outputs Gokapi upload parameters",
-        "description": "This API call returns the Gokapi server upload parameters. All filesizes are in unit Megabyte. Requires API permission UPLOAD",
+        "summary": "Outputs SupaShare upload parameters",
+        "description": "This API call returns the SupaShare server upload parameters. All filesizes are in unit Megabyte. Requires API permission UPLOAD",
         "operationId": "uploadconfig",
         "security": [
           {
@@ -384,7 +384,7 @@
           "chunk"
         ],
         "summary": "Uploads a new chunk",
-        "description": "Uploads a file in chunks, in case a reverse proxy does not support upload of larger files. Parallel uploading is supported. Must call /chunk/complete after all chunks have been uploaded. WARNING: Does not support end-to-end encryption! If server is setup to utilise end-to-end encryption, file will be stored in plain-text! To upload an end-to-end encrypted file, use gokapi-cli. Chunks must be at least 5MB in size, unless last chunk of file. Requires API permission UPLOAD",
+        "description": "Uploads a file in chunks, in case a reverse proxy does not support upload of larger files. Parallel uploading is supported. Must call /chunk/complete after all chunks have been uploaded. WARNING: Does not support end-to-end encryption! If server is setup to utilise end-to-end encryption, file will be stored in plain-text! To upload an end-to-end encrypted file, use supashare-cli. Chunks must be at least 5MB in size, unless last chunk of file. Requires API permission UPLOAD",
         "operationId": "chunkadd",
         "security": [
           {
@@ -429,7 +429,7 @@
           "chunk"
         ],
         "summary": "Finalises uploaded chunks",
-        "description": "Needs to be called after all chunks have been uploaded. Adds the uploaded file to Gokapi. Requires API permission UPLOAD",
+        "description": "Needs to be called after all chunks have been uploaded. Adds the uploaded file to SupaShare. Requires API permission UPLOAD",
         "operationId": "chunkcomplete",
         "security": [
           {
@@ -697,7 +697,7 @@
           "uploadrequest"
         ],
         "summary": "Finalises uploaded chunks",
-        "description": "Needs to be called after all chunks have been uploaded. Adds the uploaded file to Gokapi. Requires API key associated with the file request",
+        "description": "Needs to be called after all chunks have been uploaded. Adds the uploaded file to SupaShare. Requires API key associated with the file request",
         "operationId": "chunkurcomplete",
         "security": [
           {
@@ -843,7 +843,7 @@
           "logs"
         ],
         "summary": "Outputs server status information",
-        "description": "This API call returns information about the Gokapi server status. Requires API permission MANAGE_LOGS",
+        "description": "This API call returns information about the SupaShare server status. Requires API permission MANAGE_LOGS",
         "operationId": "logsSystemStatus",
         "security": [
           {
@@ -939,7 +939,7 @@
           "files"
         ],
         "summary": "Adds a new file without chunking",
-        "description": "Uploads the submitted file to Gokapi. Please note: This method does not use chunking, therefore if you are behind a reverse proxy or have a provider that limits upload filesizes, this might not work for bigger files (e.g. Cloudflare). WARNING: Does not support end-to-end encryption! If server is setup to utilise end-to-end encryption, file will be stored in plain-text! To upload an end-to-end encrypted file, use gokapi-cli. Requires API permission UPLOAD",
+        "description": "Uploads the submitted file to SupaShare. Please note: This method does not use chunking, therefore if you are behind a reverse proxy or have a provider that limits upload filesizes, this might not work for bigger files (e.g. Cloudflare). WARNING: Does not support end-to-end encryption! If server is setup to utilise end-to-end encryption, file will be stored in plain-text! To upload an end-to-end encrypted file, use supashare-cli. Requires API permission UPLOAD",
         "operationId": "add",
         "security": [
           {
@@ -2292,13 +2292,13 @@
           }
         },
         "description": "File is a struct used for saving information about an uploaded file",
-        "x-go-package": "Gokapi/internal/models"
+        "x-go-package": "SupaShare/internal/models"
       },
       "ServerStatus": {
         "type": "object",
         "properties": {
           "uptime": {
-            "description": "Time in seconds since Gokapi started",
+            "description": "Time in seconds since SupaShare started",
             "example": "3600",
             "type": "integer",
             "format": "int64"
@@ -2478,7 +2478,7 @@
           }
         },
         "description": "Result after uploading a chunk",
-        "x-go-package": "Gokapi/internal/models"
+        "x-go-package": "SupaShare/internal/models"
       },
       "chunkReserveResult": {
         "type": "object",
@@ -2493,7 +2493,7 @@
           }
         },
         "description": "Result after uploading a chunk",
-        "x-go-package": "Gokapi/internal/models"
+        "x-go-package": "SupaShare/internal/models"
       },
       "UploadResult": {
         "type": "object",
@@ -2512,7 +2512,7 @@
           }
         },
         "description": "UploadResult is the struct used for the result after an upload",
-        "x-go-package": "Gokapi/internal/models"
+        "x-go-package": "SupaShare/internal/models"
       },
       "NewApiKey": {
         "type": "object",
@@ -2531,7 +2531,7 @@
           }
         },
         "description": "NewApiKey is the struct used for the result after creating a new API key",
-        "x-go-package": "Gokapi/internal/models"
+        "x-go-package": "SupaShare/internal/models"
       },
       "NewUser": {
         "type": "object",
@@ -2550,7 +2550,7 @@
           },
           "name": {
             "type": "string",
-            "example": "Gokapi user"
+            "example": "SupaShare user"
           },
           "permissions": {
             "type": "integer",
@@ -2562,7 +2562,7 @@
           }
         },
         "description": "NewUser is the struct used for the result after creating a new API key",
-        "x-go-package": "Gokapi/internal/models"
+        "x-go-package": "SupaShare/internal/models"
       },
       "VersionInfo": {
         "type": "object",
@@ -2610,7 +2610,7 @@
           }
         },
         "description": "NewUser is the struct used for the result after creating a new API key",
-        "x-go-package": "Gokapi/internal/models"
+        "x-go-package": "SupaShare/internal/models"
       },
       "body": {
         "required": [

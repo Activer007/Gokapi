@@ -12,10 +12,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/storage/uploadreceive"
-	"github.com/Activer007/Gokapi/internal/uploadquota"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/storage/uploadreceive"
+	"github.com/Activer007/SupaShare/internal/uploadquota"
 )
 
 var ErrRecoveryManual = errors.New("upload recovery requires manual review")

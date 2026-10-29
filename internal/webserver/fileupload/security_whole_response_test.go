@@ -10,9 +10,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Activer007/Gokapi/internal/environment"
-	"github.com/Activer007/Gokapi/internal/uploadquota"
-	"github.com/Activer007/Gokapi/internal/webserver/errorHandling/errorcodes"
+	"github.com/Activer007/SupaShare/internal/environment"
+	"github.com/Activer007/SupaShare/internal/uploadquota"
+	"github.com/Activer007/SupaShare/internal/webserver/errorHandling/errorcodes"
 )
 
 func TestSEC030WholeResponse(t *testing.T) {

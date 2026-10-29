@@ -3,13 +3,13 @@ package models
 import (
 	"encoding/json"
 
-	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/SupaShare/internal/helper"
 )
 
 // UserPermission contains zero or more permissions as uint16
 type UserPermission uint16
 
-// User contains information about the Gokapi user
+// User contains information about the SupaShare user
 type User struct {
 	Id            int            `json:"id" redis:"id"`
 	Name          string         `json:"name" redis:"Name"`

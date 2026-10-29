@@ -8,10 +8,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Activer007/Gokapi/internal/environment"
+	"github.com/Activer007/SupaShare/internal/environment"
 
-	"github.com/Activer007/Gokapi/internal/helper"
-	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/SupaShare/internal/helper"
+	"github.com/Activer007/SupaShare/internal/models"
 	// Required for the sqlite driver
 	_ "modernc.org/sqlite"
 )
@@ -34,11 +34,11 @@ func (p DatabaseProvider) GetType() int {
 	return 0 // dbabstraction.Sqlite
 }
 
-// Upgrade migrates the DB to a new Gokapi version, if required
+// Upgrade migrates the DB to a new SupaShare version, if required
 func (p DatabaseProvider) Upgrade(currentDbVersion int) {
 	// < v2.0.0
 	if currentDbVersion < 10 {
-		fmt.Println("Error: Gokapi runs >=v2.0.0, but Database is <v2.0.0. Please update to v2.0.0 first.")
+		fmt.Println("Error: SupaShare runs >=v2.0.0, but Database is <v2.0.0. Please update to v2.0.0 first.")
 		osExit(1)
 		return
 	}

@@ -8,12 +8,12 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/SupaShare/internal/models"
 )
 
 const errorString = "AWS not supported in this build"
 
-// IsIncludedInBuild is true if Gokapi has been compiled with AWS support or the API is being mocked
+// IsIncludedInBuild is true if SupaShare has been compiled with AWS support or the API is being mocked
 const IsIncludedInBuild = false
 
 // IsMockApi is true if the API is being mocked and therefore can only be used for testing purposes
@@ -97,7 +97,7 @@ func DeleteObject(file models.File) (bool, error) {
 	return false, errors.New(errorString)
 }
 
-// IsCorsCorrectlySet returns true if CORS rules allow download from Gokapi
+// IsCorsCorrectlySet returns true if CORS rules allow download from SupaShare
 func IsCorsCorrectlySet(bucket, gokapiUrl string) (bool, error) {
 	return false, errors.New(errorString)
 }

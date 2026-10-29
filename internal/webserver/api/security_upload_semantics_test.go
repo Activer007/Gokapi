@@ -20,13 +20,13 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/storage"
-	"github.com/Activer007/Gokapi/internal/storage/chunking/chunksession"
-	"github.com/Activer007/Gokapi/internal/storage/filesystem"
-	"github.com/Activer007/Gokapi/internal/webserver/errorHandling/errorcodes"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/storage"
+	"github.com/Activer007/SupaShare/internal/storage/chunking/chunksession"
+	"github.com/Activer007/SupaShare/internal/storage/filesystem"
+	"github.com/Activer007/SupaShare/internal/webserver/errorHandling/errorcodes"
 )
 
 // Characterize the existing public contract before introducing a separate total

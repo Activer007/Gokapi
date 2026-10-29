@@ -1,6 +1,6 @@
 # Define variables
-IMAGE_NAME=gokapi-builder
-CONTAINER_WORK_DIR=/src/gokapi
+IMAGE_NAME=supashare-builder
+CONTAINER_WORK_DIR=/src/supashare
 
 # Check for docker, then podman, otherwise use what the user provided
 ifeq ($(origin CONTAINER_TOOL), undefined)

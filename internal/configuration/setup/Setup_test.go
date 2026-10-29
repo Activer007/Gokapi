@@ -20,13 +20,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Activer007/Gokapi/internal/configuration"
-	"github.com/Activer007/Gokapi/internal/configuration/cloudconfig"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/environment"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/test"
-	"github.com/Activer007/Gokapi/internal/test/testconfiguration"
+	"github.com/Activer007/SupaShare/internal/configuration"
+	"github.com/Activer007/SupaShare/internal/configuration/cloudconfig"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/environment"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/test"
+	"github.com/Activer007/SupaShare/internal/test/testconfiguration"
 )
 
 var jsonForms []jsonFormObject
@@ -165,7 +165,7 @@ func TestToConfiguration(t *testing.T) {
 	test.IsEqualString(t, output.Authentication.Username, "admin")
 	test.IsNotEqualString(t, authsettings.PasswordInternalAuth, "adminadmin")
 	test.IsNotEqualString(t, authsettings.PasswordInternalAuth, "")
-	test.IsEqualString(t, output.RedirectUrl, "https://github.com/Activer007/Gokapi/")
+	test.IsEqualString(t, output.RedirectUrl, "https://github.com/Activer007/SupaShare/")
 }
 
 func TestReconfigurationPreservesUI(t *testing.T) {
@@ -332,7 +332,7 @@ func TestRunConfigModification(t *testing.T) {
 	test.HttpPageResult(t, test.HttpTestConfig{
 		Url:             server.URL + "/setup/start",
 		IsHtml:          false,
-		ExcludedContent: []string{"Gokapi Setup"},
+		ExcludedContent: []string{"SupaShare Setup"},
 		Method:          "GET",
 		ResultCode:      401,
 	})
@@ -584,7 +584,7 @@ func TestIntegration(t *testing.T) {
 	test.HttpPageResult(t, test.HttpTestConfig{
 		Url:             server.URL + "/setup/start",
 		IsHtml:          false,
-		RequiredContent: []string{"Thank you for choosing Gokapi"},
+		RequiredContent: []string{"Thank you for choosing SupaShare"},
 		Headers:         initialAuth,
 		Method:          "GET",
 		ResultCode:      200,
@@ -635,7 +635,7 @@ func TestIntegration(t *testing.T) {
 	test.IsEqualBool(t, settings.UseSsl, false)
 	test.IsEqualBool(t, settings.SaveIp, false)
 	test.IsEqualString(t, settings.ServerUrl, "http://127.0.0.1:53842/")
-	test.IsEqualString(t, settings.RedirectUrl, "https://github.com/Activer007/Gokapi/")
+	test.IsEqualString(t, settings.RedirectUrl, "https://github.com/Activer007/SupaShare/")
 	cconfig, ok := cloudconfig.Load()
 	test.IsEqualBool(t, ok, true)
 	if os.Getenv("GOKAPI_AWS_BUCKET") == "" {
@@ -665,7 +665,7 @@ func TestIntegration(t *testing.T) {
 	})
 	test.HttpPageResultJson(t, test.HttpTestConfig{
 		Url:             server.URL + "/setup/start",
-		RequiredContent: []string{"You can now change the Gokapi configuration."},
+		RequiredContent: []string{"You can now change the SupaShare configuration."},
 		ExcludedContent: []string{"Unauthorized"},
 		IsHtml:          false,
 		Method:          "POST",
@@ -886,7 +886,7 @@ func createInputInternalAuth() setupValues {
 	values.IncludeFilename.Value = "1"
 	values.Port.Value = "53842"
 	values.ExtUrl.Value = "http://127.0.0.1:53842/"
-	values.RedirectUrl.Value = "https://github.com/Activer007/Gokapi/"
+	values.RedirectUrl.Value = "https://github.com/Activer007/SupaShare/"
 	values.AuthenticationMode.Value = "0"
 	values.AuthUsername.Value = "admin"
 	values.AuthPassword.Value = "adminadmin"

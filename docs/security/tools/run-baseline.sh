@@ -44,7 +44,7 @@ if [ "${1:-}" = "--s3-race" ]; then
 fi
 if [ "${1:-}" = "--red" ]; then
     run red go test ./internal/configuration/setup ./internal/webserver/authentication/sessionmanager ./internal/test/securityfixture -count=1 -tags=test,security_red -run TestSEC
-    run build go build -o ./gokapi-m0 ./cmd/gokapi
+    run build go build -o ./gokapi-m0 ./cmd/supashare
     if [ -f ./gokapi-m0 ]; then
         run binary-version ./gokapi-m0 -v
         run build-info go version -m ./gokapi-m0

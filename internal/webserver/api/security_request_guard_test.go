@@ -11,10 +11,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/helper"
-	"github.com/Activer007/Gokapi/internal/models"
-	"github.com/Activer007/Gokapi/internal/webserver/errorHandling/errorcodes"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/helper"
+	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/webserver/errorHandling/errorcodes"
 )
 
 // The same reservation gate must precede synchronous work and background

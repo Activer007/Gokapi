@@ -11,7 +11,7 @@ Upload Menu
 General
 ----------------
 
-After you have started the Gokapi server, log in with your credentials by going to ``http(s)://your.gokapi.url/admin``
+After you have started the SupaShare server, log in with your credentials by going to ``http(s)://your.gokapi.url/admin``
 
 There you can list and manage files and upload new files. You will also see three fields:
 
@@ -31,9 +31,9 @@ Sharing files
 
 Once you have uploaded a file, you will see a button with the options *Copy URL* and *Copy Hotlink*. By clicking on *Copy URL*, you copy the URL for the download page to your clipboard. A user can then download the file from that page.
 
-If a file does not require client-side decryption, you can also use the *Copy Hotlink* button. A hotlink is a direct URL to the raw file, bypassing the download page — it can be embedded as an image on a forum or website, or used in scripts. Each view of a hotlink counts as one download. Although Gokapi sends headers to disallow caching, some browsers or external caches may still cache the content if they are not compliant.
+If a file does not require client-side decryption, you can also use the *Copy Hotlink* button. A hotlink is a direct URL to the raw file, bypassing the download page — it can be embedded as an image on a forum or website, or used in scripts. Each view of a hotlink counts as one download. Although SupaShare sends headers to disallow caching, some browsers or external caches may still cache the content if they are not compliant.
 
-The second button lets you share the regular URL easily. If you are accessing Gokapi with a mobile device, a tap on the button will open your device's share menu. Otherwise you can click on the drop down element and select to either share the link via email or generate a QR code.
+The second button lets you share the regular URL easily. If you are accessing SupaShare with a mobile device, a tap on the button will open your device's share menu. Otherwise you can click on the drop down element and select to either share the link via email or generate a QR code.
 
 Downloading files
 ------------------
@@ -48,7 +48,7 @@ By clicking on the edit button, you can change limits like the maximum download 
 File deletion
 ---------------
 
-Every hour Gokapi runs a cleanup routine which deletes all files from the storage that have been expired. If you click on the *Delete* button in the list, that file will be deleted from the disk immediately. Unproxied AWS files are deleted after 24 hours, as of right now there is no proper way to find out if a download has been completed. 
+Every hour SupaShare runs a cleanup routine which deletes all files from the storage that have been expired. If you click on the *Delete* button in the list, that file will be deleted from the disk immediately. Unproxied AWS files are deleted after 24 hours, as of right now there is no proper way to find out if a download has been completed.
 
 
 File Request Menu
@@ -141,7 +141,7 @@ Sharing the Request
 
 Deleting Requests
 ^^^^^^^^^^^^^^^^^^^
-To remove a request, click the *Trash* icon. 
+To remove a request, click the *Trash* icon.
 
 .. warning::
    Deleting a File Request is permanent. This action also deletes all associated files currently stored on the server. This cannot be undone.
@@ -169,9 +169,9 @@ The user table displays a high-level summary of all accounts on the server:
 Managing Permissions
 ---------------------
 
-Permissions are granular and can be toggled by clicking the icons in the **Permissions** column. 
+Permissions are granular and can be toggled by clicking the icons in the **Permissions** column.
 
-.. list-table:: 
+.. list-table::
    :widths: 30 60
    :header-rows: 1
 
@@ -236,7 +236,7 @@ Use the *Chevron Up/Down* icons to change a user's group:
 
 Deleting Users
 --------------
-Click the **Trash** icon to remove an account. 
+Click the **Trash** icon to remove an account.
 
 .. warning::
    When deleting a user, you will be asked if you also want to **permanently delete all files** uploaded by them. If unchecked, the files will remain on the server and change the ownership to the user who initiated the deletion.
@@ -259,7 +259,7 @@ The API Keys page allows you to generate and manage credentials for programmatic
 
 .. note::
    For technical implementation details and endpoint definitions, please refer to the integrated API Documentation and the section :ref:`api`
-   
+
 API Keys
 ---------------------
 
@@ -274,7 +274,7 @@ The API table provides a summary of all active credentials:
 Managing Key Permissions
 --------------------------
 
-Permissions for API keys are granular. You can enable or disable a right by clicking its corresponding icon. 
+Permissions for API keys are granular. You can enable or disable a right by clicking its corresponding icon.
 
 .. list-table::
    :widths: 30 60
@@ -330,7 +330,7 @@ Filtering Logs
 
 To help you find specific information quickly, you can use the *Log Filter* dropdown menu. Selecting a category will parse the log file and display only the relevant lines.
 
-.. list-table:: 
+.. list-table::
    :widths: 25 75
    :header-rows: 1
 

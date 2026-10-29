@@ -7,8 +7,8 @@ import (
 	"math"
 	"testing"
 
-	"github.com/Activer007/Gokapi/internal/encryption"
-	"github.com/Activer007/Gokapi/internal/uploadquota"
+	"github.com/Activer007/SupaShare/internal/encryption"
+	"github.com/Activer007/SupaShare/internal/uploadquota"
 )
 
 func TestSEC030WholeProcessingSpaceArithmetic(t *testing.T) {

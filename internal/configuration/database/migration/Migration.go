@@ -3,9 +3,9 @@ package migration
 import (
 	"context"
 	"fmt"
-	"github.com/Activer007/Gokapi/internal/configuration/database"
-	"github.com/Activer007/Gokapi/internal/configuration/database/dbabstraction"
-	"github.com/Activer007/Gokapi/internal/environment/flagparser"
+	"github.com/Activer007/SupaShare/internal/configuration/database"
+	"github.com/Activer007/SupaShare/internal/configuration/database/dbabstraction"
+	"github.com/Activer007/SupaShare/internal/environment/flagparser"
 	"os"
 )
 

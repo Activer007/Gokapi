@@ -11,12 +11,12 @@ import (
 	"syscall"
 )
 
-// InstallService installs Gokapi as a systemd service
+// InstallService installs SupaShare as a systemd service
 func InstallService() {
 	checkRunAsRoot()
 	checkSystemdOs()
 
-	fmt.Println("Installing Gokapi as a service...")
+	fmt.Println("Installing SupaShare as a service...")
 
 	// Check if the service file already exists
 	if _, err := os.Stat("/usr/lib/systemd/system/gokapi.service"); err == nil {
@@ -48,7 +48,7 @@ func InstallService() {
 	systemctlCmd("start", "gokapi.service")
 
 	fmt.Println("Service installed and started successfully.")
-	fmt.Println("The Gokapi executable found at " + executablePath + " will now run on startup in the background.")
+	fmt.Println("The SupaShare executable found at " + executablePath + " will now run on startup in the background.")
 	fmt.Println("Please do not remove the executable file from that location or the service will not start.")
 
 	// Exit the program
@@ -56,12 +56,12 @@ func InstallService() {
 
 }
 
-// UninstallService uninstalls Gokapi as a systemd service
+// UninstallService uninstalls SupaShare as a systemd service
 func UninstallService() {
 	checkRunAsRoot()
 	checkSystemdOs()
 
-	fmt.Println("Uninstalling Gokapi systemd service...")
+	fmt.Println("Uninstalling SupaShare systemd service...")
 
 	// Check if the service file exists
 	if _, err := os.Stat("/usr/lib/systemd/system/gokapi.service"); os.IsNotExist(err) {
@@ -146,7 +146,7 @@ func getUsernameOfFileOwner(filename string) (string, error) {
 // createSystemdFileContent returns a byte array with the content of the systemd file to be written
 func createSystemdFileContent(executablePath, executableDir, username string) []byte {
 	return []byte(`[Unit]
-Description=Gokapi
+Description=SupaShare
 After=network.target
 
 [Service]

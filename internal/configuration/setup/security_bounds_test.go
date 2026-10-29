@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Activer007/Gokapi/internal/webserver/ratelimiter"
+	"github.com/Activer007/SupaShare/internal/webserver/ratelimiter"
 )
 
 func TestSEC014CancelledProofDoesNotProceed(t *testing.T) {

@@ -1,7 +1,7 @@
 package interfaces
 
 import (
-	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/SupaShare/internal/models"
 	"os"
 )
 
