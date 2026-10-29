@@ -3,7 +3,7 @@
   "info": {
     "title": "Gokapi",
     "description": "[https://github.com/Activer007/Gokapi](https://github.com/Activer007/Gokapi)\n",
-    "version": "2.2.5-dev"
+    "version": "2.10.0"
   },
   "servers": [
     {
@@ -2569,11 +2569,11 @@
         "properties": {
           "Version": {
             "type": "string",
-            "example": "2.2.5-dev"
+            "example": "2.10.0"
           },
           "VersionInt": {
             "type": "integer",
-            "example": 20205
+            "example": 21000
           },
           "EndToEndEncryptionEnabled": {
             "type": "boolean",

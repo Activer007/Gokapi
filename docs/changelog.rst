@@ -8,6 +8,17 @@ Overview of all changes
 -----------------------
 
 
+v2.10.0 (fork version baseline)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Start the independent Activer007/Gokapi version line at 2.10.0 to distinguish
+  this fork from upstream. The previous development identifier was 2.2.5-dev.
+* Includes the recent Chinese/English interface, configuration-based branding,
+  desktop UI improvements and shared-footer software version display.
+* Synchronize the application, footer and API version metadata. This version
+  change does not alter configuration or database schema versions.
+
+
 v2.2.4 (2026-03-10)
 ^^^^^^^^^^^^^^^^^^^
 

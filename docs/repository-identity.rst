@@ -7,6 +7,23 @@ and build tooling use this repository. The Go module and internal imports use
 ``github.com/Activer007/Gokapi`` consistently, including the build helper module,
 WebAssembly targets and linker variables used by Docker/release builds.
 
+Version line
+------------
+
+Starting with ``2.10.0``, this fork uses its own version line to distinguish
+Activer007/Gokapi builds from upstream builds. This intentional numbering jump
+does not imply that this fork published versions 2.3 through 2.9.
+
+The source of truth is ``versionGokapi`` in ``cmd/gokapi/Main.go``. Change that
+constant, run ``go generate ./...`` from the repository root, and commit the
+generated version/API/static asset changes with the source update. Rebuild and
+deploy the binary or image to update the displayed version. Git tags and
+GitHub Releases are separate publication steps; merging a PR does not
+automatically increment the version or publish a release.
+
+Deployment and provenance
+-------------------------
+
 Inherited publication jobs remain explicitly disabled. Replacing the repository
 identity must not silently enable publication to inherited image registries.
 Use the local validation workflow documented in ``build/test-ui-local.sh``.
