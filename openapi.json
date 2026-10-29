@@ -1863,7 +1863,7 @@
           "user"
         ],
         "summary": "Creates a new user",
-        "description": "This API call adds a new user. The new user does not have any specific permissions and is userlevel USER. Requires API permission MANAGE_USERS",
+        "description": "Creates a USER account with default permissions. With internal authentication, a random temporary password is hashed and saved together with resetPassword=true; the successful response returns password and loginUrl once for administrator handoff. OIDC/header-authenticated account creation does not return internal credentials. Requires API permission MANAGE_USERS.",
         "operationId": "createuser",
         "security": [
           {
@@ -1887,7 +1887,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Operation successful",
+            "description": "User created. Internal-login credentials are returned only in this no-store response; retain them for delivery before discarding it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1903,7 +1903,7 @@
             "description": "Invalid API key provided for authentication or API key does not have the required permission"
           },
           "409": {
-            "description": "A user already exists with that email address"
+            "description": "A user already exists with that username"
           }
         }
       }
@@ -2053,8 +2053,8 @@
         "tags": [
           "user"
         ],
-        "summary": "Resets the password of the current user",
-        "description": "This API call forces a passwrd change once the given user logs in the next time. If generateNewPassword is \"true\", the current password will be replaced with a generated one.  Requires API permission MANAGE_USERS",
+        "summary": "Requires a password change or generates a temporary password for another user",
+        "description": "Requires a password change after the target user next logs in through the browser UI. If generateNewPassword is true, replaces the password with a generated temporary password and returns password, username and loginUrl for handoff in this no-store response. Otherwise retains the current password and returns an empty password string. Both modes revoke the target user's sessions. Requires API permission MANAGE_USERS; cannot target yourself or the super admin.",
         "operationId": "userresetpw",
         "security": [
           {
@@ -2559,9 +2559,26 @@
           "userLevel": {
             "type": "integer",
             "example": 2
+          },
+          "resetPassword": {
+            "type": "boolean",
+            "description": "Requires a password change after browser login; true for newly created internal-login users.",
+            "example": true
+          },
+          "password": {
+            "type": "string",
+            "readOnly": true,
+            "description": "Temporary plaintext password returned only on successful internal-login user creation. Not stored in plaintext or available from user listings."
+          },
+          "loginUrl": {
+            "type": "string",
+            "format": "uri",
+            "readOnly": true,
+            "description": "Login URL derived from the configured public URL, preserving its deployment subpath. Returned with temporary credentials.",
+            "example": "https://share.example.test/login"
           }
         },
-        "description": "NewUser is the struct used for the result after creating a new API key",
+        "description": "New user record. Under internal authentication, this creation-only response also contains a generated temporary password and the configured public login URL. Ordinary user serialization never includes a password.",
         "x-go-package": "SupaShare/internal/models"
       },
       "VersionInfo": {
@@ -2599,17 +2616,30 @@
       "PasswordReset": {
         "type": "object",
         "properties": {
-          "result": {
+          "password": {
+            "type": "string",
+            "description": "Empty when generateNewPassword is false; otherwise the newly generated temporary plaintext password, which must be changed after browser login.",
+            "example": "ahseth6ahV"
+          },
+          "Result": {
             "type": "string",
             "example": "OK"
           },
-          "password": {
+          "username": {
             "type": "string",
-            "description": "Empty if no new password was generated, otherwise contains the new password",
-            "example": "ahseth6ahV"
+            "readOnly": true,
+            "description": "Stored username, returned only when a temporary password is generated.",
+            "example": "test"
+          },
+          "loginUrl": {
+            "type": "string",
+            "format": "uri",
+            "readOnly": true,
+            "description": "Configured public login URL including any deployment subpath, returned only when a temporary password is generated.",
+            "example": "https://share.example.test/login"
           }
         },
-        "description": "NewUser is the struct used for the result after creating a new API key",
+        "description": "Password-change requirement or newly generated temporary credentials. Plaintext is available only in this successful response.",
         "x-go-package": "SupaShare/internal/models"
       },
       "body": {

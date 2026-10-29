@@ -149,18 +149,21 @@ insertLastOnlineDate({{ .User.LastOnline }}, "cell-lastonline-{{ .User.Id }}");<
         <h5 class="modal-title" id="newUserModalLabel">{{$.UI.T "users.create"}}</h5>
 	      </div>
 	      <div class="modal-body">
-		<form id="newUserForm" onsubmit="event.preventDefault(); addNewUser();">
+		<form id="newUserForm" data-credential-entry onsubmit="event.preventDefault(); addNewUser();">
 		  <div class="mb-3">
 		  <div class="text-start">
             <label for="e_userName" class="form-label">{{$.UI.T "login.username"}}</label>
 		    </div>
             <input type="text" class="form-control" id="e_userName" minlength="2" placeholder="{{$.UI.T "users.enterName"}}" required>
+			{{if .IsInternalAuth}}<p class="form-text text-white-50 mt-2">{{$.UI.T "users.autoPasswordHelp"}}</p>{{end}}
 	         </div>
 		</form>
+		{{template "user_credentials" $.UI}}
 	      </div>
 	      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">{{$.UI.T "common.cancel"}}</button>
-        <button type="submit" form="newUserForm" id="mb_addUser" class="btn btn-primary">{{$.UI.T "users.add"}}</button>
+        <button type="button" data-credential-actions class="btn btn-outline-light" data-bs-dismiss="modal">{{$.UI.T "common.cancel"}}</button>
+        <button type="submit" data-credential-actions form="newUserForm" id="mb_addUser" class="btn btn-primary">{{$.UI.T "users.add"}}</button>
+        <button type="button" data-credential-close hidden class="btn btn-outline-light" data-bs-dismiss="modal">{{$.UI.T "common.close"}}</button>
 	      </div>
 	    </div>
 	  </div>
@@ -179,7 +182,7 @@ insertLastOnlineDate({{ .User.LastOnline }}, "cell-lastonline-{{ .User.Id }}");<
 	      <!-- Modal Body -->
 	      <div class="modal-body">
 		
-		<div id="formentryReset">
+		<div id="formentryReset" data-credential-entry>
         <p>{{$.UI.T "users.resetPrompt"}} <span  class="fw-bold" id="l_userpwreset"></span>:</p>
 
 		<!-- Option 1: Force user to set a new password on next login -->
@@ -212,19 +215,13 @@ insertLastOnlineDate({{ .User.LastOnline }}, "cell-lastonline-{{ .User.Id }}");<
 		
 		</div>
 
-		 <!-- Display Random Password (Inline) -->
-		<div id="randomPasswordContainer" class="mt-3" style="display: none;">
-		  <label class="form-label">
-            {{$.UI.T "users.newPassword"}}
-            <span class="highlighted-password" id="l_returnedPw"></span> <button type="button" id="copypwclip" title="{{$.UI.T "users.copyPassword"}}" class="btn btn-outline-light btn-sm"><i class="bi bi-copy"></i></button>
-		  </label>
-		</div>
+		{{template "user_credentials" $.UI}}
 	      </div>
 	      <!-- Modal Footer -->
 	      <div class="modal-footer">
-        <button type="button" id="cancelPasswordButton"class="btn btn-outline-light" data-bs-dismiss="modal">{{$.UI.T "common.cancel"}}</button>
-        <button type="button" id="resetPasswordButton" class="btn btn-primary">{{$.UI.T "common.confirm"}}</button>
-        <button type="button" style="display:none" id="closeModalResetPw" class="btn btn-primary" data-bs-dismiss="modal" >{{$.UI.T "common.ok"}}</button>
+        <button type="button" data-credential-actions id="cancelPasswordButton" class="btn btn-outline-light" data-bs-dismiss="modal">{{$.UI.T "common.cancel"}}</button>
+        <button type="button" data-credential-actions id="resetPasswordButton" class="btn btn-primary">{{$.UI.T "common.confirm"}}</button>
+        <button type="button" data-credential-close hidden id="closeModalResetPw" class="btn btn-outline-light" data-bs-dismiss="modal">{{$.UI.T "common.close"}}</button>
 	      </div>
 	    </div>
 	  </div>
@@ -253,3 +250,37 @@ insertLastOnlineDate({{ .User.LastOnline }}, "cell-lastonline-{{ .User.Id }}");<
 {{ template "customjs" .}}
 {{template "footer" .UI}}
 {{ end }}
+
+{{define "user_credentials"}}
+<div data-user-credentials class="text-start" hidden>
+    <p class="mb-3">{{.T "users.firstLoginHelp"}}</p>
+    <div class="mb-3">
+        <label class="form-label w-100">{{.T "login.username"}}
+            <input data-credential-field="username" type="text" class="form-control mt-1" readonly autocomplete="off" spellcheck="false">
+        </label>
+        <button type="button" data-credential-copy="username" class="btn btn-outline-light btn-sm">{{.T "users.copyUsername"}}</button>
+    </div>
+    <div class="mb-3">
+        <label class="form-label w-100">{{.T "users.temporaryPassword"}}
+            <input data-credential-field="password" type="password" class="form-control mt-1" readonly autocomplete="off" spellcheck="false">
+        </label>
+        <div class="d-flex flex-wrap gap-2">
+            <button type="button" data-credential-copy="password" class="btn btn-outline-light btn-sm">{{.T "users.copyPassword"}}</button>
+            <button type="button" data-credential-toggle class="btn btn-outline-light btn-sm" aria-pressed="false">{{.T "users.showPassword"}}</button>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label w-100">{{.T "users.loginUrl"}}
+            <input data-credential-field="loginUrl" type="url" class="form-control mt-1" readonly autocomplete="off" spellcheck="false">
+        </label>
+        <button type="button" data-credential-copy="loginUrl" class="btn btn-outline-light btn-sm">{{.T "users.copyLoginUrl"}}</button>
+    </div>
+    <button type="button" data-credential-copy="all" class="btn btn-primary w-100">{{.T "users.copyAll"}}</button>
+    <p class="form-text text-white-50 mt-2 mb-0">{{.T "users.credentialsOnce"}}</p>
+    <div data-credential-fallback class="mt-3" hidden>
+        <label class="form-label w-100">{{.T "clipboard.failed"}}
+            <textarea class="form-control mt-1" rows="7" readonly autocomplete="off" spellcheck="false"></textarea>
+        </label>
+    </div>
+</div>
+{{end}}

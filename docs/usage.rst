@@ -205,14 +205,35 @@ Adding a New User
 
 1. Click the *Plus (+)* icon at the top right of the Users card.
 2. Enter a unique username.
-3. The user will be created with default permissions and will need a password assigned or reset.
+3. With internal authentication, SupaShare creates the user with a random temporary
+   password and opens the login-information panel immediately.
+4. Use **Copy all login information** to share the username, temporary password,
+   login address and first-login reminder together. Each field can also be
+   copied separately; the password is hidden until you choose to reveal it.
+5. The user signs in with the temporary password and must choose a new password
+   before continuing through the browser interface.
+
+The login address follows the configured public URL, including any deployment
+subpath. If clipboard access is unavailable, select the displayed fallback text
+and copy it manually. Copying again does not create another account.
+
+The temporary password is shown only in the current successful creation or
+regeneration dialog. Closing that dialog clears it from the page. If it is lost,
+generate another temporary password; existing user lists cannot reveal it.
+OIDC and header-authenticated accounts continue to sign in through their
+configured identity provider rather than receiving an internal password.
 
 Resetting Passwords
 ^^^^^^^^^^^^^^^^^^^^
 If using internal authentication, click the *Key* icon:
 
-* **Force Reset**: The user must choose a new password the next time they log in.
-* **Generate Random**: The system provides a temporary password. You can copy it to your clipboard to give to the user.
+* **Force Reset**: Keeps the user's current password and requires a new password
+  after their next browser login. This does not create a password for an account
+  that does not already have one.
+* **Generate Random**: Replaces the password, revokes existing sessions and opens
+  the same login-information panel used for new accounts. Copy the complete
+  message or individual fields and give the temporary password to the user.
+  The next browser login requires a new password.
 
 
 User Ranks
