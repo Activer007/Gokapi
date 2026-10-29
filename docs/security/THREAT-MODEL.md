@@ -30,6 +30,11 @@ metadata是删除重试锚点；未确认探测/删除/引用/退休时不报告
 
 ## M4下载失败边界
 
+052-B主动中断不变量：真实客户端取消后handler应有界退出，不正常结束部分附件；源ciphertext与metadata保持。
+WASM底层读取与cancel竞争时不得在取消后的controller继续enqueue/close并破坏后续正常解密；Response已resolve后观察body/writer/下载终态，不要求已完成的外层Promise再次reject。
+052-B以每响应atomic标记实现该模块不变量，私密真实Node24/native stream同合同RED→GREEN且同实例正常SHA256保持；源码hash与最终CI40942043033一致。服务器正常/部分输出/HTTP1取消及其Linux race通过；wasm race为实际不支持，不能扩大为所有JS调度或浏览器已验。
+服务器128KiB防御合同和真实HTTP/1首字节后取消已GREEN；WASM模块合同已GREEN，浏览器新增合同仍VALIDATE，不用socket前的受控Writer替代真实客户端下载证据。
+
 受支持加密下载只有完整流认证并正确结束后，才能正常完成；不能把密钥初检或HTTP 200当作完整性证据。
 前置密钥错误返回500/无附件，流已开始后的错误必须中断，不把错误文案拼入附件；FD关闭、失败时源文件及metadata保留，
 不把失败下载标为SetComplete，不额外退款/回收；计数/流量按原有受理尝试记账。
