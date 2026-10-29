@@ -20,7 +20,7 @@ function languageSwitchBusy() {
     if (typeof isUploadInProgress !== 'undefined' && isUploadInProgress) return true;
     if (typeof filesMap !== 'undefined' && Array.from(filesMap.values()).some(entry =>
         !entry.removed && (entry.status === 'pending' || entry.status === 'uploading'))) return true;
-    if (window.gokapiTransferBusy) return true;
+    if (window.gokapiTransferBusy || window.gokapiFormBusy) return true;
     // Processing continues after Dropzone's queuecomplete event. Containers are
     // removed only after the final file metadata has been received.
     return Array.from(document.querySelectorAll('#uploadstatus .us-container')).some(item =>
@@ -29,6 +29,10 @@ function languageSwitchBusy() {
 
 function switchLanguage(language) {
     if (language !== 'en' && language !== 'zh-CN') return;
+    if (window.gokapiFormBusy) {
+        window.alert(t('settings.wait'));
+        return;
+    }
     if (window.gokapiBackupPending) {
         window.alert(t('e2e.backupBeforeLanguage'));
         return;

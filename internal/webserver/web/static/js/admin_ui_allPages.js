@@ -70,6 +70,13 @@ async function copySensitiveText(text, trigger, successMessage) {
 
 var toastId;
 
+function labelIconButtons(root = document) {
+    for (const button of root.querySelectorAll('button[title]')) {
+        if (!button.textContent.trim() && !button.hasAttribute('aria-label')) button.setAttribute('aria-label', button.title);
+    }
+}
+if (typeof document.addEventListener === 'function') document.addEventListener('DOMContentLoaded', () => labelIconButtons());
+
 function showToast(timeout, text) {
     let notification = document.getElementById("toastnotification");
     if (!notification) return;

@@ -151,9 +151,7 @@ function newFileRequest() {
     $('#addEditModal').modal('show');
 
     document.getElementById("b_fr_save").onclick = function() {
-        saveFileRequestDefaults();
         saveFileRequest();
-        $('#addEditModal').modal('hide');
     };
 }
 
@@ -191,6 +189,8 @@ function loadFileRequestDefaults() {
 }
 
 function setModalValues(id, name, maxFiles, maxSize, expiry, notes) {
+    const previousError = document.querySelector('#addEditModal .save-error');
+    if (previousError) previousError.textContent = '';
     document.getElementById("freqId").value = id;
 
     if (name === null) {
@@ -277,12 +277,11 @@ function editFileRequest(id, name, maxFiles, maxSize, expiry, notes) {
 
     document.getElementById("b_fr_save").onclick = function() {
         saveFileRequest();
-        $('#addEditModal').modal('hide');
     };
 }
 
 
-function saveFileRequest() {
+async function saveFileRequest() {
     const buttonSave = document.getElementById("b_fr_save");
     const id = document.getElementById("freqId").value;
     const name = document.getElementById("mFriendlyName").value || t("request.unnamed");
@@ -301,17 +300,18 @@ function saveFileRequest() {
         expiry = document.getElementById("mi_expiry").value;
     }
 
-    buttonSave.disabled = true;
-    apiURequestSave(id, name, maxFiles, maxSize, expiry, notes)
-        .then(data => {
-            document.getElementById("b_fr_save").disabled = false;
-            insertOrReplaceFileRequest(data);
-        })
-        .catch(error => {
-            alert(t("request.saveFailed") + error);
-            console.error('Error:', error);
-            document.getElementById("b_fr_save").disabled = false;
-        });
+    for (const fieldId of ['mi_maxfiles','mi_maxsize']) {
+        const field = document.getElementById(fieldId);
+        field.required = true;
+        if (!field.disabled && !field.reportValidity()) return;
+    }
+    await runModalSave('addEditModal', buttonSave, async () => {
+        if (expiry !== 0 && (!Number.isFinite(Number(expiry)) || Number(expiry) <= Date.now()/1000)) throw new Error(t('settings.invalidExpiry'));
+        const data = await apiURequestSave(id, name, maxFiles, maxSize, expiry, notes);
+        insertOrReplaceFileRequest(data);
+        saveFileRequestDefaults();
+        showToast(3500,t('settings.saved'));
+    });
 }
 
 function checkMaxNumber(element) {
@@ -333,7 +333,7 @@ function insertOrReplaceFileRequest(jsonResult) {
     let row = document.getElementById(`row-${jsonResult.id}`);
 
     if (row) {
-        const user = document.getElementById(`cell-username-${jsonResult.id}`).innerText;
+        const user = document.getElementById(`cell-username-${jsonResult.id}`)?.innerText || userName;
         row.replaceWith(createFileRequestRow(jsonResult, user));
     } else {
         let tr = createFileRequestRow(jsonResult, userName);
@@ -455,5 +455,6 @@ function createFileRequestRow(jsonResult, user) {
     group.append(downloadBtn, copyBtn, editBtn, deleteBtn);
     td.appendChild(group);
     tr.appendChild(td);
+    labelIconButtons(tr);
     return tr;
 }

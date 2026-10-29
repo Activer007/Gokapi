@@ -79,4 +79,20 @@ Progress
   Browser verified a 1280 x 720 desktop, bilingual views, setting summaries,
   ID search, no-match state and keyboard menus. Fixed viewport requests on
   existing in-app tabs were not honored; actual dimensions are recorded.
-* Batch 3: pending.
+* Batch 3: reviewable user/API permissions with explicit save/cancel,
+  dependency ordering and partial-failure retry; keyboard-operable API rename;
+  shared pending/error handling for file, collection and user forms. Browser
+  verified dependency drafts and cancellation, protected/limited permissions,
+  persisted API permission revocation, Chinese rename, collection save, and a
+  real duplicate-user error that keeps the draft retryable.
+* Final local CI passed on a native Linux snapshot: 18 Node tests, all Go
+  packages with test,noaws and test,awsmock, focused race tests and both server
+  builds. E2E tests cover disabled selection on cipher failure and decrypted
+  copy/QR/email links. The old API-page copy assertion was updated to verify
+  the actual rename and permission controls.
+* Browser dimensions verified: 1280 x 720 and an existing 965 x 1244 desktop
+  panel. Requested 1440/1920 overrides were not reliably applied; those sizes
+  are not claimed as verified. Synthetic data was used throughout.
+* Follow-up requested: migrate all repository references to Activer007/Gokapi
+  in a separate PR, including source/build paths and GitHub API URLs. Keep
+  inherited publishing workflows disabled while using local validation.

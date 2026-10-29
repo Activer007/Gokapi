@@ -1,0 +1,20 @@
+{{define "permission_editor"}}
+<div class="modal fade" id="permissionModal" tabindex="-1" aria-labelledby="permissionTitle" aria-describedby="permissionHelp" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content gokapi-dialog settings-form">
+      <div class="modal-header"><h2 id="permissionTitle" class="modal-title fs-5">{{.T "permissions.review"}}</h2></div>
+      <div class="modal-body text-start">
+        <p id="permissionSubject" class="fw-semibold text-break"></p>
+        <p id="permissionHelp" class="text-muted">{{.T "permissions.help"}}</p>
+        <div id="permissionFields" class="permission-fields"></div>
+        <p id="permissionChanges" class="mt-3 mb-0 text-muted" role="status"></p>
+        <p id="permissionError" class="text-danger mt-2 mb-0" role="alert"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">{{.T "common.cancel"}}</button>
+        <button id="permissionSave" type="button" class="btn btn-primary">{{.T "common.saveChanges"}}</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}

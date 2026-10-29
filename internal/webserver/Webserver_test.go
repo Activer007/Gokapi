@@ -583,7 +583,7 @@ func TestApiPageAuthorized(t *testing.T) {
 	test.HttpPageResult(t, test.HttpTestConfig{
 		Url:             "http://127.0.0.1:53843/apiKeys",
 		IsHtml:          true,
-		RequiredContent: []string{"Click on the API key name to give it a new name."},
+		RequiredContent: []string{`id="renameApiModal"`, `id="permissionModal"`, `data-permission="PERM_VIEW"`},
 		Cookies: []test.Cookie{{
 			Name:  "session_token",
 			Value: "validsession",

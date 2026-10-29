@@ -354,9 +354,8 @@ function showError(file, message) {
 }
 
 
-function editFile() {
+async function editFile() {
     const button = document.getElementById('mb_save');
-    button.disabled = true;
     let id = button.getAttribute('data-fileid');
 
     let allowedDownloads = document.getElementById('mi_edit_down').value;
@@ -382,33 +381,24 @@ function editFile() {
         replaceFile = (replaceId != "");
     }
 
-    apiFilesModify(id, allowedDownloads, expiryTimestamp, password, originalPassword)
-        .then(data => {
-            if (!replaceFile) {
-                location.reload();
-                return;
-            }
-            apiFilesReplace(id, replaceId)
-                .then(data => {
-                    location.reload();
-                })
-                .catch(error => {
-                    alert(t("files.editFailed") + error);
-                    console.error('Error:', error);
-                    button.disabled = false;
-                });
-        })
-        .catch(error => {
-            alert(t("files.editFailed") + error);
-            console.error('Error:', error);
-            button.disabled = false;
-        });
+    const count = document.getElementById('mi_edit_down');
+    count.required = true;
+    if (!count.disabled && !count.reportValidity()) return;
+    await runModalSave('modaledit', button, async () => {
+        if (expiryTimestamp !== 0 && (!Number.isFinite(Number(expiryTimestamp)) || Number(expiryTimestamp) <= Date.now()/1000)) throw new Error(t('settings.invalidExpiry'));
+        await apiFilesModify(id, allowedDownloads, expiryTimestamp, password, originalPassword);
+        if (replaceFile) {
+            try { await apiFilesReplace(id, replaceId); }
+            catch (error) { throw new Error(t('files.replacePartial') + ' ' + error.message); }
+        }
+        location.reload();
+    });
 }
 
 function showEditModal(filename, id, downloads, expiry, password, unlimitedown, unlimitedtime, isE2e, canReplace) {
     // Cloning removes any previous values or form validation
     let originalModal = $('#modaledit').clone();
-    $("#modaledit").on('hide.bs.modal', function() {
+    $("#modaledit").on('hidden.bs.modal', function() {
         $('#modaledit').remove();
         let myClone = originalModal.clone();
         $('body').append(myClone);
@@ -856,7 +846,7 @@ function createButtonGroup(item) {
         aDr1.setAttribute("data-clipboard-text", item.UrlHotlink);
         aDr1.innerHTML = `<i class="bi bi-copy"></i> ${t("files.hotlink")}`;
     } else {
-        aDr1.className = "dropdown-item";
+        aDr1.className = "dropdown-item disabled";
         aDr1.innerText = t("files.noHotlink");
     }
     liDr1.appendChild(aDr1);

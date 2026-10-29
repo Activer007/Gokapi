@@ -935,3 +935,11 @@ body.admin-shell::after { display: none; }
 .admin-shell .upload-box { min-height: 88px; padding: 14px 18px; }
 .admin-shell .files-heading { margin-bottom: 12px; }
 .admin-shell .file-table-container .dataTables_filter { margin-top: -40px; }
+.admin-shell .permission-cell { min-width: 15rem; max-width: 28rem; }
+.admin-shell .permission-summary { color: #bbc4d1; font-size: .8rem; line-height: 1.65; margin: 0 0 8px; }
+.permission-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; }
+.permission-option { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1px solid #414956; border-radius: 8px; }
+.permission-option input { flex-shrink: 0; margin-top: 4px; }
+.permission-fields > p { grid-column: 1 / -1; }
+.admin-shell .api-name { color: #b9d4ff; font-size: inherit; overflow-wrap: anywhere; }
+[data-permission][hidden] { display: none !important; }
