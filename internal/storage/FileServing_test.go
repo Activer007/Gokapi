@@ -646,7 +646,11 @@ func TestSEC052ServeFileFailure(t *testing.T) {
 	file.Encryption.Nonce = nonce
 	r := httptest.NewRequest("GET", "/", nil)
 	w := httptest.NewRecorder()
-	ServeFile(file, w, r, true, true, false, false)
+	// ServeFile starts finite counter/traffic work. Drain it before TestMain
+	// removes SQLite, even when this is the only selected test.
+	synctest.Test(t, func(t *testing.T) {
+		ServeFile(file, w, r, true, true, false, false)
+	})
 	if w.Code != http.StatusInternalServerError || w.Header().Get("Content-Disposition") != "" {
 		t.Fatal("invalid encryption metadata must fail before attachment headers")
 	}
@@ -661,17 +665,19 @@ func TestSEC052ServeFileFailure(t *testing.T) {
 	file.Encryption = streamInfo
 	w = httptest.NewRecorder()
 	aborted := false
-	func() {
-		defer func() {
-			if recovered := recover(); recovered != nil {
-				if recovered != http.ErrAbortHandler {
-					panic(recovered)
+	synctest.Test(t, func(t *testing.T) {
+		func() {
+			defer func() {
+				if recovered := recover(); recovered != nil {
+					if recovered != http.ErrAbortHandler {
+						panic(recovered)
+					}
+					aborted = true
 				}
-				aborted = true
-			}
+			}()
+			ServeFile(file, w, r, true, true, false, false)
 		}()
-		ServeFile(file, w, r, true, true, false, false)
-	}()
+	})
 	if !aborted || w.Body.Len() != 0 {
 		t.Fatal("failed decryption must abort without appending attachment data")
 	}

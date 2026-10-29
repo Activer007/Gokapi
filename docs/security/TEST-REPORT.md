@@ -30,6 +30,11 @@ API的TestDeleteFile/RestoreFile/List三处失败经两份独立源码审查定�
 仅给该所有权夹具补明确不存在的安全locator；不改生产guard、权限、owner或原断言。
 修正后`go test ./internal/webserver/api -count=1 -tags='test,awsmock' -timeout 2m -v` PASS/exit0/10.709s，含产生前序状态的TestUserDelete及原三失败项。
 该真实CI失败及测试输入修正要求新的最终验证；不把首轮失败或后续未执行项改记PASS。
+修正API夹具后的80b9ef8在PR CI40884877791（job123485928025）中，生成、四组全仓及receiver race均PASS；
+独立SEC052 race断言PASS后，TestMain删除SQLite与尚未结束的异步SaveStatTraffic竞争，发生disk I/O panic，整项FAIL；040 race及其后步骤SKIPPED。
+仅给该小测试的两次ServeFile调用加synctest作用域，等待有限counter/traffic任务结束，不使用sleep、不关掉统计、不修改生产实现或错误断言。
+修正后`go test ./internal/storage -count=1 -tags='test,noaws' -run '^TestSEC052ServeFileFailure$' -timeout 60s -v` PASS/exit0/5.839s；原生race仍BLOCKED，Linux需重新核实。
+这次补测由真实测试生命周期失败引起，未把此前四组全仓PASS覆盖为其他SHA的整套PASS。
 本地开发证据在ignored sec040-delete-local.secret，不借用052或M3的PASS。
 一次stdlib文档查询意外触发module索引联网并被sandbox阻止，非测试/非RED；改直接读取本地GOROOT源码确认Root API，未改依赖或代理。
 
