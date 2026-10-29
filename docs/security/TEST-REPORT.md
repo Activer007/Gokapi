@@ -2,7 +2,32 @@
 
 日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/Gokapi 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
 
+## SEC-030 单文件owner准入增量（2026-10-29）
+
+基线c3244f008214a851404ecfcf5367e3c1878b58fa，Go1.26.10 windows/amd64，未部署。
+防御性合同复用临时SQLite及loopback miniredis子进程；本轮原始证据在ignored
+`evidence/sec030-owner-local.secret/`。生产实现开始前确认tracked internal源码与基线无diff，仅增加HTTP合同；
+其子进程的数据/文件均隔离，因此不再复制整仓库后重复编译。不复用前轮绿色。
+
+| 真实命令 / 输入 | 结果 |
+| --- | --- |
+| c324运行时：`go test ./internal/webserver/api -count=1 -tags=test,noaws,security_whole,security_owner -run '^TestSEC030OwnerQuota$' -timeout 2m -v` | ASSERTION_RED，退出1，7.289s；双provider bytes9次转入、files50次转入均成功，4组到达CAPACITY业务断言 |
+| 核心：`go test ./internal/uploadquota -count=1 -tags=test,noaws,security_owner -timeout 60s` | PASS，2.090s；含既有整包合同及目标delta/同owner/不重复计instance与request/全部hold计费 |
+| Provider：`go test ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,noaws,security_owner -timeout 2m` | PASS，SQLite6.085s / Redis8.800s；含既有整包回归、当前字段保留、noop、pending及source/target WATCH竞争 |
+| 最终HTTP：`go test ./internal/webserver/api -count=1 -tags=test,noaws,security_whole,security_owner -run '^TestSEC030OwnerQuota$' -timeout 2m -v` | PASS，7.215s；双provider各bytes10/files50（含已有hold与真实chunk竞争），4组全通过 |
+| 路由：在build/go-generate下 `go run updateApiRouting.go` | PASS，无routingParsing内容diff |
+| `openapi.json` 使用ConvertFrom-Json解析并检查changeOwner响应键 | PASS，200/400/401/404/409/413；未改变成功响应schema |
+
+核心、provider与HTTP已冻结；Linux最终CI/race待运行一次，结果记入关联PR审查，不再为补文档触发重复CI。
+本机native race仍受既有CGO0/无gcc限制，BLOCKED且未重复尝试；Linux相关race为本轮最终Gate。
+本轮大文件/慢速/浏览器/真实后端及本地完整生成、全仓：NOT_RUN；最终CI按变更范围执行一次。
+
 ## SEC-030 复制准入增量（2026-10-29）
+
+收尾：PR24合并为c3244f0；[最终CI40812061382](https://github.com/Activer007/Gokapi/actions/runs/40812061382)
+实际SUCCESS，checkout5d37f97含UI PR23/25，tree2982bfdf与实际合并一致。生成、四组全仓、
+相关race及扫描通过；复制12组/core/双provider仅在race步骤跑一次。最终命令及审查记录在PR24，
+没有为补文档重跑CI；下表及CI_PENDING描述保留各阶段当时状态，不能替代此最终结果。
 
 起点c657d547322c8ef0339287dde6dddd5688384763，便携Go1.26.10 windows/amd64；SQLite临时目录及loopback miniredis，未部署。
 原始日志位于ignored `evidence/sec030-duplicate-local.secret/`；不包含真实数据。基线归档仅叠加新HTTP合同后执行RED。

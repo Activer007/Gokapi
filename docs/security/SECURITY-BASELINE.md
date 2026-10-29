@@ -2,6 +2,16 @@
 
 研究日期：2026-10-27（Asia/Shanghai）。范围为个人 VPS / 小团队的单体 Go 服务。本文是源码与测试基线，不是安全认证。只向用户已独立的 **Activer007/Gokapi** 交付；Forceu/Gokapi 只读，不创建上游 PR、不推送、不触发其工作流。
 
+## SEC-030 单文件owner准入增量（2026-10-29）
+
+起点c3244f008214a851404ecfcf5367e3c1878b58fa，Go1.26.10 windows/amd64；未部署。
+CONFIRMED_CODE：changeOwner已有管理员/Edit授权，但通过全量SaveMetaData改owner，未做目标用户准入。
+本轮只覆盖此管理入口，目标用户计入活动预约；instance/request总量净0，不新增上传资源。
+隔离HTTP4组已ASSERTION_RED（均进入业务竞争）；当前核心、双provider整包及最终HTTP4组PASS。
+源pending/目标缺失/源owner变化拒绝，当前字段仅patch保留；同owner/满instance及FR不误扣。CI待最终head。
+VALIDATE：全部批量迁移、其他metadata写者、物理协调及恢复仍开放，不扩大本入口的结论。
+PR24已合并且最终CI40812061382成功，实际候选含UI PR23/25；合并树与CI树一致，未重复合并后CI。
+
 ## SEC-030 复制准入增量（2026-10-29）
 
 工作基线c657d547322c8ef0339287dde6dddd5688384763；本地Go1.26.10 windows/amd64，未部署。

@@ -636,9 +636,15 @@ instance admission. File Requests additionally use
 ``GOKAPI_UPLOAD_REQUEST_TOTAL_MB`` (20480 MiB) and
 ``GOKAPI_UPLOAD_REQUEST_ACTIVE`` (2), retaining ``Max Size`` as a per-file limit.
 The request's current owner, count, size and expiry policy is checked during
-the provider transaction. Metadata duplication, replacement and ownership
-transfer still require their remaining admission work. The owner's active
-limit starts after reception; the shared receiver bounds bodies before then.
+the provider transaction. Metadata copies also reserve their full logical
+byte/file charge atomically, without allocating an upload session or new blob.
+Single-file owner transfers must fit the receiving user's byte/file quota,
+including that user's active reservations. They retain the original File Request
+charge and do not increase instance/request totals or consume upload slots.
+Transferring to the current owner is idempotent, including for existing over-limit
+usage. Replacement and user-deletion bulk transfers still need separate admission
+work. The owner's active limit starts after reception; the shared receiver bounds
+bodies before then.
 Cleanup or publication uncertainty retains
 capacity and may return an error even after metadata was committed. A failed
 response does not guarantee rollback. Whole-file HTTP retries are not idempotent.

@@ -4,6 +4,14 @@
 
 基线 a9c25d453aab0c25f2d6e6926ec7312628638844，证据及分类见 [SECURITY-BASELINE](SECURITY-BASELINE.md)。模型面向个人 VPS / 小团队；不改变单体 Go、SQLite/Redis、本地/S3 或现有 API 架构。
 
+## SEC-030 单文件所有者转移不变量
+
+只允许原有admin/Edit管理边界；同事务重读source逻辑投影、源pending状态及目标用户存在性。
+只为目标owner新增一份完整logical bytes/files，并计入其全部活动预约；source扣减同一份，
+instance/request总量不变。同owner零增量幂等，未增长的层允许已有超额；不套公开FR上传门槛。
+成功仅patch UserId，不覆盖当前下载计数、blob、加密、hotlink、request或其他参数；无新增预约/暂存。
+拒绝不变更metadata/ledger/hotlink。删除用户时的批量迁移及其他全量metadata写者仍为独立OPEN。
+
 ## SEC-030 复制准入不变量
 
 复制增量不变量：每份metadata按完整逻辑大小计数，含源request归属；与已有预约同事务争额。
