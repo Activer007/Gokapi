@@ -1257,7 +1257,10 @@ func TestRestoreFile(t *testing.T) {
 		}
 	}
 	test.IsEqualInt64(t, file.PendingDeletion, 0)
-	storage.DeleteFile(fileUser.Id, true)
+	// Drain the fixture's finite cleanup before a later test changes databases.
+	if _, err := storage.DeleteFileContext(t.Context(), file, true); err != nil {
+		t.Fatal("restored fixture cleanup failed", err)
+	}
 }
 
 func testRestoreFileCall(t *testing.T, apiKey models.ApiKey, fileId string, resultCode int, expectedResponse string) {

@@ -2,6 +2,29 @@
 
 日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/SupaShare 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
 
+## M4执行安排与040-B局部进度（2026-10-29）
+
+基线dee4382f19d0801cb4022ed3ec897beda297e1df；codex/sec-040-delete-state，未提交开发工作。
+环境为便携Go1.26.10 windows/amd64、CGO0、无gcc；临时SQLite/miniredis，没有生产数据。
+以下结果是当前局部合同，不能作为040-B整体通过或可合并依据。
+
+| 实际命令/检查 | 结果 |
+| --- | --- |
+| `go version` | go1.26.10 windows/amd64 |
+| `go test ./cmd/cli-uploader/cliapi -count=1 -tags=test -run '^TestSEC040CLIHTTPStatus$' -v` | 初次BLOCKED，便携Go在工作区外tmp写入被拒；随后授权环境同命令取得业务RED：409/500/503错误被当成功，400/401/404/200控制PASS；exit1，包3.656s |
+| `go test ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis ./internal/webserver/api/mutex/apimutex -count=1 -tags='test,noaws,security_deletion,security_replace' -run 'TestSEC040(State\|DeletionState\|MutexContext)\|TestSEC030ReplaceLocks' -timeout 90s -v` | PASS；SQLite10.851s、miniredis10.211s、mutex10.285s；字段保留、stale/missing/取消/损坏及共享锁取消/去重合同 |
+| `go test ./internal/storage ./internal/webserver/api ./cmd/cli-uploader/cliapi -count=1 -tags='test,noaws,security_deletion' -run '^TestSEC040(DeletionTimer\|DeletionState\|DeletionParameters\|FileStateAPI\|CLIHTTPStatus)' -timeout 90s -v` | 整命令FAIL；storage6.059s、CLI1.975s PASS；API5.475s FAIL，两个夹具用户重名导致SQLite REPLACE移除正授权用户，非新漏洞RED |
+| `go test ./internal/webserver/api -count=1 -tags='test,noaws,security_deletion' -run '^TestSEC040(FileStateAPI\|DeleteUserKeepsFailedCleanupAnchor)$' -timeout 90s -v` | exit1/9.464s；修正夹具名字并加正授权断言后API五子例PASS；取消子例对鉴权先拒401错误要求503，后修测试接受401/503且坚持无mutation；用户删除合同取得业务RED：HTTP200且用户与metadata丢失 |
+| `go test ./internal/webserver/api -count=1 -tags='test,noaws,security_deletion' -run '^TestSEC040(FileStateAPI\|DeleteUserKeepsFailedCleanupAnchor)$\|^Test(UserDelete\|DeleteFile\|RestoreFile)$' -timeout 90s -v` | 首次FAIL/5.693s，TestUserDelete在已有自动测试DB内撞ToDelete唯一用户名，panic使后续NOT_RUN；保留原输出，核实仅自动测试目录后移入ignored备份、未删除；相同命令在新夹具PASS/11.506s，含全部新API合同及三既有兼容root |
+| `go test ./internal/webserver/api -count=1 -tags='test,noaws,security_deletion' -run '^Test(RestoreFile\|SEC040FileStateAPI)$' -timeout 60s -v` | PASS/exit0/5.442s；只在旧恢复测试最后改为同步checked清理后，复核它与新隔离fixture的有限生命周期，不重复其他已通过合同 |
+| 当前040-B最终generate、全仓四组及相关Linux race | NOT_RUN；代码未冻结，按M4计划在最终输入上统一验证 |
+
+Redis夹具提示无法核查持久化，不能把miniredis合同当真实Redis持久化证明；原生Windows race仍BLOCKED。
+原两个040-B私密RED保留；尚未用新实现获得各自独立GREEN。041/052余项/051/050本轮未跑新矩阵。
+上述API兼容测试最后的legacy bool清理原为异步，可能与紧随其后的临时DB切换竞争；仅改该测试最后一步为checked同步清理，保留原恢复/权限断言。
+该有限生命周期修正的实际结果见上表，不重跑已通过的provider/storage/CLI。
+规划本身不增加测试Gate，参见[M4-GOAL](M4-GOAL.md)的五个剩余工作包。
+
 ## M4续作：SEC-040-A可靠删除（2026-10-29）
 
 最终验证：[PR44](https://github.com/Activer007/SupaShare/pull/44)，冻结heade1fd9523bcdfd5e71015a62c5cef420167594d63；

@@ -12,6 +12,7 @@ import (
 	"github.com/Activer007/SupaShare/internal/models"
 	"github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws"
 	"github.com/Activer007/SupaShare/internal/uploadquota"
+	"github.com/Activer007/SupaShare/internal/webserver/api/mutex/apimutex"
 )
 
 const cleanupBatchTimeout = 30 * time.Second
@@ -83,13 +84,24 @@ func CleanUpContext(ctx context.Context) (CleanupResult, error) {
 	return result, nil
 }
 
-// New references share this locator lock. Metadata writers which can restore
-// access are a separate SEC-040-B boundary: a failed CAS cannot undo a delete.
+// Serialize restored state before taking the publication lock. Never acquire
+// metadata after blob: replacement already uses metadata -> blob -> database.
 func cleanUpBlobReferenceContext(ctx context.Context, scanned models.File, now int64, dataDir string) (CleanupResult, error) {
 	var result CleanupResult
 	if ctx == nil || now <= 0 {
 		return result, uploadquota.ErrInvalid
 	}
+	unlock, err := apimutex.LockContext(ctx, apimutex.TypeMetaData, scanned.Id)
+	if err != nil {
+		return result, err
+	}
+	defer unlock()
+	return cleanUpBlobReferenceLockedContext(ctx, scanned, now, dataDir)
+}
+
+// The caller holds this file's metadata stripe throughout physical I/O.
+func cleanUpBlobReferenceLockedContext(ctx context.Context, scanned models.File, now int64, dataDir string) (CleanupResult, error) {
+	var result CleanupResult
 	unlock, err := lockBlobPublication(ctx, scanned)
 	if err != nil {
 		return result, err
@@ -145,6 +157,7 @@ func cleanUpBlobReferenceContext(ctx context.Context, scanned models.File, now i
 	if err != nil || !retired {
 		return result, err
 	}
+	deletionTimers.invalidate(current.Id)
 	result.Retired = 1
 	switch {
 	case deleted:

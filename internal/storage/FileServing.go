@@ -1030,79 +1030,64 @@ func isExpiredFileWithoutDownload(file models.File, timeNow int64) bool {
 }
 
 // DeleteFile is called when an admin requests deletion of a file.
-// Returns true if the file was deleted or false if ID did not exist.
-// deleteSource forces a clean-up and will delete the source if it is not
-// used by a different file
+// Its legacy bool reports acceptance, not confirmed physical removal.
 func DeleteFile(fileId string, deleteSource bool) bool {
-	if fileId == "" {
-		return false
-	}
-	file, ok := database.GetMetaDataById(fileId)
+	file, ok := deletionFileSnapshot(fileId)
 	if !ok {
 		return false
 	}
-	file.ExpireAt = 0
-	file.UnlimitedTime = false
-	database.SaveMetaData(file)
-	downloadstatus.SetAllComplete(file.Id)
+	result, err := DeleteFileContext(context.Background(), file, false)
+	logDeletionFailure(err)
+	if err != nil {
+		return false
+	}
 	if deleteSource {
-		go CleanUp(false)
+		go cleanupAcceptedDeletion(result.File)
 	}
 	return true
 }
 
-// DeleteFiles deletes multiple files at once. This avoids race conditions when CleanUp is called multiple times
-// deleteSource forces a clean-up and will delete the source if it is not
-// used by a different file
+// DeleteFiles preserves each caller's owner/locator snapshot. A stale batch
+// cannot revoke a row subsequently transferred to another owner.
 func DeleteFiles(files []models.File, deleteSource bool) {
+	var accepted []models.File
 	for _, file := range files {
-		DeleteFile(file.Id, false)
+		result, err := DeleteFileContext(context.Background(), file, false)
+		logDeletionFailure(err)
+		if err == nil && deleteSource {
+			accepted = append(accepted, result.File)
+		}
 	}
-	if deleteSource {
-		go CleanUp(false)
+	if len(accepted) != 0 {
+		// A batch uses one worker; failed entries retain their metadata anchors.
+		go func() {
+			for _, file := range accepted {
+				cleanupAcceptedDeletion(file)
+			}
+		}()
 	}
 }
 
 // DeleteFileSchedule schedules a file for deletion after a specified delay and optionally deletes its source.
 // Returns true if scheduling is successful, false otherwise.
 func DeleteFileSchedule(fileId string, delayMs int, deleteSource bool) bool {
-	if fileId == "" {
-		return false
-	}
-	file, ok := database.GetMetaDataById(fileId)
+	file, ok := deletionFileSnapshot(fileId)
 	if !ok {
 		return false
 	}
-	deletionTime := time.Now().Add(time.Duration(delayMs) * time.Millisecond).Unix()
-	file.PendingDeletion = deletionTime
-	database.SaveMetaData(file)
-	// Explicit parameter to avoid accidental changes
-	go func(id string, timestamp int64) {
-		time.Sleep(time.Duration(delayMs) * time.Millisecond)
-		// A new models.File needs to be assigned to avoid a racy mutation
-		retrievedFile, exists := database.GetMetaDataById(id)
-		if !exists {
-			return
-		}
-		// To prevent race conditions, it is checked if the deletion time is the same time that was originally set
-		if retrievedFile.PendingDeletion == timestamp {
-			DeleteFile(id, deleteSource)
-		}
-	}(fileId, deletionTime)
-	return true
+	_, err := ScheduleFileDeletionContext(context.Background(), file, delayMs, deleteSource)
+	logDeletionFailure(err)
+	return err == nil
 }
 
 // CancelPendingFileDeletion removes the pending deletion flag for a file identified by the given ID.
 // Returns false if the file was not found
 func CancelPendingFileDeletion(fileId string) (models.File, bool) {
-	if fileId == "" {
-		return models.File{}, false
-	}
-	file, ok := database.GetMetaDataById(fileId)
+	file, ok := deletionFileSnapshot(fileId)
 	if !ok {
 		return models.File{}, false
 	}
-	file.PendingDeletion = 0
-	database.SaveMetaData(file)
-	return file, true
+	file, err := CancelFileDeletionContext(context.Background(), file)
+	logDeletionFailure(err)
+	return file, err == nil
 }

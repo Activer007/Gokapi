@@ -83,10 +83,27 @@ func populateReservationDisplay(requests []models.FileRequest, read func(context
 
 // Delete all files associated with a file request and the request itself
 func Delete(request models.FileRequest) {
-	files := GetAllFiles(request)
-	storage.DeleteFiles(files, true)
-	database.DeleteFileRequest(request)
+	_ = DeleteContext(context.Background(), request)
+}
+
+// DeleteContext keeps the request available for a management retry until its
+// files have been safely retired. The upload key is revoked before cleanup.
+func DeleteContext(ctx context.Context, request models.FileRequest) error {
+	if ctx == nil {
+		return uploadquota.ErrInvalid
+	}
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+	files, err := storage.ReadDeletionFilesContext(ctx, request.UserId, request.Id)
+	if err != nil {
+		return err
+	}
 	database.DeleteApiKey(request.ApiKey)
+	if err := storage.DeleteFilesContext(ctx, files, true); err != nil {
+		return err
+	}
+	database.DeleteFileRequest(request)
+	return nil
 }
 
 // GetAllFiles returns a list of all files associated with a file request

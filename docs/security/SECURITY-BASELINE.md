@@ -4,6 +4,13 @@
 
 ## 当前M4：可靠删除与下载内容边界
 
+当前开发基线dee4382f19d0801cb4022ed3ec897beda297e1df，分支codex/sec-040-delete-state；未提交040-B工作保留。
+当前远程仅Activer007/SupaShare；便携Go1.26.10 windows/amd64、CGO0。040-A/052-A已合并，040-B仍IN_PROGRESS。
+新增双provider条件字段更新/同锁context、storage/timer及API/CLI局部合同本地GREEN；原两个私密竞态候选GREEN与最终CI仍OPEN。
+CONFIRMED_CODE：用户删除直接退休metadata的窄故障合同已RED→GREEN；没有据此声称外部攻击链成立。
+041旧locator锚点缺口为CONFIRMED_CODE；共享引用、中断后收敛和具体攻击链须各自测试，不从源码结论扩大。
+后续优先级及限定验收见[M4-GOAL](M4-GOAL.md)，不重开M3全量延期，不扩大成浏览器/真实云完整矩阵。
+
 SEC-040-A以主线c434e099开始，隔离开发保留已测试provider工作并同步该主线；CONFIRMED_CODE（原c434）：
 删除失败仍可丢管理锚点，最新业务RED12.290s。最小修复采用checked完整扫描/探测/删除/条件退休，复用metadata重试，见[ADR-022](ADR-022-RETRYABLE-DELETION.md)。
 本地相关合同GREEN：loopback DELETE失败、HEAD未知、假成功、另一进程重启重试、跨owner共享及路径边界；双provider完整引用/条件退休GREEN。

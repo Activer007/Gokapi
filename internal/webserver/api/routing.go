@@ -8,6 +8,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 	"unicode/utf8"
 
@@ -473,19 +474,32 @@ func (p *paramFilesReplace) ProcessParameter(r *http.Request) error {
 }
 
 type paramFilesDelete struct {
+	Request      *http.Request
 	Id           string `header:"id" required:"true"`
 	DelaySeconds int    `header:"delay"`
 	foundHeaders map[string]bool
 }
 
-func (p *paramFilesDelete) ProcessParameter(_ *http.Request) error { return nil }
+func (p *paramFilesDelete) ProcessParameter(r *http.Request) error {
+	p.Request = r
+	// Both the millisecond int and time.Duration conversion must fit.
+	if p.DelaySeconds < 0 || p.DelaySeconds > int(^uint(0)>>1)/1000 ||
+		int64(p.DelaySeconds) > int64(1<<63-1)/int64(time.Second) {
+		return errors.New("invalid value in header delay supplied")
+	}
+	return nil
+}
 
 type paramFilesRestore struct {
+	Request      *http.Request
 	Id           string `header:"id" required:"true"`
 	foundHeaders map[string]bool
 }
 
-func (p *paramFilesRestore) ProcessParameter(_ *http.Request) error { return nil }
+func (p *paramFilesRestore) ProcessParameter(r *http.Request) error {
+	p.Request = r
+	return nil
+}
 
 type paramAuthCreate struct {
 	FriendlyName     string `header:"friendlyName" supportBase64:"true"`
@@ -577,12 +591,16 @@ func (p *paramUserChangeRank) ProcessParameter(_ *http.Request) error {
 }
 
 type paramUserDelete struct {
+	Request      *http.Request
 	Id           int  `header:"userid" required:"true"`
 	DeleteFiles  bool `header:"deleteFiles"`
 	foundHeaders map[string]bool
 }
 
-func (p *paramUserDelete) ProcessParameter(_ *http.Request) error { return nil }
+func (p *paramUserDelete) ProcessParameter(r *http.Request) error {
+	p.Request = r
+	return nil
+}
 
 type paramUserModify struct {
 	Id                 int `header:"userid" required:"true"`
@@ -817,11 +835,13 @@ func (p *paramChunkUploadRequestComplete) ProcessParameter(r *http.Request) erro
 }
 
 type paramURequestDelete struct {
+	Request      *http.Request
 	Id           string `header:"id" required:"true"`
 	foundHeaders map[string]bool
 }
 
-func (p *paramURequestDelete) ProcessParameter(_ *http.Request) error {
+func (p *paramURequestDelete) ProcessParameter(r *http.Request) error {
+	p.Request = r
 	return nil
 }
 
