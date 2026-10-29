@@ -30,7 +30,10 @@ test('E2E decrypt updates copy, QR and email URLs while retaining hidden ID colu
     const copy={setAttribute(key,value){this[key]=value;}};
     const cells=[{id:'cell-name-fixture'}, {}, {}, {}, {}, {querySelector:()=>link}, {querySelector:()=>copy}];
     const qr={},email={};
-    const table={rows:()=>({nodes:()=>[{}]}),cell:(row,col)=>({node:()=>cells[col]})};
+    let invalidated=0, draws=0;
+    const table={rows:()=>({nodes:()=>[{}]}),cell:(row,col)=>({node:()=>cells[col],
+        invalidate(source){assert.equal(col,0);assert.equal(source,'dom');invalidated++;}}),
+        draw(reset){assert.equal(reset,false);draws++;}};
     let qrUrl;
     const context=vm.createContext({IncludeFilename:true,
         $:value=>value==='#maintable'?{DataTable:()=>table}:{attr:()=>value.id},
@@ -44,4 +47,6 @@ test('E2E decrypt updates copy, QR and email URLs while retaining hidden ID colu
     assert.equal(email.href,'mailto:?body='+encodeURIComponent(link.href));
     context.decryptFileEntries({fixture:['中文.txt','test-cipher']});
     assert.equal(link.href.split('#').length,2);
+    assert.equal(invalidated,2);
+    assert.equal(draws,2);
 });
