@@ -17,12 +17,13 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 ## 当前 SEC-030 分片与请求增量：IN_PROGRESS
 
 起点57e5116，分支codex/sec-030-chunk-admission；整文件PR21已合并，合并后CI40783153865成功。
+用户最新确认默认owner5GiB、instance20GiB，其他数量/active/staging不变；按此更新PR22并重新验证。
 当前实施普通/浏览器分片及File Request持久准入、受控完成与新私有进度文件，见ADR-017。
 干净57 API合同真实RED退出1；新会话桩真实RED退出1；请求策略及会话局部目标已GREEN，
 新API完整目标45.622s、旧语义/处理器兼容目标及真实E2E流分段/停服目标已PASS，生成PASS。
 本机完整noaws实际FAIL（既知Windows差异及两份旧guard fixture）；修正有效夹具后，全新归档的
 完整API（含所有旧/新chunk/whole合同）PASS 48.144s，282份源码hash前后不变，不能标全仓绿色。
-Linux四组全仓/race/当前大文件Gate仍未完成，PR尚未创建/合并。
+Linux四组全仓/race/当前大文件Gate仍未完成，已创建草稿[PR22](https://github.com/Activer007/Gokapi/pull/22)，未合并。
 完整M3及PrepareTarget崩溃对账、其他metadata正向准入不因此关闭。
 
 ## SEC-030 整文件增量：初期历史记录

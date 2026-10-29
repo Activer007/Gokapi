@@ -5,6 +5,8 @@
 ## SEC-030 分片/请求准入增量：IN_PROGRESS（2026-10-29）
 
 当前起点57e5116，Go1.26.10 windows/amd64；本地tracked基线干净，保留用户两个未跟踪目录。
+用户本轮明确将现行默认累计字节改为owner5GiB、instance20GiB；1000/4、5000/8和staging12GiB
+不变。显式env设置保留，已有metadata超额仅拒绝新增；下方PR21的20/100GiB数值是历史记录。
 CONFIRMED_CODE：旧分片绕开持久账本，预分配长度不等于完整覆盖，旧异步完成未在入队前Claim。
 隔离57加现有HTTP符号合同实际RED；当前新API全部目标、兼容目标、真实加密流分段及停服目标已PASS。
 统一请求累计/active env、当前request策略事务重读、私有有界范围证据和Claim后受控任务已接线，见ADR-017。

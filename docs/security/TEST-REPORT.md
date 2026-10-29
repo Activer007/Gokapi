@@ -6,6 +6,15 @@
 
 基线57e5116；Windows便携Go1.26.10，仍不启动/修复WSL。独立归档及当前临时SQLite/loopback Redis
 证据位于ignored sec030-chunks-local.secret和request-policy-*，不是生产数据。
+首个代码head be5f385已创建[PR22](https://github.com/Activer007/Gokapi/pull/22)。用户随后明确默认
+owner5GiB/instance20GiB，其他上限不变；旧head的PR40797560851/手动40797586038已主动取消，
+不记完整PASS，等待更新默认值后的新head完整Gate。以下本地结果均保留各自实际输入及范围。
+新默认值最小合同在隔离be5实现叠加当前test后真实RED：`go test ./internal/environment -count=1
+-tags=test,noaws -run '^TestSEC030WholePolicyDefaults$' -timeout 30s -v`，退出1，3.074s，实际报告
+`UploadUserTotalMB default=20480; want 5120`。当前代码的environment/fileupload两包
+`-run 'TestSEC030Whole|TestSEC030Request' -timeout 90s -v`实际PASS（fileupload8.168s），
+并再次`go generate ./...` PASS；default tag、严格预解析及文档一致，显式非默认容量仍受原测试覆盖。
+大文件夹具改用用户选择的5120/20480 MiB字节上限，仍待实际运行，不沿用旧head结果。
 
 - API干净57归档加新HTTP合同：`go test ./internal/webserver/api -count=1 -tags=test,noaws,security_whole -run '^TestSEC030Chunk' -timeout 7m -v`，实际ASSERTION_RED退出1，29.099s。
 - chunksession新桩合同编译并执行后退出1，6.074s；新接口开发RED，不称旧代码存在同接口漏洞。

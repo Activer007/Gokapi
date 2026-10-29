@@ -9,17 +9,16 @@ import (
 	"testing"
 )
 
-// These are candidate defaults for the personal/trusted-team profile. Their
-// inclusion in the RED contract does not record user approval or capacity data.
+// These are the configured defaults for the personal/trusted-team profile.
 var sec030WholePolicy = []struct {
 	key, field string
 	value      int64
 	bytes      bool
 }{
-	{"GOKAPI_UPLOAD_USER_TOTAL_MB", "UploadUserTotalMB", 20480, true},
+	{"GOKAPI_UPLOAD_USER_TOTAL_MB", "UploadUserTotalMB", 5120, true},
 	{"GOKAPI_UPLOAD_USER_MAX_FILES", "UploadUserMaxFiles", 1000, false},
 	{"GOKAPI_UPLOAD_USER_ACTIVE", "UploadUserActive", 4, false},
-	{"GOKAPI_UPLOAD_INSTANCE_TOTAL_MB", "UploadInstanceTotalMB", 102400, true},
+	{"GOKAPI_UPLOAD_INSTANCE_TOTAL_MB", "UploadInstanceTotalMB", 20480, true},
 	{"GOKAPI_UPLOAD_INSTANCE_MAX_FILES", "UploadInstanceMaxFiles", 5000, false},
 	{"GOKAPI_UPLOAD_INSTANCE_ACTIVE", "UploadInstanceActive", 8, false},
 	{"GOKAPI_UPLOAD_STAGING_MB", "UploadStagingMB", 12288, true},
@@ -52,7 +51,7 @@ func sec030WholePolicyValidate(t *testing.T, settings Environment) error {
 	return validator.ValidateWholeUploadLimits()
 }
 
-func TestSEC030WholePolicyCandidateDefaults(t *testing.T) {
+func TestSEC030WholePolicyDefaults(t *testing.T) {
 	sec030WholePolicyEnvironment(t)
 	for _, field := range sec030WholePolicy {
 		if err := os.Unsetenv(field.key); err != nil {
@@ -61,11 +60,11 @@ func TestSEC030WholePolicyCandidateDefaults(t *testing.T) {
 	}
 	settings := New()
 	if !settings.IsParsed() {
-		t.Fatal("candidate default policy failed environment parsing")
+		t.Fatal("default policy failed environment parsing")
 	}
 	for _, field := range sec030WholePolicy {
 		if got := sec030WholePolicyValue(t, settings, field.field); got != field.value {
-			t.Fatalf("%s candidate default=%d; want %d", field.field, got, field.value)
+			t.Fatalf("%s default=%d; want %d", field.field, got, field.value)
 		}
 		definition, ok := reflect.TypeOf(settings).FieldByName(field.field)
 		if !ok || definition.Tag.Get("onlyPositive") != "" || definition.Tag.Get("minValue") != "" {

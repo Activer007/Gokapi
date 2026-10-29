@@ -14,6 +14,9 @@ CONFIRMED_CODE：原子预约原语已存在，本增量已实施新接线、严
 
 ## 配置合同及有限默认值
 
+本节保留PR21历史默认。现行默认随后按用户确认改为owner5GiB、instance20GiB，其余不变，
+见[ADR-017](ADR-017-CHUNK-UPLOAD-ADMISSION.md)；显式env和既有metadata不被改写。
+
 用户已确认 MaxSize/maxsize 保持每文件语义，并另增累计预算。本增量按个人 VPS / 可信小团队选择以下可配置的有限默认值；没有将这些具体数值记为用户逐项批准。配置及大文件兼容仍需通过本增量的实际 Gate。
 
 | 环境变量 | 默认值 | 计量范围 |

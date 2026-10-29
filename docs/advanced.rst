@@ -150,7 +150,7 @@ Available environment variables
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 | GOKAPI_UPLOAD_INSTANCE_MAX_FILES    |                                                                                        | No              | 5000                        |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
-| GOKAPI_UPLOAD_INSTANCE_TOTAL_MB     | Instance logical limits are independent of actual disk free space.                     | No              | 102400                      |
+| GOKAPI_UPLOAD_INSTANCE_TOTAL_MB     | Instance logical limits are independent of actual disk free space.                     | No              | 20480                       |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 | GOKAPI_UPLOAD_RECEIVE_MB            | Bounds transient upload reception and processing copies in MiB. This is                | No              | 12288                       |
 |                                     |                                                                                        |                 |                             |
@@ -168,7 +168,7 @@ Available environment variables
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 | GOKAPI_UPLOAD_USER_MAX_FILES        |                                                                                        | No              | 1000                        |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
-| GOKAPI_UPLOAD_USER_TOTAL_MB         | Logical owner limits apply across all of that owner's upload credentials.              | No              | 20480                       |
+| GOKAPI_UPLOAD_USER_TOTAL_MB         | Logical owner limits apply across all of that owner's upload credentials.              | No              | 5120                        |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
 | GOKAPI_USE_CLOUDFLARE               | Set this to true if you are using Cloudflare                                           | No              | false                       |
 +-------------------------------------+----------------------------------------------------------------------------------------+-----------------+-----------------------------+
@@ -614,10 +614,10 @@ Upload quotas
 -------------
 
 ``/api/files/add`` also reserves durable capacity after reception, using the
-actual file-part size. ``GOKAPI_UPLOAD_USER_TOTAL_MB`` (20480 MiB),
+actual file-part size. ``GOKAPI_UPLOAD_USER_TOTAL_MB`` (5120 MiB),
 ``GOKAPI_UPLOAD_USER_MAX_FILES`` (1000) and ``GOKAPI_UPLOAD_USER_ACTIVE`` (4)
 apply to the authenticated owner across all their API keys. Instance defaults
-are 102400 MiB, 5000 files and 8 active reservations, configured through
+are 20480 MiB, 5000 files and 8 active reservations, configured through
 ``GOKAPI_UPLOAD_INSTANCE_TOTAL_MB``, ``GOKAPI_UPLOAD_INSTANCE_MAX_FILES`` and
 ``GOKAPI_UPLOAD_INSTANCE_ACTIVE``. ``GOKAPI_UPLOAD_STAGING_MB`` defaults to
 12288 MiB; whole-file uploads reserve four times their payload plus 64 KiB,

@@ -59,12 +59,12 @@ type Environment struct {
 	UploadReceiveMB int64 `env:"UPLOAD_RECEIVE_MB" envDefault:"12288"`
 
 	// Logical owner limits apply across all of that owner's upload credentials.
-	UploadUserTotalMB  int64 `env:"UPLOAD_USER_TOTAL_MB" envDefault:"20480"`
+	UploadUserTotalMB  int64 `env:"UPLOAD_USER_TOTAL_MB" envDefault:"5120"`
 	UploadUserMaxFiles int64 `env:"UPLOAD_USER_MAX_FILES" envDefault:"1000"`
 	UploadUserActive   int64 `env:"UPLOAD_USER_ACTIVE" envDefault:"4"`
 
 	// Instance logical limits are independent of actual disk free space.
-	UploadInstanceTotalMB  int64 `env:"UPLOAD_INSTANCE_TOTAL_MB" envDefault:"102400"`
+	UploadInstanceTotalMB  int64 `env:"UPLOAD_INSTANCE_TOTAL_MB" envDefault:"20480"`
 	UploadInstanceMaxFiles int64 `env:"UPLOAD_INSTANCE_MAX_FILES" envDefault:"5000"`
 	UploadInstanceActive   int64 `env:"UPLOAD_INSTANCE_ACTIVE" envDefault:"8"`
 
@@ -258,8 +258,8 @@ func parseReceiveEnvironment(result Environment) (Environment, error) {
 }
 
 func parseWholeUploadEnvironment(result Environment) (Environment, error) {
-	result.UploadUserTotalMB, result.UploadUserMaxFiles, result.UploadUserActive = 20480, 1000, 4
-	result.UploadInstanceTotalMB, result.UploadInstanceMaxFiles, result.UploadInstanceActive = 102400, 5000, 8
+	result.UploadUserTotalMB, result.UploadUserMaxFiles, result.UploadUserActive = 5120, 1000, 4
+	result.UploadInstanceTotalMB, result.UploadInstanceMaxFiles, result.UploadInstanceActive = 20480, 5000, 8
 	result.UploadStagingMB = 12288
 	for _, field := range []struct {
 		name   string
