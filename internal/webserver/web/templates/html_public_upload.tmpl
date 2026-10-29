@@ -1,21 +1,21 @@
 {{define "publicUpload"}}{{template "header" .}}
 
 
-<section style="margin-top: 2rem" aria-labelledby="publicUploadTitle">
+<section class="public-upload-page" aria-labelledby="publicUploadTitle">
   <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="card bg-dark text-white">
-        <div class="card-body">
-          <h2 id="publicUploadTitle" class="card-title text-center mb-4">{{.UI.T "page.publicUpload"}}</h2>
+    <div class="col-12">
+      <div class="public-upload-content">
+        <div class="public-upload-body">
+          <div class="public-upload-heading"><p class="public-upload-eyebrow">{{.UI.T "nav.requests"}}</p><h1 id="publicUploadTitle">{{if .FileRequest.Name}}{{.FileRequest.Name}}{{else}}{{.UI.T "page.publicUpload"}}{{end}}</h1><p>{{.UI.T "request.publicHelp"}}</p></div>
 {{ if ne .FileRequest.Notes "" }}
-          <div class="info-box">
-            <h6>{{.UI.T "request.notes"}}</h6>
+          <div class="collection-information">
+            <h2>{{.UI.T "request.notes"}}</h2>
             <p class="mb-0">{{.FileRequest.Notes}}</p>
           </div>
 {{ end }}
 {{ if .FileRequest.HasRestrictions }}
-          <div class="info-box">
-            <h6>{{.UI.T "request.restrictions"}}</h6>
+          <div class="collection-information">
+            <h2>{{.UI.T "request.restrictions"}}</h2>
             <ul>
     {{ if not (.FileRequest.IsUnlimitedTime) }}
               <li>{{.UI.T "request.until"}} <strong>
@@ -36,22 +36,23 @@
               </script>
    {{ end }}
        {{ if not (.FileRequest.IsUnlimitedFiles) }}
-              <li>{{.UI.T "request.maxCount"}} <strong>{{ .FileRequest.FilesRemaining }}</strong>
+              <li>{{.UI.T "request.remainingCount"}} <strong id="publicFilesRemaining">{{ .FileRequest.FilesRemaining }}</strong>
               </li>
        {{ end }}
             </ul>
           </div>
 {{ end }}
-          <div id="uploadBox" class="upload-box text-center w-100">
-            <p class="mb-2 fs-5">{{.UI.T "request.drop"}}</p>
+          <div id="uploadBox" class="upload-box public-drop-area">
+            <img class="public-upload-art" src="./assets/brand/share-folder-v1.png" width="210" height="140" alt="" aria-hidden="true">
+            <div class="public-upload-prompt"><p class="mb-2 fs-5">{{.UI.T "request.drop"}}</p>
             <p class="mb-3 opacity-75">{{.UI.T "files.pasteHint"}}</p>
-            <button type="button" class="btn btn-outline-light" onclick="document.getElementById('fileInput').click()">{{.UI.T "files.choose"}}</button>
-            <input type="file" id="fileInput" class="d-none" multiple aria-label="{{.UI.T "files.choose"}}">
+            <button type="button" id="publicChooseFiles" class="btn btn-primary" onclick="document.getElementById('fileInput').click()">{{.UI.T "files.choose"}}</button>
+            <input type="file" id="fileInput" class="d-none" multiple aria-label="{{.UI.T "files.choose"}}"></div>
           </div>
-          <div id="fileList" class="pu-file-list"></div>
-          <div class="text-center mt-4">
-            <button class="btn btn-upload-custom" disabled onClick="initUpload();" id="uploadbutton">
-		  {{.UI.T "page.publicUpload"}}
+          <div id="fileList" class="pu-file-list" aria-label="{{.UI.T "request.queue"}}"></div>
+          <div class="public-upload-submit">
+            <button class="btn btn-primary" disabled onClick="initUpload();" id="uploadbutton">
+		  {{.UI.T "request.startUpload"}}
 	    </button>
           </div>
         </div>
@@ -88,8 +89,7 @@
       <div class="modal-body">
         {{.UI.T "request.allUploaded"}}
       </div>
-      <div class="modal-footer">
-      </div>
+      <div class="modal-footer"><button type="button" class="btn btn-primary" data-bs-dismiss="modal">{{.UI.T "common.close"}}</button></div>
     </div>
   </div>
 </div>

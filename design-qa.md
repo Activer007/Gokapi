@@ -2,7 +2,7 @@
 
 final result: passed
 
-Scope: B1 workspace visual validation only. This is not acceptance of the full B0–B6 upgrade.
+Scope: B1 workspace and B2 collection visual validation only. This is not acceptance of the full B0–B6 upgrade.
 
 Source: `docs/images/ui-concepts/ui-enhanced-compact.png`, 1586×992 pixels.
 Implementation: `docs/images/ui-upgrade/foundation-zh.jpg`, 1586×992 pixels, CSS viewport 1586×992, devicePixelRatio 1. Source and final implementation were displayed together in the same comparison tool result on 2026-10-29, without resizing or browser chrome. Original iteration captures remain under `local-ui.secret/ui-upgrade/foundation/`.
@@ -33,3 +33,16 @@ State: Chinese administrator, collapsed upload rules and three actual synthetic 
 - P3: the summary uses a localized sentence that explicitly describes new uploads, instead of three decorative columns. Outline file icons reuse the installed icon library. These differences preserve semantics and avoid unnecessary components.
 - P3: optimize the decorative PNG further if asset transfer cost becomes material; the current local asset is approximately 1.9 MB and is cached.
 - Full-site QA and encrypted content acceptance belong to later batches and are still pending.
+
+
+## B2 collection adaptation
+
+Final result for B2 visual scope: passed.
+
+The selected workspace concept supplies the visual language for collection pages; there is no supplied collection-specific mockup. The concept and each real B2 page were displayed together at 1586×992, DPR 1: `collections-zh.jpg` and `public-upload-zh.jpg` under `docs/images/ui-upgrade/`.
+
+- Management retains top navigation, charcoal surfaces, blue primary action, left-aligned heading and broad table. All seven administrator columns remain; restricted roles keep their original column rules. Empty state has a clear next action.
+- Public upload retains the blue folder/link asset, clear heading and bounded content width. Notes and capacity precede file selection; queue and submission remain distinct. This task-oriented layout intentionally omits authenticated navigation.
+- Fixed functional clarity: remaining capacity no longer appears under a maximum-count label. Successful completion can be dismissed; removal controls identify their file.
+- English 1280×720 management and Chinese 1920×1080 public completion remain readable. The final wide public capture uses full-page screenshot mode to avoid a browser screenshot/viewport synchronization artifact; DOM checks confirmed 1920×1080, DPR 1 and no horizontal page overflow.
+- No remaining P0/P1/P2 visual issue found in these B2 surfaces. Public error/login styling and shared public-header polish continue in B4. Full B0–B6 acceptance is still pending.

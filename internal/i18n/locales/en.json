@@ -580,5 +580,13 @@
   "files.rulesHelp": "These rules apply to new uploads only.",
   "files.allFiles": "All files",
   "files.clearSearch": "Clear search",
-  "files.searchPlaceholder": "Search files"
+  "files.searchPlaceholder": "Search files",
+  "request.workspaceHelp": "Create a link to collect files from others.",
+  "request.links": "Collection links",
+  "request.emptyTitle": "No collection links yet",
+  "request.emptyHelp": "Create a file request, set its limits, then share the link.",
+  "request.publicHelp": "Choose files, check the upload limits, then start uploading.",
+  "request.queue": "Selected files",
+  "request.startUpload": "Start upload",
+  "request.remainingCount": "Files remaining:"
 }

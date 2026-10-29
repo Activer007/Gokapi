@@ -580,5 +580,13 @@
   "files.rulesHelp": "这些设置仅用于新上传文件。",
   "files.allFiles": "全部文件",
   "files.clearSearch": "清空搜索",
-  "files.searchPlaceholder": "搜索文件"
+  "files.searchPlaceholder": "搜索文件",
+  "request.workspaceHelp": "创建收集链接，让他人将文件上传给你。",
+  "request.links": "收集链接",
+  "request.emptyTitle": "暂无收集链接",
+  "request.emptyHelp": "创建文件收集，设置上传限制，然后分享链接。",
+  "request.publicHelp": "选择文件，确认上传限制后开始上传。",
+  "request.queue": "已选文件",
+  "request.startUpload": "开始上传",
+  "request.remainingCount": "剩余可上传文件："
 }

@@ -19,9 +19,11 @@ function deleteFileRequest(requestId) {
                 if (fileListRow !== null) {
                     fileListRow.remove();
                 }
+                updateFileRequestEmptyState();
             }, 290);
         })
         .catch(error => {
+            document.getElementById("delete-" + requestId).disabled = false;
             alert(t("request.deleteFailed") + error);
             console.error('Error:', error);
         });
@@ -50,6 +52,7 @@ function deleteFileFr(id, frId) {
 	 showToastFileDeletionFr(id);
         })
         .catch(error => {
+            document.getElementById("button-delete-" + id).disabled = false;
             alert(t("files.deleteFailed") + error);
             console.error('Error:', error);
         });
@@ -62,42 +65,23 @@ function changeFileCountFr(frId, change) {
 	countCell.innerText = newCount;
 }
 
+function bindRequestDownload(button, ids, name) {
+    button.dataset.fileIds = ids.join(',');
+    button.dataset.recordName = name;
+    button.disabled = ids.length === 0;
+    button.classList.toggle('disabled', button.disabled);
+    button.removeAttribute('onclick');
+    button.onclick = ids.length === 0 ? null : () => {
+        if (ids.length === 1) downloadFileWithPresign(ids[0]);
+        else downloadFilesZipWithPresign(ids.join(','), name);
+    };
+}
+
 function removeDownloadFileReference(fileId, frId) {
-    const btn = document.getElementById(`download-${frId}`);
-    if (!btn) return;
-
-    const currentOnclick = btn.getAttribute('onclick') || '';
-
-    const zipMatch = currentOnclick.match(/downloadFilesZipWithPresign\('([^']*)',\s*'([^']*)'\)/);
-    const singleMatch = currentOnclick.match(/downloadFileWithPresign\('([^']*)'\)/);
-
-    let fileIds = [];
-    let recordName = '';
-
-    if (zipMatch) {
-        fileIds = zipMatch[1].split(',').filter(id => id !== '');
-        recordName = zipMatch[2];
-    } else if (singleMatch) {
-        fileIds = [singleMatch[1]];
-        recordName = btn.dataset.recordName || '';
-    }
-
-    // Remove the deleted file
-    fileIds = fileIds.filter(id => id !== fileId);
-
-    if (fileIds.length === 0) {
-        // No files left — disable button
-        btn.classList.add('disabled');
-        btn.removeAttribute('onclick');
-    } else if (fileIds.length === 1) {
-        // Single file — switch to single download
-        btn.classList.remove('disabled');
-        btn.setAttribute('onclick', `downloadFileWithPresign('${fileIds[0]}');`);
-    } else {
-        // Multiple files — keep zip download
-        btn.classList.remove('disabled');
-        btn.setAttribute('onclick', `downloadFilesZipWithPresign('${fileIds.join(',')}', '${recordName}');`);
-    }
+    const button = document.getElementById(`download-${frId}`);
+    if (!button) return;
+    const ids = (button.dataset.fileIds || '').split(',').filter(id => id && id !== fileId);
+    bindRequestDownload(button, ids, button.dataset.recordName || '');
 }
 
 
@@ -345,6 +329,7 @@ function insertOrReplaceFileRequest(jsonResult) {
         });
         tbody.prepend(tr);
     }
+    updateFileRequestEmptyState();
 }
 
 
@@ -380,12 +365,17 @@ function createFileRequestRow(jsonResult, user) {
 
     // Name
     tr.appendChild(tdLink(jsonResult.name, publicUrl));
-    // Uploaded files / Max files
-    if (jsonResult.maxfiles == 0) {
-        tr.appendChild(tdText(jsonResult.uploadedfiles));
-    } else {
-        tr.appendChild(tdText(`${jsonResult.uploadedfiles} / ${jsonResult.maxfiles}`));
-    }
+    // Preserve the count hook and the expandable list when editing a request.
+    const countCell = document.createElement('td');
+    const count = document.createElement('span');
+    count.id = `totalFiles-fr-${jsonResult.id}`;
+    count.textContent = jsonResult.uploadedfiles;
+    countCell.appendChild(count);
+    if (jsonResult.reserveduploads) countCell.appendChild(document.createTextNode(` +${jsonResult.reserveduploads}`));
+    if (jsonResult.maxfiles) countCell.appendChild(document.createTextNode(` / ${jsonResult.maxfiles}`));
+    const existingToggle = document.querySelector(`#row-${jsonResult.id} .collapse-toggle`);
+    if (existingToggle) countCell.appendChild(existingToggle);
+    tr.appendChild(countCell);
     // Total size
     tr.appendChild(tdText(getReadableSize(jsonResult.totalfilesize)));
     // Last upload
@@ -412,9 +402,7 @@ function createFileRequestRow(jsonResult, user) {
     downloadBtn.className = "btn btn-outline-light btn-sm";
     downloadBtn.title = t("request.downloadAll");
 
-    if (jsonResult.uploadedfiles == 0) {
-        downloadBtn.classList.add("disabled");
-    }
+    bindRequestDownload(downloadBtn, jsonResult.fileidlist || [], jsonResult.name);
 
     downloadBtn.appendChild(icon("bi-download"));
 
@@ -456,5 +444,24 @@ function createFileRequestRow(jsonResult, user) {
     td.appendChild(group);
     tr.appendChild(td);
     labelIconButtons(tr);
+    prepareFileRequestRow(tr);
     return tr;
+}
+
+function prepareFileRequestRow(row) {
+    const download = row.querySelector('[id^="download-"]');
+    if (download) bindRequestDownload(download, (download.dataset.fileIds || '').split(',').filter(Boolean), download.dataset.recordName || '');
+    const copy = row.querySelector('.copyurl');
+    if (copy) { copy.textContent = t('common.copyLink'); copy.setAttribute('aria-label', t('common.copyLink')); }
+    const actions = row.querySelector('.btn-group');
+    if (actions) actions.classList.add('request-actions');
+}
+
+function updateFileRequestEmptyState() {
+    const table = document.getElementById('filerequesttable');
+    if (!table) return;
+    const count = table.querySelectorAll('.filerequest-item').length;
+    document.getElementById('requestCount').textContent = String(count);
+    document.getElementById('requestEmpty').hidden = count !== 0;
+    document.getElementById('requestTableWrap').hidden = count === 0;
 }
