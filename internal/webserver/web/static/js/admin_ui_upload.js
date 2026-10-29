@@ -830,9 +830,6 @@ function createButtonGroup(item) {
     copyUrlBtn.appendChild(copyIcon);
     copyUrlBtn.appendChild(document.createTextNode(' URL'));
 
-    copyUrlBtn.addEventListener('click', () => {
-        showToast(1000);
-    });
 
     group1.appendChild(copyUrlBtn);
 
@@ -855,7 +852,6 @@ function createButtonGroup(item) {
         aDr1.title = t("files.copyHotlink");
         aDr1.style.cursor = "pointer";
         aDr1.setAttribute("data-clipboard-text", item.UrlHotlink);
-        aDr1.onclick = () => showToast(1000);
         aDr1.innerHTML = `<i class="bi bi-copy"></i> ${t("files.hotlink")}`;
     } else {
         aDr1.className = "dropdown-item";

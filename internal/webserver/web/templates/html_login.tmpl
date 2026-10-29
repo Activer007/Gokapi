@@ -8,12 +8,14 @@
 		    <p class="card-text">
 			<form method="post" action="./login" id="form" name="form" onSubmit="submitForm()">
 			    <div class="mb-3">
+				<label class="form-label d-block text-start" for="username">{{.UI.T "login.username"}}</label>
 				<input type="text" class="form-control mx-auto" style="max-width: 300px;" 
 				       autocomplete="username" placeholder="{{.UI.T "login.username"}}" value="{{.User}}" id="username">
 				<input type="hidden" id="uname_hidden" name="username">
 			    </div>
 
 			    <div class="mb-3">
+				<label class="form-label d-block text-start" for="password">{{.UI.T "login.password"}}</label>
 				<input type="password" class="form-control mx-auto" style="max-width: 300px;" 
 				       autocomplete="current-password" placeholder="{{.UI.T "login.password"}}" id="password">
 				<input type="hidden" id="pw_hidden" name="password">

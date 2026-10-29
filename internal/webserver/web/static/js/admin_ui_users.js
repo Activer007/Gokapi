@@ -149,8 +149,7 @@ function resetPw(userid, newPw) {
             document.getElementById("l_returnedPw").innerText = data.password;
             document.getElementById("copypwclip").onclick = function() {
                 // For some reason ClipboardJs is not working on the user PW reset modal, even when initilising again. Manually writing to clipboard
-                navigator.clipboard.writeText(data.password);
-                showToast(1000, t("users.copySuccess"));
+                copySensitiveText(data.password, document.getElementById("copypwclip"), t("users.copySuccess"));
             }
         })
         .catch(error => {

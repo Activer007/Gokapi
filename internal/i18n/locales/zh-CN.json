@@ -516,5 +516,17 @@
   "setup.awsConnectionFailed": "无法连接服务器，请检查服务端点。",
   "setup.awsResponseInvalid": "服务器响应无效，请检查服务端点。",
   "setup.awsCORSUnknown": "登录成功，但无法检查存储桶的 CORS 设置。",
-  "setup.awsNotFound": "找不到请求的资源，请检查服务端点。"
+  "setup.awsNotFound": "找不到请求的资源，请检查服务端点。",
+  "files.choose": "选择文件",
+  "files.pasteHint": "也可以在此粘贴文件。",
+  "clipboard.manual": "手动复制",
+  "clipboard.failed": "自动复制未成功。请选择下方内容，按 Ctrl+C（Mac 使用 Command+C）复制。",
+  "clipboard.value": "待复制内容",
+  "common.deleting": "正在删除…",
+  "api.new": "新建 API 密钥",
+  "api.deleteTitle": "删除 API 密钥？",
+  "api.deleteHelp": "使用此密钥的应用将立即失去访问权限，此操作无法撤销。",
+  "api.deleted": "API 密钥已删除",
+  "request.limitHelp": "勾选后启用对应限制；未勾选时仍受服务器设置的上限约束。",
+  "request.notesPublic": "打开收集链接的人可以看到此说明。"
 }

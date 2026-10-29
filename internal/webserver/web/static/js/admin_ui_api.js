@@ -48,20 +48,44 @@ function changeApiPermission(userId, permission, buttonId) {
 }
 
 function deleteApiKey(apiKey) {
-
-    document.getElementById("delete-" + apiKey).disabled = true;
-
-    apiAuthDelete(apiKey)
-        .then(data => {
-            document.getElementById("row-" + apiKey).classList.add("rowDeleting");
-            setTimeout(() => {
-                document.getElementById("row-" + apiKey).remove();
-            }, 290);
-        })
-        .catch(error => {
-            alert(t("api.deleteFailed") + error);
-            console.error('Error:', error);
-        });
+    const element = document.getElementById('deleteApiModal');
+    const confirm = document.getElementById('confirmDeleteApi');
+    const cancel = document.getElementById('cancelDeleteApi');
+    const errorMessage = document.getElementById('deleteApiError');
+    const trigger = document.getElementById('delete-' + apiKey);
+    const modal = bootstrap.Modal.getOrCreateInstance(element);
+    document.getElementById('deleteApiName').textContent = document.getElementById('friendlyname-' + apiKey).textContent;
+    errorMessage.textContent = '';
+    let busy = false;
+    const preventWhileBusy = event => { if (busy) event.preventDefault(); };
+    element.addEventListener('hide.bs.modal', preventWhileBusy);
+    element.addEventListener('hidden.bs.modal', () => {
+        element.removeEventListener('hide.bs.modal', preventWhileBusy);
+        confirm.onclick = null;
+        if (trigger.isConnected) trigger.focus();
+        else document.getElementById('button-newapi').focus();
+    }, {once: true});
+    confirm.onclick = async () => {
+        if (busy) return;
+        busy = true;
+        confirm.disabled = cancel.disabled = true;
+        confirm.textContent = t('common.deleting');
+        errorMessage.textContent = '';
+        try {
+            await apiAuthDelete(apiKey);
+            document.getElementById('row-' + apiKey).remove();
+            busy = false;
+            modal.hide();
+            showToast(3500, t('api.deleted'));
+        } catch (error) {
+            errorMessage.textContent = t('api.deleteFailed') + error.message;
+        } finally {
+            busy = false;
+            confirm.disabled = cancel.disabled = false;
+            confirm.textContent = t('common.delete');
+        }
+    };
+    modal.show();
 }
 
 
@@ -179,7 +203,6 @@ function addRowApi(apiKey, publicId) {
     copyButton.dataset.clipboardText = apiKey;
     copyButton.title = t("api.copy");
     copyButton.className = 'copyurl btn btn-outline-light btn-sm';
-    copyButton.setAttribute('onclick', 'showToast(1000)');
 
     const copyIcon = document.createElement('i');
     copyIcon.className = 'bi bi-copy';

@@ -26,6 +26,7 @@ function checkIfE2EKeyIsSet() {
             }
             getE2EInfo();
             dropzoneObject.enable();
+            document.getElementById("selectUploadFiles").disabled = false;
             document.getElementById("uploadBoxTitle").innerText = t("request.drop");
             document.getElementById("uploadBoxSubtitle").innerText = t("e2e.uploadHint");
         });
