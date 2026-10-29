@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"reflect"
+	"strings"
 
+	"github.com/Activer007/SupaShare/internal/helper"
 	"github.com/Activer007/SupaShare/internal/models"
 	"github.com/Activer007/SupaShare/internal/uploadquota"
 )
@@ -84,6 +86,12 @@ func (p DatabaseProvider) HasBlobReference(ctx context.Context, file models.File
 		if count > cleanupMetadataLimit || !recoveryFileID.MatchString(id) {
 			return false, uploadquota.ErrInvalid
 		}
+		if bucket == "" && !helper.IsSafeLocalBlobName(hash) {
+			return false, uploadquota.ErrInvalid
+		}
+		if bucket == "" && file.IsLocalStorage() && hash != file.SHA1 && strings.EqualFold(hash, file.SHA1) {
+			return false, uploadquota.ErrInvalid
+		}
 		if id != file.Id && hash == file.SHA1 && bucket == file.AwsBucket {
 			found = true
 		}
@@ -142,7 +150,8 @@ func (p DatabaseProvider) RetireCleanupFile(ctx context.Context, expected models
 }
 
 func validCleanupLocator(file models.File) bool {
-	return recoveryFileID.MatchString(file.Id) && len(file.SHA1) > 0 && len(file.SHA1) <= 128 && len(file.AwsBucket) <= 1024
+	return recoveryFileID.MatchString(file.Id) && len(file.SHA1) > 0 && len(file.SHA1) <= 128 && len(file.AwsBucket) <= 1024 &&
+		(!file.IsLocalStorage() || helper.IsSafeLocalBlobName(file.SHA1))
 }
 
 func cleanupMetadataDue(file models.File, now int64) bool {

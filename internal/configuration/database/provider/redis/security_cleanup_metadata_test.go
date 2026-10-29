@@ -118,3 +118,44 @@ func TestSEC040CleanupRedisRejectsUncertainState(t *testing.T) {
 		})
 	}
 }
+
+// A complete reference scan must reject ambiguous local names even when the
+// inspected candidate is canonical. Remote object keys retain exact identity.
+func TestSEC040CleanupRedisLocatorIdentity(t *testing.T) {
+	t.Run("local-alias", func(t *testing.T) {
+		s := sec030RedisNew(t)
+		file := models.File{Id: "locator-target", UserId: 1, SHA1: "shared-blob", SizeBytes: 3}
+		other := models.File{Id: "locator-other", UserId: 2, SHA1: "./shared-blob", SizeBytes: 3}
+		s.db.SaveMetaData(file)
+		s.db.SaveMetaData(other)
+		if referenced, err := s.db.HasBlobReference(context.Background(), file); referenced || !errors.Is(err, uploadquota.ErrInvalid) {
+			t.Fatal("noncanonical local reference must fail closed instead of reporting an unreferenced blob", err)
+		}
+	})
+	t.Run("case-only-local", func(t *testing.T) {
+		s := sec030RedisNew(t)
+		file := models.File{Id: "locator-target", UserId: 1, SHA1: "shared-blob", SizeBytes: 3}
+		other := models.File{Id: "locator-other", UserId: 2, SHA1: "SHARED-BLOB", SizeBytes: 3}
+		s.db.SaveMetaData(file)
+		s.db.SaveMetaData(other)
+		if referenced, err := s.db.HasBlobReference(context.Background(), file); referenced || !errors.Is(err, uploadquota.ErrInvalid) {
+			t.Fatal("case-only local locators must retain both anchors for manual identity review", err)
+		}
+	})
+	t.Run("s3-exact-key", func(t *testing.T) {
+		s := sec030RedisNew(t)
+		file := models.File{Id: "locator-target", UserId: 1, SHA1: "folder/shared-blob", AwsBucket: "cleanup-bucket", SizeBytes: 3}
+		other := file
+		other.Id, other.UserId = "locator-other", 2
+		s.db.SaveMetaData(file)
+		s.db.SaveMetaData(other)
+		if referenced, err := s.db.HasBlobReference(context.Background(), file); err != nil || !referenced {
+			t.Fatal("slash-bearing S3 key lost its exact cross-owner reference", err)
+		}
+		other.SHA1 = "folder/./shared-blob"
+		s.db.SaveMetaData(other)
+		if referenced, err := s.db.HasBlobReference(context.Background(), file); err != nil || referenced {
+			t.Fatal("distinct S3 key bytes were normalized into a local path alias", err)
+		}
+	})
+}

@@ -2,6 +2,31 @@
 
 日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/SupaShare 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
 
+## M4续作：SEC-040-A可靠删除（2026-10-29）
+
+主线c434e0997e61d368dd9c4705d3ba4e10a0a01882；040先保存provider草稿1c56bed，再同步主线为a58659d。
+未触碰用户工作树；旧M4草稿只移入ignored备份，沿用PR43已合并目标。环境portable Go1.26.10 Windows/amd64、CGO0/无gcc。
+测试使用临时SQLite、miniredis、真实SDK+loopback S3及子进程，不使用生产数据或真实云凭据。
+
+| 真实命令 | 结果 |
+| --- | --- |
+| `go test ./internal/test/securityfixture -count=1 -tags=test,security_red -run '^TestSEC040FailedDeletionKeepsManagementRecord$' -timeout 90s -v` | 业务RED，exit1/12.290s，实际DELETE失败且对象仍在，metadata丢失；旧12.079s记录保留 |
+| `go test ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,noaws,security_cleanup -run '^TestSEC040Cleanup(SQLite\|Redis)LocatorIdentity$' -timeout 60s -v` | 新候选防御合同RED，SQLite4.398s/miniredis4.128s；local alias/case歧义失败、S3 exact对照通过；非历史远程漏洞声明 |
+| `go test ./internal/test/securityfixture ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,security_red,security_cleanup -run '^TestSEC040' -timeout 2m -v` | GREEN，exit0；fixture34.068s/SQLite3.746s/miniredis3.538s；含原RED回归 |
+| `go test ./internal/storage -count=1 -tags=test,awsmock -run '^(TestCleanUp\|TestDeleteFile\|TestDeleteAllEncrypted)$' -timeout 90s -v` | FAIL，exit1/13.964s；CleanUp/Encrypted PASS，DeleteFile中空locator合成状态行令完整引用检查拒绝，未放宽生产guard |
+| 仅为该状态夹具补安全locator并清理已核对的自动测试副本后：`go test ./internal/storage -count=1 -tags=test,awsmock -run '^TestDeleteFile$' -timeout 90s -v` | PASS，exit0/13.433s；保留原物理删除断言，不重复已通过两项 |
+
+GREEN实际覆盖DELETE失败/HEAD未知/假成功均保留metadata+hotlink+源，公开GetFile/hotlink拒绝；单项远端错误后独立local仍回收。
+子进程先真实失败并正常退出，父进程此前未连该DB，fresh连接后重试成功；只证明正常进程重启，不冒称SIGKILL/断电/崩溃窗口。
+跨owner共享内容保留；local缺失可退休、目录/unsafe/symlink均保留，Windows实际symlink子例PASS；provider hotlink转属/冲突/损坏/取消合同PASS。
+pre-cancel/nil仅证明context入口拒绝及无DELETE，不是040-B取消删除竞态。新增Unix权限拒绝子例Windows NOT_RUN，交最终Linux CI实测。
+原生race BLOCKED（无CGO/gcc）；真实Redis持久化、真实S3、完整041回收、中途取消、断电及生产演练NOT_RUN。
+`go test ./internal/test/securityfixture -count=1 -tags='test,security_cleanup' -run '^TestSEC040CleanupLocalBoundaries/permissions$' -timeout 30s -v`
+exit0/10.948s，但权限子例明确SKIP/NOT_RUN（Windows），不能记权限合同PASS；最终Linux CI需核对实际子例。
+上表tags按Go参数展示，PowerShell复现时将逗号参数加单引号，如`-tags='test,awsmock'`。
+最终CI待代码/审查冻结后一次运行；本地开发证据在ignored sec040-delete-local.secret，不借用052或M3的PASS。
+一次stdlib文档查询意外触发module索引联网并被sandbox阻止，非测试/非RED；改直接读取本地GOROOT源码确认Root API，未改依赖或代理。
+
 ## M4首轮：052-A优先修复（2026-10-29）
 
 最终验证：[PR43](https://github.com/Activer007/SupaShare/pull/43)，冻结headd9d03ad34ef940132edc7c50d74d80d6fe07467d；

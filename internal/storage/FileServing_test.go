@@ -788,7 +788,7 @@ func TestDeleteFile(t *testing.T) {
 	time.Sleep(time.Second)
 	test.IsEqualBool(t, result, false)
 
-	testfile := models.File{Id: "testfiledownload", UserId: 1, DownloadsRemaining: 1, ExpireAt: 2147483646}
+	testfile := models.File{Id: "testfiledownload", SHA1: "testfiledownload-blob", UserId: 1, DownloadsRemaining: 1, ExpireAt: 2147483646}
 	database.SaveMetaData(testfile)
 	downloadstatus.SetDownload(testfile)
 	file, ok := database.GetMetaDataById("testfiledownload")

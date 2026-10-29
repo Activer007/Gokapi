@@ -256,8 +256,20 @@ func FileExistsContext(ctx context.Context, file models.File) (bool, int64, erro
 	return false, 0, nil
 }
 
-// DeleteObject deletes a file from S3
+// DeleteObject deletes a file from the mock S3 store.
 func DeleteObject(file models.File) (bool, error) {
+	return DeleteObjectContext(context.Background(), file)
+}
+
+// DeleteObjectContext keeps the mock's idempotent success semantics while
+// refusing canceled callers before credential checks or state mutation.
+func DeleteObjectContext(ctx context.Context, file models.File) (bool, error) {
+	if ctx == nil {
+		return false, errors.New("invalid AWS context")
+	}
+	if err := ctx.Err(); err != nil {
+		return false, err
+	}
 	if !isValidCredentials() {
 		return false, errors.New("invalid credentials / invalid bucket / invalid region")
 	}
@@ -265,6 +277,9 @@ func DeleteObject(file models.File) (bool, error) {
 
 	mockStateMutex.Lock()
 	defer mockStateMutex.Unlock()
+	if err := ctx.Err(); err != nil {
+		return false, err
+	}
 	for _, element := range uploadedFiles {
 		if element.SHA1 != file.SHA1 || element.AwsBucket != file.AwsBucket {
 			buffer = append(buffer, element)

@@ -48,7 +48,7 @@ By clicking on the edit button, you can change limits like the maximum download 
 File deletion
 ---------------
 
-Every hour SupaShare runs a cleanup routine which deletes all files from the storage that have been expired. If you click on the *Delete* button in the list, that file will be deleted from the disk immediately. Unproxied AWS files are deleted after 24 hours, as of right now there is no proper way to find out if a download has been completed.
+Every hour SupaShare runs a cleanup routine for expired shares. Clicking *Delete* revokes the share and starts cleanup; acceptance does not confirm physical deletion. Shared content stays while another share references it. Storage or metadata errors leave a retryable management record and a fixed cleanup-pending log message, without restoring public download access. A later cleanup or restart retries the remaining work. Unproxied AWS downloads retain their existing 24-hour tracking window because completion cannot be confirmed reliably. Deleting the current object does not erase backups or historical S3 versions.
 
 
 File Request Menu

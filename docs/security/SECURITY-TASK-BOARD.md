@@ -21,7 +21,7 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | SEC-ID | 状态 | 当前证据/Gate |
 | --- | --- | --- |
 | 052-A | IMPLEMENTED / CI_GREEN / [PR43](https://github.com/Activer007/SupaShare/pull/43) | 本地真实HTTP与Chromium/WASM正负合同GREEN，CI40870398244及聚焦race成功；ADR-023，精确证据私密保留 |
-| 040-A | P0 / RED / IN_PROGRESS | 最新基线loopback删除失败丢管理锚点业务RED；隔离开发保留，待052优先修复后继续 |
+| 040-A | P0 / LOCAL_GREEN / CI_PENDING | c434主线复核旧业务RED；checked GC/双provider、真实进程重启和共享/故障合同GREEN；ADR-022，无schema迁移 |
 | 040-B | P0 / NOT_STARTED | 取消/timer/恢复条件更新与明确反馈 |
 | 041 | P0 / NOT_STARTED | 持久旧locator、引用及重启回收 |
 | 052其余 | P1 / VALIDATE | 小型中断合同与其他支持组合仍需本项证据，不用一个Chromium正负例声称全覆盖 |

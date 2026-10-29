@@ -39,6 +39,8 @@ jobs:
         run: go test -race ./internal/environment ./internal/storage ./internal/storage/uploadreceive ./internal/webserver/fileupload ./internal/webserver/api ./internal/webserver -count=1 -tags=test,noaws -run 'TestSEC030Receive|TestSEC031UploadSizeSemantics|TestReceive|TestSpool|TestSEC062Range'
       - name: Encrypted download failure contract with race
         run: go test -race ./internal/storage -count=1 -tags=test,noaws -run '^TestSEC052ServeFileFailure$'
+      - name: Retryable cleanup and provider contracts with race
+        run: go test -race ./internal/test/securityfixture ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,security_cleanup -run '^TestSEC040Cleanup' -timeout 3m -v
       - name: Whole and chunk upload durable admission and provider contracts
         run: bash docs/security/tools/run-sec030-whole.sh target
       - name: Whole and chunk upload durable admission with race

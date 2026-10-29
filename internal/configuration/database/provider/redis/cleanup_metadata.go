@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Activer007/SupaShare/internal/helper"
 	"github.com/Activer007/SupaShare/internal/models"
 	"github.com/Activer007/SupaShare/internal/uploadquota"
 	redigo "github.com/gomodule/redigo/redis"
@@ -120,7 +121,8 @@ func (p DatabaseProvider) readCleanupIDsConn(ctx context.Context, conn redigo.Co
 // HasBlobReference checks every locator before reporting a complete result.
 // Display fields and encryption material of other owners are never decoded.
 func (p DatabaseProvider) HasBlobReference(ctx context.Context, file models.File) (bool, error) {
-	if ctx == nil || !recoveryFileID.MatchString(file.Id) || file.SHA1 == "" || len(file.SHA1) > 128 || len(file.AwsBucket) > 1024 {
+	if ctx == nil || !recoveryFileID.MatchString(file.Id) || file.SHA1 == "" || len(file.SHA1) > 128 || len(file.AwsBucket) > 1024 ||
+		(file.IsLocalStorage() && !helper.IsSafeLocalBlobName(file.SHA1)) {
 		return false, uploadquota.ErrInvalid
 	}
 	if err := ctx.Err(); err != nil {
@@ -153,6 +155,12 @@ func (p DatabaseProvider) HasBlobReference(ctx context.Context, file models.File
 		if len(values) != 2 {
 			return false, uploadquota.ErrInvalid
 		}
+		if values[1] == "" && !helper.IsSafeLocalBlobName(values[0]) {
+			return false, uploadquota.ErrInvalid
+		}
+		if values[1] == "" && file.IsLocalStorage() && values[0] != file.SHA1 && strings.EqualFold(values[0], file.SHA1) {
+			return false, uploadquota.ErrInvalid
+		}
 		if values[0] == file.SHA1 && values[1] == file.AwsBucket {
 			found = true
 		}
@@ -167,7 +175,8 @@ func (p DatabaseProvider) HasBlobReference(ctx context.Context, file models.File
 // by storage after successful deletion or a checked missing-source result.
 func (p DatabaseProvider) RetireCleanupFile(ctx context.Context, expected models.File, now int64, sourceGone bool) (bool, error) {
 	if ctx == nil || !recoveryFileID.MatchString(expected.Id) || expected.UserId <= 0 || expected.SizeBytes < 0 ||
-		expected.SHA1 == "" || len(expected.SHA1) > 128 || len(expected.AwsBucket) > 1024 || now <= 0 {
+		expected.SHA1 == "" || len(expected.SHA1) > 128 || len(expected.AwsBucket) > 1024 || now <= 0 ||
+		(expected.IsLocalStorage() && !helper.IsSafeLocalBlobName(expected.SHA1)) {
 		return false, uploadquota.ErrInvalid
 	}
 	if err := ctx.Err(); err != nil {
