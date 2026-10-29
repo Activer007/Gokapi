@@ -8,6 +8,23 @@ Overview of all changes
 -----------------------
 
 
+v2.11.0 (2026-10-29)
+^^^^^^^^^^^^^^^^^^^
+
+* Automatically generate a temporary password when an administrator creates an
+  internal-login user, and require a password change after their first browser login.
+* Show a reusable account handoff panel with username, temporary password and
+  the configured login URL. Copy the complete message or individual fields,
+  reveal/hide the password, or select multiline text when clipboard access is
+  unavailable. Generated password resets use the same panel.
+* Clear temporary credentials when the panel closes and return them only in
+  authorized, non-cacheable creation or regeneration responses. OIDC/header
+  account provisioning and ordinary user serialization remain unchanged.
+* Include English/Chinese text, stronger temporary passwords and single-process
+  duplicate-name creation protection. No database or configuration format
+  migration is required.
+
+
 v2.10.0 (fork version baseline)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
