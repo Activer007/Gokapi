@@ -33,6 +33,25 @@
 CUA导航 `https://127.0.0.1:<随机端口>/probe` 实际返回ERR_CERT_AUTHORITY_INVALID，未绕过。用户手动证书处理请求保持pending，真实浏览器截断/取消当前BLOCKED，不填PASS。
 一次默认沙箱Get-Process未看见提权启动的helper，不能据此判退出；同启动权限复核PID67332仍live。最终同权限确认退出并保存cleanup记录，原地址失效；不从超时/关闭推定native取消或源码不变PASS。
 
+### 052-B最终CI：SUCCESS（模块/服务器子项）
+
+[PR51](https://github.com/Activer007/SupaShare/pull/51)，冻结5db6d0ab3e63b2a889f3cf3c118d247d2880ac1f；[CI40942043033](https://github.com/Activer007/SupaShare/actions/runs/40942043033) SUCCESS，job123687711558。
+实际checkout70ec6fb7c531795e15d7756ecd694a66c40fd037，父0b6b2e2+5db6d0a，treea2e1b4268564c6406c9729e09542de8d8471d80b与冻结一致；Ubuntu24.04.5/image20261025.353.1、Go1.26.10 linux/amd64。
+
+| 实际最终执行 | 结果 |
+| --- | --- |
+| `go generate ./...`、`git diff --exit-code`、配置端口占用setup合同 | PASS |
+| `go test ./...` 的 `test,awsmock`、`test,noaws`、`test,noaws,integration`、`test,awstest` | 四组PASS，awstest为合成loopback配置 |
+| `go test -race ./internal/storage -count=1 -tags=test,noaws -run '^TestSEC052ServeFile(Failure\|Cancel)$'` | PASS，包含正常/部分输出取消/实际HTTP1客户端取消，旧failure断言保持 |
+| 既有receiver、040、041及其loopback S3相关race | PASS |
+| `bash docs/security/tools/run-sec030-whole.sh target` 与 `race` | PASS，10个marker全0，两次source-unchanged全0 |
+| `bash docs/security/tools/run-sec062-toolchain.sh scan` | PASS，19项全0；真实源码/WASM源码、generator/server/CLI构建及二进制扫描执行 |
+| 本地 `GOOS=js GOARCH=wasm go test -race ./cmd/wasmdownloader -count=1 -tags=test,noaws` | BLOCKED/exit2，实际输出 `-race is not supported on js/wasm`；未执行WASM race，不从服务器race扩大声明 |
+
+全部命令及实际source/artifact hashes见[脱敏摘要](evidence/sec052b-5db6d0a/ci-summary.txt)。CI Main.go SHA256 95a9df1与私密模块GREEN源一致。CI checkout生成WASM与另一个toolchain archive构建的WASM分别记录不同hash，不冒称字节级可复现或已做新浏览器验证。
+模块级GO-2026-5932、GO-2022-0646/0635告警保留，测试构建图affected0；未升级依赖，不声称无漏洞。push40941960860被同head PR concurrency取消，不计测试FAIL，最终CI只运行一次。
+新浏览器截断/原生取消仍BLOCKED/NOT_RUN，需用户手动处理临时证书后另起新地址；真实S3/Firefox/H2/ZIP新组合、断电/生产部署及手动opt-in保持NOT_RUN。仅本子项Gate完成，不关闭052整体或M4。
+
 ## M4：SEC-041开发验证（2026-10-30，历史过程）
 
 实际基线65dd7ef6c7be7d1f08c00e41318b6da132aa89af，Go1.26.10 windows/amd64、CGO0；分支codex/sec-041-old-content，仅隔离合成数据。

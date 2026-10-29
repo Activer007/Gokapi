@@ -1,0 +1,61 @@
+SEC-052-B module/server cancellation validation
+Repository: Activer007/SupaShare
+PR: https://github.com/Activer007/SupaShare/pull/51
+Run: https://github.com/Activer007/SupaShare/actions/runs/40942043033
+Job: 123687711558
+Conclusion: SUCCESS
+Frozen head: 5db6d0ab3e63b2a889f3cf3c118d247d2880ac1f
+Actual checkout: 70ec6fb7c531795e15d7756ecd694a66c40fd037
+Parents: 0b6b2e2462626db6d928bde25f477548c021b8ef 5db6d0ab3e63b2a889f3cf3c118d247d2880ac1f
+Tree, identical to frozen head: a2e1b4268564c6406c9729e09542de8d8471d80b
+Environment: Ubuntu 24.04.5, image 20261025.353.1, Go1.26.10 linux/amd64
+
+PASS: go generate ./... and git diff --exit-code
+PASS: setup listener contract with configured product port occupied
+PASS: go test ./... -parallel 8 -count=1 --tags=test,awsmock
+PASS: go test ./... -parallel 8 -count=1 --tags=test,noaws
+PASS: go test ./... --tags=test,noaws,integration -count=1
+PASS: go test ./... --tags=test,awstest -count=1 (synthetic loopback configuration)
+PASS: receiver race contracts
+PASS: go test -race ./internal/storage -count=1 -tags=test,noaws -run '^TestSEC052ServeFile(Failure|Cancel)$'
+PASS: existing cleanup/provider, deletion state/API and SEC-041 race contracts
+PASS: SEC-041 loopback S3 retry race contract
+PASS: bash docs/security/tools/run-sec030-whole.sh target
+PASS: bash docs/security/tools/run-sec030-whole.sh race
+Both upload runs: environment/whole/mock/sdk/source-unchanged markers all 0;
+10 markers total, including both source-unchanged checks.
+
+PASS: bash docs/security/tools/run-sec062-toolchain.sh scan
+19 actual markers, all 0:
+environment policy scanner-install scanner-version scanner-buildinfo generate
+formatting source-default source-noaws wasm-source generator-build
+generator-buildinfo generator-binary-scan server-build cli-build
+gokapi-buildinfo gokapi-binary-scan gokapi-cli-buildinfo gokapi-cli-binary-scan
+Module-only notices retained: GO-2026-5932, GO-2022-0646, GO-2022-0635.
+The scanned build graph reported 0 affected vulnerabilities, not a blanket
+claim that dependencies or all deployment configurations are vulnerability-free.
+
+Actual CI source/artifact hashes:
+95a9df12230ed53d49516730df616c9dc2a01f1ef5cba0bea9329d56fc3a8b2e cmd/wasmdownloader/Main.go
+e04361f5d22e0de45b1a9740589346230b993416e04b5e7c796b47111b6656ee internal/webserver/web/templates/html_download.tmpl
+32a16860d0746827ef976900ebc3656177b9f509310408e9c642e084ea37f4ed internal/webserver/web/main.wasm (CI checkout generation)
+b5db53576b1493d1d609bf4d8f7c50e07f169d4e3f1eba2d687b0dff95c62795 internal/webserver/web/main.wasm (separate toolchain archive build)
+The two artifacts come from different build contexts and are recorded
+separately; this is not a bit-for-bit reproducibility claim.
+
+Private local module evidence: unchanged v3 controlled Node24 WASM contract
+RED on baseline, GREEN on the exact Main.go source hash above. Node24.19.0;
+finite worker and same-instance subsequent normal SHA256 passed. Exact inputs
+and setup/premise failure history remain in unpublished review, not public PoC.
+This is a module contract and is not native browser download evidence.
+
+BLOCKED: Go race for js/wasm (actual command exit2: -race is not supported on js/wasm).
+BLOCKED: native Windows race without CGO toolchain; Linux server race above ran.
+BLOCKED/NOT_RUN: new Chromium HTTPS truncation/native-cancel cases, due to
+untrusted temporary certificate requiring user handoff. Old address expired;
+no warning bypass or certificate installation, cleanup is not a passing result.
+NOT_RUN: real S3/Redis durability, Firefox/H2/ZIP and other new combinations,
+power loss/production recovery, historical/compiler/container/large opt-in modes.
+The older single Chromium HTTPS normal/authentication-failure evidence retains
+its original source scope; this fix does not complete SEC-052 or M4.
+No deployment, release, advisory publication, CVE request or upstream changes.

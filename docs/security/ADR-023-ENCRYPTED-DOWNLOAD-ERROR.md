@@ -37,3 +37,4 @@ WASM的ReadableStream初始化/读取失败必须调用controller.error，让实
 这不改变未取消的n/err/EOF处理、加密协议、密钥、Promise API、数据格式或公开路由；已取消的body不会再被正常close/enqueue。
 Close仍随worker返回执行，不新增锁、队列或加密格式。回滚取消标记会恢复已验证的运行时异常风险，无数据/schema迁移。
 浏览器页面writer取消传播、真实原生下载取消和新增截断负例仍需各自实测，不能以模块PASS替代；当前HTTPS临时证书被浏览器工具拒绝，等待用户手动处理，未旁路验证或安装信任。
+PR51冻结5db6d0a，最终CI40942043033 SUCCESS；四组全仓/相关服务器race/构建扫描通过，私密模块GREEN源码95a9df1与CI源hash一致。实际Go race不支持js/wasm，未声称WASM race通过；浏览器Gate继续开放。

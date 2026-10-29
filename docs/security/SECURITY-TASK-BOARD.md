@@ -21,7 +21,7 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | SEC-ID | 状态 | 当前证据/Gate |
 | --- | --- | --- |
 | 052-A | IMPLEMENTED / CI_GREEN / [PR43](https://github.com/Activer007/SupaShare/pull/43) | 本地真实HTTP与Chromium/WASM正负合同GREEN，CI40870398244及聚焦race成功；ADR-023，精确证据私密保留 |
-| 052-B | LOCAL_REPAIRED / CI_PENDING | 仅WASM取消状态保护与服务器取消防御测试；同一私密模块合同RED→GREEN，128KiB/HTTP1取消GREEN；无协议/schema/API迁移，ADR-023补充；浏览器验收另列，不以本子项替代 |
+| 052-B | IMPLEMENTED / CI_GREEN / [PR51](https://github.com/Activer007/SupaShare/pull/51) | 冻结5db6d0a，CI40942043033四组/服务器相关race/build/scan PASS；模块同合同RED→GREEN且源hash与CI一致；128KiB/真实HTTP1取消GREEN，无协议/schema/API迁移；不替代浏览器验收 |
 | 040-A | IMPLEMENTED / CI_GREEN / [PR44](https://github.com/Activer007/SupaShare/pull/44) | CI40887732123，四组全仓/相关race及Linux权限/链接PASS；失败、重启重试、共享引用与ADR-022；无schema迁移 |
 | 040-B | IMPLEMENTED / CI_GREEN / [PR48](https://github.com/Activer007/SupaShare/pull/48) | 冻结cf30b57含主线PR47；CI40922295319四组/全部相关race/build/scan PASS；两私密候选、FR Commit/跨owner、明确WATCH中止/unknown边界GREEN；ADR-024；普通用户全在途原子隔离仍VALIDATE |
 | 041 | IMPLEMENTED / CI_GREEN / [PR50](https://github.com/Activer007/SupaShare/pull/50) | 冻结d26875d，CI40932505670四组/相关race/build/scan PASS；原合同RED→GREEN、进程exit97、共享/重新引用、旧token/满容量/故障/迁库及完整GC交互；SQLite17/Redis10，ADR-025；真实持久化/断电仍NOT_RUN |
