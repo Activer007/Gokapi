@@ -14,7 +14,14 @@
 | `go test ./internal/webserver/api -count=1 -tags='test,noaws,security_deletion' -run '^Test(UserDelete\|SEC040DeleteUserKeepsFailedCleanupAnchor\|SEC040FileStateAPI\|SEC040DeletionParameters)$' -timeout 90s -v` | 在已核对、无tracked/链接的自动test目录移入ignored备份后，PASS/exit0/5.513s；保留原DB/失败输出，未删除或改生产数据 |
 
 最终复核未见新的timer/metadata/blob或FR门禁阻断。FR Commit通过当前policy事务拒绝；用户删除全在途原子隔离仍VALIDATE。
-最终输入冻结、两个私密候选及CI另记录；不借用PR44或PR45的PASS覆盖本轮整树。
+代码冻结1d25225d062465c709d2971243fbb8728de0b8d4。两个独立私密候选真实exit0：timer9.586s、恢复14.559s；
+1469个冻结输入及原RED顶层文件哈希均前后核对；旧RED/80b9归档未改。完整命令、输入及输出保留在自有未公开审查入口，公开不带精确复现。
+timer沿用原断言；恢复候选明确改变旧的强制成功排序前提，以门禁/并发结果检查：实际GC先完成，恢复返回有效404，独立SDK GET确认404。
+不把它称作同夹具原样回放，不把unknown/超时当不存在，也不扩大为所有恢复/后端组合。
+`node --test build/tests/ui-workspace.test.cjs build/tests/ui-e2e-workspace.test.cjs` PASS/exit0，8 tests/0 skipped，152.2362ms；只是现有静态/VM契约，不冒称真实浏览器重测。
+私密安全入口已补候选结果，仍draft/published_at=null。之后只更新文档；最终CI/合并另记录，不借用PR44或PR45的PASS覆盖整树。
+
+### 历史局部进度（2026-10-29）
 
 基线dee4382f19d0801cb4022ed3ec897beda297e1df；codex/sec-040-delete-state，未提交开发工作。
 环境为便携Go1.26.10 windows/amd64、CGO0、无gcc；临时SQLite/miniredis，没有生产数据。

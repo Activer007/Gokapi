@@ -1,6 +1,6 @@
 # ADR-024：删除状态协调与兼容反馈
 
-状态：DRAFT / IMPLEMENTING，2026-10-29；SEC-040-B，基线dee4382f。未通过最终Gate，不表示可合并。
+状态：ACCEPTED / CI_PENDING，2026-10-30；SEC-040-B，初始基线dee4382f，代码冻结1d25225。未通过最终CI，不表示可合并。
 
 ## 决策
 
@@ -37,5 +37,6 @@ File Request删除、保存与owner迁移共用独立的有界stripe域；删除
 
 ## Gate
 
-现有两项私密状态合同分别取得候选GREEN；双provider字段保留/冲突/缺失不复活；旧timer、GC/恢复与跨owner边界；
-API/CLI反馈及既有兼容合同；相关Linux race与最终完整CI。未运行部分继续OPEN，不借用040-A的PASS。
+两项私密候选在冻结1d25225上GREEN：timer保留原断言；恢复候选改为串行门禁结果判定，非原先强制成功前提的同夹具回放。
+双provider字段保留/冲突/缺失不复活，旧timer、FR Claim/Commit及跨owner、API/CLI和既有兼容局部GREEN。
+相关Linux race与最终完整CI仍OPEN，不借用040-A或UI PR45的PASS。
