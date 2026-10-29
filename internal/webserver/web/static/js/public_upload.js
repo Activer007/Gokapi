@@ -40,6 +40,7 @@ function createUploadBox() {
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.title = t("common.remove");
+            removeBtn.setAttribute('aria-label', t('common.remove') + ': ' + file.name);
             removeBtn.className = 'btn btn-sm btn-link text-light p-0';
             removeBtn.innerHTML = '<i class="bi bi-x-circle"></i>';
             removeBtn.onclick = async () => {
@@ -329,6 +330,7 @@ async function startUpload() {
 
             elements.removeBtn.innerHTML = '<i class="bi bi-stop-circle text-danger"></i>';
             elements.removeBtn.title = t("upload.cancel");
+            elements.removeBtn.setAttribute('aria-label', t('upload.cancel') + ': ' + file.name);
 
             let offset = 0;
             // do-while so that add chunk is run for 0byte files as well
@@ -412,6 +414,8 @@ async function startUpload() {
 
             filesMap.get(uuid).removed = true;
             maxFilesRemaining--;
+            const remaining = document.getElementById('publicFilesRemaining');
+            if (remaining) remaining.textContent = String(Math.max(0, maxFilesRemaining));
 
             if (maxFilesRemaining === 0) showModal("alluploaded");
 
@@ -428,6 +432,7 @@ async function startUpload() {
 
             elements.removeBtn.innerHTML = '<i class="bi bi-trash"></i>';
             elements.removeBtn.title = t("upload.remove");
+            elements.removeBtn.setAttribute('aria-label', t('upload.remove') + ': ' + file.name);
         }
     }
 }
