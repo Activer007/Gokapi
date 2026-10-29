@@ -32,6 +32,19 @@ generate及tracked diff guard、setup合同PASS；awsmock全仓仅API TestList�
 新自动副本上`go test ./internal/webserver/api -count=1 -tags='test,awsmock' -run '^(TestUserDelete|TestDeleteFile|TestRestoreFile|TestList)$' -timeout 90s -v`
 PASS/exit0/11.170s，四root全部通过。当前只改测试与文档，生产运行输入仍为1d25225，不重复私密/浏览器/大文件合同；最终新CI待执行。
 
+其后自有UI PR46/47主线ef690e8已合并为冻结a02228564aa431b64bd93eb95a27cf6120d21e53；核心storage/provider/API/CLI与1d25225相比仅Api_test.go有测试差异。
+实际页面/i18n/生成输入改变，因此用新1478项manifest独立验证两个私密候选：exit0，timer10.583s、恢复14.422s；原manifest及green-1保留。
+`node --test build/tests/ui-workspace.test.cjs build/tests/ui-e2e-workspace.test.cjs build/tests/ui-collections.test.cjs build/tests/ui-status-actions.test.cjs`
+PASS/exit0，14 tests/0 skipped/1278.6052ms。新FR/public upload UI仍拒非2xx并保留重试控制；未重跑浏览器矩阵。
+
+[第二轮CI40913359980](https://github.com/Activer007/SupaShare/actions/runs/40913359980)，head a022285、job123586980688 FAIL：
+生成/diff guard、setup、四组全仓及receiver race均PASS；独立052 race触发`receive on synctest channel from outside bubble`。
+cleanup/state race及后续build/scan均SKIPPED/NOT_RUN；同head push40913350337由并发规则取消。
+原因已对照Go1.26.10本地synctest源码：lazy全局stripe通道在第一次bubble中创建，第二个bubble使用它触发归属错误。
+只把全局stripe创建提前到package init（6行），锁索引/域/条件/加密断言不变；不删除原synctest有限worker清理。
+`go test ./internal/storage ./internal/webserver/api/mutex/apimutex -count=1 -tags='test,noaws,security_deletion,security_replace' -run '^TestSEC052ServeFileFailure$|TestSEC040Mutex|TestSEC030ReplaceLocks' -timeout 90s -v`
+PASS/exit0，storage3.999s、mutex1.420s。初始化源码实际改变，故需新冻结候选与最终CI；不把此前四组PASS冒称新SHA全套PASS。
+
 ### 历史局部进度（2026-10-29）
 
 基线dee4382f19d0801cb4022ed3ec897beda297e1df；codex/sec-040-delete-state，未提交开发工作。

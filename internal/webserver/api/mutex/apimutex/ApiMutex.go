@@ -18,6 +18,12 @@ var fileRequestStripes [numStripes]stripe
 var stripesOnce sync.Once
 var errNilLockContext = errors.New("nil lock context")
 
+func init() {
+	// Global gates must be created in package scope, not in the first caller's
+	// execution context (which may be an isolated synctest bubble).
+	initStripes()
+}
+
 func initStripes() {
 	stripesOnce.Do(func() {
 		for i := range stripes {

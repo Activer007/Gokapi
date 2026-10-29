@@ -7,6 +7,7 @@
 沿用现有metadata与Unix秒PendingDeletion，不增加schema或通用任务表。
 删除、安排、取消、密码哈希升级使用双provider完整快照CAS，仅更新指定字段；缺失记录不创建。
 所有运行时metadata写者应遵守现有metadata stripe；GC与恢复共用metadata→blob→短DB事务顺序。
+全局stripe通道在package init创建，避免首次测试调用把全局资源关联至某个synctest bubble；不改变索引或互斥语义。
 源探测/物理删除在blob锁内、DB事务外；状态CAS不能撤回已经执行的物理删除。
 
 进程内使用最多16384项timer registry，区分最新token与精确deadline。取消/重排使旧token失效，
