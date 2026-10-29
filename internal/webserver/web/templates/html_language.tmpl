@@ -1,0 +1,6 @@
+{{define "language_switch"}}
+<div class="d-flex justify-content-center gap-2 mb-2" role="group" aria-label="{{.T "language.label"}}">
+  <button type="button" class="btn btn-sm btn-outline-light" lang="zh-CN" aria-pressed="{{if eq .Language "zh-CN"}}true{{else}}false{{end}}" onclick="switchLanguage('zh-CN')">中文</button>
+  <button type="button" class="btn btn-sm btn-outline-light" lang="en" aria-pressed="{{if eq .Language "en"}}true{{else}}false{{end}}" onclick="switchLanguage('en')">English</button>
+</div>
+{{end}}

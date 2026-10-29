@@ -1,3 +1,32 @@
+function t(key, parameters = {}) {
+    let message = (window.gokapiMessages || {})[key] || key;
+    return message.replace(/\{(\w+)\}/g, (match, name) =>
+        Object.prototype.hasOwnProperty.call(parameters, name) ? String(parameters[name]) : match);
+}
+
+function languageSwitchBusy() {
+    if (typeof isUploading !== 'undefined' && isUploading) return true;
+    if (typeof isUploadInProgress !== 'undefined' && isUploadInProgress) return true;
+    if (typeof filesMap !== 'undefined' && Array.from(filesMap.values()).some(entry =>
+        !entry.removed && (entry.status === 'pending' || entry.status === 'uploading'))) return true;
+    if (window.gokapiTransferBusy) return true;
+    // Processing continues after Dropzone's queuecomplete event. Containers are
+    // removed only after the final file metadata has been received.
+    return Array.from(document.querySelectorAll('#uploadstatus .us-container')).some(item =>
+        !item.querySelector('.uploaderror'));
+}
+
+function switchLanguage(language) {
+    if (language !== 'en' && language !== 'zh-CN') return;
+    if (languageSwitchBusy()) {
+        window.alert(t('language.busy'));
+        return;
+    }
+    const target = new URL(window.location.href);
+    target.searchParams.set('lang', language);
+    window.location.assign(target.href);
+}
+
 function getUuid() {
     // Native UUID, not available in insecure environment
     if (typeof crypto !== "undefined" && crypto.randomUUID) {

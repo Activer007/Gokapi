@@ -46,6 +46,7 @@ import (
 	"github.com/forceu/gokapi/internal/webserver/authentication/oauth"
 	"github.com/forceu/gokapi/internal/webserver/authentication/sessionmanager"
 	"github.com/forceu/gokapi/internal/webserver/authentication/tokengeneration"
+	"github.com/forceu/gokapi/internal/webserver/browseraccess"
 	"github.com/forceu/gokapi/internal/webserver/errorHandling"
 	"github.com/forceu/gokapi/internal/webserver/favicon"
 	"github.com/forceu/gokapi/internal/webserver/fileupload"
@@ -145,13 +146,17 @@ func Start() {
 	}
 
 	fmt.Println("Binding webserver to " + configuration.Get().Port)
+	defaultLanguage := "en"
+	if configuration.Get().UI != nil {
+		defaultLanguage = configuration.Get().UI.DefaultLanguage
+	}
 	server := &http.Server{
 		Addr:              configuration.Get().Port,
 		ReadHeaderTimeout: 5 * time.Second,
 		IdleTimeout:       time.Minute,
 		ReadTimeout:       timeOutWebserverRead,
 		WriteTimeout:      timeOutWebserverWrite,
-		Handler:           withManagementBudget(mux, managementBudget),
+		Handler:           browseraccess.DesktopOnly(withManagementBudget(mux, managementBudget), defaultLanguage),
 		BaseContext:       func(net.Listener) context.Context { return workers.Context() },
 	}
 	srvMu.Lock()
@@ -277,6 +282,7 @@ func redirectOnIncorrectId(w http.ResponseWriter, r *http.Request, url string) {
 }
 
 type redirectValues struct {
+	pageView
 	FileId           string
 	RedirectUrl      string
 	Name             string
@@ -297,7 +303,7 @@ func redirectFromFilename(w http.ResponseWriter, r *http.Request) {
 	}
 
 	config := configuration.Get()
-	err := templateFolder.ExecuteTemplate(w, "redirect_filename", redirectValues{
+	err := renderPage(w, r, "redirect_filename", &redirectValues{
 		FileId:           id,
 		RedirectUrl:      "d",
 		Name:             file.Name,
@@ -333,7 +339,7 @@ func doLogout(w http.ResponseWriter, r *http.Request) {
 
 // Handling of /index and redirecting to globalConfig.RedirectUrl
 func showIndex(w http.ResponseWriter, r *http.Request) {
-	err := templateFolder.ExecuteTemplate(w, "index", genericView{RedirectUrl: configuration.Get().RedirectUrl,
+	err := renderPage(w, r, "index", &genericView{RedirectUrl: configuration.Get().RedirectUrl,
 		PublicName:    configuration.Get().PublicName,
 		CustomContent: customStaticInfo})
 	helper.CheckIgnoreTimeout(err)
@@ -397,8 +403,8 @@ func changePassword(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	config := configuration.Get()
-	err = templateFolder.ExecuteTemplate(w, "changepw",
-		genericView{PublicName: config.PublicName,
+	err = renderPage(w, r, "changepw",
+		&genericView{PublicName: config.PublicName,
 			MinPasswordLength: configuration.GetEnvironment().MinLengthPassword,
 			ErrorMessage:      errMessage,
 			CustomContent:     customStaticInfo,
@@ -445,7 +451,7 @@ func showError(w http.ResponseWriter, r *http.Request) {
 		displayedError.CardWidth = "25rem"
 	}
 
-	err := templateFolder.ExecuteTemplate(w, "error", genericView{
+	err := renderPage(w, r, "error", &genericView{
 		ErrorId:           displayedError.ErrorId,
 		ErrorCardWidth:    displayedError.CardWidth,
 		IsGenericError:    displayedError.IsGeneric,
@@ -459,7 +465,7 @@ func showError(w http.ResponseWriter, r *http.Request) {
 
 // Handling of /forgotpw
 func forgotPassword(w http.ResponseWriter, r *http.Request) {
-	err := templateFolder.ExecuteTemplate(w, "forgotpw", genericView{
+	err := renderPage(w, r, "forgotpw", &genericView{
 		PublicName:    configuration.Get().PublicName,
 		CustomContent: customStaticInfo})
 	helper.CheckIgnoreTimeout(err)
@@ -477,7 +483,7 @@ func showUploadRequest(w http.ResponseWriter, r *http.Request) {
 		redirect(w, r, "admin")
 		return
 	}
-	err = templateFolder.ExecuteTemplate(w, "uploadreq", view)
+	err = renderPage(w, r, "uploadreq", view)
 	helper.CheckIgnoreTimeout(err)
 }
 
@@ -495,7 +501,7 @@ func showApiAdmin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = templateFolder.ExecuteTemplate(w, "api", view)
+	err = renderPage(w, r, "api", view)
 	helper.CheckIgnoreTimeout(err)
 }
 
@@ -511,7 +517,7 @@ func showUserAdmin(w http.ResponseWriter, r *http.Request) {
 		redirect(w, r, "admin")
 		return
 	}
-	err = templateFolder.ExecuteTemplate(w, "users", view)
+	err = renderPage(w, r, "users", view)
 	helper.CheckIgnoreTimeout(err)
 }
 
@@ -576,7 +582,7 @@ func showLogin(w http.ResponseWriter, r *http.Request) {
 		failedCsrf = !validCsfr
 		failedLogin = true
 	}
-	err = templateFolder.ExecuteTemplate(w, "login", LoginView{
+	err = renderPage(w, r, "login", &LoginView{
 		IsFailedLogin: failedLogin,
 		IsFailedCsfr:  failedCsrf,
 		User:          user,
@@ -590,6 +596,7 @@ func showLogin(w http.ResponseWriter, r *http.Request) {
 
 // LoginView contains variables for the login template
 type LoginView struct {
+	pageView
 	IsFailedLogin  bool
 	IsFailedCsfr   bool
 	IsAdminView    bool
@@ -614,7 +621,7 @@ func showDownload(w http.ResponseWriter, r *http.Request) {
 
 	config := configuration.Get()
 
-	view := DownloadView{
+	view := &DownloadView{
 		Name:               file.Name,
 		Size:               file.Size,
 		Id:                 file.Id,
@@ -641,7 +648,7 @@ func showDownload(w http.ResponseWriter, r *http.Request) {
 		enteredPassword := r.PostForm.Get("password")
 		if enteredPassword == "" {
 			view.IsPasswordView = true
-			err := templateFolder.ExecuteTemplate(w, "download_password", view)
+			err := renderPage(w, r, "download_password", view)
 			helper.CheckIgnoreTimeout(err)
 			return
 		}
@@ -666,12 +673,12 @@ func showDownload(w http.ResponseWriter, r *http.Request) {
 		}
 		view.IsFailedLogin = true
 		view.IsPasswordView = true
-		err := templateFolder.ExecuteTemplate(w, "download_password", view)
+		err := renderPage(w, r, "download_password", view)
 		helper.CheckIgnoreTimeout(err)
 		return
 	}
 
-	err := templateFolder.ExecuteTemplate(w, "download", view)
+	err := renderPage(w, r, "download", view)
 	helper.CheckIgnoreTimeout(err)
 }
 
@@ -730,7 +737,7 @@ func showAdminMenu(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = templateFolder.ExecuteTemplate(w, "admin", view)
+	err = renderPage(w, r, "admin", view)
 	helper.CheckIgnoreTimeout(err)
 }
 
@@ -746,7 +753,7 @@ func showLogs(w http.ResponseWriter, r *http.Request) {
 		redirect(w, r, "admin")
 		return
 	}
-	err = templateFolder.ExecuteTemplate(w, "logs", view)
+	err = renderPage(w, r, "logs", view)
 	helper.CheckIgnoreTimeout(err)
 }
 
@@ -761,7 +768,7 @@ func showE2ESetup(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	e2einfo := database.GetEnd2EndInfo(user.Id)
-	err = templateFolder.ExecuteTemplate(w, "e2esetup", e2ESetupView{
+	err = renderPage(w, r, "e2esetup", &e2ESetupView{
 		HasBeenSetup:  e2einfo.HasBeenSetUp(),
 		PublicName:    configuration.Get().PublicName,
 		CustomContent: customStaticInfo})
@@ -770,6 +777,7 @@ func showE2ESetup(w http.ResponseWriter, r *http.Request) {
 
 // DownloadView contains parameters for the download template
 type DownloadView struct {
+	pageView
 	Name                 string
 	Size                 string
 	Id                   string
@@ -787,6 +795,7 @@ type DownloadView struct {
 }
 
 type e2ESetupView struct {
+	pageView
 	IsAdminView    bool
 	IsDownloadView bool
 	HasBeenSetup   bool
@@ -796,6 +805,7 @@ type e2ESetupView struct {
 
 // AdminView contains parameters for all admin-related pages
 type AdminView struct {
+	pageView
 	Items                 []models.FileApiOutput
 	ApiKeys               []models.ApiKey
 	Users                 []userInfo
@@ -1034,7 +1044,7 @@ func showPublicUpload(w http.ResponseWriter, r *http.Request) {
 
 	config := configuration.Get()
 
-	view := publicUploadView{
+	view := &publicUploadView{
 		PublicName:    config.PublicName,
 		ChunkSize:     config.ChunkSize,
 		MaxServerSize: config.MaxFileSizeMB,
@@ -1042,7 +1052,7 @@ func showPublicUpload(w http.ResponseWriter, r *http.Request) {
 		CustomContent: customStaticInfo,
 	}
 
-	err := templateFolder.ExecuteTemplate(w, "publicUpload", view)
+	err := renderPage(w, r, "publicUpload", view)
 	helper.CheckIgnoreTimeout(err)
 }
 
@@ -1267,6 +1277,7 @@ func addCacheHeader(w http.ResponseWriter) {
 
 // A view containing parameters for a generic template
 type genericView struct {
+	pageView
 	IsAdminView       bool
 	IsDownloadView    bool
 	IsGenericError    bool
@@ -1284,6 +1295,7 @@ type genericView struct {
 
 // A view containing parameters for an oauth error
 type oauthErrorView struct {
+	pageView
 	IsAdminView          bool
 	IsDownloadView       bool
 	PublicName           string
@@ -1296,6 +1308,7 @@ type oauthErrorView struct {
 
 // A view containing parameters for the public upload page
 type publicUploadView struct {
+	pageView
 	IsAdminView    bool
 	IsDownloadView bool
 	PublicName     string

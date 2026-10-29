@@ -59,6 +59,9 @@ func loadFromFile(path string) (models.Configuration, error) {
 	if err != nil {
 		return models.Configuration{}, err
 	}
+	if err = settings.UI.Validate(); err != nil {
+		return models.Configuration{}, err
+	}
 	if len(settings.Authentication.SaltFiles) < 20 {
 		settings.Authentication.SaltFiles = helper.GenerateRandomString(30)
 		fmt.Println("Warning: Salt for file hash invalid, generating new salt")

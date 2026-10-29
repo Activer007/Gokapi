@@ -168,6 +168,20 @@ func TestToConfiguration(t *testing.T) {
 	test.IsEqualString(t, output.RedirectUrl, "https://github.com/Forceu/Gokapi/")
 }
 
+func TestReconfigurationPreservesUI(t *testing.T) {
+	previousInitial, previousUI := isInitialSetup, configuration.Get().UI
+	defer func() { isInitialSetup = previousInitial; configuration.Get().UI = previousUI }()
+	isInitialSetup = false
+	configuration.Get().UI = &models.UIConfig{DefaultLanguage: "zh-CN", Title: "Team files", FooterText: "Internal"}
+	output, _, _, _, err := toConfiguration(&jsonForms)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if output.UI == nil || output.UI.DefaultLanguage != "zh-CN" || output.UI.FooterText != "Internal" {
+		t.Fatal("reconfiguration discarded UI settings")
+	}
+}
+
 func TestVerifyPortNumber(t *testing.T) {
 	test.IsEqualInt(t, verifyPortNumber(2134), 2134)
 	test.IsEqualInt(t, verifyPortNumber(-1), environment.DefaultPort)
