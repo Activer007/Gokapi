@@ -449,7 +449,7 @@ func DuplicateFileContext(ctx context.Context, file models.File, parametersToCha
 	}
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	limits, err := duplicateLimits()
+	limits, err := metadataLimits()
 	if err != nil {
 		return models.File{}, err
 	}

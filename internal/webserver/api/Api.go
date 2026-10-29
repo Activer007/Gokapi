@@ -801,8 +801,11 @@ func apiChangeFileOwner(w http.ResponseWriter, r requestParser, user models.User
 		sendError(w, http.StatusBadRequest, errorcodes.NotFound, "User does not exist")
 		return
 	}
-	file.UserId = request.NewOwner
-	database.SaveMetaData(file)
+	file, err := storage.TransferFileOwnerContext(chunkRequestContext(request.Request), file, request.NewOwner)
+	if err != nil {
+		sendUploadAdmissionError(w, fileupload.UploadAdmissionError(err))
+		return
+	}
 	outputFileApiInfo(w, file)
 }
 

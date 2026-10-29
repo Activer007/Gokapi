@@ -19,6 +19,9 @@ func Apply(ledger Ledger, files map[string]models.File, change Change) (Ledger, 
 	if change.Action == DuplicateMetadata {
 		return duplicateMetadata(ledger, files, change)
 	}
+	if change.Action == TransferOwner {
+		return transferOwner(ledger, files, change)
+	}
 	next := EmptyLedger()
 	for id, record := range ledger.Records {
 		next.Records[id] = record

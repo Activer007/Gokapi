@@ -14,7 +14,18 @@
 
 G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BLOCKED 详见 [TEST-REPORT](TEST-REPORT.md)。初始M0仅测试/证据，后续生产实现及ADR以各增补条目为准。
 
-## 当前 SEC-030 复制增量：目标 GREEN、CI_PENDING
+## 当前 SEC-030 单文件owner增量：目标GREEN、CI_PENDING
+
+工作基线c3244f0；分支codex/sec-030-owner-admission；ADR-019。
+G0：本地tracked起点干净，两个用户未跟踪目录保留；上游定向未找到相同owner准入修复。
+G1：隔离HTTP4组真实ASSERTION_RED；G2：核心、双provider整包及最终HTTP4组PASS，Linux最终CI待运行。
+不重跑未受影响的大文件/浏览器矩阵；最终CI与PR结果在关联审查记录，避免为补文档重复CI。
+范围只到 `/api/files/changeOwner`；replace、deleteUser保留文件的批量迁移及物理协调/恢复继续OPEN。
+
+## SEC-030 复制增量：MERGED
+
+PR24合并为c3244f0；最终CI40812061382 SUCCESS，实际候选5d37f97含UI PR23/25，合并树一致。
+首轮共享fixture失败修正后通过，完整命令/审查结论见PR24；合并后未重复CI，无部署。
 
 PR22已合并为c657d547，合并后CI40804164086成功且输入匹配。当前复制小增量：
 codex/sec-030-duplicate-admission，ADR-018；隔离HTTP ASSERTION_RED及核心/双provider目标GREEN已获得。

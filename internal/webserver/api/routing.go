@@ -383,12 +383,14 @@ func (p *paramFilesAdd) ProcessParameter(r *http.Request) error {
 }
 
 type paramFilesChangeOwner struct {
+	Request      *http.Request
 	Id           string `header:"id" required:"true"`
 	NewOwner     int    `header:"newOwner" required:"true"`
 	foundHeaders map[string]bool
 }
 
-func (p *paramFilesChangeOwner) ProcessParameter(_ *http.Request) error {
+func (p *paramFilesChangeOwner) ProcessParameter(r *http.Request) error {
+	p.Request = r
 	return nil
 }
 
