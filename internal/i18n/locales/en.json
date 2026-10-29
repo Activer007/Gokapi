@@ -556,5 +556,20 @@
   "settings.saved": "Changes saved",
   "api.rename": "Rename API key",
   "users.rankConfirm": "Change {name} to {role}? Their effective permissions will change immediately.",
-  "files.replacePartial": "File settings were saved, but replacement failed. Review the settings before retrying."
+  "files.replacePartial": "File settings were saved, but replacement failed. Review the settings before retrying.",
+  "users.autoPasswordHelp": "A temporary password will be generated automatically. The user must change it after signing in.",
+  "users.accountReady": "Account ready to share",
+  "users.accountResetReady": "New login information",
+  "users.firstLoginHelp": "Share this information with the user. They must choose a new password the first time they sign in.",
+  "users.temporaryPassword": "Temporary password",
+  "users.loginUrl": "Login address",
+  "users.copyUsername": "Copy username",
+  "users.copyLoginUrl": "Copy login address",
+  "users.copyAll": "Copy all login information",
+  "users.showPassword": "Show password",
+  "users.hidePassword": "Hide password",
+  "users.credentialsOnce": "This password is only shown here. If it is lost after closing, generate a new one from Reset Password.",
+  "users.credentialsUnavailable": "The account was saved, but its login information could not be displayed. Close this dialog and generate a new password from Reset Password.",
+  "users.infoCopied": "Login information copied",
+  "users.accountShare": "Your SupaShare account is ready.\n\nLogin address: {loginUrl}\nUsername: {username}\nTemporary password: {password}\n\nPlease choose a new password after signing in for the first time."
 }

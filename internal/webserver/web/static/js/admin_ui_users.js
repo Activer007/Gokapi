@@ -44,36 +44,133 @@ function showDeleteUserModal(userId, userEmail) {
 }
 
 
+// Credentials are only held while the originating modal is open. They are not
+// attached to user rows, storage, clipboard data attributes or event closures.
+const userCredentialState = new WeakMap();
+const userCredentialLifecycle = new WeakSet();
+
+function clearUserCredentials(modal) {
+    userCredentialState.delete(modal);
+    delete modal.dataset.credentialsIssued;
+    const panel = modal.querySelector('[data-user-credentials]');
+    if (!panel) return;
+    panel.hidden = true;
+    for (const field of panel.querySelectorAll('input, textarea')) field.value = '';
+    panel.querySelector('[data-credential-field="password"]').type = 'password';
+    panel.querySelector('[data-credential-fallback]').hidden = true;
+    for (const button of panel.querySelectorAll('button')) button.onclick = null;
+    const toggle = panel.querySelector('[data-credential-toggle]');
+    toggle.textContent = t('users.showPassword');
+    toggle.setAttribute('aria-pressed', 'false');
+}
+
+function resetUserCredentialModal(modal) {
+    clearUserCredentials(modal);
+    for (const entry of modal.querySelectorAll('[data-credential-entry], [data-credential-actions]')) entry.hidden = false;
+    for (const close of modal.querySelectorAll('[data-credential-close]')) close.hidden = true;
+    const error = modal.querySelector('.save-error');
+    if (error) error.textContent = '';
+    const form = modal.querySelector('form');
+    if (form) form.reset();
+    modal.querySelector('.modal-title').textContent = t(modal.id === 'newUserModal' ? 'users.create' : 'users.resetPassword');
+    if (modal.id === 'resetPasswordModal') {
+        modal.querySelector('#forceNewPassword').checked = true;
+        modal.querySelector('#generateRandomPassword').checked = false;
+        modal.querySelector('#l_userpwreset').textContent = '';
+        modal.querySelector('#resetPasswordButton').onclick = null;
+    }
+}
+
+function prepareUserCredentialModal(id) {
+    const modal = document.getElementById(id);
+    if (!userCredentialLifecycle.has(modal)) {
+        modal.addEventListener('hidden.bs.modal', () => resetUserCredentialModal(modal));
+        userCredentialLifecycle.add(modal);
+    }
+    resetUserCredentialModal(modal);
+    return modal;
+}
+
+function credentialShareText(credentials) {
+    return t('users.accountShare', credentials);
+}
+
+async function copyUserCredential(modal, field, trigger) {
+    const credentials = userCredentialState.get(modal);
+    if (!credentials) return;
+    const text = field === 'all' ? credentialShareText(credentials) : credentials[field];
+    try {
+        await navigator.clipboard.writeText(text);
+        if (userCredentialState.get(modal) === credentials) {
+            const fallback = modal.querySelector('[data-credential-fallback]');
+            fallback.hidden = true;
+            fallback.querySelector('textarea').value = '';
+            showToast(3500, t('users.infoCopied'));
+        }
+    } catch (error) {
+        // The modal may have closed while a browser permission prompt was open.
+        if (userCredentialState.get(modal) !== credentials) return;
+        const fallback = modal.querySelector('[data-credential-fallback]');
+        const value = fallback.querySelector('textarea');
+        fallback.hidden = false;
+        value.value = text;
+        value.focus();
+        value.select();
+    }
+}
+
+function finishUserCredentialEntry(modal) {
+    // Hide explicitly: runModalSave re-enables captured controls in its finally.
+    for (const entry of modal.querySelectorAll('[data-credential-entry], [data-credential-actions]')) entry.hidden = true;
+    for (const close of modal.querySelectorAll('[data-credential-close]')) close.hidden = false;
+    modal.dataset.credentialsIssued = 'true';
+}
+
+function showUserCredentials(modal, values) {
+    finishUserCredentialEntry(modal);
+    if (![values.username, values.password, values.loginUrl].every(value => typeof value === 'string' && value.length > 0)) {
+        // Account creation/reset already succeeded. Do not expose its submit
+        // button again or accidentally create/regenerate credentials on retry.
+        throw new Error(t('users.credentialsUnavailable'));
+    }
+    const credentials = {username: values.username, password: values.password, loginUrl: values.loginUrl};
+    userCredentialState.set(modal, credentials);
+    const panel = modal.querySelector('[data-user-credentials]');
+    for (const field of ['username', 'password', 'loginUrl']) panel.querySelector('[data-credential-field="'+field+'"]').value = credentials[field];
+    panel.hidden = false;
+    modal.querySelector('.modal-title').textContent = t(modal.id === 'newUserModal' ? 'users.accountReady' : 'users.accountResetReady');
+    for (const button of panel.querySelectorAll('[data-credential-copy]')) {
+        button.onclick = () => copyUserCredential(modal, button.dataset.credentialCopy, button);
+    }
+    const toggle = panel.querySelector('[data-credential-toggle]');
+    toggle.onclick = () => {
+        const field = panel.querySelector('[data-credential-field="password"]');
+        const visible = field.type === 'password';
+        field.type = visible ? 'text' : 'password';
+        toggle.textContent = t(visible ? 'users.hidePassword' : 'users.showPassword');
+        toggle.setAttribute('aria-pressed', String(visible));
+    };
+}
+
 function showAddUserModal() {
-    // Cloning removes any previous values or form validation
-    let originalModal = $('#newUserModal').clone();
-    $("#newUserModal").on('hidden.bs.modal', function() {
-        $('#newUserModal').remove();
-        let myClone = originalModal.clone();
-        $('body').append(myClone);
-    });
-    $('#newUserModal').modal('show');
+    const modal = prepareUserCredentialModal('newUserModal');
+    bootstrap.Modal.getOrCreateInstance(modal).show();
 }
 
 
 function showResetPwModal(userid, name) {
-    // Cloning removes any previous values or form validation
-    let originalModal = $('#resetPasswordModal').clone();
-    $("#resetPasswordModal").on('hidden.bs.modal', function() {
-        $('#resetPasswordModal').remove();
-        let myClone = originalModal.clone();
-        $('body').append(myClone);
-    });
-
+    const modal = prepareUserCredentialModal('resetPasswordModal');
     document.getElementById("l_userpwreset").innerText = name;
     let button = document.getElementById("resetPasswordButton");
     button.onclick = function() {
         resetPw(userid, document.getElementById("generateRandomPassword").checked);
     };
-    $('#resetPasswordModal').modal('show');
+    bootstrap.Modal.getOrCreateInstance(modal).show();
 }
 
 async function resetPw(userid, newPw) {
+    const modal = document.getElementById('resetPasswordModal');
+    if (modal.dataset.credentialsIssued === 'true') return;
     const button = document.getElementById('resetPasswordButton');
     await runModalSave('resetPasswordModal', button, async () => {
         const data = await apiUserResetPassword(userid, newPw);
@@ -81,16 +178,11 @@ async function resetPw(userid, newPw) {
             showToast(3500,t('users.resetSuccess'));
             return;
         }
-        button.style.display = 'none';
-        document.getElementById('cancelPasswordButton').style.display = 'none';
-        document.getElementById('formentryReset').style.display = 'none';
-        document.getElementById('randomPasswordContainer').style.display = 'block';
-        document.getElementById('closeModalResetPw').style.display = 'block';
-        document.getElementById('l_returnedPw').textContent = data.password;
-        document.getElementById('copypwclip').onclick = function() {
-            copySensitiveText(data.password, this, t('users.copySuccess'));
-        };
+        showUserCredentials(modal, {
+            username: data.username, password: data.password, loginUrl: data.loginUrl
+        });
     }, undefined, !newPw);
+    if (userCredentialState.has(modal)) modal.querySelector('[data-credential-copy="all"]').focus();
 }
 
 async function addNewUser() {
@@ -98,13 +190,23 @@ async function addNewUser() {
     input.value = input.value.trim();
     if (!document.getElementById('newUserForm').reportValidity()) return;
     const name = input.value;
-    await runModalSave('newUserModal', document.getElementById('mb_addUser'), async () => {
+    const modal = document.getElementById('newUserModal');
+    if (modal.dataset.credentialsIssued === 'true') return;
+    let delivered = false;
+    const saved = await runModalSave('newUserModal', document.getElementById('mb_addUser'), async () => {
         let data;
         try { data = await apiUserCreate(name); }
         catch (error) { throw new Error(error.message === 'duplicate' ? t('users.duplicate') : error.message); }
         addRowUser(data.id, data.name, data.permissions);
-        showToast(3500,t('settings.saved'));
-    });
+        if (isInternalAuth) {
+            showUserCredentials(modal, {username: data.name, password: data.password, loginUrl: data.loginUrl});
+            delivered = true;
+        } else {
+            showToast(3500,t('settings.saved'));
+        }
+    }, undefined, false);
+    if (saved && !delivered) bootstrap.Modal.getOrCreateInstance(modal).hide();
+    if (saved && delivered) modal.querySelector('[data-credential-copy="all"]').focus();
 }
 
 const PermissionDefinitions = [

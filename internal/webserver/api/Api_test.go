@@ -348,7 +348,22 @@ func TestUserCreate(t *testing.T) {
 		Value: "1234",
 	}})
 	Process(w, r)
-	test.ResponseBodyIs(t, w, `{"id":103,"name":"1234","permissions":0,"userLevel":2,"lastOnline":0,"resetPassword":false}`)
+	var created struct {
+		models.User
+		TemporaryPassword string `json:"password"`
+		LoginURL          string `json:"loginUrl"`
+	}
+	test.IsNil(t, json.Unmarshal(w.Body.Bytes(), &created))
+	test.IsEqualString(t, created.Name, "1234")
+	test.IsEqualInt(t, created.Id, 103)
+	test.IsEqualBool(t, created.ResetPassword, true)
+	test.IsEqualBool(t, len(created.TemporaryPassword) >= 20, true)
+	test.IsEqualString(t, created.LoginURL, strings.TrimRight(configuration.Get().ServerUrl, "/")+"/login")
+	stored, found := database.GetUser(created.Id)
+	test.IsEqualBool(t, found, true)
+	valid, legacy := configuration.VerifyPassword(created.TemporaryPassword, stored.Password, "")
+	test.IsEqualBool(t, valid, true)
+	test.IsEqualBool(t, legacy, false)
 
 	var invalidParameter = []invalidParameterValue{
 		{

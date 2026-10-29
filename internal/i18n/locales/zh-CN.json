@@ -556,5 +556,20 @@
   "settings.saved": "更改已保存",
   "api.rename": "重命名 API 密钥",
   "users.rankConfirm": "将 {name} 的身份改为{role}？实际生效的权限将立即改变。",
-  "files.replacePartial": "文件设置已保存，但替换失败。请检查设置后重试。"
+  "files.replacePartial": "文件设置已保存，但替换失败。请检查设置后重试。",
+  "users.autoPasswordHelp": "系统将自动生成临时密码，用户首次登录后需修改密码。",
+  "users.accountReady": "账号已创建，可分享登录信息",
+  "users.accountResetReady": "新的登录信息",
+  "users.firstLoginHelp": "将以下信息分享给用户，用户首次登录后需要设置自己的新密码。",
+  "users.temporaryPassword": "临时密码",
+  "users.loginUrl": "登录地址",
+  "users.copyUsername": "复制用户名",
+  "users.copyLoginUrl": "复制登录地址",
+  "users.copyAll": "复制全部登录信息",
+  "users.showPassword": "显示密码",
+  "users.hidePassword": "隐藏密码",
+  "users.credentialsOnce": "此密码仅在这里显示。关闭后如遗失，请通过“重置密码”重新生成。",
+  "users.credentialsUnavailable": "账号已保存，但无法显示登录信息。请关闭弹窗，通过“重置密码”重新生成密码。",
+  "users.infoCopied": "登录信息已复制",
+  "users.accountShare": "你的 SupaShare 账号已开通：\n\n登录地址：{loginUrl}\n用户名：{username}\n临时密码：{password}\n\n首次登录后，请按提示修改密码。"
 }

@@ -248,7 +248,14 @@ func apiCreateUser(w http.ResponseWriter, r requestParser, user models.User, _ m
 	if !ok {
 		panic("invalid parameter passed")
 	}
-	newUser, err := users.Create(request.Username)
+	var newUser models.User
+	var password string
+	var err error
+	if configuration.Get().Authentication.Method == models.AuthenticationInternal {
+		newUser, password, err = users.CreateWithTemporaryPassword(request.Username)
+	} else {
+		newUser, err = users.Create(request.Username)
+	}
 	if err != nil {
 		switch {
 		case errors.Is(err, users.ErrorNameToShort):
@@ -261,7 +268,31 @@ func apiCreateUser(w http.ResponseWriter, r requestParser, user models.User, _ m
 		return
 	}
 	logging.LogUserCreation(newUser, user)
-	_, _ = w.Write([]byte(newUser.ToJson()))
+	if password == "" {
+		_, _ = w.Write([]byte(newUser.ToJson()))
+		return
+	}
+	response := struct {
+		models.User
+		TemporaryPassword string `json:"password"`
+		LoginURL          string `json:"loginUrl"`
+	}{User: newUser, TemporaryPassword: password, LoginURL: credentialLoginURL()}
+	setCredentialResponseHeaders(w)
+	result, err := json.Marshal(response)
+	helper.Check(err)
+	_, _ = w.Write(result)
+}
+
+// Use the configured external base, including any subpath, rather than an
+// untrusted incoming Host or forwarding header when sharing login information.
+func credentialLoginURL() string {
+	return strings.TrimRight(configuration.Get().ServerUrl, "/") + "/login"
+}
+
+func setCredentialResponseHeaders(w http.ResponseWriter) {
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
 }
 
 func apiChangeFriendlyName(w http.ResponseWriter, r requestParser, user models.User, _ models.ApiKey) {
@@ -1015,7 +1046,7 @@ func apiResetPassword(w http.ResponseWriter, r requestParser, user models.User, 
 	userToEdit.ResetPassword = true
 	password := ""
 	if request.NewPassword {
-		password = helper.GenerateRandomString(configuration.GetEnvironment().MinLengthPassword + 2)
+		password = users.GenerateTemporaryPassword()
 		userToEdit.Password = configuration.HashPassword(password, false, "")
 	}
 	database.DeleteAllSessionsByUser(userToEdit.Id)
@@ -1023,7 +1054,14 @@ func apiResetPassword(w http.ResponseWriter, r requestParser, user models.User, 
 	resultStruct := struct {
 		Result      string `json:"Result"`
 		NewPassword string `json:"password"`
+		Username    string `json:"username,omitempty"`
+		LoginURL    string `json:"loginUrl,omitempty"`
 	}{Result: "OK", NewPassword: password}
+	if request.NewPassword {
+		resultStruct.Username = userToEdit.Name
+		resultStruct.LoginURL = credentialLoginURL()
+		setCredentialResponseHeaders(w)
+	}
 	result, _ := json.Marshal(resultStruct)
 	_, _ = w.Write(result)
 }
