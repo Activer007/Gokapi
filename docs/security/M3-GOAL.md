@@ -11,7 +11,9 @@
 
 [PR35](https://github.com/Activer007/Gokapi/pull/35)最终代码db4dc8a7e0ede74390cd422728fccd9ebf3287b3，
 已保留同期PR36的自有module/import迁移。CI40833366371 SUCCESS，候选a78f7be52633fef9897a0c32e6f9ab491ef5fda2，
-tree89276c432411389c7e685223fece6ce74eb19496；最后只补安全Markdown/文本证据，代码与运行器不变。
+tree89276c432411389c7e685223fece6ce74eb19496；后续安全Markdown/文本不改安全代码与运行器。
+同期PR37只改Presentation.go及页脚template，五项受影响页面合同另验PASS；最终合并树包含该UI增量，
+不将其声称为原CI整树。安全源码、module、运行器及配额/恢复行为与上述CI一致。
 
 | 冻结项 | 结果与边界 |
 | --- | --- |

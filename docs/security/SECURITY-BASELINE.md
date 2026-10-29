@@ -13,7 +13,9 @@ CONFIRMED_CODE：启动原先直接运行常规GC；新恢复门禁置于GC/HTTP
 VALIDATE：断电、Redis持久化/S3恢复、其他metadata写者、批量迁移、canonical孤儿回收/物理协调继续OPEN。
 同期PR36迁移Go module/import至Activer007/Gokapi；本恢复PR保留该基线，不恢复旧身份。
 旧身份候选CI40831437902成功；迁移后的最终head db4dc8a由CI40833366371 SUCCESS验证，
-实际候选a78f7be5/tree89276c43，四组全仓/生成/相关race/build/scan通过。收尾仅安全文档/文本，代码和运行器未变。
+实际候选a78f7be5/tree89276c43，四组全仓/生成/相关race/build/scan通过。后续安全文档不改安全代码和运行器。
+同期PR37页脚版本显示增量仅Presentation.go/template，已单独验证五项页面合同；全应用树与旧CI有该明确差异，
+未第三次全仓重跑，也未混称整树完全一致。安全构建输入保持已验证版本。
 [M3-GOAL](M3-GOAL.md)冻结范围已收口；完整实际命令与旧冲突/RED记录见TEST-REPORT及PR35审查。
 
 ## SEC-030 文件替换增量（2026-10-29）

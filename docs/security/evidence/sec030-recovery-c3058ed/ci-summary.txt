@@ -8,6 +8,9 @@ Selected lines only; full commands and scope in TEST-REPORT.md and PR35 review.
 All four full suites, generation, receiver race, target/race and build/scan PASS.
 Source/hash checks PASS; module notices remain, no dependency-repair claim.
 Final evidence-only commit does not change code, module, runtime assets or harness.
+Subsequent master45c5d69 / PR37 changes only Presentation.go and html_footer.tmpl.
+Five affected UI contracts PASS on Windows, 11.473s; see footer.log.txt / TEST-REPORT.
+Final application tree includes that UI delta; security sources, module and harness remain identical to tested candidate.
 
 HEAD is now at a78f7be Merge db4dc8a7e0ede74390cd422728fccd9ebf3287b3 into 32fe5c1765ffca7ed506d7721eed6f4c6ba59afe
 a78f7be52633fef9897a0c32e6f9ab491ef5fda2

@@ -19,7 +19,8 @@ A清理过期未Claim输入，B发布后未Commit保额/保文件/无metadata补
 最终代码db4dc8a，[CI40833366371](https://github.com/Activer007/Gokapi/actions/runs/40833366371) SUCCESS，
 实际候选a78f7be5（base32fe5c1），tree89276c43；三窗口race6.29s、negative2.78s。
 [CI选取摘要](ci-summary.txt)仅含固定测试/结果/版本与合并输入，不是完整日志；完整命令见TEST-REPORT/PR35审查。
-最后只补安全Markdown/文本记录，代码、Go module和运行器保持已验证输入；不重复同代码全仓CI。
+后续安全Markdown/文本不改安全代码、Go module和运行器；不重复同安全代码全仓CI。
+同期PR37页脚2文件增量单独通过[五项模板合同](footer.log.txt)，全应用树包含此差异，不声称与旧CI整树完全相同。
 
 复现新合同RED：在隔离checkout保留最终测试、错误值及Report类型，仅将RecoverUploads函数体临时替换成
 `return RecoveryReport{Version: 1}, nil`，运行TEST-REPORT第一条命令；必须先核对crash子进程退出97，

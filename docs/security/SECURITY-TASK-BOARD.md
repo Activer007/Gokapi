@@ -27,7 +27,8 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 
 本轮基线c3058ed；NEW_CONTRACT/STUB_RED不是旧漏洞证据。原head的CI40831437902成功后，
 同期PR36改变module/import并产生实际Git冲突，适配后最终head db4dc8a由CI40833366371验证。
-候选a78f7be5/tree89276c43；最终收尾只改安全文档/文本，不重跑同代码CI。
+候选a78f7be5/tree89276c43；后续安全文档不重跑同代码CI。同期PR37页脚2文件差异另跑五项模板合同PASS，
+安全源码/运行器保持一致，不把这个UI差异掩盖成CI整树一致。
 无新增大文件/浏览器/真实后端矩阵，无部署和上游写入。延期项仍为OPEN，不能改标HISTORICAL_FIXED。
 
 ## SEC-030 文件替换增量：MERGED

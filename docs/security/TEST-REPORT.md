@@ -12,7 +12,9 @@
 最终收口：[PR35](https://github.com/Activer007/Gokapi/pull/35)，代码db4dc8a7e0ede74390cd422728fccd9ebf3287b3，
 [CI40833366371](https://github.com/Activer007/Gokapi/actions/runs/40833366371) SUCCESS，job123312410322。
 实际checkout a78f7be52633fef9897a0c32e6f9ab491ef5fda2，父32fe5c1+db4dc8a，tree89276c432411389c7e685223fece6ce74eb19496，
-Go1.26.10 linux/amd64、Ubuntu24.04；包含UI PR32–34及仓库身份迁移PR36。收口提交仅安全Markdown/文本证据，代码/运行器不变。
+Go1.26.10 linux/amd64、Ubuntu24.04；包含UI PR32–34及仓库身份迁移PR36。收口文档不改安全源码/运行器。
+随后master45c5d69合入PR37（Presentation.go和html_footer.tmpl，统一显示版本），因此最终整树还含该UI差异。
+只对受影响UI做下述五项验证，不第三次全仓CI；安全源码、module与运行器均与a78f7be5一致，未声称全应用整树完全相同。
 
 | 最终CI真实命令 | 结果 |
 | --- | --- |
@@ -24,6 +26,7 @@ Go1.26.10 linux/amd64、Ubuntu24.04；包含UI PR32–34及仓库身份迁移PR3
 | `go test -race ./internal/environment ./internal/storage ./internal/storage/uploadreceive ./internal/webserver/fileupload ./internal/webserver/api ./internal/webserver -count=1 -tags=test,noaws -run 'TestSEC030Receive\|TestSEC031UploadSizeSemantics\|TestReceive\|TestSpool\|TestSEC062Range'` | PASS，既有receiver共享路径race |
 | `bash docs/security/tools/run-sec030-whole.sh target` / `bash docs/security/tools/run-sec030-whole.sh race` | PASS，两次source-unchanged为0；三窗口新矩阵只在race执行（6.29s，A/B1.33s、C3.63s），negative2.78s；小chunk helpers随target/race执行，未声称所有helper只跑一次 |
 | `bash docs/security/tools/run-sec062-toolchain.sh scan` | PASS，格式/生成、server/CLI/generator构建与实际BuildInfo、扫描返回码核实；模块提示仍保留 |
+| PR37适配后Windows：`go test ./internal/webserver -count=1 -tags=test,noaws -run '^TestUI(PresentationAndCookie\|PasswordTitlesHideFilename\|PublicPages\|UploadManagementContexts\|AccountAndStatusPages)$' -timeout 2m -v` | PASS，退出0/11.473s，五个页面/模板合同；日志仅选取测试结果，不含loopback地址 |
 
 公开[CI摘要](evidence/sec030-recovery-c3058ed/ci-summary.txt)和PR审查记录保留实际输入/结果；没有为文档改动重跑全套CI。
 文档白名单检查最初误将新增summary算作tracked而拒绝；修正为6个tracked Markdown+1个新增文本后PASS，源码/运行器无变化。

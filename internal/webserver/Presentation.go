@@ -18,7 +18,6 @@ type pageUI struct {
 	Description string
 	FooterText  string
 	FooterLinks []models.FooterLink
-	ShowVersion bool
 }
 
 type pageView struct {
@@ -70,7 +69,6 @@ func renderPage(w http.ResponseWriter, r *http.Request, name string, view interf
 	}
 	label := locale.T(key)
 	description := ""
-	showVersion := name == "admin" || name == "uploadreq" || name == "users" || name == "api" || name == "logs" || name == "e2esetup"
 	switch data := view.(type) {
 	case *DownloadView:
 		if data.IsPasswordView {
@@ -88,7 +86,7 @@ func renderPage(w http.ResponseWriter, r *http.Request, name string, view interf
 		}
 	}
 	view.setUI(pageUI{Locale: locale, Title: label + " · " + baseTitle, SiteTitle: baseTitle, Description: description,
-		FooterText: settings.FooterText, FooterLinks: settings.FooterLinks, ShowVersion: showVersion})
+		FooterText: settings.FooterText, FooterLinks: settings.FooterLinks})
 	addNoCacheHeader(w)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	return templateFolder.ExecuteTemplate(w, name, view)
