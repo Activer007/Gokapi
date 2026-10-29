@@ -2,6 +2,83 @@
 
 日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/SupaShare 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
 
+## M4首轮：052-A优先修复（2026-10-29）
+
+最终验证：[PR43](https://github.com/Activer007/SupaShare/pull/43)，冻结headd9d03ad34ef940132edc7c50d74d80d6fe07467d；
+[CI40870398244](https://github.com/Activer007/SupaShare/actions/runs/40870398244) SUCCESS，job123435790878。
+实际checkout48ea753a663d67699074ce9aadd914956d2666b2，父718c46a+d9d03ad，tree4dcb15ee8cd1a56aa69e6a4df9f4971e900fac63与冻结head一致。
+Ubuntu24.04、Go1.26.10 linux/amd64；完整命令与脱敏结果见[evidence](evidence/sec052-d9d03ad/ci-summary.txt)。
+
+| 最终CI真实命令 | 结果 |
+| --- | --- |
+| `go generate ./...` | PASS；既有scan步骤内再次生成也成功，未另开第二轮CI |
+| `go test ./... -parallel 8 -count=1 --tags=test,awsmock` | PASS |
+| `go test ./... -parallel 8 -count=1 --tags=test,noaws` | PASS |
+| `go test ./... --tags=test,noaws,integration -count=1` | PASS |
+| 既有合成AWS环境：`go test ./... --tags=test,awstest -count=1` | PASS，非真实S3 |
+| `go test -race ./internal/storage -count=1 -tags=test,noaws -run '^TestSEC052ServeFileFailure$'` | PASS，1.099s；仅新增小合同，无旧大文件测试 |
+| 既有receiver race及`bash docs/security/tools/run-sec030-whole.sh target` / `race` | PASS，两次source-unchanged均0，实际完整命令见evidence |
+| `bash docs/security/tools/run-sec062-toolchain.sh scan` | PASS，默认/noaws/WASM及server/CLI/generator构建和scan返回码均0 |
+
+扫描仍报模块级GO-2026-5932、GO-2022-0646/0635提示，受测调用图未报affected调用；不宣称依赖已修复。
+最终收尾仅安全文档/脱敏摘要，不改运行代码、模板、module、生成器或CI，不重复全仓测试。
+主动取消、其他浏览器、真实Redis/S3、ZIP、H2、大文件、Docker和生产演练分别保持VALIDATE/NOT_RUN；M4保持ACTIVE。
+以下开发期FAIL/RED记录保留，不以最终PASS覆盖。
+
+基线8c39931733be853dd68d11ad5b193088c4d928d5，v2.11.0，Go1.26.10 windows/amd64、CGO0、无gcc。
+独立managed worktree保留040开发并新建052修复；原用户工作区/两个未跟踪目录未改。
+冻结前origin/master已合入文档PR42（718c46a）；其20个README/docs/图片/FUNDING文件不改Go、模板、module或构建输入。
+修复分支保留该同期交付后再执行唯一最终CI；8c仍是RED源码基线，不将文档同步冒称运行时修复。
+052精确合同/原始日志留ignored子module及自有未公开审查入口；Go test标签只禁应用CLI解析，不替代生产crypto实现。
+
+| 实际命令/阶段 | 结果 |
+| --- | --- |
+| 最新原`go test ./internal/test/securityfixture -count=1 -tags=test,security_red -run '^TestSEC040FailedDeletionKeepsManagementRecord$' -timeout 90s -v` | 业务RED，exit1/12.079s；真实DELETE失败，对象仍在但管理metadata丢失；尚未修复040 |
+| 私密冻结8c源码：`go test -count=1 -tags=test,noaws -run '^TestSEC052LocalEncryptedHTTP$' -timeout 30s -v` | 业务RED，exit1/6.409s；正常对照通过；限定受支持路径触发P0 Gate，精确构造不公开 |
+| 同一私密合同/独立修复副本，首GREEN | PASS，4.726s；生产文件hash与修复worktree一致；后续前置错误分支改动后单独补测 |
+| 同一私密合同/最终修复文件 | PASS，4.953s；正常SHA256正确，损坏被客户端识别为中断；不能外推浏览器/S3/E2E |
+| `go test ./internal/storage -count=1 -tags=test,awsmock -timeout 2m` 首次 | FAIL，14.429s；修改测试误将旧前置key失败当后置stream失败，纠正为分别验证500与abort，不把FAIL隐去 |
+| 修正两个失败阶段后同storage命令 | FAIL，14.342s；TestServeFile已通过，TestDuplicateFile受前次Windows未关闭DB留下的合成owner0记录干扰 |
+| 核实并仅清理隔离worktree自动生成、无tracked文件的internal/storage/test后，同storage命令 | PASS，14.384s；完整相关包，未放宽配额或crypto检查 |
+
+错误分支随后抽成独立小合同：`go test ./internal/storage -count=1 -tags=test,noaws -run '^TestSEC052ServeFileFailure$' -timeout 60s -v`
+PASS，exit0/8.714s；无需TestNewFile或其20/50MiB测试；Linux CI仅对该合同补race。
+私密预检此前归档参数、test CLI flags和PowerShell逗号引号设置失败均未到业务，不计作RED；已保留原始记录并修正。
+原生race BLOCKED（CGO0/无gcc）；最终Linux CI已按上文独立验证，不借用M3或其他SHA的PASS。
+Firefox/真实S3/ZIP完整性、全浏览器、大文件/镜像/生产演练NOT_RUN；本阶段ACTIVE而非完成。
+
+### 052一个Chromium+HTTPS E2E/WASM正负例
+
+独立ignored子module使用8c冻结源码和真实生成WASM；生产raw-key加密writer及Close生成合成E2E内容，
+真实/d分享页面按钮、WASM、同源service worker及native下载，不替换reader/writer或直接调用WASM。
+bundled Node24.19.0/Playwright与独立Chrome156.0.8078.73，临时SQLite/HTTPS，仅信任临时loopback证书。
+Service Worker allow，未重用051的block设置；未接管用户浏览器。
+
+`go build -tags=noaws -o server.exe .` PASS/exit0；`node browser.cjs`业务RED/exit1：
+正常native下载完成，明文SHA256/长度/文件名一致、busy清除；认证失败显示错误，但自然观察15s仍pending且busy=true。
+该负例判FAIL_UNSETTLED，未观察到自然completed；context清理后才failed单独记录，不能倒算产品PASS。
+源ciphertext未变、metadata仍两条、server exit0，无pageerror；未声称该浏览器结果等同服务器静默损坏。
+精确夹具/分享fragment/截图/原始输出不提交；初轮未加Stopwatch，不推定文件时间等于精确命令耗时。
+最小修复仅WASM controller.error、页面cancel输入/abort输出/finally清busy；同合同独立candidate GREEN：
+`go generate ./...` PASS/exit0/142.153s；`go build -tags=noaws -o server.exe .` PASS/exit0/20.491s；
+`node browser.cjs` PASS/exit0/23.732s，正常完整SHA256及负例自然native failed、错误可见/busy清除。
+原RED及其冻结源码保持不变，未把context关闭当作拒绝。只复制两已审源后重新生成candidate WASM，无协议或输出writer替换。
+独立代码审查未发现本地修复阻断；取消期间Read后enqueue的既有边界保持VALIDATE，不声称用户中断已验证。
+既有1MiB搬运不构成所有WASM队列内存硬上限的证明；没有借本项重写backpressure。
+
+### 同期051限定预检（仍VALIDATE）
+
+冻结8c独立归档副本：`go generate ./...` PASS；`go build -tags=noaws -o server.exe .` PASS。
+bundled Node24.19.0/Playwright、独立Chrome156.0.8078.73、HTTPS、临时SQLite及真实产品路由；无新依赖或产品改动。
+Browser plugin not available，按frontend-testing-debugging技能使用已有regular Playwright；没有连接用户Chrome。
+首次server启动因夹具Windows sqlite URL设置失败（SETUP_FAIL非RED），修正后`node browser.cjs`完成四份真实上传与下载，
+SHA256/文件名对照正确，正常PNG显示1×1，十个产品上下文未见应用源marker执行；原命令exit1/INCOMPLETE，不能改记PASS。
+仅补一次`SEC051_DIAGNOSTIC_NORMAL=1 node browser.cjs`的正常PNG诊断，仍exit1/INCOMPLETE。
+异常源已解释：Playwright的serviceWorkers:block注入脚本读取navigator.serviceWorker，被产品已有inline sandbox拒绝；
+与首轮异常hash一致，本地playwright-core/lib/coreBundle.js:51294–51297代码核实。没有因此改弱产品sandbox或重跑矩阵。
+限定观察未触发051 P0，不能推定所有内容上下文安全；052/E2E/WASM/S3未覆盖。原始证据留私密目录；
+stop-file收尾后CIM确认本夹具Chrome/server均0，不影响用户浏览器。本阶段051/050最终Gate继续OPEN。
+
 ## 当前后续目标（2026-10-29）
 
 替换完成后按用户指令收敛至[M3-GOAL](M3-GOAL.md)。PR31仅范围文档，无运行时测试重跑；
