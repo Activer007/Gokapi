@@ -1,7 +1,7 @@
 package authorization
 
 import (
-	"github.com/forceu/gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/models"
 	"testing"
 )
 

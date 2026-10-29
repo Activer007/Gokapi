@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/forceu/gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/models"
 )
 
 func ledgerContractLimits() Limits {

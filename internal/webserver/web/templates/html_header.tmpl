@@ -27,14 +27,7 @@
 	<link  href="./assets/dist/css/datatables.min.css" rel="stylesheet">
 	<link  href="./assets/dist/css/flatpickr.min.css" rel="stylesheet">
 	<link  href="./assets/dist/css/flatpickr.dark.min.css" rel="stylesheet">
-	<style>
-		.masthead-brand {
-			float: left;
-		}
-		.nav-masthead {
-			float: right;
-		}
-	</style>
+
     {{ if .CustomContent.UseCustomCss }}
 	<link  href="./custom/custom.v{{.CustomContent.Version}}.css" rel="stylesheet">
     {{ end }}
@@ -52,39 +45,36 @@
          <script src="./js/min/end2end_download.min.{{ template "js_e2eversion"}}.js"></script>
 {{end}}
   </head>
-  <body class="d-flex h-100 text-center text-white bg-dark">
+  <body class="d-flex h-100 text-center text-white bg-dark {{if .IsAdminView}}admin-shell{{end}}">
 {{ if .IsAdminView }}
-   {{ if .IsUserTabAvailable }}
-<div style="position:fixed;top:0.5rem;right:0.75rem;z-index:9999;">
-  <span class="badge bg-secondary opacity-75">
-    <i class="bi bi-person-fill"></i> {{.ActiveUser.Name}}
-  </span>
-</div>
-  {{ end }}
-  <div class="d-flex w-100 h-100 p-3 mx-auto flex-column">
-      <header class="masthead mb-auto">
-        <div  style="max-width: 80em;  margin: 0 auto;"  class="inner">
-          <h1>{{.PublicName}}</h1>
-          {{template "language_switch" .UI}}
+  <div class="d-flex w-100 min-vh-100 p-3 mx-auto flex-column admin-layout">
+      <header class="masthead workspace-header">
+        <div class="workspace-navigation">
+          <h1 class="workspace-brand">{{.PublicName}}</h1>
           <nav class="nav nav-masthead justify-content-center">
-            <a class="nav-link {{ if eq .ActiveView 0}}active{{ end }}" href="./admin">{{.UI.T "nav.upload"}}</a>
+            <a class="nav-link {{ if eq .ActiveView 0}}active{{ end }}" {{if eq .ActiveView 0}}aria-current="page"{{end}} href="./admin">{{.UI.T "nav.upload"}}</a>
             {{ if .ActiveUser.HasPermissionCreateFileRequests }}
-            <a class="nav-link {{ if eq .ActiveView 4 }}active{{ end }}" href="./filerequests">{{.UI.T "nav.requests"}}</a>
+            <a class="nav-link {{ if eq .ActiveView 4 }}active{{ end }}" {{if eq .ActiveView 4}}aria-current="page"{{end}} href="./filerequests">{{.UI.T "nav.requests"}}</a>
             {{ end }}
             {{ if and .ActiveUser.HasPermissionManageUsers .IsUserTabAvailable }}
-            <a class="nav-link {{ if eq .ActiveView 3 }}active{{ end }}" href="./users">{{.UI.T "nav.users"}}</a>
+            <a class="nav-link {{ if eq .ActiveView 3 }}active{{ end }}" {{if eq .ActiveView 3}}aria-current="page"{{end}} href="./users">{{.UI.T "nav.users"}}</a>
             {{ end }}
             {{ if .ShowApiMenu }}
-            <a class="nav-link {{ if eq .ActiveView 2 }}active{{ end }}" href="./apiKeys">{{.UI.T "nav.api"}}</a>
+            <a class="nav-link {{ if eq .ActiveView 2 }}active{{ end }}" {{if eq .ActiveView 2}}aria-current="page"{{end}} href="./apiKeys">{{.UI.T "nav.api"}}</a>
             {{ end }}
             {{ if .ActiveUser.HasPermissionManageLogs }}
-            <a class="nav-link {{ if eq .ActiveView 1 }}active{{ end }}" href="./logs">{{.UI.T "nav.status"}}</a>
+            <a class="nav-link {{ if eq .ActiveView 1 }}active{{ end }}" {{if eq .ActiveView 1}}aria-current="page"{{end}} href="./logs">{{.UI.T "nav.status"}}</a>
             {{ end }}
             {{ if .IsLogoutAvailable }}<a class="nav-link" href="#" onclick="doLogout()">{{.UI.T "nav.logout"}}</a>{{ end }}
           </nav>
+          <div class="workspace-account">
+            {{template "language_switch" .UI}}
+            {{if .IsUserTabAvailable}}<span class="workspace-user"><i class="bi bi-person" aria-hidden="true"></i> {{.ActiveUser.Name}}</span>{{end}}
+          </div>
         </div>
       </header>
-  <main style="margin-top: 2rem">
+  {{template "clipboard_fallback" .UI}}
+  <main class="workspace-main">
 {{ else }}
   <div class="d-flex w-100 h-100 p-3 mx-auto flex-column">
   <header class="mb-auto">

@@ -11,9 +11,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/forceu/gokapi/internal/configuration/database"
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/webserver/errorHandling/errorcodes"
+	"github.com/Activer007/Gokapi/internal/configuration/database"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/webserver/errorHandling/errorcodes"
 )
 
 func TestSEC032ManagedCompletionGate(t *testing.T) {

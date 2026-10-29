@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	"github.com/NYTimes/gziphandler"
-	"github.com/forceu/gokapi/internal/helper"
-	"github.com/forceu/gokapi/internal/webserver/favicon"
+	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/webserver/favicon"
 )
 
 const pathCustomFolder = "custom/"

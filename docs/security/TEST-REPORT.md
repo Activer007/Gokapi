@@ -23,6 +23,14 @@ ignored本地证据：`evidence/sec030-recovery-local.secret/`。两个用户目
 后续审查补充checked/context metadata读取、删除前取消检查、whole FR-scope拒绝及ScanComplete时机；
 补充项单列验证，最终完整版本交CI，不重复本地大矩阵。新读取接口仅恢复使用，原legacy getter未重构。
 最终CI待冻结实现后运行。原生-race因无CGO/gcc为BLOCKED，相关Linux CI待运行。
+首个冻结head ac2b6ec 的CI40831437902已SUCCESS，候选22e11b2/treeb06a48e8含UI PR32–34；
+生成、四组全仓、receiver/durable race及scan均通过，三窗口race6.26s、negative2.71s。
+合并时GitHub返回405冲突：同期PR36已将module/import迁移到Activer007/Gokapi（master32fe5c1）。
+保留迁移，仅同步本轮新增Go imports并合并Main启动门禁；旧CI不代表这个新组合，另行验证并记录结果。
+迁移后的实际命令：`go test ./internal/storage ./internal/storage/chunking/chunksession ./internal/storage/uploadreceive ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis ./cmd/gokapi -count=1 -tags=test,noaws,security_chunk,security_recovery -run '^TestSEC030Recovery' -timeout 3m -v`
+PASS，退出0；新module包storage7.326s/chunksession4.697s/receiver1.282s/SQLite1.589s/Redis1.646s，main9.002s编译+TestMain无匹配case。
+这次重复由真实基线/import变化触发，保留前次PASS与Git合并冲突记录；迁移后的最终CI待运行。
+scan保留模块级GO-2026-5932及GO-2022-0646/0635提示，受测配置未报affected调用，不声称依赖已修复。
 大文件/浏览器/真实Redis持久化/S3/断电/生产演练NOT_RUN。三窗口只证明SQLite/local进程边界，
 C先保留未知whole硬链接，再在隔离副本备份、same-inode+SHA256确认仅unlink该私有链接，才恢复已知chunk输入。
 不会把Committed、相同文件名或仅mtime当作任意删除/退款证据；所有旧失败与延期记录继续保留。
@@ -956,7 +964,7 @@ NOT_RUN：真实Redis服务/AOF/RDB、旧二进制、生产迁移/恢复、全�
 
 ## SEC-062 setup测试监听隔离（2026-10-29）
 
-基线4ad12558ed9096fc74ebf1afdda273d5a56fc76b，Windows PowerShell / WSL Ubuntu-24.04、Go1.26.0 linux/amd64。PR #17已合并，PR头CI40725885197通过，但合并后CI40726798576两次失败：attempt1的noaws、attempt2的integration均在setup首次监听127.0.0.1:53842时返回address already in use；不是quota断言失败。原始失败日志保留sec030-reservations-postmerge.secret，不把重跑前的失败覆盖成通过。CI占用socket未确定；Linux临时端口假设仍VALIDATE。只读检查upstream测试、README/advanced、Issues和开放PR；[#422](https://github.com/Forceu/Gokapi/pull/422)仅修正19888 wildcard地址，不是动态监听隔离，未发现同范围待合并修复，未向upstream写入。
+基线4ad12558ed9096fc74ebf1afdda273d5a56fc76b，Windows PowerShell / WSL Ubuntu-24.04、Go1.26.0 linux/amd64。PR #17已合并，PR头CI40725885197通过，但合并后CI40726798576两次失败：attempt1的noaws、attempt2的integration均在setup首次监听127.0.0.1:53842时返回address already in use；不是quota断言失败。原始失败日志保留sec030-reservations-postmerge.secret，不把重跑前的失败覆盖成通过。CI占用socket未确定；Linux临时端口假设仍VALIDATE。只读检查upstream测试、README/advanced、Issues和开放PR；[#422](https://github.com/Activer007/Gokapi/pull/422)仅修正19888 wildcard地址，不是动态监听隔离，未发现同范围待合并修复，未向upstream写入。
 
 先RED后修复：kr9wsw在隔离归档上持续占住53842，旧TestInitialSetup实际bind失败，environment/compile退出0、occupied-port退出1。L7Jtst初版动态listener的占用合同、生成、setup全包与相关race均0，TkgSor的CI模式也0。Lx501J第一次全量中blocker自己无法绑定53842，occupied-port为2（harness BLOCKED，不是产品RED），其余environment/compile/generate/setup/race/awsmock/noaws/integration均0。为使复现器自身不依赖固定空闲端口，最终blocker改为持续持有OS分配端口，并将该实际端口作为子进程GOKAPI_PORT；lDddre在历史4ad1255重新确认environment/compile为0、occupied-port为1。最终脚本--red明确固定历史基线，CI只运行应通过的--occupied。
 

@@ -13,8 +13,8 @@ permissions:
 
 jobs:
   build:
-    # Inherited publishers target upstream registries; never publish from this fork.
-    if: github.repository == 'Forceu/Gokapi'
+    # Publishing is intentionally disabled for this fork; validation runs locally.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - name: checkout code

@@ -6,8 +6,8 @@ import (
 	"encoding/gob"
 	"reflect"
 
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
 )
 
 // ReadBlobEncryption is a checked projection used while publication holds the

@@ -5,12 +5,81 @@
 
 try {
     var clipboard = new ClipboardJS('.copyurl');
-} catch (ignored) {}
+    clipboard.on('success', event => {
+        event.clearSelection();
+        showToast(3500);
+    });
+    clipboard.on('error', event => showClipboardFallback(event.trigger));
+} catch (ignored) {
+    if (typeof document.addEventListener === 'function') {
+        document.addEventListener('click', event => {
+            const trigger = event.target.closest('.copyurl');
+            if (trigger) showClipboardFallback(trigger);
+        });
+    }
+}
+
+function showClipboardFallback(trigger, text) {
+    // Passwords can be copied from inside another modal. Keep its focus trap
+    // and context instead of stacking Bootstrap modals.
+    const parentModal = trigger && trigger.closest('.modal.show');
+    if (parentModal) {
+        let fallback = parentModal.querySelector('.clipboard-fallback-inline');
+        if (!fallback) {
+            fallback = document.createElement('div');
+            fallback.className = 'clipboard-fallback-inline mt-3 text-start';
+            const label = document.createElement('label');
+            label.className = 'form-label';
+            label.textContent = t('clipboard.failed');
+            const field = document.createElement('input');
+            field.className = 'form-control';
+            field.readOnly = true;
+            label.appendChild(field);
+            fallback.appendChild(label);
+            parentModal.querySelector('.modal-body').appendChild(fallback);
+            parentModal.addEventListener('hidden.bs.modal', () => fallback.remove(), {once: true});
+        }
+        const field = fallback.querySelector('input');
+        field.value = text === undefined ? trigger.dataset.clipboardText : text;
+        field.focus();
+        field.select();
+        return;
+    }
+    const element = document.getElementById('clipboardFallback');
+    const input = document.getElementById('clipboardFallbackValue');
+    input.value = text === undefined ? trigger.dataset.clipboardText : text;
+    element.addEventListener('shown.bs.modal', () => {
+        input.focus();
+        input.select();
+    }, {once: true});
+    element.addEventListener('hidden.bs.modal', () => {
+        input.value = '';
+        if (trigger && trigger.isConnected) trigger.focus();
+    }, {once: true});
+    bootstrap.Modal.getOrCreateInstance(element).show();
+}
+
+async function copySensitiveText(text, trigger, successMessage) {
+    try {
+        await navigator.clipboard.writeText(text);
+        showToast(3500, successMessage);
+    } catch (error) {
+        showClipboardFallback(trigger, text);
+    }
+}
 
 var toastId;
 
+function labelIconButtons(root = document) {
+    for (const button of root.querySelectorAll('button[title]')) {
+        if (!button.textContent.trim() && !button.hasAttribute('aria-label')) button.setAttribute('aria-label', button.title);
+    }
+}
+if (typeof document.addEventListener === 'function') document.addEventListener('DOMContentLoaded', () => labelIconButtons());
+
 function showToast(timeout, text) {
     let notification = document.getElementById("toastnotification");
+    if (!notification) return;
     if (typeof text !== 'undefined')
         notification.innerText = text;
     else
@@ -66,6 +135,13 @@ function createCalendar(element, timestamp) {
         defaultDate: expiryDate,
         minDate: 'today',
     });
+    // Flatpickr replaces the visible input; preserve its accessible name/help.
+    const original = document.getElementById(element);
+    for (const attribute of ['aria-label', 'aria-describedby']) {
+        if (original.hasAttribute(attribute)) {
+            calendarInstance.altInput.setAttribute(attribute, original.getAttribute(attribute));
+        }
+    }
 }
 
 

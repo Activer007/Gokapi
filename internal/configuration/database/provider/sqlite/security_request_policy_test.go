@@ -9,8 +9,8 @@ import (
 
 	"testing"
 
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
 )
 
 func sec030RequestPolicyFixture(t *testing.T, action uploadquota.Action) (DatabaseProvider, uploadquota.Change, models.FileRequest) {

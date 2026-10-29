@@ -1,7 +1,7 @@
 {{ define "api" }}{{ template "header" . }}
 <div class="row">
     <div class="col">
-        <div id="container" class="card" style="width: 80%">
+        <div id="container" class="card" style="width: 100%">
             <div class="card-body">
 		<div class="container">
 		  <div class="row mb-4">
@@ -12,7 +12,7 @@
 		    </div>
 		    <div class="col text-end">
 		      <button id="button-newapi" class="btn btn-outline-light" onclick="newApiKey()">
-                    <i class="bi bi-plus-circle-fill"></i>
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i> {{$.UI.T "api.new"}}
                 </button>
 		    </div>
 		  </div>
@@ -66,32 +66,33 @@
                         <tbody id="apitable">
 {{ range .ApiKeys }}
                             <tr id="row-{{ .PublicId }}">
-                                <td id="friendlyname-{{ .PublicId }}" onClick="addFriendlyNameChange('{{ .PublicId }}')">{{ .FriendlyName }}</td>
+                                <td><button type="button" class="api-name btn btn-link text-start p-0" id="friendlyname-{{ .PublicId }}" onClick="addFriendlyNameChange('{{ .PublicId }}')">{{ .FriendlyName }}</button></td>
                                 <td><div class="font-monospace">{{ .GetRedactedId }}</div></td>
             			<td><span id="cell-lastused-{{ .PublicId }}"></span></td>
-				   <script>insertDateWithNegative({{ .LastUsed }}, "cell-lastused-{{ .PublicId }}");</script>
+				   <script>
+insertDateWithNegative({{ .LastUsed }}, "cell-lastused-{{ .PublicId }}");</script>
                                             <td class="prevent-select">
-                        <i id="perm_view_{{ .PublicId }}" class="bi bi-eye {{if not .HasPermissionView}}perm-notgranted{{else}}perm-granted{{end}}" title="{{$.UI.T "api.list"}}" onclick='changeApiPermission("{{ .PublicId }}","PERM_VIEW", "perm_view_{{ .PublicId }}");'></i>
+                        <i id="perm_view_{{ .PublicId }}" class="bi bi-eye {{if not .HasPermissionView}}perm-notgranted{{else}}perm-granted{{end}}" title="{{$.UI.T "api.list"}}" data-permission="PERM_VIEW"></i>
 						
-                        <i id="perm_upload_{{ .PublicId }}" class="bi bi-file-earmark-plus {{if not .HasPermissionUpload}}perm-notgranted{{else}}perm-granted{{end}}" title="{{$.UI.T "nav.upload"}}" onclick='changeApiPermission("{{ .PublicId }}","PERM_UPLOAD", "perm_upload_{{ .PublicId }}");'></i>
+                        <i id="perm_upload_{{ .PublicId }}" class="bi bi-file-earmark-plus {{if not .HasPermissionUpload}}perm-notgranted{{else}}perm-granted{{end}}" title="{{$.UI.T "nav.upload"}}" data-permission="PERM_UPLOAD"></i>
 						
-                        <i id="perm_edit_{{ .PublicId }}" class="bi bi-pencil {{if not .HasPermissionEdit}}perm-notgranted{{else}}perm-granted{{end}}" title="{{$.UI.T "api.edit"}}" onclick='changeApiPermission("{{ .PublicId }}","PERM_EDIT", "perm_edit_{{ .PublicId }}");'></i>
+                        <i id="perm_edit_{{ .PublicId }}" class="bi bi-pencil {{if not .HasPermissionEdit}}perm-notgranted{{else}}perm-granted{{end}}" title="{{$.UI.T "api.edit"}}" data-permission="PERM_EDIT"></i>
 						
-                        <i id="perm_delete_{{ .PublicId }}" class="bi bi-trash3 {{if not .HasPermissionDelete}}perm-notgranted{{else}}perm-granted{{end}}" title="{{$.UI.T "api.delete"}}" onclick='changeApiPermission("{{ .PublicId }}","PERM_DELETE", "perm_delete_{{ .PublicId }}");'></i>
+                        <i id="perm_delete_{{ .PublicId }}" class="bi bi-trash3 {{if not .HasPermissionDelete}}perm-notgranted{{else}}perm-granted{{end}}" title="{{$.UI.T "api.delete"}}" data-permission="PERM_DELETE"></i>
 						
 						
-                        <i id="perm_replace_{{ .PublicId }}" class="bi bi-recycle {{if not (index $.UserMap .UserId).HasPermissionReplace}}perm-unavailable perm-nochange{{ else }}{{if not .HasPermissionReplace}}perm-notgranted{{else}}perm-granted{{end}}{{end}}" title="{{$.UI.T "api.replace"}}" onclick='changeApiPermission("{{ .PublicId }}","PERM_REPLACE", "perm_replace_{{ .PublicId }}");'></i>
+                        <i id="perm_replace_{{ .PublicId }}" class="bi bi-recycle {{if not (index $.UserMap .UserId).HasPermissionReplace}}perm-unavailable perm-nochange{{ else }}{{if not .HasPermissionReplace}}perm-notgranted{{else}}perm-granted{{end}}{{end}}" title="{{$.UI.T "api.replace"}}" data-permission="PERM_REPLACE"></i>
 						
-                        <i id="perm_download_{{ .PublicId }}" class="bi bi-box-arrow-in-down {{if not .HasPermissionDownload}}perm-notgranted{{else}}perm-granted{{end}}" title="{{$.UI.T "api.download"}}" onclick='changeApiPermission("{{ .PublicId }}","PERM_DOWNLOAD", "perm_download_{{ .PublicId }}");'></i>
+                        <i id="perm_download_{{ .PublicId }}" class="bi bi-box-arrow-in-down {{if not .HasPermissionDownload}}perm-notgranted{{else}}perm-granted{{end}}" title="{{$.UI.T "api.download"}}" data-permission="PERM_DOWNLOAD"></i>
 			
 						
-                        <i id="perm_manage_file_requests_{{ .PublicId }}" class="bi bi-file-earmark-arrow-up {{if not (index $.UserMap .UserId).HasPermissionCreateFileRequests}}perm-unavailable perm-nochange{{ else }}{{if not .HasPermissionManageFileRequests}}perm-notgranted{{else}}perm-granted{{end}}{{end}}" title="{{$.UI.T "api.requests"}}" onclick='changeApiPermission("{{ .PublicId }}","PERM_MANAGE_FILE_REQUESTS", "perm_manage_file_requests_{{ .PublicId }}");'></i>
+                        <i id="perm_manage_file_requests_{{ .PublicId }}" class="bi bi-file-earmark-arrow-up {{if not (index $.UserMap .UserId).HasPermissionCreateFileRequests}}perm-unavailable perm-nochange{{ else }}{{if not .HasPermissionManageFileRequests}}perm-notgranted{{else}}perm-granted{{end}}{{end}}" title="{{$.UI.T "api.requests"}}" data-permission="PERM_MANAGE_FILE_REQUESTS"></i>
 						
-                        <i id="perm_users_{{ .PublicId }}" class="bi bi-people {{if not (index $.UserMap .UserId).HasPermissionManageUsers}}perm-unavailable perm-nochange{{ else }}{{if not .HasPermissionManageUsers}}perm-notgranted{{else}}perm-granted{{end}}{{end}}" title="{{$.UI.T "users.manage"}}" onclick='changeApiPermission("{{ .PublicId }}","PERM_MANAGE_USERS", "perm_users_{{ .PublicId }}");'></i>
+                        <i id="perm_users_{{ .PublicId }}" class="bi bi-people {{if not (index $.UserMap .UserId).HasPermissionManageUsers}}perm-unavailable perm-nochange{{ else }}{{if not .HasPermissionManageUsers}}perm-notgranted{{else}}perm-granted{{end}}{{end}}" title="{{$.UI.T "users.manage"}}" data-permission="PERM_MANAGE_USERS"></i>
 						
-                        <i id="perm_logs_{{ .PublicId }}" class="bi bi-card-list {{if not (index $.UserMap .UserId).HasPermissionManageLogs}}perm-unavailable perm-nochange{{ else }}{{if not .HasPermissionManageLogs}}perm-notgranted{{else}}perm-granted{{end}}{{end}}" title="{{$.UI.T "users.manageLogs"}}" onclick='changeApiPermission("{{ .PublicId }}","PERM_MANAGE_LOGS", "perm_logs_{{ .PublicId }}");'></i>
+                        <i id="perm_logs_{{ .PublicId }}" class="bi bi-card-list {{if not (index $.UserMap .UserId).HasPermissionManageLogs}}perm-unavailable perm-nochange{{ else }}{{if not .HasPermissionManageLogs}}perm-notgranted{{else}}perm-granted{{end}}{{end}}" title="{{$.UI.T "users.manageLogs"}}" data-permission="PERM_MANAGE_LOGS"></i>
 						
-                        <i id="perm_api_{{ .PublicId }}" class="bi bi-sliders2 {{if not .HasPermissionApiMod}}perm-notgranted{{else}}perm-granted{{end}}" title="{{$.UI.T "api.manage"}}" onclick='changeApiPermission("{{ .PublicId }}","PERM_API_MOD", "perm_api_{{ .PublicId }}");'></i>
+                        <i id="perm_api_{{ .PublicId }}" class="bi bi-sliders2 {{if not .HasPermissionApiMod}}perm-notgranted{{else}}perm-granted{{end}}" title="{{$.UI.T "api.manage"}}" data-permission="PERM_API_MOD"></i>
             				</td>
 {{ if $.ActiveUser.HasPermissionManageApi }}
             			 <td>{{(index $.UserMap .UserId).Name}}</td>
@@ -104,10 +105,43 @@
                 </div>
             </div>
         </div>
-    <div id="toastnotification" class="toastnotification" data-default="{{$.UI.T "api.copySuccess"}}"></div>
+    <div id="toastnotification" class="toastnotification" role="status" aria-live="polite" aria-atomic="true" data-default="{{$.UI.T "api.copySuccess"}}"></div>
     </div>
 </div>
+
+<div class="modal fade" id="deleteApiModal" tabindex="-1" aria-labelledby="deleteApiTitle" aria-describedby="deleteApiHelp" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content gokapi-dialog">
+      <div class="modal-header"><h2 id="deleteApiTitle" class="modal-title fs-5">{{$.UI.T "api.deleteTitle"}}</h2></div>
+      <div class="modal-body text-start">
+        <p id="deleteApiName" class="fw-semibold text-break"></p>
+        <p id="deleteApiHelp">{{$.UI.T "api.deleteHelp"}}</p>
+        <p id="deleteApiError" class="text-danger mb-0" role="alert"></p>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelDeleteApi" type="button" class="btn btn-outline-light" data-bs-dismiss="modal">{{$.UI.T "common.cancel"}}</button>
+        <button id="confirmDeleteApi" type="button" class="btn btn-danger">{{$.UI.T "common.delete"}}</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="renameApiModal" tabindex="-1" aria-labelledby="renameApiTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content gokapi-dialog settings-form">
+    <div class="modal-header"><h2 class="modal-title fs-5" id="renameApiTitle">{{$.UI.T "api.rename"}}</h2></div>
+    <div class="modal-body text-start">
+      <label class="form-label" for="renameApiValue">{{$.UI.T "common.name"}}</label>
+      <input id="renameApiValue" class="form-control" autocomplete="off" data-allow-regular-paste>
+      <p id="renameApiError" class="text-danger mt-3 mb-0" role="alert"></p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">{{$.UI.T "common.cancel"}}</button>
+      <button id="renameApiSave" type="button" class="btn btn-primary">{{$.UI.T "common.saveChanges"}}</button>
+    </div>
+  </div></div>
+</div>
+{{template "permission_editor" .UI}}
 <script src="./js/min/admin.min.{{ template "js_admin_version"}}.js"></script>
+<script>initPermissionEditors("api");</script>
 <script>
 	var userName = "{{.ActiveUser.Name}}";
         var canViewOtherApiKeys = {{.ActiveUser.HasPermissionManageApi }};

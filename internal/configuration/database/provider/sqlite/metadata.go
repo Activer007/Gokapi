@@ -7,8 +7,8 @@ import (
 	"encoding/gob"
 	"errors"
 
-	"github.com/forceu/gokapi/internal/helper"
-	"github.com/forceu/gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/models"
 )
 
 type schemaMetaData struct {

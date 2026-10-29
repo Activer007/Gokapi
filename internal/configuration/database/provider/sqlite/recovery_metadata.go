@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
 )
 
 var recoveryFileID = regexp.MustCompile(`^[A-Za-z0-9._-]{1,128}$`)

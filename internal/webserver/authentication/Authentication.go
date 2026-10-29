@@ -11,15 +11,15 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/forceu/gokapi/internal/configuration"
-	"github.com/forceu/gokapi/internal/configuration/database"
-	"github.com/forceu/gokapi/internal/helper"
-	"github.com/forceu/gokapi/internal/logging"
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/webserver/authentication/csrftoken"
-	"github.com/forceu/gokapi/internal/webserver/authentication/sessionmanager"
-	"github.com/forceu/gokapi/internal/webserver/authentication/users"
-	"github.com/forceu/gokapi/internal/webserver/errorHandling"
+	"github.com/Activer007/Gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/configuration/database"
+	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/logging"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/webserver/authentication/csrftoken"
+	"github.com/Activer007/Gokapi/internal/webserver/authentication/sessionmanager"
+	"github.com/Activer007/Gokapi/internal/webserver/authentication/users"
+	"github.com/Activer007/Gokapi/internal/webserver/errorHandling"
 )
 
 type userNameContext string

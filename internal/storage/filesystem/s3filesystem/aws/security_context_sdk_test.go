@@ -16,7 +16,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/forceu/gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/models"
 )
 
 // The real SDK is used only against a synthetic loopback endpoint. None of

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/forceu/gokapi/internal/test"
+	"github.com/Activer007/Gokapi/internal/test"
 )
 
 // generateTestImage creates a valid 512x512 PNG in memory for testing

@@ -15,15 +15,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/forceu/gokapi/internal/configuration"
-	"github.com/forceu/gokapi/internal/configuration/database"
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/storage/processingstatus"
-	"github.com/forceu/gokapi/internal/test"
-	"github.com/forceu/gokapi/internal/test/testconfiguration"
-	"github.com/forceu/gokapi/internal/webserver/authentication"
-	"github.com/forceu/gokapi/internal/webserver/authentication/csrftoken"
-	"github.com/forceu/gokapi/internal/webserver/ratelimiter"
+	"github.com/Activer007/Gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/configuration/database"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/storage/processingstatus"
+	"github.com/Activer007/Gokapi/internal/test"
+	"github.com/Activer007/Gokapi/internal/test/testconfiguration"
+	"github.com/Activer007/Gokapi/internal/webserver/authentication"
+	"github.com/Activer007/Gokapi/internal/webserver/authentication/csrftoken"
+	"github.com/Activer007/Gokapi/internal/webserver/ratelimiter"
 )
 
 func TestMain(m *testing.M) {
@@ -583,7 +583,7 @@ func TestApiPageAuthorized(t *testing.T) {
 	test.HttpPageResult(t, test.HttpTestConfig{
 		Url:             "http://127.0.0.1:53843/apiKeys",
 		IsHtml:          true,
-		RequiredContent: []string{"Click on the API key name to give it a new name."},
+		RequiredContent: []string{`id="renameApiModal"`, `id="permissionModal"`, `data-permission="PERM_VIEW"`},
 		Cookies: []test.Cookie{{
 			Name:  "session_token",
 			Value: "validsession",

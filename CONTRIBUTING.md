@@ -3,7 +3,7 @@
 First off, thanks for taking the time to contribute! Gokapi is built to be a lightweight, secure way to share files, and community help is what keeps this project running.
 
 ## Security First
-If you find a security vulnerability, please **do not** open a public issue. Instead, report it at https://github.com/Forceu/Gokapi/security to allow for a responsible disclosure.
+If you find a security vulnerability, please **do not** open a public issue. Instead, report it at https://github.com/Activer007/Gokapi/security to allow for a responsible disclosure.
 
 ## Getting Started
 1. **Fork** the repository and clone it locally.

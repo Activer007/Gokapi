@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/forceu/gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
 )
 
 // VerifyRecovery checks existing private inputs before startup cleanup begins.

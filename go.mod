@@ -1,4 +1,4 @@
-module github.com/forceu/gokapi
+module github.com/Activer007/Gokapi
 
 go 1.26.10
 

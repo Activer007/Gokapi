@@ -303,7 +303,7 @@ The Gokapi CLI tool enables seamless file uploads and downloads directly from th
 Installation
 ============
 
-Official binaries for Linux, Windows, and macOS are available on the `GitHub releases page <https://github.com/Forceu/Gokapi/releases>`_. 
+Official binaries for Linux, Windows, and macOS are available on the `GitHub releases page <https://github.com/Activer007/Gokapi/releases>`_.
 
 To build the tool from source:
 

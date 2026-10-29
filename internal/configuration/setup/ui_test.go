@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/forceu/gokapi/internal/configuration"
-	"github.com/forceu/gokapi/internal/i18n"
-	"github.com/forceu/gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/i18n"
+	"github.com/Activer007/Gokapi/internal/models"
 )
 
 func TestUISetupPresentation(t *testing.T) {

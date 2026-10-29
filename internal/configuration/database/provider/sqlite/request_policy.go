@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/forceu/gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
 )
 
 // Read only the current numeric policy while BEGIN IMMEDIATE holds the same

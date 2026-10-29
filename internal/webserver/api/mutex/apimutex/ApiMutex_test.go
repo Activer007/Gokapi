@@ -5,7 +5,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/forceu/gokapi/internal/test"
+	"github.com/Activer007/Gokapi/internal/test"
 )
 
 // TestInvalidObjectTypePanics verifies that an unknown objectType causes a panic.

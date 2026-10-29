@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/forceu/gokapi/internal/webserver/api"
-	"github.com/forceu/gokapi/internal/webserver/requestbudget"
+	"github.com/Activer007/Gokapi/internal/webserver/api"
+	"github.com/Activer007/Gokapi/internal/webserver/requestbudget"
 )
 
 const managementBudget = 30 * time.Second

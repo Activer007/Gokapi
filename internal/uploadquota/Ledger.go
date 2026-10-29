@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"sort"
 
-	"github.com/forceu/gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/models"
 )
 
 func Encode(ledger Ledger) ([]byte, error) {

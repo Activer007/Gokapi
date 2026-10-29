@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/forceu/gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
 )
 
 var boundedID = regexp.MustCompile(`^[a-zA-Z0-9._-]+$`)

@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/forceu/gokapi/cmd/cli-uploader/cliconstants"
-	"github.com/forceu/gokapi/internal/environment"
+	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliconstants"
+	"github.com/Activer007/Gokapi/internal/environment"
 )
 
 const (

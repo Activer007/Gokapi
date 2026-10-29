@@ -6,6 +6,7 @@
 - [RED](red.log.txt)：空入口NEW_CONTRACT/STUB_RED，退出1/6.493s。A/B/C严格核对真实生产边界exit97后才验恢复；不称历史漏洞。
 - [GREEN](green.log.txt)：相关命令退出0；三窗口、同长canonical损坏、whole异常状态、namespace/cleanup/runtime guard通过。
 - [metadata读取](metadata.log.txt)：双provider小合同退出0，完整模型/missing/cancel/nil/坏gob通过；Redis为miniredis，不证明持久化。
+- [同期身份迁移适配](identity-merge.log.txt)：PR36改变module/import后，新组合相关合同全部PASS；原输入CI40831437902成功但不能替代迁移后的最终CI。
 - 命令及每包用时见[TEST-REPORT](../../TEST-REPORT.md)。Green后审查另补checked metadata读取、取消/whole scope/ScanComplete守卫；最终代码由PR CI核验。
 
 A清理过期未Claim输入，B发布后未Commit保额/保文件/无metadata补造，C提交后先保留未知whole链接，

@@ -3,67 +3,14 @@
 // go generate ./...
 
 
-function changeUserPermission(userId, permission, buttonId) {
-
-    let indicator = document.getElementById(buttonId);
-    if (indicator.classList.contains("perm-processing") || indicator.classList.contains("perm-nochange")) {
-        return;
-    }
-    let wasGranted = indicator.classList.contains("perm-granted");
-    indicator.classList.add("perm-processing");
-    indicator.classList.remove("perm-granted");
-    indicator.classList.remove("perm-notgranted");
-
-    let modifier = "GRANT";
-    if (wasGranted) {
-        modifier = "REVOKE";
-    }
-
-    if (permission == "PERM_REPLACE_OTHER" && !wasGranted) {
-        hasNotPermissionReplace = document.getElementById("perm_replace_" + userId).classList.contains("perm-notgranted");
-        if (hasNotPermissionReplace) {
-            showToast(2000, t("users.grantOwn"));
-            changeUserPermission(userId, "PERM_REPLACE", "perm_replace_" + userId);
-        }
-    }
-    if (permission == "PERM_REPLACE" && wasGranted) {
-        hasPermissionReplaceOthers = document.getElementById("perm_replace_other_" + userId).classList.contains("perm-granted");
-        if (hasPermissionReplaceOthers) {
-            showToast(2000, t("users.revokeOther"));
-            changeUserPermission(userId, "PERM_REPLACE_OTHER", "perm_replace_other_" + userId);
-        }
-    }
-
-
-    apiUserModify(userId, permission, modifier)
-        .then(data => {
-            if (wasGranted) {
-                indicator.classList.add("perm-notgranted");
-            } else {
-                indicator.classList.add("perm-granted");
-            }
-            indicator.classList.remove("perm-processing");
-        })
-        .catch(error => {
-            if (wasGranted) {
-                indicator.classList.add("perm-granted");
-            } else {
-                indicator.classList.add("perm-notgranted");
-            }
-            indicator.classList.remove("perm-processing");
-            alert(t("users.permissionFailed") + error);
-            console.error('Error:', error);
-        });
-}
-
-
-
 function changeRank(userId, newRank, buttonId) {
 
     let indicator = document.getElementById(buttonId);
     if (indicator.disabled) {
         return;
     }
+    const name = document.getElementById('row-' + userId).cells[0].textContent.trim();
+    if (!window.confirm(t('users.rankConfirm', {name, role: t(newRank === 'ADMIN' ? 'user.level.1' : 'user.level.2')}))) return;
     indicator.disabled = true;
 
     apiUserChangeRank(userId, newRank)
@@ -85,19 +32,14 @@ function showDeleteUserModal(userId, userEmail) {
     document.getElementById("deleteModalBody").innerText = userEmail;
     $('#deleteModal').modal('show');
 
-    document.getElementById("buttonDelete").onclick = function() {
-        apiUserDelete(userId, checkboxDelete.checked)
-            .then(data => {
-                $('#deleteModal').modal('hide');
-                document.getElementById("row-" + userId).classList.add("rowDeleting");
-                setTimeout(() => {
-                    document.getElementById("row-" + userId).remove();
-                }, 290);
-            })
-            .catch(error => {
-                alert(t("users.deleteFailed") + error);
-                console.error('Error:', error);
-            });
+    const error = document.querySelector('#deleteModal .save-error');
+    if (error) error.textContent = '';
+    document.getElementById("buttonDelete").onclick = async function() {
+        const deleteFiles = checkboxDelete.checked;
+        await runModalSave('deleteModal', this, async () => {
+            await apiUserDelete(userId, deleteFiles);
+            document.getElementById('row-' + userId).remove();
+        });
     };
 }
 
@@ -105,7 +47,7 @@ function showDeleteUserModal(userId, userEmail) {
 function showAddUserModal() {
     // Cloning removes any previous values or form validation
     let originalModal = $('#newUserModal').clone();
-    $("#newUserModal").on('hide.bs.modal', function() {
+    $("#newUserModal").on('hidden.bs.modal', function() {
         $('#newUserModal').remove();
         let myClone = originalModal.clone();
         $('body').append(myClone);
@@ -117,7 +59,7 @@ function showAddUserModal() {
 function showResetPwModal(userid, name) {
     // Cloning removes any previous values or form validation
     let originalModal = $('#resetPasswordModal').clone();
-    $("#resetPasswordModal").on('hide.bs.modal', function() {
+    $("#resetPasswordModal").on('hidden.bs.modal', function() {
         $('#resetPasswordModal').remove();
         let myClone = originalModal.clone();
         $('body').append(myClone);
@@ -131,65 +73,39 @@ function showResetPwModal(userid, name) {
     $('#resetPasswordModal').modal('show');
 }
 
-function resetPw(userid, newPw) {
-    let button = document.getElementById("resetPasswordButton");
-    document.getElementById("resetPasswordButton").disabled = true;
-    apiUserResetPassword(userid, newPw)
-        .then(data => {
-            if (!newPw) {
-                $('#resetPasswordModal').modal('hide');
-                showToast(1000, t("users.resetSuccess"))
-                return;
-            }
-            button.style.display = 'none';
-            document.getElementById("cancelPasswordButton").style.display = 'none';
-            document.getElementById("formentryReset").style.display = 'none';
-            document.getElementById("randomPasswordContainer").style.display = 'block';
-            document.getElementById("closeModalResetPw").style.display = 'block';
-            document.getElementById("l_returnedPw").innerText = data.password;
-            document.getElementById("copypwclip").onclick = function() {
-                // For some reason ClipboardJs is not working on the user PW reset modal, even when initilising again. Manually writing to clipboard
-                navigator.clipboard.writeText(data.password);
-                showToast(1000, t("users.copySuccess"));
-            }
-        })
-        .catch(error => {
-            alert(t("users.resetFailed") + error);
-            console.error('Error:', error);
-            button.disabled = false;
-        });
+async function resetPw(userid, newPw) {
+    const button = document.getElementById('resetPasswordButton');
+    await runModalSave('resetPasswordModal', button, async () => {
+        const data = await apiUserResetPassword(userid, newPw);
+        if (!newPw) {
+            showToast(3500,t('users.resetSuccess'));
+            return;
+        }
+        button.style.display = 'none';
+        document.getElementById('cancelPasswordButton').style.display = 'none';
+        document.getElementById('formentryReset').style.display = 'none';
+        document.getElementById('randomPasswordContainer').style.display = 'block';
+        document.getElementById('closeModalResetPw').style.display = 'block';
+        document.getElementById('l_returnedPw').textContent = data.password;
+        document.getElementById('copypwclip').onclick = function() {
+            copySensitiveText(data.password, this, t('users.copySuccess'));
+        };
+    }, undefined, !newPw);
 }
 
-
-function addNewUser() {
-    let button = document.getElementById("mb_addUser");
-    button.disabled = true;
-    let form = document.getElementById('newUserForm');
-    if (!form.checkValidity()) {
-        form.classList.add('was-validated');
-        button.disabled = false;
-    } else {
-        let editName = document.getElementById("e_userName");
-        apiUserCreate(editName.value.trim())
-            .then(data => {
-                $('#newUserModal').modal('hide');
-                addRowUser(data.id, data.name, data.permissions);
-                console.log(data);
-            })
-            .catch(error => {
-                if (error.message == "duplicate") {
-                    alert(t("users.duplicate"));
-                    button.disabled = false;
-                } else {
-                    alert(t("users.createFailed") + error);
-                    console.error('Error:', error);
-                    button.disabled = false;
-                }
-            });
-    }
+async function addNewUser() {
+    const input = document.getElementById('e_userName');
+    input.value = input.value.trim();
+    if (!document.getElementById('newUserForm').reportValidity()) return;
+    const name = input.value;
+    await runModalSave('newUserModal', document.getElementById('mb_addUser'), async () => {
+        let data;
+        try { data = await apiUserCreate(name); }
+        catch (error) { throw new Error(error.message === 'duplicate' ? t('users.duplicate') : error.message); }
+        addRowUser(data.id, data.name, data.permissions);
+        showToast(3500,t('settings.saved'));
+    });
 }
-
-
 
 const PermissionDefinitions = [
     {
@@ -276,7 +192,7 @@ function addRowUser(userid, name, permissions) {
     userid = sanitizeUserId(userid);
 
     let table = document.getElementById("usertable");
-    let row = table.insertRow(1);
+    let row = table.insertRow(0);
     row.id = "row-" + userid;
     let cellName = row.insertCell(0);
     let cellGroup = row.insertCell(1);
@@ -361,10 +277,11 @@ function addRowUser(userid, name, permissions) {
         <i id="${id}"
            class="${perm.icon} ${granted} ${nochangeClass}"
            title="${perm.title}"
-           onclick='changeUserPermission(${userid}, "${perm.apiName}", "${id}")'>
+           data-permission="${perm.apiName}">
         </i>`;
     }).join("");
 
+    initPermissionEditors("user", row);
     setTimeout(() => {
 
         cellName.classList.remove("newUser");

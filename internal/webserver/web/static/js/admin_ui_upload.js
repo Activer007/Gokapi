@@ -354,9 +354,8 @@ function showError(file, message) {
 }
 
 
-function editFile() {
+async function editFile() {
     const button = document.getElementById('mb_save');
-    button.disabled = true;
     let id = button.getAttribute('data-fileid');
 
     let allowedDownloads = document.getElementById('mi_edit_down').value;
@@ -382,33 +381,24 @@ function editFile() {
         replaceFile = (replaceId != "");
     }
 
-    apiFilesModify(id, allowedDownloads, expiryTimestamp, password, originalPassword)
-        .then(data => {
-            if (!replaceFile) {
-                location.reload();
-                return;
-            }
-            apiFilesReplace(id, replaceId)
-                .then(data => {
-                    location.reload();
-                })
-                .catch(error => {
-                    alert(t("files.editFailed") + error);
-                    console.error('Error:', error);
-                    button.disabled = false;
-                });
-        })
-        .catch(error => {
-            alert(t("files.editFailed") + error);
-            console.error('Error:', error);
-            button.disabled = false;
-        });
+    const count = document.getElementById('mi_edit_down');
+    count.required = true;
+    if (!count.disabled && !count.reportValidity()) return;
+    await runModalSave('modaledit', button, async () => {
+        if (expiryTimestamp !== 0 && (!Number.isFinite(Number(expiryTimestamp)) || Number(expiryTimestamp) <= Date.now()/1000)) throw new Error(t('settings.invalidExpiry'));
+        await apiFilesModify(id, allowedDownloads, expiryTimestamp, password, originalPassword);
+        if (replaceFile) {
+            try { await apiFilesReplace(id, replaceId); }
+            catch (error) { throw new Error(t('files.replacePartial') + ' ' + error.message); }
+        }
+        location.reload();
+    });
 }
 
 function showEditModal(filename, id, downloads, expiry, password, unlimitedown, unlimitedtime, isE2e, canReplace) {
     // Cloning removes any previous values or form validation
     let originalModal = $('#modaledit').clone();
-    $("#modaledit").on('hide.bs.modal', function() {
+    $("#modaledit").on('hidden.bs.modal', function() {
         $('#modaledit').remove();
         let myClone = originalModal.clone();
         $('body').append(myClone);
@@ -533,6 +523,7 @@ function checkBoxChanged(checkBox, correspondingInput) {
     if (correspondingInput === "password" && disable) {
         document.getElementById("password").value = "";
     }
+    updateUploadSummary();
 }
 
 function parseSseData(data) {
@@ -804,6 +795,7 @@ function addRow(item) {
     cellButtons.classList.add('newItem');
     cellFileSize.setAttribute('data-order', item.SizeBytes);
 
+    prepareFileActions(row);
     changeRowCount(true, row);
     return item.Id;
 }
@@ -830,9 +822,6 @@ function createButtonGroup(item) {
     copyUrlBtn.appendChild(copyIcon);
     copyUrlBtn.appendChild(document.createTextNode(' URL'));
 
-    copyUrlBtn.addEventListener('click', () => {
-        showToast(1000);
-    });
 
     group1.appendChild(copyUrlBtn);
 
@@ -855,10 +844,9 @@ function createButtonGroup(item) {
         aDr1.title = t("files.copyHotlink");
         aDr1.style.cursor = "pointer";
         aDr1.setAttribute("data-clipboard-text", item.UrlHotlink);
-        aDr1.onclick = () => showToast(1000);
         aDr1.innerHTML = `<i class="bi bi-copy"></i> ${t("files.hotlink")}`;
     } else {
-        aDr1.className = "dropdown-item";
+        aDr1.className = "dropdown-item disabled";
         aDr1.innerText = t("files.noHotlink");
     }
     liDr1.appendChild(aDr1);
@@ -870,7 +858,7 @@ function createButtonGroup(item) {
     btnShare.type = "button";
     btnShare.className = "btn btn-outline-light btn-sm";
     btnShare.title = t("common.share");
-    btnShare.onclick = () => shareUrl(event, item.Id);
+    btnShare.onclick = event => shareUrl(event, item.Id);
     // For some reason bi-share does not always show up, using the svg fixes it
     btnShare.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">
         <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5m-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3"/>

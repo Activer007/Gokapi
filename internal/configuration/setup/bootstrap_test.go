@@ -12,7 +12,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/forceu/gokapi/internal/webserver/ratelimiter"
+	"github.com/Activer007/Gokapi/internal/webserver/ratelimiter"
 )
 
 // Authentication must not depend on whether a configuration already exists.

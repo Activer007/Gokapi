@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/forceu/gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/configuration"
 )
 
 func TestSEC012SessionCookieTransport(t *testing.T) {

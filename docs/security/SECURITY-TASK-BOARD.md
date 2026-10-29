@@ -118,13 +118,13 @@ G3回滚及限定场景验证见ADR017，不等于完整M3/真实生产G4通过�
 | SEC-031 | P0 CONFIRMED_CODE / VALIDATE | 双 provider 顺序实测确认 MaxSize 每文件；用户确认保留并新增累计限制，usage纠正；并发/累计预算未实施 | [PR #15](https://github.com/Activer007/Gokapi/pull/15)已合并8019c61、CI40707671124 PASS；[M3语义](M3-UPLOAD-SEMANTICS.md)、ADR-013；#436非累计/事务修复 |
 | SEC-032 | P0 CONFIRMED_CODE / VALIDATE | M2 上传授权验收通过：取消、File Request 完成、普通分片/进度隔离 | 50965ba / 3d93cdb / 3a9627c；ADR-007/011/012；资源预算与完整生命周期仍开放 |
 | SEC-040 | P0 CONFIRMED_CODE | 删除错误与元数据生命周期不一致；S3 RED | 003 → G1/G2/G3；先保留记录/传递错误/重试；复杂状态机后置；不把 #419 当相同修复 |
-| SEC-041 | P0 CONFIRMED_CODE + HISTORICAL_FIXED | 旧内容回收缺口与历史替换越权是两件事 | 020/040 → G1/G2/G3；先评审 [#419](https://github.com/Forceu/Gokapi/pull/419)，多引用与中断回滚；仅 fork 应用经验证的补丁 |
+| SEC-041 | P0 CONFIRMED_CODE + HISTORICAL_FIXED | 旧内容回收缺口与历史替换越权是两件事 | 020/040 → G1/G2/G3；先评审 [#419](https://github.com/Activer007/Gokapi/pull/419)，多引用与中断回滚；仅 fork 应用经验证的补丁 |
 | SEC-042 | P1 VALIDATE | 双层元数据扫描；真实性能瓶颈待测 | 040/041 → 基准后 G3；先 1k/10k 扫描计数，必要时 Blob 索引，SQLite/Redis 都可重建 |
-| SEC-050 | P1 VALIDATE | 全路由响应头/CSP 覆盖待测 | 012/023 → G1；先审 [#418](https://github.com/Forceu/Gokapi/pull/418)，下载/WASM/SSE 兼容，逐步启用 |
+| SEC-050 | P1 VALIDATE | 全路由响应头/CSP 覆盖待测 | 012/023 → G1；先审 [#418](https://github.com/Activer007/Gokapi/pull/418)，下载/WASM/SSE 兼容，逐步启用 |
 | SEC-051 | P1 HISTORICAL_FIXED / VALIDATE | SVG/文件名历史 XSS 已修，其他 MIME 路径需回归 | 020/050 → G1；浏览器执行与 Content-Disposition；E2E 无明文扫描承诺 |
 | SEC-052 | P1 VALIDATE，实证严重完整性问题升 P0 | 文档提示 Firefox 截断、File Request 非 E2E | 003/032/050 → G1/G3；浏览器/大小/截断/中断 SHA256；不自制新加密协议 |
 | SEC-060 | P1 VALIDATE | 审计 schema 与脱敏覆盖待盘点 | 020/040 → G1；白名单字段和失败结果；先审 #437；日志不含密码、Key、Cookie、完整 capability URL |
-| SEC-061 | P1 CONFIRMED_CODE / VALIDATE | SDK v1 静态凭据；云服务行为仍需验证 | 003/040 → G1/G3；先审 [#424](https://github.com/Forceu/Gokapi/pull/424)、[#438](https://github.com/Forceu/Gokapi/pull/438)，SDK 与凭据链分开验收 |
+| SEC-061 | P1 CONFIRMED_CODE / VALIDATE | SDK v1 静态凭据；云服务行为仍需验证 | 003/040 → G1/G3；先审 [#424](https://github.com/Activer007/Gokapi/pull/424)、[#438](https://github.com/Activer007/Gokapi/pull/438)，SDK 与凭据链分开验收 |
 | SEC-062 | P1 CONFIRMED_CODE / VALIDATE | [PR #1](https://github.com/Activer007/Gokapi/pull/1) 已合并：发布保护与 CI Go 声明修正；浮动镜像、vet 告警仍在 | G2 的 CI 子项通过；G4 仍待固定构建清单、扫描、fork 命名空间；不直接发 latest |
 | SEC-063 | P1 VALIDATE | 尚未做冷恢复/旧版本回滚演练 | 012/040/052/062 → G3/G4；config/DB/blob/密钥一致备份，在隔离副本恢复并验证分享权限 |
 

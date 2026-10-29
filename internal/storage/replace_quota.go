@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/forceu/gokapi/internal/configuration/database"
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/uploadquota"
-	"github.com/forceu/gokapi/internal/webserver/downloadstatus"
+	"github.com/Activer007/Gokapi/internal/configuration/database"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/webserver/downloadstatus"
 )
 
 // ReplaceFileContext accepts both authorized snapshots. Only content fields
