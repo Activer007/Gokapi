@@ -78,6 +78,9 @@ func (p DatabaseProvider) ApplyUploadQuota(ctx context.Context, change uploadquo
 			}
 		}
 		if change.Action == uploadquota.ReplaceMetadata {
+			if err := registerReplacementBlob(ctx, conn, change); err != nil {
+				return err
+			}
 			if err := patchReplacementMetadata(ctx, conn, change); err != nil {
 				return err
 			}
@@ -168,6 +171,13 @@ func (p DatabaseProvider) CheckEmptyForMigration(ctx context.Context) error {
 			return err
 		}
 		if len(ledger.Records) != 0 {
+			return uploadquota.ErrConflict
+		}
+		candidates, err := readBlobCandidates(ctx, conn)
+		if err != nil {
+			return err
+		}
+		if len(candidates) != 0 {
 			return uploadquota.ErrConflict
 		}
 		// These are fixed schema identifiers, never caller-provided SQL.

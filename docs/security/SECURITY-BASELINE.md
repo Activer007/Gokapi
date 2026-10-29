@@ -4,6 +4,13 @@
 
 ## 当前M4：可靠删除与下载内容边界
 
+SEC-041续作（2026-10-30）：基线65dd7ef6c7be7d1f08c00e41318b6da132aa89af（PR48已合并），分支codex/sec-041-old-content；fetch后origin/master一致，初始工作树干净，Go1.26.10 windows/amd64。
+CONFIRMED_CODE：冻结完整归档的隔离正常重启合同已取得旧内容未回收的业务RED（3.635s，exit1，1475项输入前后不变）；首次夹具阶段标记SETUP_FAIL不计作业务证据。
+方案见[ADR-025](ADR-025-OLD-CONTENT-RECLAMATION.md)：同事务/CAS登记有界去重旧locator、完整全ID引用查询、checked GC及token条件退休；SQLite17/Redis10，迁库保留候选。
+由[PR50](https://github.com/Activer007/SupaShare/pull/50)交付，冻结d26875de358729bf0762454d8bb56748ccc2c291；[CI40932505670](https://github.com/Activer007/SupaShare/actions/runs/40932505670) SUCCESS，实际af4cf988/tree51f17db与冻结树一致。
+双provider/迁库/骤停/loopback S3、四组全仓、相关race/build/scan已实际PASS；原同一正常重启夹具GREEN7.089s，1487项输入未变。首轮夹具失败保留在TEST-REPORT。历史孤儿不扫描回填，真实Redis/S3持久化及断电仍NOT_RUN。
+Forceu/Gokapi [PR419](https://github.com/Forceu/Gokapi/pull/419)和[PR418](https://github.com/Forceu/Gokapi/pull/418)本轮仍open/unmerged；419无持久候选/崩溃闭环。历史替换越权公告为HISTORICAL_FIXED，不混为本项。
+
 初始开发基线dee4382f19d0801cb4022ed3ec897beda297e1df，分支codex/sec-040-delete-state；最终代码冻结cf30b576020b187a20450e14b03cbfebb7294ba3。
 2026-10-30续作：保存实现22ce805后，无冲突合并自有PR45主线b7a5f85为0c2e07；UI/生成器改动完整保留。
 Forceu/Gokapi PR419、418本轮只读复核仍open/unmerged；未提交上游。
@@ -24,7 +31,7 @@ SEC-040-A以主线c434e099开始，隔离开发保留已测试provider工作并�
 四组全仓、相关race、Linux实际权限/symlink、构建/扫描均PASS。开发期两次真实CI失败及夹具修正均在TEST-REPORT保留。
 本地路径别名及case-only歧义先取得候选防御合同RED后修复，不据此声称远程攻击者可利用；S3保持精确key身份。
 040-B精确业务RED及候选证据留自有未公开审查；最终Gate通过，交付/合并以PR48记录为准，不推定越权链或发布版本影响。
-VALIDATE：041旧内容候选、真实Redis/S3及崩溃中断窗口仍OPEN；040-A不能关闭整个M4。
+040-A收尾时041旧内容候选及中断窗口仍OPEN；当前041限定结果以本页PR50增补为准，真实Redis/S3持久化仍VALIDATE；040-A不能关闭整个M4。
 
 基线8c39931733be853dd68d11ad5b193088c4d928d5，v2.11.0；范围见[M4-GOAL](M4-GOAL.md)，阶段ACTIVE，M3保持完成。
 HISTORICAL_FIXED（PR43）：052本地服务器加密下载的限定真实HTTP终态合同曾触发P0 Gate，已做最小错误传播修复；

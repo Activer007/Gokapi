@@ -46,8 +46,8 @@ func TestSEC030SQLiteQuotaSchema(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { p.Close() })
-	if p.GetDbVersion() != 16 || p.GetSchemaVersion() != 16 {
-		t.Fatal("new quota database is not schema 16")
+	if p.GetDbVersion() != 17 || p.GetSchemaVersion() != 17 {
+		t.Fatal("new quota database is not schema 17")
 	}
 	ledger, err := p.ReadUploadQuota(ctx)
 	if err != nil || !reflect.DeepEqual(ledger, uploadquota.EmptyLedger()) {
@@ -100,7 +100,7 @@ func TestSEC030SQLiteQuotaSchema(t *testing.T) {
 		t.Fatal("File Request semantics changed across migration/reopen")
 	}
 	reopened, err := p.ReadUploadQuota(ctx)
-	if err != nil || !reflect.DeepEqual(reopened, before) || p.GetDbVersion() != 16 {
+	if err != nil || !reflect.DeepEqual(reopened, before) || p.GetDbVersion() != 17 {
 		t.Fatal("migrated ledger did not survive reopen", err)
 	}
 }
@@ -257,7 +257,7 @@ func TestSEC030SQLiteQuotaBackupRestore(t *testing.T) {
 		t.Fatal(err)
 	}
 	p.Upgrade(15)
-	p.SetDbVersion(16)
+	p.SetDbVersion(17)
 	if got, ok := p.GetMetaDataById(file.Id); !ok || !reflect.DeepEqual(got, file) {
 		t.Fatal("upgrade changed backed-up metadata")
 	}
@@ -303,7 +303,7 @@ func TestSEC030SQLiteQuotaBackupRestore(t *testing.T) {
 		t.Fatal("new reader created quota state in the backup", err)
 	}
 	current, err := p.ReadUploadQuota(ctx)
-	if err != nil || !reflect.DeepEqual(current, upgradedLedger) || p.GetDbVersion() != 16 {
+	if err != nil || !reflect.DeepEqual(current, upgradedLedger) || p.GetDbVersion() != 17 {
 		t.Fatal("backup inspection altered the upgraded database", err)
 	}
 	if got, ok := p.GetMetaDataById(file.Id); !ok || !reflect.DeepEqual(got, file) {

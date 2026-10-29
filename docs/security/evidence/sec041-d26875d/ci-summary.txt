@@ -1,0 +1,84 @@
+SEC-041 final validation
+Repository: Activer007/SupaShare
+PR: https://github.com/Activer007/SupaShare/pull/50
+Run: https://github.com/Activer007/SupaShare/actions/runs/40932505670
+Job: 123654387934
+Conclusion: SUCCESS
+Frozen head: d26875de358729bf0762454d8bb56748ccc2c291
+Actual checkout: af4cf98838eaf4294f0771a01922d94039c76d2d
+Checkout parents: 65dd7ef6c7be7d1f08c00e41318b6da132aa89af d26875de358729bf0762454d8bb56748ccc2c291
+Tree, identical to frozen head: 51f17dbdad534c90b70511488ca9d1b0abc7888c
+Environment: Ubuntu 24.04.5, image 20261025.353.1, Go 1.26.10 linux/amd64
+
+PASS: go generate ./... and git diff --exit-code
+PASS: setup listener contract with configured product port occupied
+PASS: go test ./... -parallel 8 -count=1 --tags=test,awsmock
+PASS: go test ./... -parallel 8 -count=1 --tags=test,noaws
+PASS: go test ./... --tags=test,noaws,integration -count=1
+PASS: go test ./... --tags=test,awstest -count=1 (synthetic loopback configuration)
+PASS: receiver race contract
+PASS: encrypted download failure race contract
+PASS: retryable cleanup/provider race contracts
+PASS: deletion state/timer/API race contracts
+PASS: go test -race ./internal/blobreclaim ./internal/storage ./internal/configuration/database ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,noaws,security_reclaim -run 'TestSEC041|TestCandidateRecordBoundary' -timeout 3m -v
+PASS: go test -race ./internal/test/securityfixture -count=1 -tags=test,security_cleanup,security_reclaim -run '^TestSEC041OldContentS3RetryKeepsReplacement$' -timeout 2m -v
+
+Selected actual race-contract results:
+TestSEC041BlobReclaimAfterProcessExit 1.42s
+TestSEC041ReclaimReferenceAndSameTarget 0.27s
+TestSEC041ReclaimSharedPoliciesAndFailure 0.52s
+TestSEC041ReclaimPublicationAndUnknownClaim 0.20s
+TestSEC041ReclaimBoundedPassContinuesAfterFailure 0.73s
+TestSEC041ReclaimUnknownClaimFullPass 0.10s
+TestSEC041MigrationPreservesDetachedCandidates 0.30s
+TestSEC041SQLiteReplacementCandidateSurvivesReopenAndStaleAck 0.17s
+TestSEC041SQLiteReplacementRegistrationFailureDoesNotPatch 1.88s
+TestSEC041SQLiteCandidateMigrationImportAndCheckedReads 0.09s
+TestSEC041RedisCandidateRegistrationAndStaleAck 0.06s
+TestSEC041RedisCandidateReferencesIncludeEveryID 0.02s
+TestSEC041RedisCandidateSchemaAndImport 0.13s
+TestSEC041RedisCandidateCapacity 4.25s
+TestSEC041RedisCandidateWatchAndUnknown 0.09s
+TestSEC041OldContentS3RetryKeepsReplacement 19.74s
+
+PASS: bash docs/security/tools/run-sec030-whole.sh target
+SEC030_WHOLE_RESULT environment 0
+SEC030_WHOLE_RESULT whole 0
+SEC030_WHOLE_RESULT mock 0
+SEC030_WHOLE_RESULT sdk 0
+SEC030_WHOLE_RESULT source-unchanged 0
+PASS: bash docs/security/tools/run-sec030-whole.sh race
+SEC030_WHOLE_RESULT environment 0
+SEC030_WHOLE_RESULT whole 0
+SEC030_WHOLE_RESULT mock 0
+SEC030_WHOLE_RESULT sdk 0
+SEC030_WHOLE_RESULT source-unchanged 0
+
+PASS: bash docs/security/tools/run-sec062-toolchain.sh scan
+SEC062_RESULT environment 0
+SEC062_RESULT policy 0
+SEC062_RESULT scanner-install 0
+SEC062_RESULT scanner-version 0
+SEC062_RESULT scanner-buildinfo 0
+SEC062_RESULT generate 0
+SEC062_RESULT formatting 0
+SEC062_RESULT source-default 0
+SEC062_RESULT source-noaws 0
+SEC062_RESULT wasm-source 0
+SEC062_RESULT generator-build 0
+SEC062_RESULT generator-buildinfo 0
+SEC062_RESULT generator-binary-scan 0
+SEC062_RESULT server-build 0
+SEC062_RESULT cli-build 0
+SEC062_RESULT gokapi-buildinfo 0
+SEC062_RESULT gokapi-binary-scan 0
+SEC062_RESULT gokapi-cli-buildinfo 0
+SEC062_RESULT gokapi-cli-binary-scan 0
+Module-only notices retained: GO-2026-5932, GO-2022-0646, GO-2022-0635.
+The scanned build graph reported 0 affected vulnerabilities; this is not a claim
+that all dependencies are repaired or all deployment configurations are safe.
+
+NOT_RUN: real Redis durability, real S3/history versions, power loss, production
+recovery/deployment, historical compiler/container/large opt-in workflow modes.
+Windows native race remains BLOCKED; the related Linux race checks above ran.
+No deployment, image/advisory publication, CVE request or upstream mutation.

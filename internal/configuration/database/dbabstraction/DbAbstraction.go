@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Activer007/SupaShare/internal/blobreclaim"
 	"github.com/Activer007/SupaShare/internal/configuration/database/provider/redis"
 	"github.com/Activer007/SupaShare/internal/configuration/database/provider/sqlite"
 	"github.com/Activer007/SupaShare/internal/models"
@@ -28,6 +29,11 @@ type Database interface {
 	ReadCleanupIDs(context.Context) ([]string, error)
 	HasBlobReference(context.Context, models.File) (bool, error)
 	RetireCleanupFile(context.Context, models.File, int64, bool) (bool, error)
+	ReadBlobCandidates(context.Context) ([]blobreclaim.Candidate, error)
+	ReadBlobCandidate(context.Context, string) (blobreclaim.Candidate, bool, error)
+	HasAnyBlobReference(context.Context, blobreclaim.Candidate) (bool, error)
+	RetireBlobCandidate(context.Context, blobreclaim.Candidate) (bool, error)
+	ImportBlobCandidates(context.Context, []blobreclaim.Candidate) error
 	ApplyFileState(context.Context, models.FileStatePatch) (models.File, bool, error)
 	ImportUploadQuota(context.Context, uploadquota.Ledger) error
 	CheckEmptyForMigration(context.Context) error

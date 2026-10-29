@@ -12,9 +12,9 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/alicebob/miniredis/v2"
 	"github.com/Activer007/SupaShare/internal/models"
 	"github.com/Activer007/SupaShare/internal/uploadquota"
+	"github.com/alicebob/miniredis/v2"
 	redigo "github.com/gomodule/redigo/redis"
 )
 
@@ -77,7 +77,7 @@ func sec030RedisApply(t *testing.T, db DatabaseProvider, change uploadquota.Chan
 func TestSEC030RedisSchemaAndReopen(t *testing.T) {
 	t.Run("new-and-active-upgrade-preserved", func(t *testing.T) {
 		s := sec030RedisNew(t)
-		if s.db.GetDbVersion() != 9 || len(sec030RedisRead(t, s.db).Records) != 0 {
+		if s.db.GetDbVersion() != DatabaseSchemeVersion || len(sec030RedisRead(t, s.db).Records) != 0 {
 			t.Fatal("new schema not ready")
 		}
 		file := models.File{Id: "existing", UserId: 1, SizeBytes: 2, UploadRequestId: "request"}

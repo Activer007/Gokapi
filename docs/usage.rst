@@ -45,10 +45,14 @@ Editing files
 
 By clicking on the edit button, you can change limits like the maximum download count or replace the file with the contents of a different uploaded file.
 
+Replacement records the old content for later cleanup in the same database operation. Cleanup keeps content referenced by any share, including another owner or a share changed back to the old content. Failed or uncertain cleanup retains a retry record across restarts. The record collection is bounded; if it is full, a replacement requiring a new record is refused with HTTP 503 and can be retried after cleanup. This applies to replacements recorded by the upgraded version; it does not discover historical orphan files.
+
 File deletion
 ---------------
 
 Every hour SupaShare runs a cleanup routine for expired shares. Clicking *Delete* revokes the share and starts cleanup; acceptance does not confirm physical deletion. Shared content stays while another share references it. Storage or metadata errors leave a retryable management record and a fixed cleanup-pending log message, without restoring public download access. A later cleanup or restart retries the remaining work. Unproxied AWS downloads retain their existing 24-hour tracking window because completion cannot be confirmed reliably. Deleting the current object does not erase backups or historical S3 versions.
+
+Physical cleanup may also wait while an upload is completing or its staging cleanup is unconfirmed. Retry after normal uploads settle. Interrupted uploads whose publication cannot be established require the existing recovery review; do not remove database records to bypass it. Upgrading to the old-content cleanup format requires a stopped-service backup of the database, data directory and matching configuration/keys. See ``docs/security/ADR-025-OLD-CONTENT-RECLAMATION.md`` for migration and rollback limits.
 
 The file deletion API keeps its empty HTTP 200 success body and adds ``X-SupaShare-Deletion-Status``: ``accepted`` for a scheduled intent, ``deleted`` for a retired share with confirmed absent content, or ``shared`` when another reference keeps the content. A ``pending`` response with HTTP 503 means cleanup is incomplete and must be retried. HTTP 409 reports a state conflict. Restore only succeeds while the share is still live and its source can be verified; a concurrent cleanup may finish first, in which case restore is refused. CLI callers also treat non-success HTTP statuses as errors.
 

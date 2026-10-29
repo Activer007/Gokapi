@@ -2,6 +2,65 @@
 
 日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/SupaShare 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
 
+## M4：SEC-041开发验证（2026-10-30，进行中）
+
+实际基线65dd7ef6c7be7d1f08c00e41318b6da132aa89af，Go1.26.10 windows/amd64、CGO0；分支codex/sec-041-old-content，仅隔离合成数据。
+完整Git归档SHA256 `33e774ef4269cf47e508715b66f49ecfd6efde9727240acd404e9f920f3148c3`，源码与夹具共1475项输入哈希在运行前后相同。
+
+| 实际命令 | 结果 |
+| --- | --- |
+| `git fetch origin --prune`，核对status/branch/HEAD/remote/default与`go version` | PASS，origin/master=65dd7ef，初始干净，自有独立仓库 |
+| 私密嵌套module：`go test -mod=readonly -count=1 -tags='test,noaws' -run '^TestSEC041ReplaceRestartRetiresOldLocator$' -timeout 90s -v .`，首次 | SETUP_FAIL，exit1、7.063s；child未启用verbose，成功阶段标记不输出，不能算业务RED |
+| 同命令，child增加`-test.v`并保留原fixture/manifest/log后 | ASSERTION_RED，exit1、3.635s；替换成功+实际正常退出+fresh SQLite+checked GC成功，旧内容仍存在，新内容/两metadata正确 |
+
+初始RED是正常重启，不证明骤停或断电。原归档、两版夹具哈希与日志均保留在被忽略私密目录；公开只描述必要修复。
+新候选/双provider/共享及原target重新引用/未知Claim/实际进程exit97/S3故障/离线迁库合同正在实现，当前NOT_RUN；未预填GREEN。
+Windows原生race缺CGO工具链为BLOCKED，冻结后使用现有Linux CI执行相关race和必要全仓；当前最终CI NOT_RUN。
+设计、schema升级与回滚见[ADR-025](ADR-025-OLD-CONTENT-RECLAMATION.md)；不部署、不操作生产、不改变加密格式。
+
+### 后续实际本地结果（取代上段开发初始NOT_RUN状态）
+
+生产和新合同输入共348项在首次集中运行前后无变化；记录保留于本地私密manifest/log，不提交原始路径或内部记录。
+
+| 实际命令 | 结果 |
+| --- | --- |
+| `go test ./internal/blobreclaim -count=1` | PASS 2.097s：有界编码/损坏/精确tuple与token刷新 |
+| `go test ./internal/storage -count=1 -tags='test,noaws,security_reclaim' -run '^TestSEC041ReclaimUnknownClaimFullPass$' -timeout 90s -v`，候选实现首轮 | SETUP_FAIL 6.108s：metadata-only limits不含上传active槽，尚未到业务断言 |
+| 同命令，夹具设置明确有限active/stage后 | ASSERTION_RED 6.054s，161项生产输入未变：候选保留但普通过期metadata pass删掉同A；修复为共享最后物理删除门禁，不把此候选合同当作历史远程攻击证据 |
+| `go test ./internal/storage ./internal/configuration/database ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags='test,noaws,security_reclaim,security_replace,security_deletion,security_cleanup' -run 'TestSEC041\|TestSEC040\|TestSEC030Replace\|TestSEC030Migration\|TestSEC030SQLiteQuotaSchema\|TestSEC030SQLiteQuotaBackupRestore\|TestSEC030SQLiteMigrationEmptyPreflight\|TestSEC030RedisQuotaSchema' -timeout 3m -v` | 整体FAIL：仅bounded-pass夹具将Windows原生绝对路径交URI parser而setup失败；数据库/SQLite/Redis三包分别PASS 3.560/4.339/4.874s。storage其余根合同PASS：exit97 fresh恢复0.30s；同target引用0.07s；共享/源错误0.17s；Claim+Committed-held+发布门禁0.12s；完整GC unknown交互GREEN0.03s；相关040/030替换回归PASS |
+| `go test ./internal/storage -count=1 -tags='test,noaws,security_reclaim' -run '^TestSEC041ReclaimBoundedPassContinuesAfterFailure$' -timeout 90s -v`，只修失败夹具后 | PASS 6.262s，根合同0.19s：128项边界、首项失败继续、第二批推进且保留失败锚点；未重复其余已通过项 |
+| `go test ./internal/test/securityfixture -count=1 -tags='test,security_cleanup,security_reclaim' -run '^TestSEC041OldContentS3RetryKeepsReplacement$' -timeout 2m -v` | PASS 27.085s，根合同20.39s：真实SDK+loopback DELETE失败5.11s、HEAD未知15.13s、假成功0.15s；解除故障后回收、B字节/metadata/hotlink保持、重复GC无DELETE |
+
+provider合同覆盖重连、全ID引用、同locator去重/token刷新、旧ack拒绝、4096满容量、坏结构拒绝且不patch、SQLite16→17/Redis9→10、迁库候选/token保持。Redis明确WATCH中止可重算、owner冲突拒绝、已提交却回复未知仅一次EXEC且不假回滚。
+一次性代码审查已分别交叉检查双provider与worker锁/锚点，不存在外部独立批准声明。全仓、生成、Linux相关race及build/scan均留到最终冻结CI；此处尚NOT_RUN，不借040-B的CI证明本轮通过。
+
+### 冻结候选与原合同回放
+
+[PR50](https://github.com/Activer007/SupaShare/pull/50)，代码冻结d26875de358729bf0762454d8bb56748ccc2c291，tree51f17dbdad534c90b70511488ca9d1b0abc7888c。
+实际PR合并候选af4cf98838eaf4294f0771a01922d94039c76d2d，父65dd7ef+d26875d，树与冻结提交一致。
+原正常重启夹具文件保持完全相同，仅独立嵌套module的replace改指冻结工作树；再次执行原命令 `go test -mod=readonly -count=1 -tags='test,noaws' -run '^TestSEC041ReplaceRestartRetiresOldLocator$' -timeout 90s -v .`，PASS7.089s（合同1.64s），1487项tracked/fixture输入前后无变化。
+原RED归档、夹具及manifest未改写；不是通过改变负例断言取得GREEN。审查COMMENT5703100257锚定d26875d，最终CI40932505670单独记录，不预填结果。
+
+### 最终CI：SUCCESS
+
+[CI40932505670](https://github.com/Activer007/SupaShare/actions/runs/40932505670)，job123654387934，冻结d26875d，实际checkoutaf4cf988（日志明确记录），tree51f17db与冻结树一致；Ubuntu24.04.5/image20261025.353.1、Go1.26.10 linux/amd64。
+完整命令、16个新增根合同的实际race耗时与逐项退出码见[脱敏摘要](evidence/sec041-d26875d/ci-summary.txt)。
+
+| 实际执行 | 结果 |
+| --- | --- |
+| `go generate ./...`、`git diff --exit-code`，配置端口占用setup合同 | PASS，生成无tracked差异 |
+| `go test ./...` 的 `test,awsmock`、`test,noaws`、`test,noaws,integration`、`test,awstest` | 四组PASS；awstest使用合成loopback配置，非真实云 |
+| 既有receiver/052失败/040清理/删除状态相关 `-race` | PASS |
+| `go test -race ./internal/blobreclaim ./internal/storage ./internal/configuration/database ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,noaws,security_reclaim -run 'TestSEC041\|TestCandidateRecordBoundary' -timeout 3m -v` | PASS，含实际exit97/fresh verifier、共享/重新引用、全pass未知发布、批次、迁库、满容量及Redis unknown控制 |
+| `go test -race ./internal/test/securityfixture -count=1 -tags=test,security_cleanup,security_reclaim -run '^TestSEC041OldContentS3RetryKeepsReplacement$' -timeout 2m -v` | PASS，真实SDK+loopback故障根合同19.74s |
+| `bash docs/security/tools/run-sec030-whole.sh target` 与 `race` | PASS，10项结果均0，两次source-unchanged均0 |
+| `bash docs/security/tools/run-sec062-toolchain.sh scan` | PASS，19项均0；generator/server/CLI构建与BuildInfo/source/WASM/binary扫描已执行 |
+
+扫描仍有模块级GO-2026-5932、GO-2022-0646/0635提示，实际测试构建图报告affected0；未修改依赖，不声称依赖全部修复。
+push run40932435884被PR事件的同head concurrency取消，不是测试失败；只完成上述一次最终CI，无盲目重跑。
+NOT_RUN：真实Redis持久化/真实S3与历史版本、断电、生产恢复/部署；historical/container/large仅手动opt-in，本轮未运行。Windows原生race仍BLOCKED，相关Linux race实际PASS。
+仅安全Markdown/脱敏txt收尾不改变运行时、测试、module、模板或workflow；最终合并状态以PR50权威记录为准，不预写合并SHA。
+
 ## M4：SEC-040-B最终验证（2026-10-30）
 
 [PR48](https://github.com/Activer007/SupaShare/pull/48)，冻结cf30b576020b187a20450e14b03cbfebb7294ba3；

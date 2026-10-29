@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Activer007/SupaShare/internal/blobreclaim"
 	"github.com/Activer007/SupaShare/internal/configuration/database/dbabstraction"
 	"github.com/Activer007/SupaShare/internal/configuration/database/dbcache"
 	"github.com/Activer007/SupaShare/internal/helper"
@@ -101,15 +102,28 @@ func MigrateChecked(ctx context.Context, configOld, configNew models.DbConnectio
 	}
 	// Read even an older schema: a partial upgrade may already have live
 	// reservations. Only a genuinely absent old-format structure is empty.
+	quotaVersion, candidateVersion := 16, 17
+	if dbOld.GetType() == dbabstraction.TypeRedis {
+		quotaVersion, candidateVersion = 9, 10
+	}
 	ledger, err := dbOld.ReadUploadQuota(ctx)
 	if err != nil {
-		if dbOld.GetDbVersion() >= dbOld.GetSchemaVersion() || !errors.Is(err, uploadquota.ErrNotFound) {
+		if dbOld.GetDbVersion() >= quotaVersion || !errors.Is(err, uploadquota.ErrNotFound) {
 			return err
 		}
 		ledger = uploadquota.EmptyLedger()
 	}
 	if ledger.HasOutstanding() {
 		return uploadquota.ErrConflict
+	}
+	// A legacy source may predate the candidate structure. A current or partial
+	// structure must be read successfully; never silently drop retry anchors.
+	candidates, err := dbOld.ReadBlobCandidates(ctx)
+	if err != nil {
+		if dbOld.GetDbVersion() >= candidateVersion || !errors.Is(err, uploadquota.ErrNotFound) {
+			return err
+		}
+		candidates = nil
 	}
 	if err := ctx.Err(); err != nil {
 		return err
@@ -160,7 +174,10 @@ func MigrateChecked(ctx context.Context, configOld, configNew models.DbConnectio
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	return dbNew.ImportUploadQuota(ctx, ledger)
+	if err := dbNew.ImportUploadQuota(ctx, ledger); err != nil {
+		return err
+	}
+	return dbNew.ImportBlobCandidates(ctx, candidates)
 }
 
 // ApplyUploadQuota delegates a server-owned command to the provider's atomic
@@ -214,6 +231,50 @@ func RetireCleanupFile(ctx context.Context, file models.File, now int64, sourceG
 		return false, uploadquota.ErrSchema
 	}
 	return db.RetireCleanupFile(ctx, file, now, sourceGone)
+}
+
+// ReadBlobCandidates is a complete bounded read of replacement retry anchors.
+func ReadBlobCandidates(ctx context.Context) ([]blobreclaim.Candidate, error) {
+	if ctx == nil {
+		return nil, uploadquota.ErrInvalid
+	}
+	if db == nil {
+		return nil, uploadquota.ErrSchema
+	}
+	return db.ReadBlobCandidates(ctx)
+}
+
+func ReadBlobCandidate(ctx context.Context, key string) (blobreclaim.Candidate, bool, error) {
+	if ctx == nil {
+		return blobreclaim.Candidate{}, false, uploadquota.ErrInvalid
+	}
+	if db == nil {
+		return blobreclaim.Candidate{}, false, uploadquota.ErrSchema
+	}
+	return db.ReadBlobCandidate(ctx, key)
+}
+
+// HasAnyBlobReference includes every file ID, even a former replacement target
+// which has since been changed back to this locator. The caller holds its blob
+// publication lock through this scan, physical I/O and conditional retirement.
+func HasAnyBlobReference(ctx context.Context, candidate blobreclaim.Candidate) (bool, error) {
+	if ctx == nil {
+		return false, uploadquota.ErrInvalid
+	}
+	if db == nil {
+		return false, uploadquota.ErrSchema
+	}
+	return db.HasAnyBlobReference(ctx, candidate)
+}
+
+func RetireBlobCandidate(ctx context.Context, candidate blobreclaim.Candidate) (bool, error) {
+	if ctx == nil {
+		return false, uploadquota.ErrInvalid
+	}
+	if db == nil {
+		return false, uploadquota.ErrSchema
+	}
+	return db.RetireBlobCandidate(ctx, candidate)
 }
 
 // ApplyFileState conditionally patches only server-owned file state fields.

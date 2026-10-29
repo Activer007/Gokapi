@@ -18,14 +18,16 @@ import (
 const cleanupBatchTimeout = 30 * time.Second
 const cleanupItemTimeout = 5 * time.Second
 
-// CleanupResult counts confirmed metadata retirements only. Deleted means the
+// CleanupResult separates confirmed share retirements from old-content intents.
+// The top-level counters refer to metadata only. Deleted means the
 // source was removed and verified absent; Shared means its blob was retained;
 // Missing means the checked initial probe found no source. No IDs are exposed.
 type CleanupResult struct {
-	Retired int
-	Deleted int
-	Shared  int
-	Missing int
+	Retired    int
+	Deleted    int
+	Shared     int
+	Missing    int
+	OldContent OldContentCleanupResult
 }
 
 // Keep diagnostics opaque while preserving errors.Is for cancellation and
@@ -37,7 +39,7 @@ func (err cleanupError) Unwrap() error { return err.cause }
 
 var errCleanupSourcePresent = errors.New("cleanup source absence unconfirmed")
 
-// CleanUpContext runs only the canonical metadata/blob pass. Session sweep and
+// CleanUpContext runs canonical share and old-content passes. Session sweep and
 // legacy auxiliary maintenance remain outside publication locks in CleanUp.
 // A failed or incomplete read never authorizes physical deletion or retirement.
 func CleanUpContext(ctx context.Context) (CleanupResult, error) {
@@ -52,7 +54,10 @@ func CleanUpContext(ctx context.Context) (CleanupResult, error) {
 		return result, cleanupError{err}
 	}
 	dataDir := configuration.Get().DataDir
-	var firstErr error
+	// Give old-content candidates a bounded turn before the metadata loop so
+	// repeated slow shares cannot starve replacement recovery indefinitely.
+	oldContent, firstErr := reclaimOldContentContext(ctx, dataDir)
+	result.OldContent = oldContent
 	for _, id := range ids {
 		if err := ctx.Err(); err != nil {
 			return result, cleanupError{err}
@@ -141,6 +146,9 @@ func cleanUpBlobReferenceLockedContext(ctx context.Context, scanned models.File,
 	sourceGone := !sourceExists
 	deleted := false
 	if sourceExists && !shared {
+		if err := checkCanonicalDeletionPublication(ctx); err != nil {
+			return result, err
+		}
 		if err := deleteSource(ctx, current, local); err != nil {
 			return result, err
 		}
