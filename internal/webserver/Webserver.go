@@ -264,6 +264,7 @@ func initTemplates(templateFolderEmbedded embed.FS) {
 
 	funcMap := template.FuncMap{
 		"newAdminButtonContext": newAdminButtonContext,
+		"newFileRequestContext": newFileRequestContext,
 	}
 	if helper.FolderExists("templates") {
 		fmt.Println("Found folder 'templates', using local folder instead of internal template folder")
@@ -1239,11 +1240,16 @@ func requireLogin(next http.HandlerFunc, isUiCall, isPwChangeView bool) http.Han
 type adminButtonContext struct {
 	CurrentFile models.FileApiOutput
 	ActiveUser  *models.User
+	UI          pageUI
 }
 
 // Used internally in templates to create buttons with user context
-func newAdminButtonContext(file models.FileApiOutput, user models.User) adminButtonContext {
-	return adminButtonContext{CurrentFile: file, ActiveUser: &user}
+func newAdminButtonContext(file models.FileApiOutput, user models.User, ui ...pageUI) adminButtonContext {
+	result := adminButtonContext{CurrentFile: file, ActiveUser: &user}
+	if len(ui) > 0 {
+		result.UI = ui[0]
+	}
+	return result
 }
 
 // Write a cookie if the user has entered a correct password for a password-protected file

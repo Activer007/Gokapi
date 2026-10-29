@@ -26,6 +26,15 @@ type pageView struct {
 
 func (p *pageView) setUI(ui pageUI) { p.UI = ui }
 
+type fileRequestContext struct {
+	models.FileRequest
+	UI pageUI
+}
+
+func newFileRequestContext(request models.FileRequest, ui pageUI) *fileRequestContext {
+	return &fileRequestContext{FileRequest: request, UI: ui}
+}
+
 func withLanguagePreference(next http.Handler) http.Handler {
 	cookiePath := "/"
 	if base, err := url.Parse(configuration.Get().ServerUrl); err == nil && strings.HasPrefix(base.Path, "/") {

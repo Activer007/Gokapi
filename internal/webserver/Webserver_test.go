@@ -42,6 +42,7 @@ func TestMain(m *testing.M) {
 func TestEmbedFs(t *testing.T) {
 	funcMap := template.FuncMap{
 		"newAdminButtonContext": newAdminButtonContext,
+		"newFileRequestContext": newFileRequestContext,
 	}
 	templates, err := template.New("").Funcs(funcMap).ParseFS(templateFolderEmbedded, "web/templates/*.tmpl")
 	if err != nil {
