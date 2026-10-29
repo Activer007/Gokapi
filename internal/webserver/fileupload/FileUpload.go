@@ -1,6 +1,7 @@
 package fileupload
 
 import (
+	"context"
 	"errors"
 	"io"
 	"log"
@@ -124,7 +125,7 @@ var receiveOnce sync.Once
 var receiver *uploadreceive.Pool
 var receiverError error
 
-func receiveUpload(w http.ResponseWriter, r *http.Request, maxFileBytes int64) (*uploadreceive.Upload, error) {
+func uploadReceiver() (*uploadreceive.Pool, error) {
 	receiveOnce.Do(func() {
 		env := configuration.GetEnvironment()
 		if err := env.ValidateReceiveLimits(); err != nil {
@@ -134,8 +135,32 @@ func receiveUpload(w http.ResponseWriter, r *http.Request, maxFileBytes int64) (
 		receiver, receiverError = uploadreceive.New(env.UploadBodySlots, env.UploadReceiveMB*1024*1024)
 	})
 	if receiverError != nil {
-		stopRejectedUpload(w, r)
 		return nil, uploadreceive.ErrInvalid
+	}
+	return receiver, nil
+}
+
+// PrepareReceiver uses the same pool as runtime reception. Startup must call it
+// after read-only recovery preflight and before accepting any upload requests.
+func PrepareReceiver(ctx context.Context, dataDir string) error {
+	if ctx == nil {
+		return uploadreceive.ErrInvalid
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	pool, err := uploadReceiver()
+	if err != nil {
+		return err
+	}
+	return pool.Prepare(ctx, dataDir)
+}
+
+func receiveUpload(w http.ResponseWriter, r *http.Request, maxFileBytes int64) (*uploadreceive.Upload, error) {
+	pool, err := uploadReceiver()
+	if err != nil {
+		stopRejectedUpload(w, r)
+		return nil, err
 	}
 	// Keep the existing live free-space setting, including its legacy zero rule.
 	minFree, err := uploadMiBOrZero(environment.New().MinFreeSpaceMB)
@@ -143,7 +168,7 @@ func receiveUpload(w http.ResponseWriter, r *http.Request, maxFileBytes int64) (
 		stopRejectedUpload(w, r)
 		return nil, err
 	}
-	upload, err := receiver.Receive(w, r, configuration.Get().DataDir, maxFileBytes, minFree)
+	upload, err := pool.Receive(w, r, configuration.Get().DataDir, maxFileBytes, minFree)
 	if err != nil {
 		stopRejectedUpload(w, r)
 	}

@@ -171,6 +171,17 @@ func ApplyUploadQuota(ctx context.Context, change uploadquota.Change) (uploadquo
 
 func ReadUploadQuota(ctx context.Context) (uploadquota.Ledger, error) { return db.ReadUploadQuota(ctx) }
 
+// ReadRecoveryFile is the checked, context-bound metadata read for startup recovery.
+func ReadRecoveryFile(ctx context.Context, id string) (models.File, bool, error) {
+	if ctx == nil {
+		return models.File{}, false, uploadquota.ErrInvalid
+	}
+	if db == nil {
+		return models.File{}, false, uploadquota.ErrSchema
+	}
+	return db.ReadRecoveryFile(ctx, id)
+}
+
 // ReadBlobEncryption reads only bounded encryption metadata for one storage
 // locator. It does not load names, passwords or all file metadata into memory.
 func ReadBlobEncryption(ctx context.Context, hash, bucket string) (models.EncryptionInfo, bool, error) {

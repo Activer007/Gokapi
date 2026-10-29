@@ -38,9 +38,9 @@ fi
 race=()
 security_tags=test,noaws,security_whole,security_chunk
 # Metadata admission contracts run once, with race, on the final CI head.
-if [ "$mode" = race ]; then race=(-race); security_tags+=,security_duplicate,security_owner,security_replace; fi
+if [ "$mode" = race ]; then race=(-race); security_tags+=,security_duplicate,security_owner,security_replace,security_recovery; fi
 packages=(./internal/environment ./internal/uploadquota ./internal/configuration/database ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis ./internal/storage ./internal/storage/chunking/chunksession ./internal/storage/filerequest ./internal/storage/processingstatus/... ./internal/storage/filesystem/s3filesystem/aws ./internal/webserver/fileupload ./internal/webserver/fileupload/uploadservice ./internal/webserver/api ./internal/webserver/api/mutex/apimutex ./internal/webserver)
-run whole go test "${race[@]}" "${packages[@]}" -count=1 -tags="$security_tags" -run 'TestSEC030Whole|TestSEC030Blob|TestSEC030AWS|TestSEC030Chunk|TestSEC030Request|TestSEC030UploadService|TestSEC030UploadShutdown|TestSEC030Duplicate|TestSEC030Owner|TestSEC030Replace' -timeout 10m -v
+run whole go test "${race[@]}" "${packages[@]}" -count=1 -tags="$security_tags" -run 'TestSEC030Whole|TestSEC030Blob|TestSEC030AWS|TestSEC030Chunk|TestSEC030Request|TestSEC030UploadService|TestSEC030UploadShutdown|TestSEC030Duplicate|TestSEC030Owner|TestSEC030Replace|TestSEC030Recovery' -timeout 10m -v
 run mock go test "${race[@]}" ./internal/storage/filesystem/s3filesystem/aws -count=1 -tags=test,awsmock -run TestSEC030AWS -v
 run sdk go test "${race[@]}" ./internal/storage/filesystem/s3filesystem/aws -count=1 -tags=test -run TestSEC030AWS -v
 run source-unchanged sha256sum --check --status "$out/source.sha256"

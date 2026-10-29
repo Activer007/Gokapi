@@ -9,7 +9,13 @@
 后续只按[M3-GOAL](M3-GOAL.md)实现最小恢复。只有进程已停止、对象归属及允许清理的状态可证明、
 清理确实完成后才释放预留；不确定Claim/发布状态保额保文件，并交人工核对。
 已发布/共享canonical及未知路径不因超时、单一路径不存在或ledger状态推测而删除。
-此范围尚待三类崩溃验收；下列历史不变量与未完成限制保留，不将延期解释为通过。
+恢复门禁先于常规GC/HTTP；ledger每页128、最多4096，DataDir根扫描最多16384项、诊断最多128条，启动deadline30秒。
+所有namespace先校验归属/marker/文件类型，再清理；已提交chunk要求metadata完整提交摘要及local明文/E2E canonical类型/大小/流式hash一致。
+无法持久映射的whole工作不因Committed而可删除；已Claim、远端/metadata不明、foreign entries保持现场并阻止启动。
+仅在确认私有清理后Abort/ReleaseStaging，不创建第二条metadata、不触canonical；重放不重复退款。
+三类SQLite/local真实进程退出及2个negative在最终CI40833366371的race步骤PASS（代码db4dc8a，候选a78f7be5）；
+确认后清理与重放不退款的Gate完成。详细证据以TEST-REPORT及PR35为准；不证明断电或真实远端恢复。
+下列历史不变量与未完成限制保留，不将延期解释为通过；具体回滚和人工步骤见ADR-021及UPLOAD-RECOVERY-RUNBOOK。
 
 ## SEC-030 文件替换不变量
 

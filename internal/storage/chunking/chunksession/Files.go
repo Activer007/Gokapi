@@ -103,16 +103,40 @@ func (s *Store) prepareRoot(ctx context.Context) error {
 	} else if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
 		return errors.Join(uploadquota.ErrInvalid, err)
 	}
-	if err := s.validateRoot(); err != nil {
+	entries, err := s.verifyEntriesLocked(ctx)
+	if err != nil {
 		return err
+	}
+	// These are unpublished progress replacements, never blob publication
+	// targets. Initialization precedes any worker in this process, so a stale
+	// writer cannot still own their descriptors. No quota is refunded here.
+	for _, entry := range entries {
+		if strings.HasPrefix(entry.Name(), "progress-") {
+			if err := ctx.Err(); err != nil {
+				return err
+			}
+			if err := os.Remove(s.path(entry.Name())); err != nil {
+				return err
+			}
+		}
+	}
+	s.initialized = true
+	return nil
+}
+
+// Called with Store.mu held. Verification never creates or removes files and
+// always inspects the complete bounded namespace, even after initialization.
+func (s *Store) verifyEntriesLocked(ctx context.Context) ([]os.DirEntry, error) {
+	if err := s.validateRoot(); err != nil {
+		return nil, err
 	}
 	entries, err := s.entries()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	ledger, err := s.read(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	owned := make(map[string]bool, len(ledger.Records))
 	for id, r := range ledger.Records {
@@ -121,16 +145,19 @@ func (s *Store) prepareRoot(ctx context.Context) error {
 		}
 	}
 	for _, entry := range entries {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
 		name := entry.Name()
 		if name == markerName {
 			continue
 		}
 		if !ownedName.MatchString(name) {
-			return uploadquota.ErrInvalid
+			return nil, uploadquota.ErrInvalid
 		}
 		info, err := os.Lstat(s.path(name))
 		if err != nil || !info.Mode().IsRegular() {
-			return errors.Join(uploadquota.ErrInvalid, err)
+			return nil, errors.Join(uploadquota.ErrInvalid, err)
 		}
 		var digest string
 		switch {
@@ -142,21 +169,10 @@ func (s *Store) prepareRoot(ctx context.Context) error {
 			digest = name[9:73]
 		}
 		if !owned[digest] {
-			return uploadquota.ErrInvalid
+			return nil, uploadquota.ErrInvalid
 		}
 	}
-	// These are unpublished progress replacements, never blob publication
-	// targets. Initialization precedes any worker in this process, so a stale
-	// writer cannot still own their descriptors. No quota is refunded here.
-	for _, entry := range entries {
-		if strings.HasPrefix(entry.Name(), "progress-") {
-			if err := os.Remove(s.path(entry.Name())); err != nil {
-				return err
-			}
-		}
-	}
-	s.initialized = true
-	return nil
+	return entries, nil
 }
 
 func (s *Store) validateRoot() error {

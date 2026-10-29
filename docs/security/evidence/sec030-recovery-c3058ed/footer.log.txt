@@ -1,0 +1,12 @@
+=== RUN   TestUIPresentationAndCookie
+--- PASS: TestUIPresentationAndCookie (0.00s)
+=== RUN   TestUIPasswordTitlesHideFilename
+--- PASS: TestUIPasswordTitlesHideFilename (0.00s)
+=== RUN   TestUIPublicPages
+--- PASS: TestUIPublicPages (0.01s)
+=== RUN   TestUIUploadManagementContexts
+--- PASS: TestUIUploadManagementContexts (0.00s)
+=== RUN   TestUIAccountAndStatusPages
+--- PASS: TestUIAccountAndStatusPages (0.00s)
+PASS
+ok  	github.com/Activer007/Gokapi/internal/webserver	11.473s

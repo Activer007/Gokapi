@@ -1,6 +1,7 @@
 package uploadreceive
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
@@ -17,21 +18,98 @@ const maxSpoolEntries = 4096
 
 var payloadName = regexp.MustCompile(`^receive-[0-9a-f]{32}$`)
 
-// Called under Pool.mu. Validate all entries before deleting any stale file.
-func (p *Pool) prepareSpool(dataDir string) error {
-	abs, err := filepath.Abs(dataDir)
-	if err != nil {
-		return errors.Join(ErrInvalid, err)
+// Prepare authenticates and cleans this pool's stale spool before serving.
+// The old process must have exited; a live pool's leases must never be reset.
+func (p *Pool) Prepare(ctx context.Context, dataDir string) error {
+	if p == nil || ctx == nil {
+		return ErrInvalid
 	}
-	info, err := os.Lstat(abs)
-	if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
-		return errors.Join(ErrInvalid, err)
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if p.active != 0 || p.reserved != 0 || len(p.leases) != 0 || len(p.orphans) != 0 {
+		return ErrBusy
+	}
+	return spoolRecoveryError(ctx, p.prepareSpoolContext(ctx, dataDir))
+}
+
+// VerifyRecovery is a read-only preflight: it neither creates a directory nor
+// removes payloads or installs pool state. A missing spool can be prepared later.
+func (p *Pool) VerifyRecovery(ctx context.Context, dataDir string) error {
+	if p == nil || ctx == nil {
+		return ErrInvalid
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	abs, root, err := spoolPaths(dataDir)
+	if err != nil {
+		return spoolRecoveryError(ctx, err)
 	}
 	if p.dataDir != "" && p.dataDir != abs {
 		return ErrInvalid
 	}
-	p.dataDir, p.root = abs, filepath.Join(abs, spoolDirectory)
-	info, err = os.Lstat(p.root)
+	if _, err := os.Lstat(root); errors.Is(err, os.ErrNotExist) && !p.initialized {
+		return ctx.Err()
+	}
+	_, err = spoolNames(ctx, root, false, nil)
+	return spoolRecoveryError(ctx, err)
+}
+
+// Startup diagnostics must not contain filesystem paths from wrapped OS errors.
+func spoolRecoveryError(ctx context.Context, err error) error {
+	if contextErr := ctx.Err(); contextErr != nil {
+		return contextErr
+	}
+	if err == nil {
+		return nil
+	}
+	if errors.Is(err, ErrCapacity) {
+		return ErrCapacity
+	}
+	return ErrInvalid
+}
+
+// Called under Pool.mu. Validate all entries before deleting any stale file.
+func (p *Pool) prepareSpool(dataDir string) error {
+	return p.prepareSpoolContext(context.Background(), dataDir)
+}
+
+func spoolPaths(dataDir string) (string, string, error) {
+	if dataDir == "" {
+		return "", "", ErrInvalid
+	}
+	abs, err := filepath.Abs(dataDir)
+	if err != nil {
+		return "", "", errors.Join(ErrInvalid, err)
+	}
+	info, err := os.Lstat(abs)
+	if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
+		return "", "", errors.Join(ErrInvalid, err)
+	}
+	return abs, filepath.Join(abs, spoolDirectory), nil
+}
+
+func (p *Pool) prepareSpoolContext(ctx context.Context, dataDir string) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	abs, root, err := spoolPaths(dataDir)
+	if err != nil {
+		return err
+	}
+	if p.dataDir != "" && p.dataDir != abs {
+		return ErrInvalid
+	}
+	p.dataDir, p.root = abs, root
+	info, err := os.Lstat(p.root)
 	if errors.Is(err, os.ErrNotExist) {
 		if p.initialized {
 			return ErrInvalid
@@ -51,52 +129,73 @@ func (p *Pool) prepareSpool(dataDir string) error {
 	} else if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
 		return errors.Join(ErrInvalid, err)
 	}
-	if err := p.validateRoot(); err != nil {
-		return err
-	}
-	directory, err := os.Open(p.root)
+	names, err := spoolNames(ctx, p.root, p.initialized, p.leases)
 	if err != nil {
-		return errors.Join(ErrInvalid, err)
-	}
-	entries, readErr := directory.ReadDir(maxSpoolEntries + 1)
-	closeErr := directory.Close()
-	if (readErr != nil && !errors.Is(readErr, io.EOF)) || closeErr != nil {
-		return errors.Join(ErrInvalid, readErr, closeErr)
-	}
-	if len(entries) > maxSpoolEntries {
-		return ErrInvalid
-	}
-	names := make([]string, 0, len(entries))
-	for _, entry := range entries {
-		if entry.Name() == markerName {
-			continue
-		}
-		info, err := os.Lstat(filepath.Join(p.root, entry.Name()))
-		if err != nil || !info.Mode().IsRegular() || !payloadName.MatchString(entry.Name()) {
-			return errors.Join(ErrInvalid, err)
-		}
-		if p.initialized && p.leases[entry.Name()] == nil {
-			return ErrInvalid
-		}
-		names = append(names, entry.Name())
+		return err
 	}
 	if !p.initialized {
 		for _, name := range names {
+			if err := ctx.Err(); err != nil {
+				return err
+			}
 			if err := p.remove(filepath.Join(p.root, name)); err != nil && !errors.Is(err, os.ErrNotExist) {
 				return errors.Join(ErrCapacity, err)
 			}
 		}
 		p.initialized = true
 	}
-	return nil
+	return ctx.Err()
+}
+
+func spoolNames(ctx context.Context, root string, initialized bool, leases map[string]*lease) ([]string, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	if err := validateSpoolRoot(root); err != nil {
+		return nil, err
+	}
+	directory, err := os.Open(root)
+	if err != nil {
+		return nil, errors.Join(ErrInvalid, err)
+	}
+	entries, readErr := directory.ReadDir(maxSpoolEntries + 1)
+	closeErr := directory.Close()
+	if (readErr != nil && !errors.Is(readErr, io.EOF)) || closeErr != nil {
+		return nil, errors.Join(ErrInvalid, readErr, closeErr)
+	}
+	if len(entries) > maxSpoolEntries {
+		return nil, ErrInvalid
+	}
+	names := make([]string, 0, len(entries))
+	for _, entry := range entries {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+		if entry.Name() == markerName {
+			continue
+		}
+		info, err := os.Lstat(filepath.Join(root, entry.Name()))
+		if err != nil || !info.Mode().IsRegular() || !payloadName.MatchString(entry.Name()) {
+			return nil, errors.Join(ErrInvalid, err)
+		}
+		if initialized && leases[entry.Name()] == nil {
+			return nil, ErrInvalid
+		}
+		names = append(names, entry.Name())
+	}
+	return names, nil
 }
 
 func (p *Pool) validateRoot() error {
-	info, err := os.Lstat(p.root)
+	return validateSpoolRoot(p.root)
+}
+
+func validateSpoolRoot(root string) error {
+	info, err := os.Lstat(root)
 	if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
 		return errors.Join(ErrInvalid, err)
 	}
-	path := filepath.Join(p.root, markerName)
+	path := filepath.Join(root, markerName)
 	info, err = os.Lstat(path)
 	if err != nil || !info.Mode().IsRegular() || info.Size() != int64(len(markerContents)) {
 		return errors.Join(ErrInvalid, err)
