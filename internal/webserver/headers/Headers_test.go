@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/test"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/test"
 )
 
 func TestWriteDownloadHeaders(t *testing.T) {

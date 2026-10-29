@@ -5,11 +5,11 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/forceu/gokapi/internal/environment"
-	"github.com/forceu/gokapi/internal/storage"
-	"github.com/forceu/gokapi/internal/uploadquota"
-	"github.com/forceu/gokapi/internal/webserver/errorHandling/errorcodes"
-	"github.com/forceu/gokapi/internal/webserver/fileupload/uploadservice"
+	"github.com/Activer007/Gokapi/internal/environment"
+	"github.com/Activer007/Gokapi/internal/storage"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/webserver/errorHandling/errorcodes"
+	"github.com/Activer007/Gokapi/internal/webserver/fileupload/uploadservice"
 )
 
 func wholeUploadLimits(env environment.Environment) (uploadquota.Limits, error) {

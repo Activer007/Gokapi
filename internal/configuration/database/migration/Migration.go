@@ -3,9 +3,9 @@ package migration
 import (
 	"context"
 	"fmt"
-	"github.com/forceu/gokapi/internal/configuration/database"
-	"github.com/forceu/gokapi/internal/configuration/database/dbabstraction"
-	"github.com/forceu/gokapi/internal/environment/flagparser"
+	"github.com/Activer007/Gokapi/internal/configuration/database"
+	"github.com/Activer007/Gokapi/internal/configuration/database/dbabstraction"
+	"github.com/Activer007/Gokapi/internal/environment/flagparser"
 	"os"
 )
 

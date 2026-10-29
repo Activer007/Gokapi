@@ -4,16 +4,16 @@ import (
 	"context"
 	"sync"
 
-	"github.com/forceu/gokapi/internal/configuration"
-	"github.com/forceu/gokapi/internal/configuration/database"
-	"github.com/forceu/gokapi/internal/helper"
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/storage"
-	"github.com/forceu/gokapi/internal/storage/chunking"
-	"github.com/forceu/gokapi/internal/storage/chunking/chunksession"
-	"github.com/forceu/gokapi/internal/storage/processingstatus"
-	"github.com/forceu/gokapi/internal/uploadquota"
-	"github.com/forceu/gokapi/internal/webserver/fileupload/uploadservice"
+	"github.com/Activer007/Gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/configuration/database"
+	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/storage"
+	"github.com/Activer007/Gokapi/internal/storage/chunking"
+	"github.com/Activer007/Gokapi/internal/storage/chunking/chunksession"
+	"github.com/Activer007/Gokapi/internal/storage/processingstatus"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/webserver/fileupload/uploadservice"
 )
 
 func chunkUploadLimits() (uploadquota.Limits, error) {

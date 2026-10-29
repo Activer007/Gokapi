@@ -5,9 +5,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/forceu/gokapi/internal/helper"
-	"github.com/forceu/gokapi/internal/models"
-	fileInterfaces "github.com/forceu/gokapi/internal/storage/filesystem/interfaces"
+	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/models"
+	fileInterfaces "github.com/Activer007/Gokapi/internal/storage/filesystem/interfaces"
 )
 
 // GetDriver returns a driver for the local file system

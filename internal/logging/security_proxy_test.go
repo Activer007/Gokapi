@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/forceu/gokapi/internal/environment"
+	"github.com/Activer007/Gokapi/internal/environment"
 )
 
 func TestSEC013ProxyIPBoundary(t *testing.T) {

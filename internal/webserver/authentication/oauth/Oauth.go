@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
-	"github.com/forceu/gokapi/internal/configuration"
-	"github.com/forceu/gokapi/internal/helper"
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/webserver/authentication"
-	"github.com/forceu/gokapi/internal/webserver/errorHandling"
+	"github.com/Activer007/Gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/webserver/authentication"
+	"github.com/Activer007/Gokapi/internal/webserver/errorHandling"
 	"golang.org/x/oauth2"
 )
 

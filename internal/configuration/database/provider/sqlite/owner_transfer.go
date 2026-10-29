@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/forceu/gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
 )
 
 // Check existence and deletion state on the connection holding BEGIN IMMEDIATE.

@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
-	"github.com/forceu/gokapi/internal/configuration/database/dbabstraction"
-	"github.com/forceu/gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/configuration/database/dbabstraction"
+	"github.com/Activer007/Gokapi/internal/models"
 )
 
 type sessionDeleteBarrier struct {

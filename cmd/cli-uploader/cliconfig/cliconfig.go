@@ -8,10 +8,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/forceu/gokapi/cmd/cli-uploader/cliapi"
-	"github.com/forceu/gokapi/cmd/cli-uploader/cliconstants"
-	"github.com/forceu/gokapi/cmd/cli-uploader/cliflags"
-	"github.com/forceu/gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliapi"
+	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliconstants"
+	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliflags"
+	"github.com/Activer007/Gokapi/internal/helper"
 )
 
 type configFile struct {

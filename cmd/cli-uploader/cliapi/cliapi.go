@@ -15,11 +15,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/forceu/gokapi/cmd/cli-uploader/cliflags"
-	"github.com/forceu/gokapi/internal/encryption"
-	"github.com/forceu/gokapi/internal/encryption/end2end"
-	"github.com/forceu/gokapi/internal/helper"
-	"github.com/forceu/gokapi/internal/models"
+	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliflags"
+	"github.com/Activer007/Gokapi/internal/encryption"
+	"github.com/Activer007/Gokapi/internal/encryption/end2end"
+	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/models"
 	"github.com/schollz/progressbar/v3"
 )
 

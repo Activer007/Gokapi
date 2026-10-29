@@ -19,11 +19,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/forceu/gokapi/internal/configuration"
-	"github.com/forceu/gokapi/internal/configuration/database"
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/webserver/authentication/csrftoken"
-	"github.com/forceu/gokapi/internal/webserver/sse"
+	"github.com/Activer007/Gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/configuration/database"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/webserver/authentication/csrftoken"
+	"github.com/Activer007/Gokapi/internal/webserver/sse"
 )
 
 func TestSEC014SlowHeader(t *testing.T) {

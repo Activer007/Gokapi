@@ -1,4 +1,4 @@
-GOPACKAGE=github.com/forceu/gokapi
+GOPACKAGE=github.com/Activer007/Gokapi
 BUILD_FLAGS=-ldflags="-s -w -X '$(GOPACKAGE)/internal/environment.Builder=Make Script' -X '$(GOPACKAGE)/internal/environment.BuildTime=$(shell date)'"
 BUILD_FLAGS_DEBUG=-ldflags="-X '$(GOPACKAGE)/internal/environment.Builder=Make Script' -X '$(GOPACKAGE)/internal/environment.BuildTime=$(shell date)'"
 DOCKER_IMAGE_NAME=gokapi

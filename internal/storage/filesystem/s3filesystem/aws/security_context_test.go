@@ -8,7 +8,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/forceu/gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/models"
 )
 
 type sec030AWSUnreadBody struct{ reads int }

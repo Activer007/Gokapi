@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem/aws"
-	"github.com/forceu/gokapi/internal/test/securityfixture"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/storage/filesystem/s3filesystem/aws"
+	"github.com/Activer007/Gokapi/internal/test/securityfixture"
 )
 
 // Exercise the actual SDK driver against loopback, not the awsmock stub.

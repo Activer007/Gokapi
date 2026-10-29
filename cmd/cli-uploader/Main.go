@@ -9,12 +9,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/forceu/gokapi/cmd/cli-uploader/cliapi"
-	"github.com/forceu/gokapi/cmd/cli-uploader/cliconfig"
-	"github.com/forceu/gokapi/cmd/cli-uploader/cliconstants"
-	"github.com/forceu/gokapi/cmd/cli-uploader/cliflags"
-	"github.com/forceu/gokapi/internal/environment"
-	"github.com/forceu/gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliapi"
+	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliconfig"
+	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliconstants"
+	"github.com/Activer007/Gokapi/cmd/cli-uploader/cliflags"
+	"github.com/Activer007/Gokapi/internal/environment"
+	"github.com/Activer007/Gokapi/internal/helper"
 	"github.com/schollz/progressbar/v3"
 )
 

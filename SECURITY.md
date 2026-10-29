@@ -13,7 +13,7 @@ We currently support the latest stable version of Gokapi. Security updates are p
 
 If you discover a security vulnerability in Gokapi, please **do not open a public issue**.
 
-Instead, use GitHub’s [**"Report a vulnerability"**](https://github.com/Forceu/Gokapi/security/advisories/new) feature on this repository. This ensures your report stays private and will be reviewed promptly by the maintainers.
+Instead, use GitHub’s [**"Report a vulnerability"**](https://github.com/Activer007/Gokapi/security/advisories/new) feature on this repository. This ensures your report stays private and will be reviewed promptly by the maintainers.
 
 To report a vulnerability:
 

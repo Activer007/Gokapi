@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
 	redigo "github.com/gomodule/redigo/redis"
 )
 

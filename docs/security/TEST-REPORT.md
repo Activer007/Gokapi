@@ -936,7 +936,7 @@ NOT_RUN：真实Redis服务/AOF/RDB、旧二进制、生产迁移/恢复、全�
 
 ## SEC-062 setup测试监听隔离（2026-10-29）
 
-基线4ad12558ed9096fc74ebf1afdda273d5a56fc76b，Windows PowerShell / WSL Ubuntu-24.04、Go1.26.0 linux/amd64。PR #17已合并，PR头CI40725885197通过，但合并后CI40726798576两次失败：attempt1的noaws、attempt2的integration均在setup首次监听127.0.0.1:53842时返回address already in use；不是quota断言失败。原始失败日志保留sec030-reservations-postmerge.secret，不把重跑前的失败覆盖成通过。CI占用socket未确定；Linux临时端口假设仍VALIDATE。只读检查upstream测试、README/advanced、Issues和开放PR；[#422](https://github.com/Forceu/Gokapi/pull/422)仅修正19888 wildcard地址，不是动态监听隔离，未发现同范围待合并修复，未向upstream写入。
+基线4ad12558ed9096fc74ebf1afdda273d5a56fc76b，Windows PowerShell / WSL Ubuntu-24.04、Go1.26.0 linux/amd64。PR #17已合并，PR头CI40725885197通过，但合并后CI40726798576两次失败：attempt1的noaws、attempt2的integration均在setup首次监听127.0.0.1:53842时返回address already in use；不是quota断言失败。原始失败日志保留sec030-reservations-postmerge.secret，不把重跑前的失败覆盖成通过。CI占用socket未确定；Linux临时端口假设仍VALIDATE。只读检查upstream测试、README/advanced、Issues和开放PR；[#422](https://github.com/Activer007/Gokapi/pull/422)仅修正19888 wildcard地址，不是动态监听隔离，未发现同范围待合并修复，未向upstream写入。
 
 先RED后修复：kr9wsw在隔离归档上持续占住53842，旧TestInitialSetup实际bind失败，environment/compile退出0、occupied-port退出1。L7Jtst初版动态listener的占用合同、生成、setup全包与相关race均0，TkgSor的CI模式也0。Lx501J第一次全量中blocker自己无法绑定53842，occupied-port为2（harness BLOCKED，不是产品RED），其余environment/compile/generate/setup/race/awsmock/noaws/integration均0。为使复现器自身不依赖固定空闲端口，最终blocker改为持续持有OS分配端口，并将该实际端口作为子进程GOKAPI_PORT；lDddre在历史4ad1255重新确认environment/compile为0、occupied-port为1。最终脚本--red明确固定历史基线，CI只运行应通过的--occupied。
 

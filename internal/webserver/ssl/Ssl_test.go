@@ -1,8 +1,8 @@
 package ssl
 
 import (
-	"github.com/forceu/gokapi/internal/test"
-	"github.com/forceu/gokapi/internal/test/testconfiguration"
+	"github.com/Activer007/Gokapi/internal/test"
+	"github.com/Activer007/Gokapi/internal/test/testconfiguration"
 	"os"
 	"testing"
 	"time"
@@ -40,7 +40,7 @@ func TestGetDomain(t *testing.T) {
 	test.IsEqualString(t, getDomain("http://127.0.0.1:123"), "127.0.0.1")
 	test.IsEqualString(t, getDomain("http://localhost/test"), "localhost")
 	test.IsEqualString(t, getDomain("http://localhost:8080/test"), "localhost")
-	test.IsEqualString(t, getDomain("https://github.com/forceu/gokapi"), "github.com")
+	test.IsEqualString(t, getDomain("https://github.com/Activer007/Gokapi"), "github.com")
 }
 
 func TestGetDaysRemaining(t *testing.T) {

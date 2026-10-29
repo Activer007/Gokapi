@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/forceu/gokapi/internal/configuration/database"
-	"github.com/forceu/gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/configuration/database"
+	"github.com/Activer007/Gokapi/internal/models"
 )
 
 func TestSEC014CancelledAPIKeyDoesNotAuthorize(t *testing.T) {

@@ -4,7 +4,7 @@
 // they must not be converted into a management actor by this package.
 package authorization
 
-import "github.com/forceu/gokapi/internal/models"
+import "github.com/Activer007/Gokapi/internal/models"
 
 type Action uint8
 

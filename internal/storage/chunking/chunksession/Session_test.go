@@ -17,11 +17,11 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
-	"github.com/forceu/gokapi/internal/configuration/database/provider/redis"
-	"github.com/forceu/gokapi/internal/configuration/database/provider/sqlite"
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/storage/chunking"
-	"github.com/forceu/gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/configuration/database/provider/redis"
+	"github.com/Activer007/Gokapi/internal/configuration/database/provider/sqlite"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/storage/chunking"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
 )
 
 func testLimits() uploadquota.Limits {

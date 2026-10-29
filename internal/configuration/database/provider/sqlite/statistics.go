@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/forceu/gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/helper"
 )
 
 const statIdTraffic = "1"

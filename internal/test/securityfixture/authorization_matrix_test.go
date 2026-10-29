@@ -19,16 +19,16 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
-	"github.com/forceu/gokapi/internal/configuration"
-	"github.com/forceu/gokapi/internal/configuration/database"
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/storage/presign"
-	"github.com/forceu/gokapi/internal/test/securityfixture"
-	"github.com/forceu/gokapi/internal/test/testconfiguration"
-	"github.com/forceu/gokapi/internal/webserver/api"
-	"github.com/forceu/gokapi/internal/webserver/authentication/sessionmanager"
-	"github.com/forceu/gokapi/internal/webserver/authentication/tokengeneration"
-	"github.com/forceu/gokapi/internal/webserver/ratelimiter"
+	"github.com/Activer007/Gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/configuration/database"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/storage/presign"
+	"github.com/Activer007/Gokapi/internal/test/securityfixture"
+	"github.com/Activer007/Gokapi/internal/test/testconfiguration"
+	"github.com/Activer007/Gokapi/internal/webserver/api"
+	"github.com/Activer007/Gokapi/internal/webserver/authentication/sessionmanager"
+	"github.com/Activer007/Gokapi/internal/webserver/authentication/tokengeneration"
+	"github.com/Activer007/Gokapi/internal/webserver/ratelimiter"
 )
 
 const matrixAllKeyPermissions = models.ApiPermDefault | models.ApiPermDownload | models.ApiPermReplace | models.ApiPermApiMod | models.ApiPermManageUsers | models.ApiPermManageLogs | models.ApiPermManageFileRequests

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/forceu/gokapi/internal/i18n"
+	"github.com/Activer007/Gokapi/internal/i18n"
 )
 
 // DesktopOnly rejects common phone/tablet browser identifiers before any handler

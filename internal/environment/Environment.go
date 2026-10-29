@@ -9,9 +9,9 @@ import (
 	"strconv"
 
 	envParser "github.com/caarlos0/env/v6"
-	"github.com/forceu/gokapi/internal/environment/deprecation"
-	"github.com/forceu/gokapi/internal/environment/flagparser"
-	"github.com/forceu/gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/environment/deprecation"
+	"github.com/Activer007/Gokapi/internal/environment/flagparser"
+	"github.com/Activer007/Gokapi/internal/helper"
 )
 
 // DefaultPort for the webserver

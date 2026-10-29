@@ -4,7 +4,7 @@
 Troubleshooting
 ===============
 
-This page covers the most common problems reported by users. If your issue is not listed here, check the :ref:`changelog` for breaking changes in recent versions and open a `GitHub issue <https://github.com/Forceu/Gokapi/issues>`_ if needed.
+This page covers the most common problems reported by users. If your issue is not listed here, check the :ref:`changelog` for breaking changes in recent versions and open a `GitHub issue <https://github.com/Activer007/Gokapi/issues>`_ if needed.
 
 ----
 

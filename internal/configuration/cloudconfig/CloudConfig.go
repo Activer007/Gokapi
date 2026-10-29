@@ -5,9 +5,9 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/forceu/gokapi/internal/environment"
-	"github.com/forceu/gokapi/internal/helper"
-	"github.com/forceu/gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/environment"
+	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/models"
 	"gopkg.in/yaml.v3"
 )
 

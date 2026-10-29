@@ -1,7 +1,7 @@
 # Gokapi
 
 [![Documentation Status](https://readthedocs.org/projects/gokapi/badge/?version=latest)](https://gokapi.readthedocs.io/en/stable/?badge=stable)
-[![Go Report Card](https://goreportcard.com/badge/github.com/forceu/gokapi)](https://goreportcard.com/report/github.com/forceu/gokapi)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Activer007/Gokapi)](https://goreportcard.com/report/github.com/Activer007/Gokapi)
 [![Coverage](https://img.shields.io/badge/Go%20Coverage-83%25-brightgreen.svg?longCache=true&style=flat)](https://github.com/jpoles1/gopherbadger)
 [![Docker Pulls](https://img.shields.io/docker/pulls/f0rc3/gokapi.svg)](https://hub.docker.com/r/f0rc3/gokapi/)
 
@@ -121,8 +121,8 @@ For an explicit non-root deployment of this fork, use [docker-compose.nonroot.ya
 
 ```bash
 # Clone the repository
-git clone https://github.com/Forceu/gokapi.git
-cd gokapi
+git clone https://github.com/Activer007/Gokapi.git
+cd Gokapi
 
 # Build the binary
 make build
@@ -139,8 +139,8 @@ docker build -t gokapi:local .
 This project is licensed under the AGPL3 - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Contributors
-<a href="https://github.com/forceu/gokapi/graphs/contributors">
-  <img src="https://contributors-img.web.app/image?repo=forceu/gokapi" />
+<a href="https://github.com/Activer007/Gokapi/graphs/contributors">
+  <img src="https://contributors-img.web.app/image?repo=Activer007/Gokapi" />
 </a>
 
 

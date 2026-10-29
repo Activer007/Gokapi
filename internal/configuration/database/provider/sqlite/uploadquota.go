@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
 )
 
 // ApplyUploadQuota atomically updates the quota ledger and optional metadata.

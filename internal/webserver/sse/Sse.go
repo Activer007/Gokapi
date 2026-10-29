@@ -7,10 +7,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/forceu/gokapi/internal/helper"
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/storage/processingstatus/pstatusdb"
-	"github.com/forceu/gokapi/internal/webserver/authentication"
+	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/storage/processingstatus/pstatusdb"
+	"github.com/Activer007/Gokapi/internal/webserver/authentication"
 )
 
 var listeners = make(map[string]listener)

@@ -23,11 +23,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/forceu/gokapi/internal/configuration"
-	"github.com/forceu/gokapi/internal/configuration/database"
-	"github.com/forceu/gokapi/internal/encryption"
-	"github.com/forceu/gokapi/internal/helper"
-	"github.com/forceu/gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/configuration/database"
+	"github.com/Activer007/Gokapi/internal/encryption"
+	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
 )
 
 const sec030ChunkLargeChild = "GOKAPI_SEC030_CHUNK_LARGE_CHILD"

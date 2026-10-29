@@ -16,15 +16,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/forceu/gokapi/internal/configuration"
-	"github.com/forceu/gokapi/internal/configuration/database"
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/storage"
-	"github.com/forceu/gokapi/internal/storage/chunking"
-	"github.com/forceu/gokapi/internal/storage/chunking/chunksession"
-	"github.com/forceu/gokapi/internal/test"
-	"github.com/forceu/gokapi/internal/test/testconfiguration"
-	"github.com/forceu/gokapi/internal/uploadquota"
+	"github.com/Activer007/Gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/configuration/database"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/storage"
+	"github.com/Activer007/Gokapi/internal/storage/chunking"
+	"github.com/Activer007/Gokapi/internal/storage/chunking/chunksession"
+	"github.com/Activer007/Gokapi/internal/test"
+	"github.com/Activer007/Gokapi/internal/test/testconfiguration"
+	"github.com/Activer007/Gokapi/internal/uploadquota"
 )
 
 func TestMain(m *testing.M) {

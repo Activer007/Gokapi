@@ -3,7 +3,7 @@ package models
 import (
 	"testing"
 
-	"github.com/forceu/gokapi/internal/test"
+	"github.com/Activer007/Gokapi/internal/test"
 )
 
 func TestIsEmpty(t *testing.T) {

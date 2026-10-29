@@ -1,7 +1,7 @@
 package redis
 
 import (
-	"github.com/forceu/gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/helper"
 	redigo "github.com/gomodule/redigo/redis"
 )
 

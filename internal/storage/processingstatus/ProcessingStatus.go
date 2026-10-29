@@ -1,9 +1,9 @@
 package processingstatus
 
 import (
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/storage/processingstatus/pstatusdb"
-	"github.com/forceu/gokapi/internal/webserver/sse"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/storage/processingstatus/pstatusdb"
+	"github.com/Activer007/Gokapi/internal/webserver/sse"
 )
 
 // StatusHashingOrEncrypting indicates that the file has been completely uploaded but is now processed by Gokapi

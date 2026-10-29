@@ -14,9 +14,9 @@ import (
 	"sync"
 	"syscall/js"
 
-	"github.com/forceu/gokapi/internal/encryption"
-	"github.com/forceu/gokapi/internal/encryption/end2end"
-	"github.com/forceu/gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/encryption"
+	"github.com/Activer007/Gokapi/internal/encryption/end2end"
+	"github.com/Activer007/Gokapi/internal/models"
 	"github.com/secure-io/sio-go"
 )
 

@@ -13,9 +13,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/forceu/gokapi/internal/configuration"
-	"github.com/forceu/gokapi/internal/environment"
-	"github.com/forceu/gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/environment"
+	"github.com/Activer007/Gokapi/internal/helper"
 )
 
 // ChunkInfo contains info about the current chunk

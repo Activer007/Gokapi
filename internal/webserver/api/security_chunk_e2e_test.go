@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/forceu/gokapi/internal/configuration"
-	"github.com/forceu/gokapi/internal/encryption"
+	"github.com/Activer007/Gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/encryption"
 )
 
 // Match the WASM writer contract: retain the encryptor across calls, reset only

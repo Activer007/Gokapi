@@ -4,8 +4,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/forceu/gokapi/internal/helper"
-	"github.com/forceu/gokapi/internal/storage/chunking/chunkreservation"
+	"github.com/Activer007/Gokapi/internal/helper"
+	"github.com/Activer007/Gokapi/internal/storage/chunking/chunkreservation"
 )
 
 // FileRequest contains information about a file request

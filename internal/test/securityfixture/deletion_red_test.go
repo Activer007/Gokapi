@@ -7,13 +7,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/forceu/gokapi/internal/configuration"
-	"github.com/forceu/gokapi/internal/configuration/database"
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/storage"
-	"github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem/aws"
-	"github.com/forceu/gokapi/internal/test/securityfixture"
-	"github.com/forceu/gokapi/internal/test/testconfiguration"
+	"github.com/Activer007/Gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/configuration/database"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/storage"
+	"github.com/Activer007/Gokapi/internal/storage/filesystem/s3filesystem/aws"
+	"github.com/Activer007/Gokapi/internal/test/securityfixture"
+	"github.com/Activer007/Gokapi/internal/test/testconfiguration"
 )
 
 // Desired invariant, intentionally RED at the recorded M0 baseline. Every byte

@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/forceu/gokapi/internal/logging"
+	"github.com/Activer007/Gokapi/internal/logging"
 	"golang.org/x/time/rate"
 )
 

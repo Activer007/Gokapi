@@ -12,8 +12,8 @@ permissions:
 
 jobs:
   build:
-    # Inherited publishers target upstream registries; never publish from this fork.
-    if: github.repository == 'Forceu/Gokapi'
+    # Publishing is intentionally disabled for this fork; validation runs locally.
+    if: ${{ false }}
     runs-on: ubuntu-latest
 
     steps:
@@ -36,9 +36,9 @@ jobs:
       - name: Cross-compile binaries
         run: |
           LDFLAGS="-s -w \
-            -X 'github.com/forceu/gokapi/internal/environment.IsDocker=true' \
-            -X 'github.com/forceu/gokapi/internal/environment.Builder=Project Docker File' \
-            -X 'github.com/forceu/gokapi/internal/environment.BuildTime=$(date)'"
+            -X 'github.com/Activer007/Gokapi/internal/environment.IsDocker=true' \
+            -X 'github.com/Activer007/Gokapi/internal/environment.Builder=Project Docker File' \
+            -X 'github.com/Activer007/Gokapi/internal/environment.BuildTime=$(date)'"
 
           go generate ./...
 
@@ -62,7 +62,7 @@ jobs:
             OUT="bin/gokapi-${ARCH}${VARIANT:+-$VARIANT}"
             echo "Building $OUT (GOARCH=$ARCH GOARM=$GOARM)..."
             CGO_ENABLED=0 GOOS=$OS GOARCH=$ARCH GOARM=$GOARM \
-              go build -ldflags "$LDFLAGS" -o "$OUT" github.com/forceu/gokapi/cmd/gokapi &
+              go build -ldflags "$LDFLAGS" -o "$OUT" github.com/Activer007/Gokapi/cmd/gokapi &
           done
           wait
           echo "All binaries built."

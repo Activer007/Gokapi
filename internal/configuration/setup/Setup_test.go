@@ -20,13 +20,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/forceu/gokapi/internal/configuration"
-	"github.com/forceu/gokapi/internal/configuration/cloudconfig"
-	"github.com/forceu/gokapi/internal/configuration/database"
-	"github.com/forceu/gokapi/internal/environment"
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/test"
-	"github.com/forceu/gokapi/internal/test/testconfiguration"
+	"github.com/Activer007/Gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/configuration/cloudconfig"
+	"github.com/Activer007/Gokapi/internal/configuration/database"
+	"github.com/Activer007/Gokapi/internal/environment"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/test"
+	"github.com/Activer007/Gokapi/internal/test/testconfiguration"
 )
 
 var jsonForms []jsonFormObject
@@ -165,7 +165,7 @@ func TestToConfiguration(t *testing.T) {
 	test.IsEqualString(t, output.Authentication.Username, "admin")
 	test.IsNotEqualString(t, authsettings.PasswordInternalAuth, "adminadmin")
 	test.IsNotEqualString(t, authsettings.PasswordInternalAuth, "")
-	test.IsEqualString(t, output.RedirectUrl, "https://github.com/Forceu/Gokapi/")
+	test.IsEqualString(t, output.RedirectUrl, "https://github.com/Activer007/Gokapi/")
 }
 
 func TestReconfigurationPreservesUI(t *testing.T) {
@@ -635,7 +635,7 @@ func TestIntegration(t *testing.T) {
 	test.IsEqualBool(t, settings.UseSsl, false)
 	test.IsEqualBool(t, settings.SaveIp, false)
 	test.IsEqualString(t, settings.ServerUrl, "http://127.0.0.1:53842/")
-	test.IsEqualString(t, settings.RedirectUrl, "https://github.com/Forceu/Gokapi/")
+	test.IsEqualString(t, settings.RedirectUrl, "https://github.com/Activer007/Gokapi/")
 	cconfig, ok := cloudconfig.Load()
 	test.IsEqualBool(t, ok, true)
 	if os.Getenv("GOKAPI_AWS_BUCKET") == "" {
@@ -886,7 +886,7 @@ func createInputInternalAuth() setupValues {
 	values.IncludeFilename.Value = "1"
 	values.Port.Value = "53842"
 	values.ExtUrl.Value = "http://127.0.0.1:53842/"
-	values.RedirectUrl.Value = "https://github.com/Forceu/Gokapi/"
+	values.RedirectUrl.Value = "https://github.com/Activer007/Gokapi/"
 	values.AuthenticationMode.Value = "0"
 	values.AuthUsername.Value = "admin"
 	values.AuthPassword.Value = "adminadmin"

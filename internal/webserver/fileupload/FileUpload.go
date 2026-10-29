@@ -11,16 +11,16 @@ import (
 	"sync"
 	"time"
 
-	"github.com/forceu/gokapi/internal/configuration"
-	"github.com/forceu/gokapi/internal/configuration/database"
-	"github.com/forceu/gokapi/internal/environment"
-	"github.com/forceu/gokapi/internal/logging"
-	"github.com/forceu/gokapi/internal/models"
-	"github.com/forceu/gokapi/internal/storage"
-	"github.com/forceu/gokapi/internal/storage/chunking"
-	"github.com/forceu/gokapi/internal/storage/chunking/chunksession"
-	"github.com/forceu/gokapi/internal/storage/uploadreceive"
-	"github.com/forceu/gokapi/internal/webserver/errorHandling/errorcodes"
+	"github.com/Activer007/Gokapi/internal/configuration"
+	"github.com/Activer007/Gokapi/internal/configuration/database"
+	"github.com/Activer007/Gokapi/internal/environment"
+	"github.com/Activer007/Gokapi/internal/logging"
+	"github.com/Activer007/Gokapi/internal/models"
+	"github.com/Activer007/Gokapi/internal/storage"
+	"github.com/Activer007/Gokapi/internal/storage/chunking"
+	"github.com/Activer007/Gokapi/internal/storage/chunking/chunksession"
+	"github.com/Activer007/Gokapi/internal/storage/uploadreceive"
+	"github.com/Activer007/Gokapi/internal/webserver/errorHandling/errorcodes"
 )
 
 const minChunkSize = 5 * 1024 * 1024

@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/forceu/gokapi/internal/webserver/fileupload/uploadservice"
+	"github.com/Activer007/Gokapi/internal/webserver/fileupload/uploadservice"
 )
 
 func shutdownTestSignal(t *testing.T, signal <-chan struct{}, name string) {
