@@ -38,6 +38,11 @@ func (p DatabaseProvider) ApplyUploadQuota(ctx context.Context, change uploadquo
 				return err
 			}
 		}
+		if change.Action == uploadquota.ReplaceMetadata {
+			if err := checkReplacementMetadata(ctx, conn, change); err != nil {
+				return err
+			}
+		}
 		effective := change
 		if change.RequiresRequestPolicy() {
 			policy, err := readRequestPolicy(ctx, conn, change.Upload.RequestID)
@@ -69,6 +74,11 @@ func (p DatabaseProvider) ApplyUploadQuota(ctx context.Context, change uploadquo
 		}
 		if change.Action == uploadquota.TransferOwner {
 			if err := patchFileOwner(ctx, conn, change); err != nil {
+				return err
+			}
+		}
+		if change.Action == uploadquota.ReplaceMetadata {
+			if err := patchReplacementMetadata(ctx, conn, change); err != nil {
 				return err
 			}
 		}

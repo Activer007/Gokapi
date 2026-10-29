@@ -814,6 +814,12 @@ func apiReplaceFile(w http.ResponseWriter, r requestParser, user models.User, ap
 	if !ok {
 		panic("invalid parameter passed")
 	}
+	keys := []string{request.Id}
+	if request.DeleteNewFile {
+		keys = append(keys, request.IdNewContent)
+	}
+	unlock := apimutex.LockMany(apimutex.TypeMetaData, keys...)
+	defer unlock()
 	fileOriginal, ok := storage.GetFile(request.Id)
 	if !ok {
 		sendError(w, http.StatusNotFound, errorcodes.NotFound, "Invalid id provided.")
@@ -845,15 +851,17 @@ func apiReplaceFile(w http.ResponseWriter, r requestParser, user models.User, ap
 		return
 	}
 
-	modifiedFile, err := storage.ReplaceFile(request.Id, request.IdNewContent, request.DeleteNewFile)
+	modifiedFile, err := storage.ReplaceFileContext(chunkRequestContext(request.Request), fileOriginal, fileNewContent, request.DeleteNewFile)
 	if err != nil {
 		switch {
 		case errors.Is(err, storage.ErrorReplaceE2EFile):
 			sendError(w, http.StatusBadRequest, errorcodes.EndToEndNotSupported, "End-to-End encrypted files cannot be replaced")
 		case errors.Is(err, storage.ErrorFileNotFound):
 			sendError(w, http.StatusNotFound, errorcodes.NotFound, "A file with such an ID could not be found")
+		case errors.Is(err, storage.ErrorReplaceRequestFile):
+			sendError(w, http.StatusBadRequest, errorcodes.UnsupportedFile, "Cannot replace a file request upload")
 		default:
-			sendError(w, http.StatusBadRequest, errorcodes.InvalidUserInput, err.Error())
+			sendUploadAdmissionError(w, fileupload.UploadAdmissionError(err))
 		}
 		return
 	}

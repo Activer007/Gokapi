@@ -2,7 +2,44 @@
 
 日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/Gokapi 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
 
+## 当前后续目标（2026-10-29）
+
+替换完成后按用户指令收敛至[M3-GOAL](M3-GOAL.md)。本次仅更新范围与证据文档，没有恢复代码变更；
+崩溃/重启合同NOT_RUN，不借用历史PASS。文档变更仅diff/引用/状态核对，不重复全仓或race。
+
+## SEC-030 文件替换增量（2026-10-29）
+
+最终：[PR30](https://github.com/Activer007/Gokapi/pull/30)合并60b2fb0；[CI40823139886](https://github.com/Activer007/Gokapi/actions/runs/40823139886)
+实际SUCCESS，checkoutdda1f255bf72a531db5bda9a00dfbb1cce6e8875，tree1325ff654d27942ac78f7a086c6e70400e00a072与合并一致。
+环境Go1.26.10 linux/amd64、Ubuntu24.04；生成、awsmock/noaws/integration/awstest四组全仓、receiver及
+durable admission相关race、当前build/scan、两次source-unchanged均通过。替换4容量例6.37s+self1.11s、
+核心、双provider和锁合同在race日志明确PASS。最终命令详见PR30审查；仅取消重复push运行，未重跑合并CI。
+大文件/浏览器/真实Redis/S3/手动镜像发布NOT_RUN。下文CI_PENDING描述保留当时阶段状态，以本收尾为最终结果。
+
+基线79f2577b3827140db8de65e90bfc41e8a17685ff，Go1.26.10 windows/amd64；未部署。
+ignored证据目录 `evidence/sec030-replace-local.secret/`。生产开始前tracked internal与79f无diff，
+仅新增HTTP合同；临时SQLite/loopback miniredis/隔离canonical副本，含GC的self edge也仅在临时子进程。
+
+| 真实命令 / 输入 | 结果 |
+| --- | --- |
+| 基线：`go test ./internal/webserver/api -count=1 -tags=test,noaws,security_whole,security_replace -run '^TestSEC030ReplaceQuota$\|^TestSEC030ReplaceSelfDeleteConflicts$' -timeout 2m -v` | ASSERTION_RED，退出1，7.812s；4容量例分别接受9/49次增长，self edge旧200；均到达业务断言 |
+| `go test ./internal/uploadquota ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis ./internal/webserver/api/mutex/apimutex -count=1 -tags=test,noaws,security_replace -timeout 2m` | PASS，2.917s/6.283s/9.040s/2.339s；完整相关包回归，含新delta、删除、WATCH及锁碰撞/反序合同 |
+| 接线后同上HTTP命令 | PASS，15.106s，5组全部通过；随后审查将Now刷新到blob探测后，最终该版本由CI验证 |
+| `go test ./internal/storage -count=1 -tags=test,awsmock -timeout 2m` 首次 | FAIL，14.172s，仅TestReplaceFile因前序owner0合成metadata无法计量；补正旧删除fixture owner，不放宽校验/改断言 |
+| 同命令第二次 | FAIL，17.519s，TestReplaceFile通过，但TestDuplicateFile遇到前次Windows未删净的旧owner0数据库；需清理已确认的测试副本后重新验证，不能记PASS |
+| 清理已确认的 `internal/storage/test` 合成副本后，同storage命令 | PASS，13.636s；全部原storage合同通过，删除夹具仅补正UserId，原断言/生产校验保留 |
+| 路由：build/go-generate下 `go run updateApiRouting.go` | PASS，无routingParsing内容diff |
+
+最终storage干净副本PASS；原失败日志保留，不把前轮结果扩大为本轮PASS。最终Linux CI待运行一次，
+结果记关联PR审查，不为补文档重复触发CI。
+本机race因既有CGO0/无gcc为BLOCKED且不重复尝试；最终CI包含新锁及替换合同的race。
+大文件/慢速/浏览器/真实Redis/S3/手动发布：NOT_RUN，未修改流式或crypto代码；无依赖变更。
+
 ## SEC-030 单文件owner准入增量（2026-10-29）
+
+收尾：PR27合并79f2577；[CI40816967130](https://github.com/Activer007/Gokapi/actions/runs/40816967130)
+实际SUCCESS，checkoutd129cfb含UI PR26，tree4de09843与实际合并一致。生成、四组全仓、相关race及
+扫描通过；新owner合同仅在race运行一次，完整命令与审查记录在PR27，未补文档重复CI。
 
 基线c3244f008214a851404ecfcf5367e3c1878b58fa，Go1.26.10 windows/amd64，未部署。
 防御性合同复用临时SQLite及loopback miniredis子进程；本轮原始证据在ignored

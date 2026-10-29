@@ -24,6 +24,11 @@ func (p DatabaseProvider) ApplyUploadQuota(ctx context.Context, change uploadquo
 	if (change.Action == uploadquota.DuplicateMetadata || change.Action == uploadquota.TransferOwner) && change.Source == nil {
 		return uploadquota.Reservation{}, uploadquota.ErrInvalid
 	}
+	if change.Action == uploadquota.ReplaceMetadata {
+		if err := uploadquota.ValidateReplacement(change); err != nil {
+			return uploadquota.Reservation{}, err
+		}
+	}
 	mutate := func(conn redigo.Conn, ledger uploadquota.Ledger) (uploadquota.Ledger, uploadquota.Reservation, *models.File, error) {
 		// Trusted cleanup transitions cannot add usage or metadata. Unrelated
 		// corrupt metadata must not prevent confirming already completed cleanup.
@@ -56,8 +61,8 @@ func (p DatabaseProvider) ApplyUploadQuota(ctx context.Context, change uploadquo
 		}
 		return uploadquota.Apply(ledger, files, effective)
 	}
-	if change.Action == uploadquota.TransferOwner {
-		return p.changeUploadQuotaWithOwner(ctx, mutate, &change)
+	if change.Action == uploadquota.TransferOwner || change.Action == uploadquota.ReplaceMetadata {
+		return p.changeUploadQuotaWithPatch(ctx, mutate, &change)
 	}
 	return p.changeUploadQuota(ctx, mutate)
 }
@@ -188,10 +193,10 @@ func (p DatabaseProvider) CheckEmptyForMigration(ctx context.Context) error {
 type quotaMutation func(redigo.Conn, uploadquota.Ledger) (uploadquota.Ledger, uploadquota.Reservation, *models.File, error)
 
 func (p DatabaseProvider) changeUploadQuota(ctx context.Context, mutate quotaMutation) (uploadquota.Reservation, error) {
-	return p.changeUploadQuotaWithOwner(ctx, mutate, nil)
+	return p.changeUploadQuotaWithPatch(ctx, mutate, nil)
 }
 
-func (p DatabaseProvider) changeUploadQuotaWithOwner(ctx context.Context, mutate quotaMutation, owner *uploadquota.Change) (uploadquota.Reservation, error) {
+func (p DatabaseProvider) changeUploadQuotaWithPatch(ctx context.Context, mutate quotaMutation, patch *uploadquota.Change) (uploadquota.Reservation, error) {
 	if ctx == nil {
 		return uploadquota.Reservation{}, uploadquota.ErrInvalid
 	}
@@ -199,7 +204,7 @@ func (p DatabaseProvider) changeUploadQuotaWithOwner(ctx context.Context, mutate
 		if err := ctx.Err(); err != nil {
 			return uploadquota.Reservation{}, err
 		}
-		record, retry, err := p.quotaAttemptWithOwner(ctx, mutate, owner)
+		record, retry, err := p.quotaAttemptWithPatch(ctx, mutate, patch)
 		if err != nil || !retry {
 			return record, err
 		}
@@ -215,10 +220,10 @@ func (p DatabaseProvider) changeUploadQuotaWithOwner(ctx context.Context, mutate
 }
 
 func (p DatabaseProvider) quotaAttempt(ctx context.Context, mutate quotaMutation) (uploadquota.Reservation, bool, error) {
-	return p.quotaAttemptWithOwner(ctx, mutate, nil)
+	return p.quotaAttemptWithPatch(ctx, mutate, nil)
 }
 
-func (p DatabaseProvider) quotaAttemptWithOwner(ctx context.Context, mutate quotaMutation, owner *uploadquota.Change) (uploadquota.Reservation, bool, error) {
+func (p DatabaseProvider) quotaAttemptWithPatch(ctx context.Context, mutate quotaMutation, patch *uploadquota.Change) (uploadquota.Reservation, bool, error) {
 	conn, err := p.pool.GetContext(ctx)
 	if err != nil {
 		return uploadquota.Reservation{}, false, err
@@ -241,8 +246,17 @@ func (p DatabaseProvider) quotaAttemptWithOwner(ctx context.Context, mutate quot
 	if err != nil {
 		return uploadquota.Reservation{}, false, err
 	}
-	if owner != nil {
-		if err = p.checkOwnerTransfer(ctx, conn, *owner); err != nil {
+	var patchArgs redigo.Args
+	if patch != nil {
+		switch patch.Action {
+		case uploadquota.TransferOwner:
+			err = p.checkOwnerTransfer(ctx, conn, *patch)
+		case uploadquota.ReplaceMetadata:
+			patchArgs, err = p.prepareReplacement(ctx, conn, *patch)
+		default:
+			err = uploadquota.ErrInvalid
+		}
+		if err != nil {
 			return uploadquota.Reservation{}, false, err
 		}
 	}
@@ -250,7 +264,7 @@ func (p DatabaseProvider) quotaAttemptWithOwner(ctx context.Context, mutate quot
 	if err != nil {
 		return uploadquota.Reservation{}, false, err
 	}
-	if owner != nil && file != nil {
+	if patch != nil && file != nil {
 		return uploadquota.Reservation{}, false, uploadquota.ErrInvalid
 	}
 	encoded, err := uploadquota.Encode(next)
@@ -314,11 +328,21 @@ func (p DatabaseProvider) quotaAttemptWithOwner(ctx context.Context, mutate quot
 	if _, err = redigo.DoContext(conn, ctx, "SET", p.dbPrefix+keyMetadataRevision, rand.Text()); err != nil {
 		return uploadquota.Reservation{}, false, err
 	}
-	if owner != nil {
+	if patch != nil && patch.Action == uploadquota.TransferOwner {
 		// A transfer changes one field of the current hash. Replacing a stale
 		// File would overwrite unrelated concurrent edits or download counters.
-		if _, err = redigo.DoContext(conn, ctx, "HSET", p.dbPrefix+prefixMetaData+owner.Source.Id, "UserId", owner.Upload.UserID); err != nil {
+		if _, err = redigo.DoContext(conn, ctx, "HSET", p.dbPrefix+prefixMetaData+patch.Source.Id, "UserId", patch.Upload.UserID); err != nil {
 			return uploadquota.Reservation{}, false, err
+		}
+	}
+	if patch != nil && patch.Action == uploadquota.ReplaceMetadata {
+		if _, err = redigo.DoContext(conn, ctx, "HSET", patchArgs...); err != nil {
+			return uploadquota.Reservation{}, false, err
+		}
+		if patch.DeleteSource {
+			if _, err = redigo.DoContext(conn, ctx, "HSET", p.dbPrefix+prefixMetaData+patch.Source.Id, "ExpireAt", 0, "UnlimitedTime", 0); err != nil {
+				return uploadquota.Reservation{}, false, err
+			}
 		}
 	}
 	if file != nil {
@@ -343,8 +367,11 @@ func (p DatabaseProvider) quotaAttemptWithOwner(ctx context.Context, mutate quot
 		return uploadquota.Reservation{}, true, nil
 	}
 	expected := 2
-	if owner != nil {
+	if patch != nil {
 		expected++
+		if patch.Action == uploadquota.ReplaceMetadata && patch.DeleteSource {
+			expected++
+		}
 	}
 	if file != nil {
 		expected++

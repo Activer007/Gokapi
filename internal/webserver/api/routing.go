@@ -460,13 +460,17 @@ func (p *paramFilesModify) ProcessParameter(_ *http.Request) error {
 }
 
 type paramFilesReplace struct {
+	Request       *http.Request
 	Id            string `header:"id" required:"true"`
 	IdNewContent  string `header:"idNewContent" required:"true"`
 	DeleteNewFile bool   `header:"deleteNewFile"`
 	foundHeaders  map[string]bool
 }
 
-func (p *paramFilesReplace) ProcessParameter(_ *http.Request) error { return nil }
+func (p *paramFilesReplace) ProcessParameter(r *http.Request) error {
+	p.Request = r
+	return nil
+}
 
 type paramFilesDelete struct {
 	Id           string `header:"id" required:"true"`

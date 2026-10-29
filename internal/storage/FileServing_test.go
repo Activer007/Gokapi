@@ -757,7 +757,7 @@ func TestDeleteFile(t *testing.T) {
 	time.Sleep(time.Second)
 	test.IsEqualBool(t, result, false)
 
-	testfile := models.File{Id: "testfiledownload", DownloadsRemaining: 1, ExpireAt: 2147483646}
+	testfile := models.File{Id: "testfiledownload", UserId: 1, DownloadsRemaining: 1, ExpireAt: 2147483646}
 	database.SaveMetaData(testfile)
 	downloadstatus.SetDownload(testfile)
 	file, ok := database.GetMetaDataById("testfiledownload")
@@ -776,6 +776,7 @@ func TestDeleteFile(t *testing.T) {
 		test.IsEqualBool(t, ok, true)
 		awsFile := models.File{
 			Id:        "awsTest1234567890123",
+			UserId:    1,
 			Name:      "aws Test File",
 			Size:      "20 MB",
 			SHA1:      "x341354656543213246465465465432456898794",
@@ -807,6 +808,7 @@ func createBigFile(name string, megabytes int64) {
 func TestDeleteAllEncrypted(t *testing.T) {
 	file := models.File{
 		Id:            "testEncDelEnc",
+		UserId:        1,
 		UnlimitedTime: true,
 		Encryption: models.EncryptionInfo{
 			IsEncrypted: true,
@@ -815,6 +817,7 @@ func TestDeleteAllEncrypted(t *testing.T) {
 	database.SaveMetaData(file)
 	file = models.File{
 		Id:            "testEncDelUn",
+		UserId:        1,
 		UnlimitedTime: true,
 		Encryption: models.EncryptionInfo{
 			IsEncrypted: false,
@@ -832,6 +835,7 @@ func TestDeleteAllEncrypted(t *testing.T) {
 func TestReplaceFile(t *testing.T) {
 	originalFile := models.File{
 		Id:                 "originalfiletest",
+		UserId:             1,
 		Name:               "old.txt",
 		Size:               "1KB",
 		SHA1:               "replacetest1",
@@ -850,6 +854,7 @@ func TestReplaceFile(t *testing.T) {
 
 	newFile := models.File{
 		Id:                 "newfiletest",
+		UserId:             1,
 		Name:               "new.txt",
 		Size:               "2KB",
 		SHA1:               "replacetest2",
@@ -868,6 +873,7 @@ func TestReplaceFile(t *testing.T) {
 
 	e2eFile := models.File{
 		Id:                 "e2eFile",
+		UserId:             1,
 		Name:               "e2eFile",
 		Size:               "1KB",
 		UnlimitedDownloads: true,

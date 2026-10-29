@@ -642,9 +642,14 @@ Single-file owner transfers must fit the receiving user's byte/file quota,
 including that user's active reservations. They retain the original File Request
 charge and do not increase instance/request totals or consume upload slots.
 Transferring to the current owner is idempotent, including for existing over-limit
-usage. Replacement and user-deletion bulk transfers still need separate admission
-work. The owner's active limit starts after reception; the shared receiver bounds
-bodies before then.
+usage. Replacements atomically charge only positive byte growth to the target
+owner and instance, including active reservations. They do not add a file or
+upload session, and equal-sized or smaller replacements can reduce existing
+over-limit usage. Optional source expiration shares the transaction; its charge
+remains until actual metadata cleanup. Using the same ID with source deletion
+returns 409 instead of deleting the target itself. User-deletion bulk transfers
+and other full metadata writers still need separate consistency work. The owner's
+active limit starts after reception; the shared receiver bounds bodies before then.
 Cleanup or publication uncertainty retains
 capacity and may return an error even after metadata was committed. A failed
 response does not guarantee rollback. Whole-file HTTP retries are not idempotent.
