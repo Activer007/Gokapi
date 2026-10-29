@@ -1,5 +1,23 @@
 # M0 本地测试报告
 
+## M4：SEC-051最小响应隔离（2026-10-30，开发中）
+
+基线1e5d80a31acd626d3c7991561a8681459c062acc，Go1.26.10 windows/amd64、CGO0；独立codex/sec-051-download-boundaries，未修改生产数据/上游。
+安全不变量：应用控制的附件、inline及ZIP响应明确nosniff，保留原MIME/文件名/Disposition/bytes及inline强制sandbox；不以缺头声称XSS。
+
+实际命令 `go test ./internal/webserver/headers ./internal/storage -count=1 -tags='test,noaws' -run '^(TestWriteDownloadHeaders|TestServeFilesAsZipSanitisation)$' -timeout=60s`：
+- RED：仅增加三个头断言，exit1/10.188s；两包明确缺nosniff，其他断言不变。这是防御策略RED，不是漏洞利用证据。
+- GREEN：仅两处生产写头后同命令exit0/9.593s，headers2.955s、storage5.260s。
+
+真实HTTP响应边界/上传浏览器/S3最终响应与完整CI当前NOT_RUN；夹具准备和源码审查不记PASS。当前头改动未触及WASM静态或worker，亦未解除052的HTTPS浏览器Gate。
+
+### SEC-052单成员ZIP窄验证（无生产修改）
+
+冻结完整1e5d80a归档，1487项源输入前后Changed0；归档SHA256 b2b49e4204d6b13992a4801710f6d019decc448e3c4bd5a5665704bf855d71b5。
+私密隔离nested module实际运行 `go test -mod=readonly -tags='test,noaws' -run '^TestSEC052EncryptedZIPTerminal$' -count=1 -timeout=30s -v .`，exit0/17.110s（Go合同7.097s）。
+正常HTTP ZIP：128KiB成员读完、CRC/size及SHA256正确；同源受损后HTTP200/正常EOF，目录可读但成员读取zip-format拒绝、未接受完整成员。两个handler/有限stats均退出，源与metadata保持。
+结论仅此单本地服务器加密ZIP负例被归档层拒绝；HTTP终态仍正常这一限制保留，不据此证明浏览器下载失败、不升P0。S3/E2E/取消/多成员及其他ZIP错误路径NOT_RUN；完整原始输入/响应私密保留。
+
 日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/SupaShare 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
 
 ## M4：SEC-052-B主动中断验证（2026-10-30，进行中）

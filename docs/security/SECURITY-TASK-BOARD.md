@@ -26,7 +26,7 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | 040-B | IMPLEMENTED / CI_GREEN / [PR48](https://github.com/Activer007/SupaShare/pull/48) | 冻结cf30b57含主线PR47；CI40922295319四组/全部相关race/build/scan PASS；两私密候选、FR Commit/跨owner、明确WATCH中止/unknown边界GREEN；ADR-024；普通用户全在途原子隔离仍VALIDATE |
 | 041 | IMPLEMENTED / CI_GREEN / [PR50](https://github.com/Activer007/SupaShare/pull/50) | 冻结d26875d，CI40932505670四组/相关race/build/scan PASS；原合同RED→GREEN、进程exit97、共享/重新引用、旧token/满容量/故障/迁库及完整GC交互；SQLite17/Redis10，ADR-025；真实持久化/断电仍NOT_RUN |
 | 052其余 | P1 / VALIDATE / BROWSER_BLOCKED | 浏览器新增截断/原生取消需用户手动处理临时证书；旧临时地址已失效，准备继续时须新建夹具。052-B局部修复不关闭此验收，更不关闭整个052/M4 |
-| 051 | P1 / VALIDATE | 初始限定浏览器预检，不以头缺失判XSS；结果见TEST-REPORT，未形成全路径安全结论 |
+| 051 | P1 / LOCAL_REPAIRED / VALIDATE | 基线1e5d80a；文件/ZIP nosniff策略RED→GREEN，两处最小补头；真实HTTP字节/上传浏览器/S3最终响应及最终CI待验，不据缺头定性XSS |
 | 050 | P1 / NOT_STARTED | 最小响应头、兼容及渐进CSP |
 
 公开只保留必要修复，私密精确负例不提交。每PR一个SEC；本PR完成不代表M4已完成。

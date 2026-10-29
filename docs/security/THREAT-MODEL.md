@@ -28,12 +28,20 @@ metadata是删除重试锚点；未确认探测/删除/引用/退休时不报告
 040-A由PR44交付，最终CI40887732123与实际输入树核对成功；相关race及Linux权限/链接合同PASS。
 040-B状态协调由PR48独立验证，不从A通过推定；metadata事务只重试明确WATCH中止，未知EXEC不重试且不声称回滚。
 
+## M4下载内容隔离边界
+
+应用控制的文件与ZIP响应须明确nosniff，保留现有声明MIME、attachment/inline、解码后文件名及精确内容；inline原有强制sandbox不得被Report-Only替代。
+nosniff不是上传内容校验，也不能单独证明无XSS。真实上传/浏览器执行origin须独立验证，字符串头合同不作替代。
+S3默认重定向后的对象响应属于另一响应边界；应用头不会继承到对象。须核对最终MIME/Disposition/bytes与实际origin，代理和服务器解密分支另查。
+本轮仅在header helper和ZIP写出各增加一行，不改变静态/WASM/worker响应或加密协议；相关政策合同RED→GREEN，进一步HTTP/浏览器/后端Gate保持开放。
+
 ## M4下载失败边界
 
 052-B主动中断不变量：真实客户端取消后handler应有界退出，不正常结束部分附件；源ciphertext与metadata保持。
 WASM底层读取与cancel竞争时不得在取消后的controller继续enqueue/close并破坏后续正常解密；Response已resolve后观察body/writer/下载终态，不要求已完成的外层Promise再次reject。
 052-B以每响应atomic标记实现该模块不变量，私密真实Node24/native stream同合同RED→GREEN且同实例正常SHA256保持；源码hash与最终CI40942043033一致。服务器正常/部分输出/HTTP1取消及其Linux race通过；wasm race为实际不支持，不能扩大为所有JS调度或浏览器已验。
 服务器128KiB防御合同和真实HTTP/1首字节后取消已GREEN；WASM模块合同已GREEN，浏览器新增合同仍VALIDATE，不用socket前的受控Writer替代真实客户端下载证据。
+1e5d80a单成员ZIP正常SHA256和受损成员格式拒绝已实测；负例HTTP正常EOF仍是限制，不将ZIP解析拒绝扩大成原生下载取消或所有ZIP故障通过。
 
 受支持加密下载只有完整流认证并正确结束后，才能正常完成；不能把密钥初检或HTTP 200当作完整性证据。
 前置密钥错误返回500/无附件，流已开始后的错误必须中断，不把错误文案拼入附件；FD关闭、失败时源文件及metadata保留，

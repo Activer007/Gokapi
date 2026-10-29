@@ -770,6 +770,7 @@ func ServeFilesAsZip(files []models.File, filename string, w http.ResponseWriter
 		filename = "SupaShare"
 	}
 	filename = helper.SanitiseFilename(filename)
+	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("Content-Type", "application/zip")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", filename))
 	w.WriteHeader(http.StatusOK)

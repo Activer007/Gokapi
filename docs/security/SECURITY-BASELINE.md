@@ -4,6 +4,10 @@
 
 ## 当前M4：可靠删除与下载内容边界
 
+SEC-051续作（2026-10-30）：基线1e5d80a31acd626d3c7991561a8681459c062acc（PR51已合并），fetch后自有主线一致、初始干净，Go1.26.10 windows/amd64；分支codex/sec-051-download-boundaries。
+CONFIRMED_CODE：应用控制的文件/ZIP响应未给出nosniff；三个新增头不变量断言得到策略RED（exit1/10.188s），不是XSS漏洞复现。仅两处响应写出补头后同命令GREEN（exit0/9.593s）；不改变MIME、文件名、Disposition或inline sandbox。HTTP字节/真实上传浏览器/S3最终响应与最终CI仍待本候选独立验证。
+SEC-052补充：在完整1e5d80a归档上，本地服务器加密单成员ZIP正常128KiB解包SHA256正确；受损源未形成可完整读取的有效成员。该负例HTTP仍正常EOF，成员读取被zip-format拒绝；仅窄归档拒绝证据，不证明浏览器下载失败或全部ZIP错误路径安全，不升P0。源1487项前后零变化，原始证据私密保留。
+
 SEC-052-B续作（2026-10-30）：基线0b6b2e2462626db6d928bde25f477548c021b8ef，分支codex/sec-052-download-cancel；fetch后自有主线一致，初始干净，Go1.26.10 windows/amd64。
 本地128KiB真实服务器加密正常/部分写入取消合同首次GREEN；新增真实HTTP/1客户端首字节后取消子例亦GREEN。现有error→ErrAbortHandler已满足这两条防御合同，未为获得RED修改断言或生产行为。
 VALIDATE：WASM在途取消后controller终态、页面输出取消传播、浏览器截断/主动取消；此前Chromium+HTTPS只有正常和认证篡改两例，不能外推。
