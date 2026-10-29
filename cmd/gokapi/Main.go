@@ -8,11 +8,13 @@ Main routine
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
 	"runtime/debug"
 	"syscall"
+	"time"
 
 	"github.com/forceu/gokapi/internal/configuration/database/migration"
 	"github.com/forceu/gokapi/internal/helper/systemd"
@@ -31,6 +33,7 @@ import (
 	"github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem/aws"
 	"github.com/forceu/gokapi/internal/webserver"
 	"github.com/forceu/gokapi/internal/webserver/authentication"
+	"github.com/forceu/gokapi/internal/webserver/fileupload"
 	"github.com/forceu/gokapi/internal/webserver/fileupload/uploadservice"
 	"github.com/forceu/gokapi/internal/webserver/ssl"
 )
@@ -68,6 +71,10 @@ func main() {
 	authentication.Init(configuration.Get().Authentication)
 	createSsl(passedFlags)
 	initCloudConfig(passedFlags)
+	if !recoverUploads() {
+		database.Close()
+		os.Exit(1)
+	}
 	storage.CleanUp(true)
 	logging.LogStartup()
 	showDeprecationWarnings()
@@ -83,6 +90,21 @@ func main() {
 		exitCode = 1
 	}
 	os.Exit(exitCode)
+}
+
+func recoverUploads() bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	report, err := storage.RecoverUploads(ctx, fileupload.PrepareReceiver)
+	// The report only contains bounded hashes and fixed reason codes. Raw I/O
+	// errors can include private names, storage keys or database connection data.
+	encoded, _ := json.Marshal(report)
+	fmt.Println("Upload startup recovery: " + string(encoded))
+	if err != nil {
+		fmt.Println("Upload recovery requires manual review; see docs/security/UPLOAD-RECOVERY-RUNBOOK.md")
+		return false
+	}
+	return true
 }
 
 func shutdown() bool {

@@ -4,9 +4,13 @@
 
 ## 当前阶段：最小恢复与收口（2026-10-29）
 
-用户在替换项完成后明确收敛后续开发，按[M3-GOAL](M3-GOAL.md)执行；恢复功能尚未实施，不记PASS。
-参考验收为SQLite+本地驱动的三类进程崩溃，模糊状态保额保文件并人工处理；不扩大为全部物理/后端保证。
-运行时基线60b2fb0；延期的其他metadata写者、批量迁移、孤儿回收/物理协调仍为OPEN/VALIDATE。
+用户在替换项完成后明确收敛后续开发，按[M3-GOAL](M3-GOAL.md)执行；本轮实现基线c3058ed。
+CONFIRMED_CODE：启动原先直接运行常规GC；新恢复门禁置于GC/HTTP/上传准入之前，复用ledger及私有namespace。
+三类真实退出97合同已取得NEW_CONTRACT/STUB_RED（6.493s），不据此声称历史漏洞；GREEN/最终CI见TEST-REPORT及关联PR。
+自动清理限于真实未Claim状态的过期自有输入、metadata提交摘要及canonical流式hash匹配的local明文/E2E已提交chunk输入；先清理后事务释放。
+不确定Claim/whole工作、无法确认的metadata/远端、非法namespace停止启动并保留现场，见[ADR-021](ADR-021-STARTUP-RECOVERY.md)
+和[人工流程](UPLOAD-RECOVERY-RUNBOOK.md)。诊断有界且只含哈希ref/原因码；DataDir根扫描上限16384项。
+VALIDATE：断电、Redis持久化/S3恢复、其他metadata写者、批量迁移、canonical孤儿回收/物理协调继续OPEN。
 
 ## SEC-030 文件替换增量（2026-10-29）
 

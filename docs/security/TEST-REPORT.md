@@ -4,8 +4,28 @@
 
 ## 当前后续目标（2026-10-29）
 
-替换完成后按用户指令收敛至[M3-GOAL](M3-GOAL.md)。本次仅更新范围与证据文档，没有恢复代码变更；
-崩溃/重启合同NOT_RUN，不借用历史PASS。文档变更仅diff/引用/状态核对，不重复全仓或race。
+替换完成后按用户指令收敛至[M3-GOAL](M3-GOAL.md)。PR31仅范围文档，无运行时测试重跑；
+本轮在c3058ed实现最小恢复，结果单列如下，不借用历史PASS。
+
+## SEC-030 最小启动恢复（2026-10-29）
+
+环境：Windows/amd64，portable Go1.26.10，CGO=0、无gcc；测试仅临时SQLite/local副本。
+ignored本地证据：`evidence/sec030-recovery-local.secret/`。两个用户目录未改，无真实部署数据操作。
+先冻结ADR-021不变量及三窗口合同，再用新入口空实现取得NEW_CONTRACT/STUB_RED；不是基线漏洞定性。
+
+| 实际命令 | 结果 |
+| --- | --- |
+| `go test ./internal/storage -count=1 -tags=test,noaws,security_recovery -run '^TestSEC030RecoveryCrash$' -timeout 3m -v`（空入口） | FAIL，退出1/6.493s；A/B/C均真实到达exit97后fresh进程业务断言失败，无编译/环境失败冒充RED |
+| `go test ./internal/storage ./internal/storage/chunking/chunksession ./internal/storage/uploadreceive ./internal/webserver/fileupload ./cmd/gokapi -count=1 -tags=test,noaws,security_chunk,security_recovery -run '^TestSEC030Recovery' -timeout 3m -v` | PASS，退出0；storage7.627s（3窗口+2negative）、chunksession4.894s、receiver1.432s；fileupload5.263s/main7.592s为编译及TestMain，无匹配测试 |
+| `go test ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,noaws,security_recovery -run '^TestSEC030Recovery.*ReadMetadata$' -timeout 90s -v` | PASS，退出0；SQLite4.355s、miniredis4.405s，正常完整模型/missing/cancel/nil/坏gob；miniredis无法检查真实持久化是预期限制 |
+
+独立审查后收紧canonical同长损坏、whole不可能状态；两个negative均PASS，不扩大provider矩阵。
+后续审查补充checked/context metadata读取、删除前取消检查、whole FR-scope拒绝及ScanComplete时机；
+补充项单列验证，最终完整版本交CI，不重复本地大矩阵。新读取接口仅恢复使用，原legacy getter未重构。
+最终CI待冻结实现后运行。原生-race因无CGO/gcc为BLOCKED，相关Linux CI待运行。
+大文件/浏览器/真实Redis持久化/S3/断电/生产演练NOT_RUN。三窗口只证明SQLite/local进程边界，
+C先保留未知whole硬链接，再在隔离副本备份、same-inode+SHA256确认仅unlink该私有链接，才恢复已知chunk输入。
+不会把Committed、相同文件名或仅mtime当作任意删除/退款证据；所有旧失败与延期记录继续保留。
 
 ## SEC-030 文件替换增量（2026-10-29）
 

@@ -21,9 +21,12 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 
 | SEC-ID / 子项 | 状态 | PR | 测试 / Gate |
 | --- | --- | --- | --- |
-| SEC-030-R1 启动时最小有界恢复 | NOT_STARTED | — | 仅已确认自有未发布输入可清理；清理确认后退款 |
-| SEC-030-R2 不确定状态清单与人工runbook | NOT_STARTED | — | 保额保文件，不自动补提交/删canonical |
-| SEC-030-R3 三类崩溃验收与文档对账 | NOT_STARTED | — | Claim前、Claim后Commit前、Commit后清理前；参考SQLite+本地 |
+| SEC-030-R1 启动时最小有界恢复 | IMPLEMENTED / CI_PENDING | 本轮恢复PR | G1新合同RED、本地GREEN；G2待最终CI，清理确认后退款 |
+| SEC-030-R2 不确定状态清单与人工runbook | IMPLEMENTED / REVIEW_PENDING | 同上 | ADR-021、UPLOAD-RECOVERY-RUNBOOK；保额保文件，不补提交/删canonical |
+| SEC-030-R3 三类崩溃验收与文档对账 | LOCAL_PASS / CI_PENDING | 同上 | 真实exit97+fresh进程与2个negative通过；最终以TEST-REPORT/PR为准 |
+
+本轮基线c3058ed；NEW_CONTRACT/STUB_RED不是旧漏洞证据。最终CI只在冻结代码跑必要一轮；
+无重复大文件/浏览器/真实后端矩阵，无部署和上游写入。延期项仍为OPEN，不能改标HISTORICAL_FIXED。
 
 ## SEC-030 文件替换增量：MERGED
 

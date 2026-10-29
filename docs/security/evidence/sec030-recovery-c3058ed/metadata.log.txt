@@ -1,0 +1,9 @@
+=== RUN   TestSEC030RecoverySQLiteReadMetadata
+--- PASS: TestSEC030RecoverySQLiteReadMetadata (0.02s)
+PASS
+ok  	github.com/forceu/gokapi/internal/configuration/database/provider/sqlite	4.355s
+=== RUN   TestSEC030RecoveryRedisReadMetadata
+Unable to check if Redis has persistence enabled.
+--- PASS: TestSEC030RecoveryRedisReadMetadata (0.01s)
+PASS
+ok  	github.com/forceu/gokapi/internal/configuration/database/provider/redis	4.405s

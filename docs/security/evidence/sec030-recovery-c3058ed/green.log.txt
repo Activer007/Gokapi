@@ -1,0 +1,44 @@
+Using MOCK S3 SERVER! To test real credentials, pass REAL_AWS_CREDENTIALS=true
+To mock the API, run test with --tags test,awsmock
+=== RUN   TestSEC030RecoveryCrash
+=== RUN   TestSEC030RecoveryCrash/A
+=== RUN   TestSEC030RecoveryCrash/B
+=== RUN   TestSEC030RecoveryCrash/C
+--- PASS: TestSEC030RecoveryCrash (1.50s)
+    --- PASS: TestSEC030RecoveryCrash/A (0.37s)
+    --- PASS: TestSEC030RecoveryCrash/B (0.42s)
+    --- PASS: TestSEC030RecoveryCrash/C (0.70s)
+=== RUN   TestSEC030RecoveryNegative
+=== RUN   TestSEC030RecoveryNegative/canonical
+=== RUN   TestSEC030RecoveryNegative/whole
+--- PASS: TestSEC030RecoveryNegative (0.68s)
+    --- PASS: TestSEC030RecoveryNegative/canonical (0.36s)
+    --- PASS: TestSEC030RecoveryNegative/whole (0.33s)
+PASS
+ok  	github.com/forceu/gokapi/internal/storage	7.627s
+=== RUN   TestSEC030RecoveryChunkVerifyIsReadOnly
+--- PASS: TestSEC030RecoveryChunkVerifyIsReadOnly (0.08s)
+=== RUN   TestSEC030RecoveryChunkCommittedInputScope
+=== RUN   TestSEC030RecoveryChunkCommittedInputScope/committed
+=== RUN   TestSEC030RecoveryChunkCommittedInputScope/claim
+=== RUN   TestSEC030RecoveryChunkCommittedInputScope/mismatched-committed
+--- PASS: TestSEC030RecoveryChunkCommittedInputScope (0.16s)
+    --- PASS: TestSEC030RecoveryChunkCommittedInputScope/committed (0.07s)
+    --- PASS: TestSEC030RecoveryChunkCommittedInputScope/claim (0.04s)
+    --- PASS: TestSEC030RecoveryChunkCommittedInputScope/mismatched-committed (0.04s)
+PASS
+ok  	github.com/forceu/gokapi/internal/storage/chunking/chunksession	4.894s
+=== RUN   TestSEC030RecoveryReceiverVerifyThenPrepare
+--- PASS: TestSEC030RecoveryReceiverVerifyThenPrepare (0.02s)
+=== RUN   TestSEC030RecoveryReceiverForeignPreflight
+--- PASS: TestSEC030RecoveryReceiverForeignPreflight (0.03s)
+=== RUN   TestSEC030RecoveryReceiverCancellationAndRuntimeGuard
+--- PASS: TestSEC030RecoveryReceiverCancellationAndRuntimeGuard (0.01s)
+PASS
+ok  	github.com/forceu/gokapi/internal/storage/uploadreceive	1.432s
+testing: warning: no tests to run
+PASS
+ok  	github.com/forceu/gokapi/internal/webserver/fileupload	5.263s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/forceu/gokapi/cmd/gokapi	7.592s [no tests to run]

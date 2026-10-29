@@ -24,6 +24,7 @@ type Database interface {
 	ApplyUploadQuota(context.Context, uploadquota.Change) (uploadquota.Reservation, error)
 	ReadUploadQuota(context.Context) (uploadquota.Ledger, error)
 	ReadBlobEncryption(context.Context, string, string) (models.EncryptionInfo, bool, error)
+	ReadRecoveryFile(context.Context, string) (models.File, bool, error)
 	ImportUploadQuota(context.Context, uploadquota.Ledger) error
 	CheckEmptyForMigration(context.Context) error
 	// GetType returns identifier of the underlying interface

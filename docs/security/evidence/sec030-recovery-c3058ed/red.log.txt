@@ -1,0 +1,19 @@
+Using MOCK S3 SERVER! To test real credentials, pass REAL_AWS_CREDENTIALS=true
+To mock the API, run test with --tags test,awsmock
+=== RUN   TestSEC030RecoveryCrash
+=== RUN   TestSEC030RecoveryCrash/A
+    security_recovery_process_test.go:58: security_recovery_process_test.go:46: RECOVERY_COMPLETE safe startup did not finish scanning and prepare reception
+    security_recovery_process_test.go:58: RECOVERY_CHILD fresh-process recovery contract failed
+=== RUN   TestSEC030RecoveryCrash/B
+    security_recovery_process_test.go:61: security_recovery_process_test.go:46: RECOVERY_MANUAL uncertain publication must require manual review
+    security_recovery_process_test.go:61: RECOVERY_CHILD fresh-process recovery contract failed
+=== RUN   TestSEC030RecoveryCrash/C
+    security_recovery_process_test.go:61: security_recovery_process_test.go:46: RECOVERY_MANUAL uncertain publication must require manual review
+    security_recovery_process_test.go:61: RECOVERY_CHILD fresh-process recovery contract failed
+--- FAIL: TestSEC030RecoveryCrash (0.82s)
+    --- FAIL: TestSEC030RecoveryCrash/A (0.26s)
+    --- FAIL: TestSEC030RecoveryCrash/B (0.28s)
+    --- FAIL: TestSEC030RecoveryCrash/C (0.28s)
+FAIL
+FAIL	github.com/forceu/gokapi/internal/storage	6.493s
+FAIL
