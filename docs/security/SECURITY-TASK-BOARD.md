@@ -21,12 +21,14 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 
 | SEC-ID / 子项 | 状态 | PR | 测试 / Gate |
 | --- | --- | --- | --- |
-| SEC-030-R1 启动时最小有界恢复 | IMPLEMENTED / CI_PENDING | 本轮恢复PR | G1新合同RED、本地GREEN；G2待最终CI，清理确认后退款 |
-| SEC-030-R2 不确定状态清单与人工runbook | IMPLEMENTED / REVIEW_PENDING | 同上 | ADR-021、UPLOAD-RECOVERY-RUNBOOK；保额保文件，不补提交/删canonical |
-| SEC-030-R3 三类崩溃验收与文档对账 | LOCAL_PASS / CI_PENDING | 同上 | 真实exit97+fresh进程与2个negative通过；最终以TEST-REPORT/PR为准 |
+| SEC-030-R1 启动时最小有界恢复 | COMPLETE（冻结范围） | [PR35](https://github.com/Activer007/Gokapi/pull/35) | 新合同RED、本地GREEN、最终CI40833366371；确认清理后退款 |
+| SEC-030-R2 不确定状态清单与人工runbook | COMPLETE（冻结范围） | 同上 | ADR-021、UPLOAD-RECOVERY-RUNBOOK及脱敏/保留检查通过；不补提交/删canonical |
+| SEC-030-R3 三类崩溃验收与文档对账 | COMPLETE（冻结范围） | 同上 | 真实exit97+fresh进程、2个negative与相关race通过；命令/边界见TEST-REPORT |
 
-本轮基线c3058ed；NEW_CONTRACT/STUB_RED不是旧漏洞证据。最终CI只在冻结代码跑必要一轮；
-无重复大文件/浏览器/真实后端矩阵，无部署和上游写入。延期项仍为OPEN，不能改标HISTORICAL_FIXED。
+本轮基线c3058ed；NEW_CONTRACT/STUB_RED不是旧漏洞证据。原head的CI40831437902成功后，
+同期PR36改变module/import并产生实际Git冲突，适配后最终head db4dc8a由CI40833366371验证。
+候选a78f7be5/tree89276c43；最终收尾只改安全文档/文本，不重跑同代码CI。
+无新增大文件/浏览器/真实后端矩阵，无部署和上游写入。延期项仍为OPEN，不能改标HISTORICAL_FIXED。
 
 ## SEC-030 文件替换增量：MERGED
 

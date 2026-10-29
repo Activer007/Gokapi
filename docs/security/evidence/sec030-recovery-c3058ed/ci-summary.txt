@@ -1,0 +1,111 @@
+CI40833366371 SUCCESS; job123312410322; 2026-10-29
+Go1.26.10 linux/amd64; Ubuntu24.04
+head db4dc8a7e0ede74390cd422728fccd9ebf3287b3
+checkout a78f7be52633fef9897a0c32e6f9ab491ef5fda2
+parents 32fe5c1765ffca7ed506d7721eed6f4c6ba59afe db4dc8a7e0ede74390cd422728fccd9ebf3287b3
+tree 89276c432411389c7e685223fece6ce74eb19496
+Selected lines only; full commands and scope in TEST-REPORT.md and PR35 review.
+All four full suites, generation, receiver race, target/race and build/scan PASS.
+Source/hash checks PASS; module notices remain, no dependency-repair claim.
+Final evidence-only commit does not change code, module, runtime assets or harness.
+
+HEAD is now at a78f7be Merge db4dc8a7e0ede74390cd422728fccd9ebf3287b3 into 32fe5c1765ffca7ed506d7721eed6f4c6ba59afe
+a78f7be52633fef9897a0c32e6f9ab491ef5fda2
+go version go1.26.10 linux/amd64
+go version go1.26.10 linux/amd64
+SEC030_WHOLE_RESULT environment 0
+=== RUN   TestSEC030RecoveryChunkVerifyIsReadOnly
+--- PASS: TestSEC030RecoveryChunkVerifyIsReadOnly (0.02s)
+=== RUN   TestSEC030RecoveryChunkCommittedInputScope
+=== RUN   TestSEC030RecoveryChunkCommittedInputScope/committed
+=== RUN   TestSEC030RecoveryChunkCommittedInputScope/claim
+=== RUN   TestSEC030RecoveryChunkCommittedInputScope/mismatched-committed
+--- PASS: TestSEC030RecoveryChunkCommittedInputScope (0.06s)
+    --- PASS: TestSEC030RecoveryChunkCommittedInputScope/committed (0.02s)
+    --- PASS: TestSEC030RecoveryChunkCommittedInputScope/claim (0.03s)
+    --- PASS: TestSEC030RecoveryChunkCommittedInputScope/mismatched-committed (0.02s)
+SEC030_WHOLE_RESULT whole 0
+SEC030_WHOLE_RESULT mock 0
+SEC030_WHOLE_RESULT sdk 0
+SEC030_WHOLE_RESULT source-unchanged 0
+go version go1.26.10 linux/amd64
+SEC030_WHOLE_RESULT environment 0
+=== RUN   TestSEC030RecoverySQLiteReadMetadata
+--- PASS: TestSEC030RecoverySQLiteReadMetadata (0.06s)
+=== RUN   TestSEC030RecoveryRedisReadMetadata
+--- PASS: TestSEC030RecoveryRedisReadMetadata (0.02s)
+=== RUN   TestSEC030RecoveryCrash
+=== RUN   TestSEC030RecoveryCrash/A
+=== RUN   TestSEC030RecoveryCrash/B
+=== RUN   TestSEC030RecoveryCrash/C
+--- PASS: TestSEC030RecoveryCrash (6.29s)
+    --- PASS: TestSEC030RecoveryCrash/A (1.33s)
+    --- PASS: TestSEC030RecoveryCrash/B (1.33s)
+    --- PASS: TestSEC030RecoveryCrash/C (3.63s)
+=== RUN   TestSEC030RecoveryNegative
+=== RUN   TestSEC030RecoveryNegative/canonical
+=== RUN   TestSEC030RecoveryNegative/whole
+--- PASS: TestSEC030RecoveryNegative (2.78s)
+    --- PASS: TestSEC030RecoveryNegative/canonical (1.41s)
+    --- PASS: TestSEC030RecoveryNegative/whole (1.36s)
+=== RUN   TestSEC030RecoveryChunkVerifyIsReadOnly
+--- PASS: TestSEC030RecoveryChunkVerifyIsReadOnly (0.04s)
+=== RUN   TestSEC030RecoveryChunkCommittedInputScope
+=== RUN   TestSEC030RecoveryChunkCommittedInputScope/committed
+=== RUN   TestSEC030RecoveryChunkCommittedInputScope/claim
+=== RUN   TestSEC030RecoveryChunkCommittedInputScope/mismatched-committed
+--- PASS: TestSEC030RecoveryChunkCommittedInputScope (0.16s)
+    --- PASS: TestSEC030RecoveryChunkCommittedInputScope/committed (0.06s)
+    --- PASS: TestSEC030RecoveryChunkCommittedInputScope/claim (0.05s)
+    --- PASS: TestSEC030RecoveryChunkCommittedInputScope/mismatched-committed (0.05s)
+SEC030_WHOLE_RESULT whole 0
+SEC030_WHOLE_RESULT mock 0
+SEC030_WHOLE_RESULT sdk 0
+SEC030_WHOLE_RESULT source-unchanged 0
+go version go1.26.10 linux/amd64
+SEC062_RESULT environment 0
+SEC062_RESULT policy 0
+SEC062_RESULT scanner-install 0
+SEC062_RESULT scanner-version 0
+SEC062_RESULT scanner-buildinfo 0
+SEC062_RESULT generate 0
+SEC062_RESULT formatting 0
+Vulnerability #1: GO-2026-5932
+  More info: https://pkg.go.dev/vuln/GO-2026-5932
+Vulnerability #2: GO-2022-0646
+  More info: https://pkg.go.dev/vuln/GO-2022-0646
+Vulnerability #3: GO-2022-0635
+  More info: https://pkg.go.dev/vuln/GO-2022-0635
+Your code is affected by 0 vulnerabilities.
+SEC062_RESULT source-default 0
+Vulnerability #1: GO-2026-5932
+  More info: https://pkg.go.dev/vuln/GO-2026-5932
+Vulnerability #2: GO-2022-0646
+  More info: https://pkg.go.dev/vuln/GO-2022-0646
+Vulnerability #3: GO-2022-0635
+  More info: https://pkg.go.dev/vuln/GO-2022-0635
+Your code is affected by 0 vulnerabilities.
+SEC062_RESULT source-noaws 0
+Vulnerability #1: GO-2026-5932
+  More info: https://pkg.go.dev/vuln/GO-2026-5932
+Your code is affected by 0 vulnerabilities.
+SEC062_RESULT wasm-source 0
+SEC062_RESULT generator-build 0
+SEC062_RESULT generator-buildinfo 0
+SEC062_RESULT generator-binary-scan 0
+SEC062_RESULT server-build 0
+SEC062_RESULT cli-build 0
+SEC062_RESULT gokapi-buildinfo 0
+Vulnerability #1: GO-2026-5932
+  More info: https://pkg.go.dev/vuln/GO-2026-5932
+Vulnerability #2: GO-2022-0646
+  More info: https://pkg.go.dev/vuln/GO-2022-0646
+Vulnerability #3: GO-2022-0635
+  More info: https://pkg.go.dev/vuln/GO-2022-0635
+Your code is affected by 0 vulnerabilities.
+SEC062_RESULT gokapi-binary-scan 0
+SEC062_RESULT gokapi-cli-buildinfo 0
+Vulnerability #1: GO-2026-5932
+  More info: https://pkg.go.dev/vuln/GO-2026-5932
+Your code is affected by 0 vulnerabilities.
+SEC062_RESULT gokapi-cli-binary-scan 0

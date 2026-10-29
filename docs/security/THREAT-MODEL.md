@@ -13,7 +13,8 @@
 所有namespace先校验归属/marker/文件类型，再清理；已提交chunk要求metadata完整提交摘要及local明文/E2E canonical类型/大小/流式hash一致。
 无法持久映射的whole工作不因Committed而可删除；已Claim、远端/metadata不明、foreign entries保持现场并阻止启动。
 仅在确认私有清理后Abort/ReleaseStaging，不创建第二条metadata、不触canonical；重放不重复退款。
-三类SQLite/local真实进程退出证据以TEST-REPORT和关联PR为准；不证明断电或真实远端恢复。
+三类SQLite/local真实进程退出及2个negative在最终CI40833366371的race步骤PASS（代码db4dc8a，候选a78f7be5）；
+确认后清理与重放不退款的Gate完成。详细证据以TEST-REPORT及PR35为准；不证明断电或真实远端恢复。
 下列历史不变量与未完成限制保留，不将延期解释为通过；具体回滚和人工步骤见ADR-021及UPLOAD-RECOVERY-RUNBOOK。
 
 ## SEC-030 文件替换不变量

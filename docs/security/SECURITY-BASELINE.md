@@ -6,13 +6,15 @@
 
 用户在替换项完成后明确收敛后续开发，按[M3-GOAL](M3-GOAL.md)执行；本轮实现基线c3058ed。
 CONFIRMED_CODE：启动原先直接运行常规GC；新恢复门禁置于GC/HTTP/上传准入之前，复用ledger及私有namespace。
-三类真实退出97合同已取得NEW_CONTRACT/STUB_RED（6.493s），不据此声称历史漏洞；GREEN/最终CI见TEST-REPORT及关联PR。
+三类真实退出97合同已取得NEW_CONTRACT/STUB_RED（6.493s）及GREEN，不据此声称历史漏洞；最终CI见下。
 自动清理限于真实未Claim状态的过期自有输入、metadata提交摘要及canonical流式hash匹配的local明文/E2E已提交chunk输入；先清理后事务释放。
 不确定Claim/whole工作、无法确认的metadata/远端、非法namespace停止启动并保留现场，见[ADR-021](ADR-021-STARTUP-RECOVERY.md)
 和[人工流程](UPLOAD-RECOVERY-RUNBOOK.md)。诊断有界且只含哈希ref/原因码；DataDir根扫描上限16384项。
 VALIDATE：断电、Redis持久化/S3恢复、其他metadata写者、批量迁移、canonical孤儿回收/物理协调继续OPEN。
 同期PR36迁移Go module/import至Activer007/Gokapi；本恢复PR保留该基线，不恢复旧身份。
-旧身份候选CI40831437902成功；迁移后的最终组合另验，不混用旧输入与新运行时证明。
+旧身份候选CI40831437902成功；迁移后的最终head db4dc8a由CI40833366371 SUCCESS验证，
+实际候选a78f7be5/tree89276c43，四组全仓/生成/相关race/build/scan通过。收尾仅安全文档/文本，代码和运行器未变。
+[M3-GOAL](M3-GOAL.md)冻结范围已收口；完整实际命令与旧冲突/RED记录见TEST-REPORT及PR35审查。
 
 ## SEC-030 文件替换增量（2026-10-29）
 

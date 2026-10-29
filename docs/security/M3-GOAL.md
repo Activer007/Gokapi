@@ -1,11 +1,26 @@
 # M3：最小崩溃恢复与阶段收口
 
-状态：ACTIVE，2026-10-29。按用户在文件替换完成后的新指令收敛后续目标。
+状态：COMPLETE（本文件冻结范围），2026-10-29。按用户在文件替换完成后的新指令收敛后续目标。
 运行时代码基线60b2fb066ddef8acd1ff70487b0e89bdf39ab098（PR30已合并，最终CI40823139886成功）。
 
 定位仍是个人VPS、单个Go进程、少量可信成员；公开下载者/File Request上传者不可信。
 冻结已合入的上传、复制、owner转移、替换行为及5GiB/20GiB默认预算，不继续新增功能线。
 本文件取代此前宽范围M3计划的后续实现顺序；延期是范围选择，不是已修复或已验证。
+
+## 收口记录
+
+[PR35](https://github.com/Activer007/Gokapi/pull/35)最终代码db4dc8a7e0ede74390cd422728fccd9ebf3287b3，
+已保留同期PR36的自有module/import迁移。CI40833366371 SUCCESS，候选a78f7be52633fef9897a0c32e6f9ab491ef5fda2，
+tree89276c432411389c7e685223fece6ce74eb19496；最后只补安全Markdown/文本证据，代码与运行器不变。
+
+| 冻结项 | 结果与边界 |
+| --- | --- |
+| R1 最小启动恢复 | PASS：GC/准入前有界预检，确认自有私有清理后释放；local明文/E2E自动核对，其他不确定状态保留 |
+| R2 保守状态及人工流程 | PASS：固定脱敏原因、保额保文件并停止启动；ADR-021及UPLOAD-RECOVERY-RUNBOOK可核对 |
+| R3 三窗口及交接 | PASS：SQLite/local真实exit97+fresh进程、SHA256/单份metadata/重放；最终相关race及全仓通过 |
+
+实际命令、旧RED与基线迁移冲突记录见[TEST-REPORT](TEST-REPORT.md)，公开摘要见[evidence](evidence/sec030-recovery-c3058ed/README.md)。
+本阶段在此结束；下列延期项继续OPEN/VALIDATE，不自动启动新功能或部署。
 
 ## 只做三项
 

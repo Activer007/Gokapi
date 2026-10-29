@@ -16,6 +16,11 @@ A清理过期未Claim输入，B发布后未Commit保额/保文件/无metadata补
 日志只有固定测试消息、合成配置提示及结果，不含部署凭据/私密链接/数据路径。
 本地race BLOCKED（无CGO/gcc）；Linux CI结果另见PR审查。断电、真实Redis/S3、生产、浏览器和新大文件矩阵NOT_RUN。
 
+最终代码db4dc8a，[CI40833366371](https://github.com/Activer007/Gokapi/actions/runs/40833366371) SUCCESS，
+实际候选a78f7be5（base32fe5c1），tree89276c43；三窗口race6.29s、negative2.78s。
+[CI选取摘要](ci-summary.txt)仅含固定测试/结果/版本与合并输入，不是完整日志；完整命令见TEST-REPORT/PR35审查。
+最后只补安全Markdown/文本记录，代码、Go module和运行器保持已验证输入；不重复同代码全仓CI。
+
 复现新合同RED：在隔离checkout保留最终测试、错误值及Report类型，仅将RecoverUploads函数体临时替换成
 `return RecoveryReport{Version: 1}, nil`，运行TEST-REPORT第一条命令；必须先核对crash子进程退出97，
 随后出现RECOVERY_COMPLETE/RECOVERY_MANUAL断言。不要把编译失败、非97退出或超时标成RED。

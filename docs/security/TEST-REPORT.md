@@ -9,6 +9,26 @@
 
 ## SEC-030 最小启动恢复（2026-10-29）
 
+最终收口：[PR35](https://github.com/Activer007/Gokapi/pull/35)，代码db4dc8a7e0ede74390cd422728fccd9ebf3287b3，
+[CI40833366371](https://github.com/Activer007/Gokapi/actions/runs/40833366371) SUCCESS，job123312410322。
+实际checkout a78f7be52633fef9897a0c32e6f9ab491ef5fda2，父32fe5c1+db4dc8a，tree89276c432411389c7e685223fece6ce74eb19496，
+Go1.26.10 linux/amd64、Ubuntu24.04；包含UI PR32–34及仓库身份迁移PR36。收口提交仅安全Markdown/文本证据，代码/运行器不变。
+
+| 最终CI真实命令 | 结果 |
+| --- | --- |
+| `go generate ./...` | PASS，含后续scan中的生成核对 |
+| `go test ./... -parallel 8 -count=1 --tags=test,awsmock` | PASS |
+| `go test ./... -parallel 8 -count=1 --tags=test,noaws` | PASS |
+| `go test ./... --tags=test,noaws,integration -count=1` | PASS |
+| `GOKAPI_AWS_BUCKET=gokapi GOKAPI_AWS_REGION=eu-central-1 GOKAPI_AWS_KEY=keyid GOKAPI_AWS_KEY_SECRET=secret go test ./... --tags=test,awstest -count=1` | PASS，仅合成凭据/已有模拟环境，不是真实S3 |
+| `go test -race ./internal/environment ./internal/storage ./internal/storage/uploadreceive ./internal/webserver/fileupload ./internal/webserver/api ./internal/webserver -count=1 -tags=test,noaws -run 'TestSEC030Receive\|TestSEC031UploadSizeSemantics\|TestReceive\|TestSpool\|TestSEC062Range'` | PASS，既有receiver共享路径race |
+| `bash docs/security/tools/run-sec030-whole.sh target` / `bash docs/security/tools/run-sec030-whole.sh race` | PASS，两次source-unchanged为0；三窗口新矩阵只在race执行（6.29s，A/B1.33s、C3.63s），negative2.78s；小chunk helpers随target/race执行，未声称所有helper只跑一次 |
+| `bash docs/security/tools/run-sec062-toolchain.sh scan` | PASS，格式/生成、server/CLI/generator构建与实际BuildInfo、扫描返回码核实；模块提示仍保留 |
+
+公开[CI摘要](evidence/sec030-recovery-c3058ed/ci-summary.txt)和PR审查记录保留实际输入/结果；没有为文档改动重跑全套CI。
+文档白名单检查最初误将新增summary算作tracked而拒绝；修正为6个tracked Markdown+1个新增文本后PASS，源码/运行器无变化。
+下面为开发期记录；旧阶段文字不能覆盖本最终结果。冻结范围Gate R1/R2/R3完成，广义M3延期不改标已修复。
+
 环境：Windows/amd64，portable Go1.26.10，CGO=0、无gcc；测试仅临时SQLite/local副本。
 ignored本地证据：`evidence/sec030-recovery-local.secret/`。两个用户目录未改，无真实部署数据操作。
 先冻结ADR-021不变量及三窗口合同，再用新入口空实现取得NEW_CONTRACT/STUB_RED；不是基线漏洞定性。
@@ -22,14 +42,14 @@ ignored本地证据：`evidence/sec030-recovery-local.secret/`。两个用户目
 独立审查后收紧canonical同长损坏、whole不可能状态；两个negative均PASS，不扩大provider矩阵。
 后续审查补充checked/context metadata读取、删除前取消检查、whole FR-scope拒绝及ScanComplete时机；
 补充项单列验证，最终完整版本交CI，不重复本地大矩阵。新读取接口仅恢复使用，原legacy getter未重构。
-最终CI待冻结实现后运行。原生-race因无CGO/gcc为BLOCKED，相关Linux CI待运行。
+原生-race因无CGO/gcc为BLOCKED；最终Linux相关race结果见本节收尾。
 首个冻结head ac2b6ec 的CI40831437902已SUCCESS，候选22e11b2/treeb06a48e8含UI PR32–34；
 生成、四组全仓、receiver/durable race及scan均通过，三窗口race6.26s、negative2.71s。
 合并时GitHub返回405冲突：同期PR36已将module/import迁移到Activer007/Gokapi（master32fe5c1）。
 保留迁移，仅同步本轮新增Go imports并合并Main启动门禁；旧CI不代表这个新组合，另行验证并记录结果。
 迁移后的实际命令：`go test ./internal/storage ./internal/storage/chunking/chunksession ./internal/storage/uploadreceive ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis ./cmd/gokapi -count=1 -tags=test,noaws,security_chunk,security_recovery -run '^TestSEC030Recovery' -timeout 3m -v`
 PASS，退出0；新module包storage7.326s/chunksession4.697s/receiver1.282s/SQLite1.589s/Redis1.646s，main9.002s编译+TestMain无匹配case。
-这次重复由真实基线/import变化触发，保留前次PASS与Git合并冲突记录；迁移后的最终CI待运行。
+这次重复由真实基线/import变化触发，保留前次PASS与Git合并冲突记录；迁移后的最终CI见本节收尾。
 scan保留模块级GO-2026-5932及GO-2022-0646/0635提示，受测配置未报affected调用，不声称依赖已修复。
 大文件/浏览器/真实Redis持久化/S3/断电/生产演练NOT_RUN。三窗口只证明SQLite/local进程边界，
 C先保留未知whole硬链接，再在隔离副本备份、same-inode+SHA256确认仅unlink该私有链接，才恢复已知chunk输入。
