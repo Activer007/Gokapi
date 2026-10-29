@@ -528,5 +528,17 @@
   "api.deleteHelp": "Applications using this key will lose access immediately. This cannot be undone.",
   "api.deleted": "API key deleted",
   "request.limitHelp": "Enable a limit to apply it. Server limits still apply when a limit is off.",
-  "request.notesPublic": "Shown to people who open the collection link."
+  "request.notesPublic": "Shown to people who open the collection link.",
+  "files.yourFiles": "Your files",
+  "common.more": "More",
+  "files.summary": "New uploads: {downloads} · {expiry} · {password}",
+  "files.summaryDownloads": "Downloads: {count}",
+  "files.summaryDays": "Days: {count}",
+  "files.summaryUnlimitedDownloads": "Unlimited downloads",
+  "files.summaryUnlimitedTime": "No expiry",
+  "files.summaryPassword": "Password protected",
+  "files.summaryNoPassword": "No password",
+  "files.summaryInvalid": "Complete the enabled upload settings before selecting files.",
+  "common.copyLink": "Copy link",
+  "files.openPage": "Open download page"
 }
