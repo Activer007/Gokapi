@@ -4,6 +4,14 @@
 
 基线 a9c25d453aab0c25f2d6e6926ec7312628638844，证据及分类见 [SECURITY-BASELINE](SECURITY-BASELINE.md)。模型面向个人 VPS / 小团队；不改变单体 Go、SQLite/Redis、本地/S3 或现有 API 架构。
 
+## SEC-030 文件替换不变量
+
+两端授权快照在TX/CAS重读；Replace/Read/可选Delete权限及既有FR/E2E门槛不变。
+仅正增长计target owner/instance bytes，含活动预约；不增files/request/active/staging，不提前抵扣来源删除。
+目标内容字段与可选source过期原子提交，保留当前target policy/counters/owner/hotlink。
+metadata锁按stripe去重排序，再source blob锁、再DB；同ID删除明确拒绝，避免隐式删除目标。
+物理回收沿既有GC，不增加旧blob删除策略；其他全量写者/批量迁移和孤儿回收仍须单独证明。
+
 ## SEC-030 单文件所有者转移不变量
 
 只允许原有admin/Edit管理边界；同事务重读source逻辑投影、源pending状态及目标用户存在性。

@@ -14,7 +14,18 @@
 
 G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BLOCKED 详见 [TEST-REPORT](TEST-REPORT.md)。初始M0仅测试/证据，后续生产实现及ADR以各增补条目为准。
 
-## 当前 SEC-030 单文件owner增量：目标GREEN、CI_PENDING
+## 当前 SEC-030 文件替换增量：目标GREEN、CI_PENDING
+
+基线79f2577；分支codex/sec-030-replace-admission；ADR-020。
+G0/G1：仓库/用户改动保护、上游定向检查、5组隔离业务RED已完成；PR419不是相同quota修复。
+G2：核心/双provider/锁整包、HTTP5组和干净副本storage整包PASS；原FAIL处理与最终CI见TEST-REPORT/关联PR。
+不新增session/schema/UI或物理stage；仅显式拒绝同ID+delete。批量迁移、其他全量写者及物理/恢复仍OPEN。
+用户最新方向：本替换项完成后简化并更新后续开发目标，转入“崩溃恢复与阶段收口”；不继续自动扩展功能线。
+延期事项将保留风险及限制记录，不能改标为已修复；具体后续目标在本项合并后单独更新。
+
+## SEC-030 单文件owner增量：MERGED
+
+PR27合并79f2577；最终CI40816967130 SUCCESS，候选d129cfb含UI PR26；合并树一致，无重复CI/部署。
 
 工作基线c3244f0；分支codex/sec-030-owner-admission；ADR-019。
 G0：本地tracked起点干净，两个用户未跟踪目录保留；上游定向未找到相同owner准入修复。

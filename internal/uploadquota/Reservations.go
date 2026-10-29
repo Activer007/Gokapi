@@ -92,6 +92,7 @@ const (
 	ReleaseStaging    Action = "release-staging"
 	DuplicateMetadata Action = "duplicate-metadata"
 	TransferOwner     Action = "transfer-owner"
+	ReplaceMetadata   Action = "replace-metadata"
 )
 
 // Change is an internal database command, not a public request parser. Upload
@@ -108,8 +109,12 @@ type Change struct {
 	CleanupConfirmed   bool
 	CheckRequestPolicy bool
 	// Source is a trusted authorization snapshot, rechecked inside the provider
-	// transaction for a metadata duplicate or owner transfer. It is not persisted.
+	// transaction for a metadata duplicate, transfer or replacement. Not persisted.
 	Source *models.File
+	// Target is the authorized pre-replacement snapshot. DeleteSource expires
+	// the source in the same transaction; physical cleanup follows separately.
+	Target       *models.File
+	DeleteSource bool
 }
 
 func EmptyLedger() Ledger {

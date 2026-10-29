@@ -22,6 +22,9 @@ func Apply(ledger Ledger, files map[string]models.File, change Change) (Ledger, 
 	if change.Action == TransferOwner {
 		return transferOwner(ledger, files, change)
 	}
+	if change.Action == ReplaceMetadata {
+		return replaceMetadata(ledger, files, change)
+	}
 	next := EmptyLedger()
 	for id, record := range ledger.Records {
 		next.Records[id] = record

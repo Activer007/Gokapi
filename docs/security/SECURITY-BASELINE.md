@@ -2,7 +2,18 @@
 
 研究日期：2026-10-27（Asia/Shanghai）。范围为个人 VPS / 小团队的单体 Go 服务。本文是源码与测试基线，不是安全认证。只向用户已独立的 **Activer007/Gokapi** 交付；Forceu/Gokapi 只读，不创建上游 PR、不推送、不触发其工作流。
 
+## SEC-030 文件替换增量（2026-10-29）
+
+起点79f2577b3827140db8de65e90bfc41e8a17685ff，Go1.26.10 windows/amd64；未部署。
+CONFIRMED_CODE：旧ReplaceFile增长直接SaveMetaData，未原子准入；同ID删除来源会过期自身。
+5组隔离合同真实业务RED；核心、双provider、锁整包及HTTP5组GREEN。storage整包首次因旧owner0
+夹具FAIL、第二次因Windows残留旧测试数据FAIL；修正并清理已确认副本后完整PASS，详见TEST-REPORT。
+实现仅patch目标内容字段，可选来源过期同TX；blob探测后刷新准入时间。兼容差异/回滚见ADR-020。
+VALIDATE：其他全量metadata写者、批量迁移、旧blob孤儿回收、物理协调与崩溃恢复仍开放。
+
 ## SEC-030 单文件owner准入增量（2026-10-29）
+
+收尾：PR27已合并79f2577；CI40816967130 SUCCESS，实际候选含UI PR26，合并树一致且未重复CI。
 
 起点c3244f008214a851404ecfcf5367e3c1878b58fa，Go1.26.10 windows/amd64；未部署。
 CONFIRMED_CODE：changeOwner已有管理员/Edit授权，但通过全量SaveMetaData改owner，未做目标用户准入。
