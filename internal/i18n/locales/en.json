@@ -596,5 +596,15 @@
   "status.workspaceHelp": "Review server resources and activity logs.",
   "status.noEvents": "No events match this filter.",
   "status.logsDeleted": "Selected logs deleted.",
-  "status.trafficReset": "Traffic statistics reset."
+  "status.trafficReset": "Traffic statistics reset.",
+  "login.help": "Sign in to manage your files and sharing.",
+  "login.back": "Back to login",
+  "download.passwordHelp": "Enter the password provided by the sender to access this file.",
+  "error.requestNewLink": "Ask the sender for a new link.",
+  "download.initialiseFailed": "Unable to load the decryption component.",
+  "download.transferring": "Decrypting and transferring. Keep this page open.",
+  "download.transferred": "Transfer complete. Check your browser downloads.",
+  "download.browserStarted": "Download requested. Check your browser downloads.",
+  "download.reopenHelp": "Reopen the original share link to try again. If it has expired, ask the sender for a new link.",
+  "download.transferFailed": "The download did not complete. Please try again from the original share link."
 }

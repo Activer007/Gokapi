@@ -1,78 +1,40 @@
 {{define "error"}}{{template "header" .}}
- 
-     <div class="row justify-content-center mt-5">
-  <div class="col-md-6">
-    <div class="card shadow-sm" style="width: {{ .ErrorCardWidth }};">
-      <div class="card-body text-center">
-{{ if .IsGenericError }}
-
-    {{ if eq .ErrorId 0 }}
-        <h2 class="card-title">
-          {{.UI.T "error.notFound.title"}}
-        </h2>
-        <br>
-          {{.UI.T "error.notFound.help"}}
-    {{ end }}
-    
-    {{ if eq .ErrorId 1 }}
-        <h2 class="card-title">
-          {{.UI.T "error.upload.title"}}
-        </h2>
-        <br>
-          {{.UI.T "error.upload.reasons"}}
-          <i><ul class="list-unstyled mt-2">
-            <li>- {{.UI.T "error.upload.expired"}}</li>
-            <li>- {{.UI.T "error.upload.limit"}}</li>
-            <li>- {{.UI.T "error.upload.invalidURL"}}</li>
-          </ul></i>
-   {{ end }}
-   
-   {{ if eq .ErrorId 2 }}
-        <h2 class="card-title">
-          {{.UI.T "error.cipher.title"}}
-        </h2>
-        <br>
-          {{.UI.T "error.cipher.help"}}<br><br>
-          {{.UI.T "error.cipher.contact"}}
-   {{ end }}
-   
-   {{ if eq .ErrorId 3 }}
-       <h2 class="card-title">{{.UI.T "error.unauthorized.title"}}</h2>
-		    <br>
-		    <p class="card-text">{{.UI.T "error.unauthorized.help"}}</p><br><br>
-		    <a href="./login?consent=true" class="card-link">{{.UI.T "error.otherUser"}}</a>
-   {{ end }}
-    
-{{ else }}
-   
-   {{ if eq .ErrorId 4 }}
-		 <h2 class="card-title">{{.UI.T "error.oidc.title"}} {{.UI.T .ErrorTitle}}</h2>
-				    <br>
-				    <p class="card-text"><b>{{.UI.T "error.oidc.help"}}</b></p>
-		{{ if .ErrorOauthMessage }}
-				 <p class="text-monospace">{{ .ErrorOauthMessage }}</p>
-		{{ end}}
-				 <p class="text-monospace">{{.UI.T .ErrorMessage}}</p><br>
-				    <a href="./login?consent=true" class="card-link">{{.UI.T "common.retry"}}</a>
-   {{ else }}
-   
-        <h2 class="card-title">
-          {{.UI.T .ErrorTitle}}
-        </h2>
-        <br>
-          {{.UI.T .ErrorMessage}}
-   {{ end }}
-
-{{ end }}
-
-
-
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-{{ template "pagename" "PublicError"}}
-{{ template "customjs" .}}
+<section class="public-panel public-panel-wide" aria-labelledby="errorTitle">
+  <i class="bi bi-exclamation-circle public-icon" aria-hidden="true"></i>
+  {{if .IsGenericError}}
+    {{if eq .ErrorId 0}}
+      <h1 id="errorTitle">{{.UI.T "error.notFound.title"}}</h1>
+      <p>{{.UI.T "error.notFound.help"}}</p>
+      <p>{{.UI.T "error.requestNewLink"}}</p>
+    {{end}}
+    {{if eq .ErrorId 1}}
+      <h1 id="errorTitle">{{.UI.T "error.upload.title"}}</h1>
+      <p>{{.UI.T "error.upload.reasons"}}</p>
+      <ul class="public-reasons"><li>{{.UI.T "error.upload.expired"}}</li><li>{{.UI.T "error.upload.limit"}}</li><li>{{.UI.T "error.upload.invalidURL"}}</li></ul>
+      <p>{{.UI.T "error.requestNewLink"}}</p>
+    {{end}}
+    {{if eq .ErrorId 2}}
+      <h1 id="errorTitle">{{.UI.T "error.cipher.title"}}</h1>
+      <p>{{.UI.T "error.cipher.help"}}</p><p>{{.UI.T "error.cipher.contact"}}</p>
+    {{end}}
+    {{if eq .ErrorId 3}}
+      <h1 id="errorTitle">{{.UI.T "error.unauthorized.title"}}</h1>
+      <p>{{.UI.T "error.unauthorized.help"}}</p>
+      <a href="./login?consent=true" class="btn btn-primary text-white">{{.UI.T "error.otherUser"}}</a>
+    {{end}}
+  {{else}}
+    {{if eq .ErrorId 4}}
+      <h1 id="errorTitle">{{.UI.T "error.oidc.title"}} {{.UI.T .ErrorTitle}}</h1>
+      <p>{{.UI.T "error.oidc.help"}}</p>
+      {{if .ErrorOauthMessage}}<p class="font-monospace">{{.ErrorOauthMessage}}</p>{{end}}
+      <p class="font-monospace">{{.UI.T .ErrorMessage}}</p>
+      <a href="./login?consent=true" class="btn btn-primary text-white">{{.UI.T "common.retry"}}</a>
+    {{else}}
+      <h1 id="errorTitle">{{.UI.T .ErrorTitle}}</h1><p>{{.UI.T .ErrorMessage}}</p>
+    {{end}}
+  {{end}}
+</section>
+{{template "pagename" "PublicError"}}
+{{template "customjs" .}}
 {{template "footer" .UI}}
 {{end}}

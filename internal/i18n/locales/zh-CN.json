@@ -596,5 +596,15 @@
   "status.workspaceHelp": "查看服务器资源使用情况与活动日志。",
   "status.noEvents": "当前筛选下暂无日志。",
   "status.logsDeleted": "已删除所选范围的日志。",
-  "status.trafficReset": "流量统计已重置。"
+  "status.trafficReset": "流量统计已重置。",
+  "login.help": "登录以管理文件和分享。",
+  "login.back": "返回登录",
+  "download.passwordHelp": "请输入分享者提供的密码以访问文件。",
+  "error.requestNewLink": "请联系分享者获取新的链接。",
+  "download.initialiseFailed": "无法加载解密组件。",
+  "download.transferring": "正在解密并传输，请保持页面打开。",
+  "download.transferred": "传输已完成，请查看浏览器下载列表。",
+  "download.browserStarted": "已请求下载，请查看浏览器下载列表。",
+  "download.reopenHelp": "请重新打开原始分享链接后重试；若链接已过期，请联系分享者获取新链接。",
+  "download.transferFailed": "下载未完成，请从原始分享链接重新尝试。"
 }

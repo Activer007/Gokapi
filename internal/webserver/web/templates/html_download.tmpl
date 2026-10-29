@@ -1,60 +1,25 @@
 {{define "download"}}{{template "header" .}}
-
-<div class="container-fluid download-wrapper p-4">
-    <div class="file-card card">
-        <div class="card-body p-5 text-center">
-            
-            <div class="icon-container">
-                {{ if .EndToEndEncryption }}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-lock-fill" viewBox="0 0 16 16">
-                        <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
-                    </svg>
-                {{ else }}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-file-earmark-code-fill" viewBox="0 0 16 16">
-                        <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1z"/>
-                    </svg>
-                {{ end }}
-            </div>
-
-            {{ if .EndToEndEncryption }}
-                <h4 id="filename" class="card-title filename-text mb-2">{{.UI.T "download.decrypting"}}</h4>
-                <div class="mb-4">
-                    <span class="badge rounded-pill bg-info text-dark">{{.UI.T "download.encrypted"}}</span>
-                </div>
-            {{ else }}
-                <h4 id="filename" class="card-title filename-text mb-4">{{ .Name }}</h4>
-            {{ end }}
-
-            <ul class="list-group mb-4">
-                <li class="list-group-item d-flex justify-content-between align-items-center dark-list-item">
-                    <span>{{.UI.T "download.size"}}</span>
-                    <span class="text-white fw-bold">{{ .Size }}</span>
-                </li>
-            </ul>
-
-            <div id="buttondiv" class="d-grid gap-2">
-                {{ if .ClientSideDecryption }}
-                    <button id="downloadbutton" class="btn btn-primary btn-lg" type="button" disabled onclick="Download(this);">
-                        <span id="wasmspinner" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        {{.UI.T "common.loading"}}
-                    </button>
-                {{ else }}
-                    <button class="btn btn-primary btn-lg" type="button" onclick="Download(this);">
-                        {{.UI.T "download.action"}}
-                    </button>
-                {{ end }}
-            </div>
-
-            <div id="errordiv" class="mt-3" style="display:none">
-                <div class="alert alert-danger bg-danger text-white border-0" role="alert">
-                    <div id="errormessage" class="small"></div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-
+<section class="public-panel public-download" aria-labelledby="filename">
+  <img class="download-art" src="./assets/brand/share-folder-v1.png" width="200" height="132" alt="" aria-hidden="true">
+  {{if .EndToEndEncryption}}
+    <h1 id="filename" class="filename-text">{{.UI.T "download.decrypting"}}</h1>
+    <span class="badge text-bg-secondary"><i class="bi bi-lock me-1" aria-hidden="true"></i>{{.UI.T "download.encrypted"}}</span>
+  {{else}}
+    <h1 id="filename" class="filename-text">{{.Name}}</h1>
+  {{end}}
+  <dl class="download-metadata"><dt>{{.UI.T "download.size"}}</dt><dd>{{.Size}}</dd></dl>
+  <div id="buttondiv" class="download-actions">
+    {{if .ClientSideDecryption}}
+      <button id="downloadbutton" class="btn btn-primary" type="button" disabled onclick="Download(this);"><span id="wasmspinner" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>{{.UI.T "common.loading"}}</button>
+    {{else}}
+      <a id="downloadbutton" class="btn btn-primary text-white" href="./downloadFile?id={{.Id}}" onclick="Download(this);">{{.UI.T "download.action"}}</a>
+    {{end}}
+  </div>
+  <p id="downloadStatus" class="download-state" role="status"></p>
+  <div id="errordiv" class="public-form-error" style="display:none" role="alert">
+    <div id="errormessage"></div><p class="mt-2 mb-0">{{.UI.T "download.reopenHelp"}}</p>
+  </div>
+</section>
 {{ if .ClientSideDecryption }}
         <script src="./js/min/polyfill.min.js"></script>
         <script src="./js/min/streamsaver.min.js"></script>
@@ -70,32 +35,23 @@
 
         var wasm;
 
-        try {
-            if ('instantiateStreaming' in WebAssembly) {
-            WebAssembly.instantiateStreaming(fetch(WASM_URL), go.importObject).then(function(obj) {
+        async function initialiseDownload() {
+            try {
+                const response = await fetch(WASM_URL);
+                if (!response.ok) throw new Error(t("download.initialiseFailed"));
+                const obj = 'instantiateStreaming' in WebAssembly
+                    ? await WebAssembly.instantiateStreaming(response, go.importObject)
+                    : await WebAssembly.instantiate(await response.arrayBuffer(), go.importObject);
                 wasm = obj.instance;
-                go.run(wasm);
+                go.run(wasm).catch(displayError);
                 document.getElementById("wasmspinner").style.display = "none";
                 document.getElementById("downloadbutton").disabled = false;
                 document.getElementById("downloadbutton").textContent = t("download.action");
-            })
-            } else {
-            fetch(WASM_URL).then(resp =>
-                resp.arrayBuffer()
-            ).then(bytes =>
-                WebAssembly.instantiate(bytes, go.importObject).then(function(obj) {
-                wasm = obj.instance;
-                go.run(wasm);
-                document.getElementById("wasmspinner").style.display = "none";
-                document.getElementById("downloadbutton").disabled = false;
-                document.getElementById("downloadbutton").textContent = t("download.action");
-                })
-            )
+            } catch (err) {
+                displayError(err);
             }
-        } catch (err) {
-            displayError(err);
         }
-
+        initialiseDownload();
 
         async function DownloadEncrypted() {
             window.gokapiTransferBusy = true;
@@ -138,16 +94,18 @@
                     writer.write(res.value).then(pump))
 
                 await pump();
+                document.getElementById("downloadStatus").textContent = t("download.transferred");
             } catch (err) {
                 // Propagate a failed read to the output so a partial download
                 // cannot remain open or be closed as a successful file.
                 await Promise.allSettled([reader?.cancel(err), writer?.abort(err)]);
-                if (err.message.includes("Failed to fetch")) {
+                const message = String(err?.message || err || t("download.transferFailed"));
+                if (message.includes("Failed to fetch")) {
                     console.log(err);
                 displayError(t("download.cors"));
                     
                 } else {
-                displayError(err);
+                displayError(message);
                 }
             } finally {
                 window.gokapiTransferBusy = false;
@@ -155,16 +113,17 @@
         }
 
         function displayError(err) {
+            document.getElementById("downloadStatus").textContent = "";
             document.getElementById("buttondiv").style.display = "none";
             document.getElementById("errordiv").style.display = "block";
-            document.getElementById("errormessage").textContent = t("common.error") + ": " + err.toString().replace(/^Error:/gi, "");
+            document.getElementById("errormessage").textContent = t("common.error") + ": " + String(err?.message || err || t("download.transferFailed")).replace(/^Error:/gi, "");
             console.error('Caught exception', err)
         }
 
 
         function Download(button) {
             button.disabled = true;
-            
+            document.getElementById("downloadStatus").textContent = t("download.transferring");
             DownloadEncrypted().catch(err => {
                 console.error('Error during download:', err);
                 displayError(err);
@@ -176,8 +135,7 @@
 
         <script> 
            function Download(button) {
-             button.disabled = true;
-             location.href = "./downloadFile?id={{ .Id }}";
+             document.getElementById("downloadStatus").textContent = t("download.browserStarted");
            }
         </script>
 {{ end }}
