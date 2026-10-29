@@ -1,8 +1,10 @@
 {{define "setup"}}<!DOCTYPE html>
-<html lang="en">
+<html lang="{{.UI.Language}}">
 	<head>
-		<title>Gokapi Setup</title>
+		<title>{{.UITitle}}</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script>window.gokapiMessages = {{.UI.Messages}};</script>
+        <script src="./ui.js?v=1"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link href="./bootstrap/bootstrap.css" rel="stylesheet">
 		<link href="./src/bootstrap-wizard.css" rel="stylesheet">
@@ -71,34 +73,38 @@
 
 		
 
-		<div class="wizard" id="satellite-wizard" data-title="Gokapi Setup">
+		<div class="wizard" id="satellite-wizard" data-title="{{$.UI.T "setup.title"}}">
 
 
 
 			<!-- Step 0 Welcome -->
-			<div class="wizard-card wizard-card-overlay" data-cardname="Welcome">
-				<h3>Welcome</h3>
+			<div class="wizard-card wizard-card-overlay" data-cardname="{{$.UI.T "setup.welcome"}}">
+				<h3>{{$.UI.T "setup.welcome"}}</h3>
+                <div style="margin-bottom:15px" aria-label="{{.UI.T "language.label"}}">
+                    <button type="button" class="btn" onclick="switchSetupLanguage('zh-CN')" lang="zh-CN">中文</button>
+                    <button type="button" class="btn" onclick="switchSetupLanguage('en')" lang="en">English</button>
+                </div>
 
 				<div class="wizard-input-section">
 				
 {{ if .IsInitialSetup }}
 					<p>
-						Thank you for choosing Gokapi! This setup will guide you through the Gokapi installation. For further information please refer to the <a href="https://gokapi.readthedocs.io/en/stable/" title="Gokapi Documentation" target="_blank">documentation</a>.
+						{{$.UI.T "setup.welcomeIntro"}} <a href="https://gokapi.readthedocs.io/en/stable/" title="{{$.UI.T "setup.documentationTitle"}}" target="_blank">{{$.UI.T "setup.documentation"}}</a>.
 					</p>
 {{ else }}
 					<p>
-						You can now change the Gokapi configuration. For further information please refer to the <a href="https://gokapi.readthedocs.io/en/stable/" title="Gokapi Documentation" target="_blank" rel="noopener noreferrer">documentation</a>.
+						{{$.UI.T "setup.reconfigureIntro"}} <a href="https://gokapi.readthedocs.io/en/stable/" title="{{$.UI.T "setup.documentationTitle"}}" target="_blank" rel="noopener noreferrer">{{$.UI.T "setup.documentation"}}</a>.
 					</p>
 {{ end }}
 					<br>
 {{ if .IsDataNotMounted }}
 					<p>
-					<span style="color:#FF0000;"><b>Warning:</b> It appears that your <code>/app/data</code> directory has not been mounted as a volume. This will result in complete data loss once you update or rebuild this container!</span>
+					<span style="color:#FF0000;"><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.dataMountBefore"}} <code>/app/data</code> {{$.UI.T "setup.mountAfter"}}</span>
 					</p>
 {{ end }}
 {{ if .IsConfigNotMounted }}
 					<p>
-					<span style="color:#FF0000;"><b>Warning:</b> It appears that your <code>/app/config</code> directory has not been mounted as a volume. This will result in complete data loss once you update or rebuild this container!</span>
+					<span style="color:#FF0000;"><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.dataMountBefore"}} <code>/app/config</code> {{$.UI.T "setup.mountAfter"}}</span>
 					</p>
 {{ end }}
 
@@ -106,40 +112,40 @@
 			</div>
 			<!-- Step 1 DB Location -->
 			<div class="wizard-card wizard-card-overlay" data-cardname="dblocation">
-				<h3 style="display:none">Database</h3>
+				<h3 style="display:none">{{$.UI.T "setup.database"}}</h3>
 
 				<div class="wizard-input-section">
 					<div class="form-group">
 					
 {{ if not .IsInitialSetup }}
 				<p>
-					<span style="color:red"><b>Warning:</b> When changing database parameters, ensure you first migrate the database to the new location using <code>gokapi migrate-database</code> before finalising the setup.</span>
+					<span style="color:red"><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.migrateBefore"}} <code>gokapi migrate-database</code> {{$.UI.T "setup.migrateAfter"}}</span>
 				</p><br>
 {{ end }}
 
-							  <label for="dbtype_sel">Type of database</label>
+							  <label for="dbtype_sel">{{$.UI.T "setup.databaseType"}}</label>
 						<select name="dbtype_sel" id="dbtype_sel"  style="width:350px;" class="select form-control"  onChange="dbChanged()">	
 								<option value="0" selected>SQLite</option>
 								<option value="1">Redis</option>
 
 						</select><br>
 						<div id="divsqlite">
-							<label for="sqlite_location">Database location:</label>
-							<input type="text" class="form-control" id="sqlite_location" name="sqlite_location" value="./data/gokapi.sqlite" placeholder="Database location" required><br>
+							<label for="sqlite_location">{{$.UI.T "setup.databaseLocation"}}:</label>
+							<input type="text" class="form-control" id="sqlite_location" name="sqlite_location" value="./data/gokapi.sqlite" placeholder="{{$.UI.T "setup.databaseLocation"}}" required><br>
 						</div>
 						<div id="divredis" style="display: none;">
-							<label for="redis_location">Database host:</label>
-							<input type="text" class="form-control" id="redis_location" name="redis_location" value="127.0.0.1:6379" placeholder="Database host" required><br>
-							<label for="redis_prefix">Key prefix:</label>
-							<input type="text" class="form-control" id="redis_prefix" name="redis_prefix" value="gokapi_" placeholder="(optional)"><br>				
-							<label for="redis_user">Username:</label>
-							<input type="text" class="form-control" id="redis_user" name="redis_user" value="" placeholder="(optional)"><br>				
-							<label for="redis_password">Password (stored in plain text):</label>
-							<input type="text" class="form-control" id="redis_password" name="redis_password" value="" placeholder="(optional)"><br>				
-							<label for="redis_ssl_sel">Use SSL</label>
+							<label for="redis_location">{{$.UI.T "setup.databaseHost"}}:</label>
+							<input type="text" class="form-control" id="redis_location" name="redis_location" value="127.0.0.1:6379" placeholder="{{$.UI.T "setup.databaseHost"}}" required><br>
+							<label for="redis_prefix">{{$.UI.T "setup.keyPrefix"}}:</label>
+                            <input type="text" class="form-control" id="redis_prefix" name="redis_prefix" value="gokapi_" placeholder="{{$.UI.T "setup.optional"}}"><br>
+							<label for="redis_user">{{$.UI.T "setup.username"}}:</label>
+                            <input type="text" class="form-control" id="redis_user" name="redis_user" value="" placeholder="{{$.UI.T "setup.optional"}}"><br>
+							<label for="redis_password">{{$.UI.T "setup.passwordPlain"}}:</label>
+                            <input type="text" class="form-control" id="redis_password" name="redis_password" value="" placeholder="{{$.UI.T "setup.optional"}}"><br>
+							<label for="redis_ssl_sel">{{$.UI.T "setup.useSSL"}}</label>
 							<select name="redis_ssl_sel" id="redis_ssl_sel" style="width:350px;" class="select form-control">
-								<option value="0" selected>No</option>
-								<option value="1">Yes</option>
+								<option value="0" selected>{{$.UI.T "setup.no"}}</option>
+								<option value="1">{{$.UI.T "setup.yes"}}</option>
 							</select>
 						</div>
 					</div>
@@ -149,39 +155,39 @@
 			
 			<!-- Step 2 Webserver -->
 			<div class="wizard-card wizard-card-overlay" data-cardname="webserver1">
-				<h3 style="display:none">Webserver 1/2</h3>
+				<h3 style="display:none">{{$.UI.T "setup.webserver1"}}</h3>
 
 				<div class="wizard-input-section">
 					<div class="form-group">
 
-							  <label for="localhost_sel">Make webserver only accessable on this machine (bind to localhost)</label>
+							  <label for="localhost_sel">{{$.UI.T "setup.localhost"}}</label>
 						<select name="localhost_sel" id="localhost_sel"  style="width:350px;" class="select form-control" {{ if .IsDocker }}disabled{{ end }}>	
 {{ if .IsDocker }}
-								<option value="0" selected>Not supported in Docker</option>
+								<option value="0" selected>{{$.UI.T "setup.dockerUnsupported"}}</option>
 {{ else }}
-								<option value="0" selected>No</option>
-								<option value="1">Yes</option>
+								<option value="0" selected>{{$.UI.T "setup.no"}}</option>
+								<option value="1">{{$.UI.T "setup.yes"}}</option>
 {{ end }}
 
 						</select><br>
 							
-							  <label for="ssl_sel">Use SSL (a self-signed certificate will be generated that can be replaced)</label>
+							  <label for="ssl_sel">{{$.UI.T "setup.sslHelp"}}</label>
 						<select name="ssl_sel" id="ssl_sel" style="width:350px;" onChange="urlParamChanged()" class="select form-control">
-								<option value="0" selected>No</option>
-								<option value="1">Yes</option>
+								<option value="0" selected>{{$.UI.T "setup.no"}}</option>
+								<option value="1">{{$.UI.T "setup.yes"}}</option>
 
 						</select><br>
 						
-							  <label for="logip_sel">Log IP address on download <i>(might not be GDPR compliant)</i></label>
+							  <label for="logip_sel">{{$.UI.T "setup.logIP"}} <i>{{$.UI.T "setup.privacyNote"}}</i></label>
 						<select name="logip_sel" id="logip_sel" style="width:350px;" class="select form-control">
-								<option value="0" selected>No</option>
-								<option value="1">Yes</option>
+								<option value="0" selected>{{$.UI.T "setup.no"}}</option>
+								<option value="1">{{$.UI.T "setup.yes"}}</option>
 						</select><br>
 						
-							  <label for="showfilename_sel">Include filename in download URL</label>
+							  <label for="showfilename_sel">{{$.UI.T "setup.includeFilename"}}</label>
 						<select name="showfilename_sel" id="showfilename_sel" style="width:350px;" class="select form-control">
-								<option value="0" selected>No</option>
-								<option value="1">Yes</option>
+								<option value="0" selected>{{$.UI.T "setup.no"}}</option>
+								<option value="1">{{$.UI.T "setup.yes"}}</option>
 						</select>
 					</div>
 				</div>
@@ -189,29 +195,29 @@
 			
 			<!-- Step 3 Webserver 2 -->
 			<div class="wizard-card wizard-card-overlay" data-cardname="webserver2">
-				<h3 style="display:none">Webserver 2/2</h3>
+				<h3 style="display:none">{{$.UI.T "setup.webserver2"}}</h3>
 
 				<div class="wizard-input-section">
 					<div class="form-group">
 
-							  <label for="public_name">Public Name:</label>
-								<input type="text" class="form-control" id="public_name" name="public_name" value="Gokapi" placeholder="Public Name" required>
-							  <br><label for="port">Port:</label>
+							  <label for="public_name">{{$.UI.T "setup.publicName"}}:</label>
+								<input type="text" class="form-control" id="public_name" name="public_name" value="Gokapi" placeholder="{{$.UI.T "setup.publicName"}}" required>
+							  <br><label for="port">{{$.UI.T "setup.port"}}:</label>
 {{ if .IsDocker }}
-							<input type="number" class="form-control" id="port" value="53842" placeholder="Port number" disabled>
+							<input type="number" class="form-control" id="port" value="53842" placeholder="{{$.UI.T "setup.portNumber"}}" disabled>
 							<input type="hidden" class="form-control" name="port" value="53842">
 {{ else }}
-							<input type="number" class="form-control" id="port" name="port" value="53842" min="1" max="65535" placeholder="Port number" data-min="1" data-validate="validateMinLength" required onChange="urlParamChanged()">
+							<input type="number" class="form-control" id="port" name="port" value="53842" min="1" max="65535" placeholder="{{$.UI.T "setup.portNumber"}}" data-min="1" data-validate="validateMinLength" required onChange="urlParamChanged()">
 {{ end }}
 							
 
-							  <br><label for="url">Public facing URL:</label>
-								<input type="text" class="form-control" id="url" name="url" value="http://127.0.0.1:53842/" placeholder="Public URL" data-min="8" required data-validate="validateUrl">
+							  <br><label for="url">{{$.UI.T "setup.publicURLLabel"}}</label>
+								<input type="text" class="form-control" id="url" name="url" value="http://127.0.0.1:53842/" placeholder="{{$.UI.T "setup.publicURL"}}" data-min="8" required data-validate="validateUrl">
 							
 							
 
-							  <br><label for="url_redirection">Redirection URL for the index:</label>
-								<input type="text" class="form-control" id="url_redirection" name="url_redirection" value="https://github.com/Forceu/Gokapi/" placeholder="Redirection URL" required data-min="1" data-validate="validateMinLength">
+							  <br><label for="url_redirection">{{$.UI.T "setup.redirectLabel"}}</label>
+								<input type="text" class="form-control" id="url_redirection" name="url_redirection" value="https://github.com/Forceu/Gokapi/" placeholder="{{$.UI.T "setup.redirectURL"}}" required data-min="1" data-validate="validateMinLength">
 						</div>
 				</div>
 			</div>
@@ -221,24 +227,24 @@
 
 			<!-- Step 4 Auth -->
 			<div class="wizard-card wizard-card-overlay" data-cardname="authentication">
-				<h3 style="display:none">Authentication</h3>
+				<h3 style="display:none">{{$.UI.T "setup.authentication"}}</h3>
 
 				<div class="wizard-input-section">
 					<div class="form-group">
 					<p>
-						Please select the method for logging in to the admin panel
+						{{$.UI.T "setup.authChoose"}}
 					</p>
 
 
 						<select name="authentication_sel" id="authentication_sel" style="width:350px;" class="select form-control" onchange="authSelectionChanged(this.value);">
-							<optgroup label="Standalone">
-								<option value="0" selected>Username / Password</option>
+							<optgroup label="{{$.UI.T "setup.standalone"}}">
+								<option value="0" selected>{{$.UI.T "setup.usernamePassword"}}</option>
 								<option value="1" >OAuth2 OpenID Connect</option>
 							</optgroup>
 
-							<optgroup label="Reverse Proxy">
-								<option value="2">Trusted Header Authentication</option>
-								<option value="3">Disabled / Access Restriction</option>
+							<optgroup label="{{$.UI.T "setup.reverseProxy"}}">
+								<option value="2">{{$.UI.T "setup.trustedHeader"}}</option>
+								<option value="3">{{$.UI.T "setup.disabledAuth"}}</option>
 							</optgroup>
 
 						</select>
@@ -248,23 +254,23 @@
 
 			<!-- Step 5a Credentials PW -->
 			<div class="wizard-card wizard-card-overlay" data-cardname="credentials">
-				<h3 style="display:none">Credentials</h3>
+				<h3 style="display:none">{{$.UI.T "setup.credentials"}}</h3>
 
 
 				<div class="wizard-input-section">
 						<div class="form-group">
 					<p>
-						Please enter a username and password for the admin user
+						{{$.UI.T "setup.credentialsHelp"}}
 					</p>
 
 							<div class="col-sm-8">
-								<input type="text" class="form-control" id="auth_username" name="auth_username" placeholder="Username" data-min="3" required data-validate="validateMinLength">
+								<input type="text" class="form-control" id="auth_username" name="auth_username" placeholder="{{$.UI.T "setup.username"}}" data-min="3" required data-validate="validateMinLength">
 							</div><br><br>
 							<div class="col-sm-8">
-								<input type="password" autocomplete="new-password" class="form-control" id="auth_pw" name="auth_pw" placeholder="Password" data-min={{ .MinPasswordLength }} required data-validate="validatePassword">
+								<input type="password" autocomplete="new-password" class="form-control" id="auth_pw" name="auth_pw" placeholder="{{$.UI.T "setup.password"}}" data-min={{ .MinPasswordLength }} required data-validate="validatePassword">
 							</div><br><br>
 							<div class="col-sm-8">
-								<input type="password" autocomplete="new-password" class="form-control" id="auth_pw2" name="auth_pw2" placeholder="Password (repeat)" data-min={{ .MinPasswordLength }} required>
+								<input type="password" autocomplete="new-password" class="form-control" id="auth_pw2" name="auth_pw2" placeholder="{{$.UI.T "setup.passwordRepeat"}}" data-min={{ .MinPasswordLength }} required>
 						</div>
 					</div>
 
@@ -274,65 +280,65 @@
 			
 			<!-- Step 5b Credentials Oauth -->
 			<div class="wizard-card wizard-card-overlay" data-cardname="credentials-oauth">
-				<h3 style="display:none">Credentials</h3>
+				<h3 style="display:none">{{$.UI.T "setup.credentials"}}</h3>
 
 
 					<div class="wizard-input-section">
 						<div class="form-group">
 					<p>
-						Please enter the OIDC client configuration. Groups can be separated with a semicolon. The <a href="https://gokapi.readthedocs.io/en/stable/setup.html#oauth2-openid-connect" target="_blank" rel="noopener noreferrer">documentation</a> has examples on how to configure for different providers.<br>
+						{{$.UI.T "setup.oidcIntro"}} <a href="https://gokapi.readthedocs.io/en/stable/setup.html#oauth2-openid-connect" target="_blank" rel="noopener noreferrer">{{$.UI.T "setup.documentation"}}</a> {{$.UI.T "setup.oidcAfter"}}<br>
 					</p>
 
 							<div class="col-sm-8" style="width:90%">
-							  <label for="oauth_provider">Provider URL:</label>
-								<input type="text" class="form-control" id="oauth_provider" name="oauth_provider" placeholder="Provider URL" data-min="1" required data-validate="validateMinLength">
+							  <label for="oauth_provider">{{$.UI.T "setup.providerURL"}}:</label>
+								<input type="text" class="form-control" id="oauth_provider" name="oauth_provider" placeholder="{{$.UI.T "setup.providerURL"}}" data-min="1" required data-validate="validateMinLength">
 							</div>
 
 							<div class="col-sm-8" style="width:90%">
-							  <label for="oauth_id">Client ID:</label>
-								<input type="text" class="form-control" id="oauth_id" name="oauth_id" placeholder="Client ID" data-min="1" required data-validate="validateMinLength">
+							  <label for="oauth_id">{{$.UI.T "setup.clientID"}}:</label>
+								<input type="text" class="form-control" id="oauth_id" name="oauth_id" placeholder="{{$.UI.T "setup.clientID"}}" data-min="1" required data-validate="validateMinLength">
 							</div>
 
 							<div class="col-sm-8" style="width:90%">
-							  <label for="oauth_secret">Client Secret:</label>
-								<input type="text" class="form-control" id="oauth_secret" name="oauth_secret" placeholder="Client Secret" data-min="1" required data-validate="validateMinLength">
+							  <label for="oauth_secret">{{$.UI.T "setup.clientSecret"}}:</label>
+								<input type="text" class="form-control" id="oauth_secret" name="oauth_secret" placeholder="{{$.UI.T "setup.clientSecret"}}" data-min="1" required data-validate="validateMinLength">
 							</div>
 							<div class="col-sm-8" style="width:90%">
-							  <label for="oauth_admin_user">Admin email address:</label>
-								<input type="text" class="form-control" id="oauth_admin_user" name="oauth_admin_user" placeholder="Admin email address" data-min="3" required data-validate="validateMinLength">
+							  <label for="oauth_admin_user">{{$.UI.T "setup.adminEmail"}}:</label>
+								<input type="text" class="form-control" id="oauth_admin_user" name="oauth_admin_user" placeholder="{{$.UI.T "setup.adminEmail"}}" data-min="3" required data-validate="validateMinLength">
 							</div>
 							<div class="col-sm-8" style="width:90%">
-							Recheck identity every 
+                            {{$.UI.T "setup.recheck"}}
 							<select name="oauth_recheck_interval" id="oauth_recheck_interval" style="width:350px;" class="select form-control">
-								<option value="6"> 6 hours</option>
-								<option value="12" selected>12 hours</option>
-								<option value="24">24 hours</option>
-								<option value="72"> 3 days</option>
-								<option value="168">7 days</option>
-								<option value="336">14 days</option>
-								<option value="720">30 days</option>
+								<option value="6"> {{$.UI.T "setup.hours6"}}</option>
+								<option value="12" selected>{{$.UI.T "setup.hours12"}}</option>
+								<option value="24">{{$.UI.T "setup.hours24"}}</option>
+								<option value="72"> {{$.UI.T "setup.days3"}}</option>
+								<option value="168">{{$.UI.T "setup.days7"}}</option>
+								<option value="336">{{$.UI.T "setup.days14"}}</option>
+								<option value="720">{{$.UI.T "setup.days30"}}</option>
 						</select>
 							</div>
 							<div class="col-sm-8" style="width:90%">
-							<br>Restrict to:
+							<br>{{$.UI.T "setup.restrictTo"}}
 								  <div class="oauthscopecontainer">
 								    <div class="oauthscopes">
 								      <input type="hidden" name="oauth_restrict_groups.unchecked" value="false">
 								      <input type="checkbox" id="oauth_restrict_groups" name="oauth_restrict_groups" onchange="handleOauthCheckboxChange(this)"  value="true">
-								      <label id="label_ogroups" for="oauth_restrict_groups" class="checkboxLabel">Groups</label>
-								      <input type="text" id="oauth_scope_groups" name="oauth_scope_groups" class="input-field" placeholder="Scope identifier" data-min="1" data-validate="validateMinLength" disabled>&nbsp;
-								      <input type="text" id="oauth_allowed_groups" name="oauth_allowed_groups" class="input-field" placeholder="Authorised groups" data-min="1" data-validate="validateMinLength" disabled>
+								      <label id="label_ogroups" for="oauth_restrict_groups" class="checkboxLabel">{{$.UI.T "setup.groups"}}</label>
+								      <input type="text" id="oauth_scope_groups" name="oauth_scope_groups" class="input-field" placeholder="{{$.UI.T "setup.scopeIdentifier"}}" data-min="1" data-validate="validateMinLength" disabled>&nbsp;
+								      <input type="text" id="oauth_allowed_groups" name="oauth_allowed_groups" class="input-field" placeholder="{{$.UI.T "setup.allowedGroups"}}" data-min="1" data-validate="validateMinLength" disabled>
 								    </div>
 								    
 								     <div><br>
 								     <input type="hidden" name="oauth_only_registered_users.unchecked" value="false">
 								     <input  id="oauth_only_registered_users" name="oauth_only_registered_users" type="checkbox" value="true">
-								     <span>&nbsp;Only allow already existing users to log in</span>
+								     <span>&nbsp;{{$.UI.T "setup.registeredOnly"}}</span>
 								     </div>
 								  </div>
 							</div> 
 							<div class="col-sm-8" style="width:90%">
-							 <label for="oauth_redir"><br>Redirection URL:</label>
+							 <label for="oauth_redir"><br>{{$.UI.T "setup.redirectURL"}}:</label>
 {{ if .IsInitialSetup }}
 								<input type="text" style="cursor:default" class="form-control" id="oauth_redir" name="oauth_redir" disabled value="http://127.0.0.1:53842/oauth-callback">
 {{ else }}
@@ -347,40 +353,40 @@
 			
 			<!-- Step 5c Credentials Header -->
 			<div class="wizard-card wizard-card-overlay" data-cardname="credentials-header">
-				<h3 style="display:none">Credentials</h3>
+				<h3 style="display:none">{{$.UI.T "setup.credentials"}}</h3>
 
 
 				<div class="wizard-input-section">
 						<div class="form-group">
 					<p>
-						Enter the key of the header that will be provided from your reverse proxy containing the username.<br><br>
+						{{$.UI.T "setup.headerHelp"}}<br><br>
 					</p>
 
 							<p>
-							  <label for="auth_headerkey">Header Key:</label>
-								<input type="text" class="form-control" id="auth_headerkey" name="auth_headerkey" data-min="1" required placeholder="Header Key" data-validate="validateMinLength">
+							  <label for="auth_headerkey">{{$.UI.T "setup.headerKey"}}:</label>
+								<input type="text" class="form-control" id="auth_headerkey" name="auth_headerkey" data-min="1" required placeholder="{{$.UI.T "setup.headerKey"}}" data-validate="validateMinLength">
 							</p>
 							
 							<p>
-							  <label for="auth_header_admin">Admin user name:</label>
-								<input type="text" class="form-control" id="auth_header_admin" name="auth_header_admin" data-min="3"  data-validate="validateMinLength" required placeholder="Admin user name">
+							  <label for="auth_header_admin">{{$.UI.T "setup.adminUsername"}}:</label>
+								<input type="text" class="form-control" id="auth_header_admin" name="auth_header_admin" data-min="3"  data-validate="validateMinLength" required placeholder="{{$.UI.T "setup.adminUsername"}}">
 							</p>
 						
 						    <br>
 						     <input type="hidden" name="auth_header_only_registered_users.unchecked" value="false">
 						     <input id="auth_header_only_registered_users" name="auth_header_only_registered_users" type="checkbox" value="true">
-						     <span>&nbsp;Only allow already existing users to log in</span>
+						     <span>&nbsp;{{$.UI.T "setup.registeredOnly"}}</span>
 					</div>
 				</div>
 			</div>
 			<!-- Step 5d Credentials Disbabled -->
 			<div class="wizard-card wizard-card-overlay" data-cardname="credentials-disabled">
-				<h3 style="display:none">Credentials</h3>
+				<h3 style="display:none">{{$.UI.T "setup.credentials"}}</h3>
 
 
 				<div class="wizard-input-section">
 					<p>
-						<span style="color:#FF0000;">Warning:</span> This setting will disable authentication completely! You will need to secure the following URLs with your reverse proxy:
+						<span style="color:#FF0000;">{{$.UI.T "setup.warning"}}</span> {{$.UI.T "setup.disabledAuthHelp"}}
 						
 						<ul>
 {{ range .ProtectedUrls }}
@@ -388,7 +394,7 @@
 {{ end }}
 						</ul>
 
-						Only proceed if you know what you are doing!
+						{{$.UI.T "setup.disabledAuthProceed"}}
 					</p>
 
 				</div>
@@ -398,21 +404,21 @@
 
 			<!-- Step 6 Storage -->
 			<div class="wizard-card wizard-card-overlay" data-cardname="storage">
-				<h3 style="display:none">Storage</h3>
+				<h3 style="display:none">{{$.UI.T "setup.storage"}}</h3>
 
 				<div class="wizard-input-section">
 					<p>
-						Choose whether to store files locally or on an S3-compatible cloud infrastructure.
+						{{$.UI.T "setup.storageChoose"}}
 					</p>
 
 					<select name="storage_sel" id="storage_sel" style="width:350px;" class="select form-control" onchange="storageSelectionChanged(this.selectedIndex);">
-							<option value="local" selected>Local Storage</option>
-							<option value="cloud" {{ if not .HasAwsFeature }} disabled {{ end }} >Cloud Storage</option>
+							<option value="local" selected>{{$.UI.T "setup.localStorage"}}</option>
+							<option value="cloud" {{ if not .HasAwsFeature }} disabled {{ end }} >{{$.UI.T "setup.cloudStorage"}}</option>
 
 					</select>
 					
 {{ if not .HasAwsFeature }}
-					<p><br><br><i>This build has been compiled without AWS support, therefore cloud storage is not available.</i></p>
+					<p><br><br><i>{{$.UI.T "setup.noAWS"}}</i></p>
 					
 			  				<input type="hidden" id="storage_sel_image" name="storage_sel_image" value="nochange">
 
@@ -422,19 +428,19 @@
 					<div id="cloudstorage_options" style="visibility: hidden">
 
 						<br><p>
-							Location for picture files: Select local storage if you require full encryption but still need hotlink support.
+							{{$.UI.T "setup.picturesLocation"}}
 						</p>
 						<select name="storage_sel_image" id="storage_sel_image" style="width:350px;" class="select form-control">
-								<option value="nochange" selected>Use cloud storage</option>
-								<option value="local">Use local storage for pictures</option>
+								<option value="nochange" selected>{{$.UI.T "setup.useCloud"}}</option>
+								<option value="local">{{$.UI.T "setup.localPictures"}}</option>
 
 						</select>
 						<br><p>
-							To conserve bandwidth, Gokapi defaults to redirecting to pre-signed S3 download URLs. If you prefer not to use this feature or if your S3 server is only accessible from your internal network, select the "Proxy downloads" option below.
+							{{$.UI.T "setup.proxyHelp"}}
 						</p>
 						<select name="storage_sel_proxy" id="storage_sel_proxy" style="width:350px;" class="select form-control">
-								<option value="presigned" selected>Default</option>
-								<option value="proxy">Proxy downloads</option>
+								<option value="presigned" selected>{{$.UI.T "setup.default"}}</option>
+								<option value="proxy">{{$.UI.T "setup.proxyDownloads"}}</option>
 
 						</select>
 					</div>
@@ -447,41 +453,41 @@
 			
 			<!-- Step 7 S3 Credentials -->
 			<div class="wizard-card wizard-card-overlay" data-cardname="s3credentials">
-				<h3 style="display:none">S3 Credentials</h3>
+				<h3 style="display:none">{{$.UI.T "setup.s3Credentials"}}</h3>
 
 				<div class="wizard-input-section">
 				
 					<div class="form-group">
 							<div class="col-sm-8">
 {{ if not .S3EnvProvided }}
-							  <label for="s3_bucket">Bucket Name:</label>
-								<input type="text" class="form-control" id="s3_bucket" name="s3_bucket" placeholder="Bucket Name" data-min="1" data-validate="validateMinLength">
+							  <label for="s3_bucket">{{$.UI.T "setup.bucketName"}}:</label>
+								<input type="text" class="form-control" id="s3_bucket" name="s3_bucket" placeholder="{{$.UI.T "setup.bucketName"}}" data-min="1" data-validate="validateMinLength">
 							</div><br><br>
 							<div class="col-sm-8">
-							  <label for="s3_region">Region Name:</label>
-								<input type="text" class="form-control" id="s3_region" name="s3_region" placeholder="Region Name" required data-min="1" data-validate="validateMinLength">
+							  <label for="s3_region">{{$.UI.T "setup.regionName"}}:</label>
+								<input type="text" class="form-control" id="s3_region" name="s3_region" placeholder="{{$.UI.T "setup.regionName"}}" required data-min="1" data-validate="validateMinLength">
 							</div><br><br>
 							<div class="col-sm-8">
-							  <label for="s3_api">API Key:</label>
-								<input type="text" class="form-control" id="s3_api" name="s3_api" placeholder="API Key" required data-min="1" data-validate="validateMinLength">
+							  <label for="s3_api">{{$.UI.T "setup.apiKey"}}:</label>
+								<input type="text" class="form-control" id="s3_api" name="s3_api" placeholder="{{$.UI.T "setup.apiKey"}}" required data-min="1" data-validate="validateMinLength">
 							</div><br><br>
 							
 							<div class="col-sm-8">
-							  <label for="s3_secret">API Key Secret:</label>
-								<input type="text" class="form-control" id="s3_secret" name="s3_secret" placeholder="API Key Secret" required data-min="1" data-validate="validateMinLength">
+							  <label for="s3_secret">{{$.UI.T "setup.apiKeySecret"}}:</label>
+								<input type="text" class="form-control" id="s3_secret" name="s3_secret" placeholder="{{$.UI.T "setup.apiKeySecret"}}" required data-min="1" data-validate="validateMinLength">
 							</div><br><br>
 							<div class="col-sm-8">
-							  <label for="s3_endpoint">Endpoint:</label>
-								<input type="text" class="form-control" id="s3_endpoint" name="s3_endpoint" placeholder="Endpoint (leave blank if AWS S3)">
+							  <label for="s3_endpoint">{{$.UI.T "setup.endpoint"}}</label>
+								<input type="text" class="form-control" id="s3_endpoint" name="s3_endpoint" placeholder="{{$.UI.T "setup.endpointHint"}}">
 							<br><br>			  
 	  						 <button id="downloadbutton" class="btn btn-light" type="button" onclick="TestAWS(this, true);">
-			  					Test configuration
+                                {{$.UI.T "setup.testConfiguration"}}
 			  				</button>	
 {{ else }}
-							Credentials have been provided with environment variables and cannot be changed.
+							{{$.UI.T "setup.envCredentials"}}
 							<br><br>
 	  						 <button id="downloadbutton" class="btn btn-light" type="button" onclick="TestAWS(this, false);">
-			  					Test configuration
+                                {{$.UI.T "setup.testConfiguration"}}
 			  				</button>
 			  				<input type="hidden" id="s3_bucket" name="s3_bucket">
 			  				<input type="hidden" id="s3_region" name="s3_region" >
@@ -501,7 +507,7 @@ function TestAWS(button, isManual) {
     button.disabled = true;
 {{ if .IsInitialSetup }}
     if (sessionStorage.getItem("awstestpw") == null || sessionStorage.getItem("awstestpw") == "") {
-        let pw = window.prompt("To test the AWS connection, enter the setup password from the local credential file.", "");
+        let pw = window.prompt(t("setup.awsPasswordPrompt"), "");
         if (pw == "" || pw == null) {
     	    button.disabled = false;
             return;
@@ -511,12 +517,12 @@ function TestAWS(button, isManual) {
     }
 {{ end }}
 
-    button.innerHTML = "Connecting...";
+    button.textContent = t("setup.connecting");
 
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
         if (this.readyState === XMLHttpRequest.DONE) {
-            button.innerHTML = "Test configuration";
+            button.textContent = t("setup.testConfiguration");
             button.disabled = false;
 
             let response = {};
@@ -524,22 +530,22 @@ function TestAWS(button, isManual) {
                 response = JSON.parse(xhr.responseText);
             } catch (e) {
                 response = {
-                    result: "Error: Could not parse server response."
+                    result: t("setup.parseFailed")
                 };
             }
 
 
             switch (this.status) {
                 case 200:
-                    alert(response.result || "Test OK.");
+                    alert(setupResponseMessage(response) || t("setup.testOK"));
                     break;
                 case 401:
                     sessionStorage.setItem("awstestpw", "");
-                    alert("Incorrect AWS Test Password.\nPlease enter the setup password from the local credential file.");
+                    alert(t("setup.awsPasswordWrong"));
                     break;
                 default:
-                    const errorMessage = response.result || "An unexpected error occurred";
-                    alert(`Error: ${errorMessage}`);
+                    const errorMessage = setupResponseMessage(response) || t("setup.unexpected");
+                    alert(t("common.error") + ": " + errorMessage);
             }
         }
     };
@@ -570,124 +576,124 @@ function TestAWS(button, isManual) {
 
 			<!-- Step 7 Encryption -->
 			<div class="wizard-card wizard-card-overlay" data-cardname="encryption">
-				<h3 style="display:none">Encryption Level</h3>
+				<h3 style="display:none">{{$.UI.T "setup.encryptionLevel"}}</h3>
 
 				<div class="wizard-input-section">
 						<div class="form-group">
 					
 {{ if not .IsInitialSetup }}
 				<p>
-					<span style="color:red"><b>Warning:</b> Changing the encryption level will delete all existing encrypted files! Other existing files will remain unencrypted.</span>
+					<span style="color:red"><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.encryptionChange"}}</span>
 				</p><br>
 {{ end }}
 					
 
 					<select name="encrypt_sel" id="encrypt_sel" style="width:350px;" class="select form-control" onchange="encryptionSelectionChanged(this.selectedIndex, false);">
-							<option value="0" selected>Level 0 - No encryption</option>
-							<option value="1" >Level 1 - Local encryption / Key locally</option>
-							<option value="2" >Level 1 - Local encryption / Key on startup</option>
-							<option value="3" >Level 2 - Full encryption / Key locally</option>
-							<option value="4" >Level 2 - Full encryption / Key on startup</option>
-							<option value="5" >Level 3 - End-To-End encryption</option>
+							<option value="0" selected>{{$.UI.T "setup.level0"}}</option>
+							<option value="1" >{{$.UI.T "setup.level1Stored"}}</option>
+							<option value="2" >{{$.UI.T "setup.level1Input"}}</option>
+							<option value="3" >{{$.UI.T "setup.level2Stored"}}</option>
+							<option value="4" >{{$.UI.T "setup.level2Input"}}</option>
+							<option value="5" >{{$.UI.T "setup.level3"}}</option>
 					</select>
 					
 					
 					<div id="encinfo0">
-					<p><br><br><b>Level 0 - No encryption</b>
+					<p><br><br><b>{{$.UI.T "setup.level0"}}</b>
 					<ul>
-					  <li>All files are stored in plain text on the local or remote server</li>
-					  <li>Uses the least resources</li>
-					  <li>Supports hotlinks to files</li>
-					  <li>Supports download progress bar</li>
-					  <li>Gokapi starts without user input</li>
+					  <li>{{$.UI.T "setup.plainFiles"}}</li>
+					  <li>{{$.UI.T "setup.leastResources"}}</li>
+					  <li>{{$.UI.T "setup.hotlinks"}}</li>
+					  <li>{{$.UI.T "setup.progress"}}</li>
+					  <li>{{$.UI.T "setup.unattended"}}</li>
 					</ul></p>
 					</div>
 					
 					<div id="encinfo1">
-					<p><br><br><b>Level 1 - Local Key</b>
+					<p><br><br><b>{{$.UI.T "setup.localKey1"}}</b>
 					<ul>
-					  <li>Local files are encrypted, remote files (S3) are stored in plain text</li>
-					  <li>Decryption is done server-side</li>
-					  <li>Supports hotlinks to files</li>
-					  <li>Does not support download progress bar</li>
-					  <li>Gokapi starts without user input</li>
-					  <li><b>Warning:</b> Password can be read with access to Gokapi configuration</li>
-					  <li><b>Warning:</b> During upload, temporary files containing the plaintext content may be created.</li>
-					  <li><b>Warning:</b> Encryption has not been audited.</li>
+					  <li>{{$.UI.T "setup.localOnly"}}</li>
+					  <li>{{$.UI.T "setup.serverDecrypt"}}</li>
+					  <li>{{$.UI.T "setup.hotlinks"}}</li>
+					  <li>{{$.UI.T "setup.noProgress"}}</li>
+					  <li>{{$.UI.T "setup.unattended"}}</li>
+					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.readablePassword"}}</li>
+					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.temporaryPlaintext"}}</li>
+					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.notAudited"}}</li>
 					</ul></p>
 					</div>
 					
 					<div id="encinfo2">
-					<p><br><br><b>Level 1 - User Input</b>
+					<p><br><br><b>{{$.UI.T "setup.inputKey1"}}</b>
 					<ul>
-					  <li>Local files are encrypted, remote files (S3) are stored in plain text</li>
-					  <li>Decryption is done server-side</li>
-					  <li>Supports hotlinks to files</li>
-					  <li>Does not support download progress bar</li>
-					  <li>Password cannot be read with access to Gokapi configuration</li>
-					  <li><span style="color:red"><b>Warning:</b></span> Gokapi requires user input to start</li>
-					  <li><b>Warning:</b> During upload, temporary files containing the plaintext content may be created.</li>
-					  <li><b>Warning:</b> Encryption has not been audited.</li>
+					  <li>{{$.UI.T "setup.localOnly"}}</li>
+					  <li>{{$.UI.T "setup.serverDecrypt"}}</li>
+					  <li>{{$.UI.T "setup.hotlinks"}}</li>
+					  <li>{{$.UI.T "setup.noProgress"}}</li>
+					  <li>{{$.UI.T "setup.unreadablePassword"}}</li>
+					  <li><span style="color:red"><b>{{$.UI.T "setup.warning"}}</b></span> {{$.UI.T "setup.startupInput"}}</li>
+					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.temporaryPlaintext"}}</li>
+					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.notAudited"}}</li>
 					</ul></p>
 					</div>
 					
 					<div id="encinfo3">
-					<p><br><br><b>Level 2 - Local Key</b>
+					<p><br><br><b>{{$.UI.T "setup.localKey2"}}</b>
 					<ul>
-					  <li>All files are encrypted</li>
-					  <li>Decryption for local files is done server-side</li>
-					  <li>Decryption for remote files (S3) is done client-side, requires 2MB file to load on first visit</li>
-					  <li>Only supports hotlinks to files saved locally</li>
-					  <li>Does not support download progress bar</li>
-					  <li>Gokapi starts without user input</li>
-					  <li><b>Important:</b> For remote storage, CORS settings for the bucket need to allow access from the Gokapi URL</li>
-					  <li><b>Warning:</b> Download might be significantly slower</li>
-					  <li><b>Warning:</b> Password can be read with access to Gokapi configuration</li>
-					  <li><b>Warning:</b> During upload, temporary files containing the plaintext content may be created.</li>
-					  <li><b>Warning:</b> Encryption has not been audited.</li>
+					  <li>{{$.UI.T "setup.allEncrypted"}}</li>
+					  <li>{{$.UI.T "setup.localServerDecrypt"}}</li>
+					  <li>{{$.UI.T "setup.remoteClientDecrypt"}}</li>
+					  <li>{{$.UI.T "setup.localHotlinks"}}</li>
+					  <li>{{$.UI.T "setup.noProgress"}}</li>
+					  <li>{{$.UI.T "setup.unattended"}}</li>
+					  <li><b>{{$.UI.T "setup.important"}}</b> {{$.UI.T "setup.corsHelp"}}</li>
+					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.slowDownload"}}</li>
+					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.readablePassword"}}</li>
+					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.temporaryPlaintext"}}</li>
+					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.notAudited"}}</li>
 					</ul></p>
 					</div>
 					
 					<div id="encinfo4">
-					<p><br><br><b>Level 2 - User Input</b>
+					<p><br><br><b>{{$.UI.T "setup.inputKey2"}}</b>
 					<ul>
-					  <li>All files are encrypted</li>
-					  <li>Decryption for local files is done server-side</li>
-					  <li>Decryption for remote files (S3) is done client-side, requires 2MB file to load on first visit</li>
-					  <li>Only supports hotlinks to files saved locally</li>
-					  <li>Does not support download progress bar</li>
-					  <li>Password cannot be read with access to Gokapi configuration</li>
-					  <li><b>Important:</b> For remote storage, CORS settings for the bucket need to allow access from the Gokapi URL</li>
-					  <li><span style="color:red"><b>Warning:</b></span> Gokapi requires user input to start</li>
-					  <li><b>Warning:</b> Download might be significantly slower</li>
-					  <li><b>Warning:</b> During upload, temporary files containing the plaintext content may be created.</li>
-					  <li><b>Warning:</b> Encryption has not been audited.</li>
+					  <li>{{$.UI.T "setup.allEncrypted"}}</li>
+					  <li>{{$.UI.T "setup.localServerDecrypt"}}</li>
+					  <li>{{$.UI.T "setup.remoteClientDecrypt"}}</li>
+					  <li>{{$.UI.T "setup.localHotlinks"}}</li>
+					  <li>{{$.UI.T "setup.noProgress"}}</li>
+					  <li>{{$.UI.T "setup.unreadablePassword"}}</li>
+					  <li><b>{{$.UI.T "setup.important"}}</b> {{$.UI.T "setup.corsHelp"}}</li>
+					  <li><span style="color:red"><b>{{$.UI.T "setup.warning"}}</b></span> {{$.UI.T "setup.startupInput"}}</li>
+					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.slowDownload"}}</li>
+					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.temporaryPlaintext"}}</li>
+					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.notAudited"}}</li>
 					</ul></p>
 					</div>
 					
 					
 					<div id="encinfo5">
-					<p><br><br><b>Level 3 - End-To-End encryption</b>
+					<p><br><br><b>{{$.UI.T "setup.level3"}}</b>
 					<ul>
-					  <li>All files are encrypted end-to-end</li>
-					  <li>Encryption and decryption is done client-side and requires 2MB file to load on first visit</li>
-					  <li>Does not support deduplication</li>
-					  <li>Does not support hotlinks to files</li>
-					  <li>Does not support download progress bar</li>
-					  <li>Does not support replacing existing files with different content</li>
-					  <li>Gokapi starts without user input</li>
-					  <li>Files uploaded through the API have to be unencrypted</li>
-					  <li>Password cannot be read with access to Gokapi configuration</li>
-					  <li><b>Warning:</b> Download and upload might be significantly slower</li>
-					  <li><b>Warning:</b> Encryption keys are stored in plain-text on this machine</li>
-					  <li><b>Warning:</b> Encryption has not been audited.</li>
+					  <li>{{$.UI.T "setup.allE2E"}}</li>
+					  <li>{{$.UI.T "setup.clientCrypto"}}</li>
+					  <li>{{$.UI.T "setup.noDeduplication"}}</li>
+					  <li>{{$.UI.T "setup.noHotlinks"}}</li>
+					  <li>{{$.UI.T "setup.noProgress"}}</li>
+					  <li>{{$.UI.T "setup.noReplace"}}</li>
+					  <li>{{$.UI.T "setup.unattended"}}</li>
+					  <li>{{$.UI.T "setup.apiUnencrypted"}}</li>
+					  <li>{{$.UI.T "setup.unreadablePassword"}}</li>
+					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.slowTransfer"}}</li>
+					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.localPlainKeys"}}</li>
+					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.notAudited"}}</li>
 					</ul></p>
 							
 {{ if not .IsInitialSetup }}
 				     <div id="e2eclear"><br>
 				     <input type="hidden" name="cleare2e.unchecked" value="false">
 				     <input name="cleare2e" type="checkbox" value="true">
-				     <span>&nbsp;Reset end-to-end password (you will lose access to already encrypted files)</span>
+				     <span>&nbsp;{{$.UI.T "setup.resetE2E"}}</span>
 				     </div>
 
 {{ end }}
@@ -700,27 +706,27 @@ function TestAWS(button, isManual) {
 
 			<!-- Step 8 Encryption PW -->
 			<div class="wizard-card wizard-card-overlay" data-cardname="encryptionpw">
-				<h3 style="display:none">Encryption Master Password</h3>
+				<h3 style="display:none">{{$.UI.T "setup.masterPassword"}}</h3>
 
 				<div class="wizard-input-section">
 						<div class="form-group">
 					
 {{ if not .IsInitialSetup }}
 				<p>
-					<span style="color:red"><b>Warning:</b> Changing the encryption password will delete all existing encrypted files! Other existing files will remain unencrypted.</span>
+					<span style="color:red"><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.passwordChange"}}</span>
 				</p><br>
 {{ end }}
 					
 				<p>
-					Please enter the master password for encryption. It has to be entered on the commandline every time Gokapi is started.
+					{{$.UI.T "setup.masterPasswordHelp"}}
 				</p><br>
 
 					
 							<div class="col-sm-8">
-								<input type="password" autocomplete="new-password" class="form-control" id="enc_pw" name="enc_pw" placeholder="Password" data-min="8" required data-validate="validatePassword2" value="{{ if not .IsInitialSetup }}unc{{end}}">
+								<input type="password" autocomplete="new-password" class="form-control" id="enc_pw" name="enc_pw" placeholder="{{$.UI.T "setup.password"}}" data-min="8" required data-validate="validatePassword2" value="{{ if not .IsInitialSetup }}unc{{end}}">
 							</div><br><br>
 							<div class="col-sm-8">
-								<input type="password" autocomplete="new-password" class="form-control" id="enc_pw2" name="enc_pw2" placeholder="Password (repeat)" data-min="8" required value="{{ if not .IsInitialSetup }}unc{{end}}">
+								<input type="password" autocomplete="new-password" class="form-control" id="enc_pw2" name="enc_pw2" placeholder="{{$.UI.T "setup.passwordRepeat"}}" data-min="8" required value="{{ if not .IsInitialSetup }}unc{{end}}">
 						</div>
 		
 					</div>
@@ -734,33 +740,32 @@ function TestAWS(button, isManual) {
 			<!-- Step 9 Finish -->
 			
 			<div class="wizard-card">
-				<h3>Finish</h3>
+				<h3>{{$.UI.T "setup.finish"}}</h3>
 
 				<div class="wizard-input-section">
-					<p>Gokapi has been fully set up. Click on Submit to save the configuration.
+					<p>{{$.UI.T "setup.finishHelp"}}
 					</p>
 
 				</div>
 				<div class="wizard-error">
 					<div class="alert alert-error">
-						<strong>There was a problem</strong> with your submission.
-						Please correct the errors and re-submit.
+						<strong>{{$.UI.T "setup.submissionProblem"}}</strong> {{$.UI.T "setup.submissionFix"}}
 					</div>
 				</div>
 	
 				<div class="wizard-failure">
 					<div class="alert alert-error">
-						There was a problem submitting the configuration.<br><br>The following error was raised: <span style="font-weight:bold" id="errormessage"></span><br><br>The server responded with: <span style="font-weight:bold" id="errormessage_response"></span>
+						{{$.UI.T "setup.submissionFailed"}}<br><br>{{$.UI.T "setup.errorRaised"}} <span style="font-weight:bold" id="errormessage"></span><br><br>{{$.UI.T "setup.serverResponse"}} <span style="font-weight:bold" id="errormessage_response"></span>
 					</div>
 				</div>
 	
 				<div class="wizard-success">
 					<div class="alert alert-success">
-						<span class="create-server-name"></span>Gokapi has been set up <strong>successfully</strong>.
+						<span class="create-server-name"></span>{{$.UI.T "setup.successBefore"}} <strong>{{$.UI.T "setup.success"}}</strong>.
 					</div>
-					If you configured Gokapi to use a password during startup, please enter it now in the console before clicking on continue.<br><br>
+					{{$.UI.T "setup.startupPasswordHelp"}}<br><br>
 	
-					<a id="bt_finishsetup" class="btn btn-success im-done">Continue</a>
+					<a id="bt_finishsetup" class="btn btn-success im-done">{{$.UI.T "setup.continue"}}</a>
 				</div>
 			</div>
 		</div>
@@ -779,17 +784,19 @@ function TestAWS(button, isManual) {
 					contentWidth : 800,
 					showClose : false,
 					submitUrl: "./setupResult",
-					backdrop: 'static'
+					backdrop: 'static',
+                    buttons: {cancelText:t("common.cancel"),nextText:t("setup.next"),backText:t("setup.back"),submitText:t("setup.submit"),submittingText:t("setup.submitting")}
 				});
 				
 				wizard.el.find(".wizard-success .im-done").click(function() {
 					document.getElementById("bt_finishsetup").disabled=true;
-					document.getElementById("bt_finishsetup").text="Please wait";
+					document.getElementById("bt_finishsetup").text=t("setup.pleaseWait");
 					setTimeout(function(){ window.location.href = $("#url").val()+"admin";}, 1500);
 				});
 			
 			
-				wizard.cards["credentials-oauth"].disable(true);
+				wizard.el.on('input change', 'input, select', function() { window.setupDirty = true; });
+                wizard.cards["credentials-oauth"].disable(true);
 				wizard.cards["credentials-header"].disable(true);
 				wizard.cards["credentials-disabled"].disable(true);
 				wizard.cards["s3credentials"].disable(true);
@@ -885,6 +892,7 @@ function TestAWS(button, isManual) {
 
 
 				wizard.on("submit", function(wizard) {
+                    window.setupSubmitting = true;
 				
 				    /* enable inputs again, otherwise they will not be submitted */
 				    document.getElementById("oauth_scope_groups").disabled = false;
@@ -903,6 +911,7 @@ function TestAWS(button, isManual) {
 							wizard.updateProgressBar(0);
 						}, 1500);
 					    }).fail(function(xhr, textStatus, errorThrown) {
+                         window.setupSubmitting = false;
 					     $('#errormessage').text(errorThrown);
 					     $('#errormessage_response').text(xhr.responseText);
 						wizard.submitFailure();
@@ -920,7 +929,7 @@ function TestAWS(button, isManual) {
 			
 			function validateMinLength(el) {
 				let value = el.val();
-				let retValue = {};
+				let retValue = {title:t("common.error")};
 				
 				if (el.prop('disabled') == true) {
 					retValue.status = true;
@@ -929,13 +938,13 @@ function TestAWS(button, isManual) {
 				
 				if (value.length == 0) {
 					retValue.status = false;
-					retValue.msg = "Please enter a value";
+					retValue.msg = t("setup.required");
 					return retValue;
 				}
 				
 				if (value.length < el[0].dataset.min) {
 					retValue.status = false;
-					retValue.msg = "Needs to be at least "+el[0].dataset.min+" characters long";
+					retValue.msg = t("setup.minLength", {count: el[0].dataset.min});
 				} else {
 					retValue.status = true;
 				}
@@ -956,11 +965,11 @@ function TestAWS(button, isManual) {
 			
 			function validateUrl(el) {
 				let value = el.val();
-				let retValue = {};
+				let retValue = {title:t("common.error")};
 				
 				if (!value.startsWith("http://") && !value.startsWith("https://")) {
 					retValue.status = false;
-					retValue.msg = "URL must start with http:// or https://";
+					retValue.msg = t("setup.invalidURL");
 					return retValue;
 				}
 				let minLenghtStatus = validateMinLength(el);
@@ -982,11 +991,11 @@ function TestAWS(button, isManual) {
 				if (minLenghtStatus.status == false)
 					return minLenghtStatus;
 					
-				let retValue = {};
+				let retValue = {title:t("common.error")};
 
 				if (value != $('#auth_pw2').val()) {
 					retValue.status = false;
-					retValue.msg = "Passwords do not match";
+					retValue.msg = t("setup.passwordMismatch");
 				} else {
 					retValue.status = true;
 				}
@@ -1005,11 +1014,11 @@ function TestAWS(button, isManual) {
 				if (minLenghtStatus.status == false)
 					return minLenghtStatus;
 					
-				let retValue = {};
+				let retValue = {title:t("common.error")};
 
 				if (value != $('#enc_pw2').val()) {
 					retValue.status = false;
-					retValue.msg = "Passwords do not match";
+					retValue.msg = t("setup.passwordMismatch");
 				} else {
 					retValue.status = true;
 				}

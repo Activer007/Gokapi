@@ -173,7 +173,12 @@ func TestReconfigurationPreservesUI(t *testing.T) {
 	defer func() { isInitialSetup = previousInitial; configuration.Get().UI = previousUI }()
 	isInitialSetup = false
 	configuration.Get().UI = &models.UIConfig{DefaultLanguage: "zh-CN", Title: "Team files", FooterText: "Internal"}
-	output, _, _, _, err := toConfiguration(&jsonForms)
+	input := createInputInternalAuth()
+	formObjects, err := input.toFormObject()
+	if err != nil {
+		t.Fatal(err)
+	}
+	output, _, _, _, err := toConfiguration(&formObjects)
 	if err != nil {
 		t.Fatal(err)
 	}

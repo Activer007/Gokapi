@@ -4,6 +4,7 @@ docs/security/evidence/** -text -whitespace
 docs/security/tools/*.sh text eol=lf
 docs/security/tools/*.py text eol=lf
 dockerentry.sh text eol=lf
+build/test-ui-local.sh text eol=lf
 docker-compose.nonroot.yaml text eol=lf
 internal/test/securityfixture/*.go text eol=lf
 internal/configuration/setup/security_red_test.go text eol=lf

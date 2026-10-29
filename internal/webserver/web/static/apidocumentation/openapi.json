@@ -1079,7 +1079,7 @@
           "files"
         ],
         "summary": "Changes the owner of an existing file",
-        "description": "This API call changes the owner of an existing owner to the new owner id. Requires API permission EDIT and the user must be an administrator or super-administrator. The user needs to have the user permission EDIT",
+        "description": "Changes the owner of an existing file. Requires API permission EDIT, administrator rank and permission to edit other users' uploads. A transfer must fit the receiving user's logical byte/file limits, including active upload reservations. The instance total and original File Request charge are unchanged. Transferring to the current owner is idempotent.",
         "operationId": "changeowner",
         "security": [
           {
@@ -1127,6 +1127,12 @@
           },
           "404": {
             "description": "Invalid ID provided or file has expired"
+          },
+          "409": {
+            "description": "Source changed or the target user disappeared during the transfer"
+          },
+          "413": {
+            "description": "Receiving user's logical upload quota exceeded (ErrorCode 21)"
           }
         }
       }
