@@ -9,7 +9,7 @@ Overview of all changes
 
 
 v2.11.0 (2026-10-29)
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^
 
 * Automatically generate a temporary password when an administrator creates an
   internal-login user, and require a password change after their first browser login.
