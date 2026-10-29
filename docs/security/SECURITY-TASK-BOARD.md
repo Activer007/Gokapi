@@ -14,7 +14,23 @@
 
 G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BLOCKED 详见 [TEST-REPORT](TEST-REPORT.md)。初始M0仅测试/证据，后续生产实现及ADR以各增补条目为准。
 
-## 当前 M3：最小崩溃恢复与阶段收口
+## 当前M4：可靠删除、旧内容回收与下载边界
+
+基线8c399317，范围[M4-GOAL](M4-GOAL.md)，ACTIVE。单进程/可信团队及公开能力边界不变，不重开广义M3延期。
+
+| SEC-ID | 状态 | 当前证据/Gate |
+| --- | --- | --- |
+| 052-A | P0 / LOCAL_GREEN / BROWSER_GREEN / CI_PENDING | 支持本地路径真实HTTP负例触发升级；WASM失败悬挂RED及同合同自然拒绝GREEN；私密评审与ADR-023，最小流错误传播修复 |
+| 040-A | P0 / RED / IN_PROGRESS | 最新基线loopback删除失败丢管理锚点业务RED；隔离开发保留，待052优先修复后继续 |
+| 040-B | P0 / NOT_STARTED | 取消/timer/恢复条件更新与明确反馈 |
+| 041 | P0 / NOT_STARTED | 持久旧locator、引用及重启回收 |
+| 052其余 | P1 / VALIDATE | 小型中断合同与其他支持组合仍需本项证据，不用一个Chromium正负例声称全覆盖 |
+| 051 | P1 / VALIDATE | 初始限定浏览器预检，不以头缺失判XSS；结果见TEST-REPORT，未形成全路径安全结论 |
+| 050 | P1 / NOT_STARTED | 最小响应头、兼容及渐进CSP |
+
+公开只保留必要修复，私密精确负例不提交。每PR一个SEC；本PR完成不代表M4已完成。
+
+## M3完成记录：最小崩溃恢复与阶段收口
 
 按用户2026-10-29最新指令，后续范围由[M3-GOAL](M3-GOAL.md)冻结，运行时基线60b2fb0。
 不再自动推进新功能线；以下之外的原M3债务保留OPEN/VALIDATE，不改成已修复。

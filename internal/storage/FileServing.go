@@ -723,7 +723,7 @@ func ServeFile(file models.File, w http.ResponseWriter, r *http.Request, forceDo
 	}
 	if file.Encryption.IsEncrypted && !file.RequiresClientDecryption() {
 		if !encryption.IsCorrectKey(file.Encryption, fileHandler) {
-			_, _ = w.Write([]byte("Internal error - Error decrypting file, source data might be damaged or an incorrect key has been used"))
+			http.Error(w, "Unable to decrypt download", http.StatusInternalServerError)
 			return true
 		}
 	}
@@ -732,9 +732,10 @@ func ServeFile(file models.File, w http.ResponseWriter, r *http.Request, forceDo
 	if file.Encryption.IsEncrypted && !file.RequiresClientDecryption() {
 		err = encryption.DecryptReader(file.Encryption, fileHandler, w)
 		if err != nil {
-			_, _ = w.Write([]byte("Error decrypting file"))
-			fmt.Println(err)
-			return true
+			// Headers and authenticated plaintext may already have been sent.
+			// Abort the transfer; error text must never become attachment bytes.
+			log.Print("Encrypted download interrupted")
+			panic(http.ErrAbortHandler)
 		}
 	} else {
 		http.ServeContent(w, r, file.Name, time.Now(), fileHandler)

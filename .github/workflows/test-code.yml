@@ -37,6 +37,8 @@ jobs:
       - run: GOKAPI_AWS_BUCKET="gokapi" GOKAPI_AWS_REGION="eu-central-1" GOKAPI_AWS_KEY="keyid" GOKAPI_AWS_KEY_SECRET="secret" go test ./...  --tags=test,awstest -count=1
       - name: Receiver contracts with race
         run: go test -race ./internal/environment ./internal/storage ./internal/storage/uploadreceive ./internal/webserver/fileupload ./internal/webserver/api ./internal/webserver -count=1 -tags=test,noaws -run 'TestSEC030Receive|TestSEC031UploadSizeSemantics|TestReceive|TestSpool|TestSEC062Range'
+      - name: Encrypted download failure contract with race
+        run: go test -race ./internal/storage -count=1 -tags=test,noaws -run '^TestSEC052ServeFileFailure$'
       - name: Whole and chunk upload durable admission and provider contracts
         run: bash docs/security/tools/run-sec030-whole.sh target
       - name: Whole and chunk upload durable admission with race
@@ -44,6 +46,7 @@ jobs:
       - name: Record security source hashes
         run: |
           git ls-files -- cmd/supashare/Main.go internal/configuration/database internal/environment internal/storage internal/uploadquota internal/webserver | grep -E '\.go$' | LC_ALL=C sort | xargs sha256sum
+          sha256sum cmd/wasmdownloader/Main.go internal/webserver/web/templates/html_download.tmpl internal/webserver/web/main.wasm
       - name: Toolchain build and vulnerability gates
         run: bash docs/security/tools/run-sec062-toolchain.sh scan
       - name: Historical vulnerable compiler scan contract
