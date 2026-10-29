@@ -25,6 +25,12 @@ The systemd unit remains ``gokapi.service`` so upgrading cannot create a second
 service against the same data. Existing Docker volumes and bind directories
 retain their names; the Compose service is now ``supashare``.
 
+Stop the old Gokapi container/service before starting SupaShare against the
+same data. For a Compose upgrade, stop the deployment with the old Compose
+file before switching to the new file, then rebuild and start ``supashare``.
+Do not remove volumes or create replacement data/config directories. Changing
+the Compose service name alone does not stop an existing old service.
+
 An empty public name or the old built-in ``Gokapi`` default displays as
 ``SupaShare``. Custom public names, UI titles, footer text and links are
 preserved. The old upstream documentation and HTTP encrypted-download helper

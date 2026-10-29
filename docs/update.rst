@@ -20,11 +20,11 @@ It is not possible to downgrade to an older version after a schema migration has
 Docker
 ***************
 
-Pull the new image:
+From an updated checkout of this repository, rebuild the local image:
 
 .. code-block:: bash
 
-   docker pull supashare:local
+   docker build -t supashare:local .
 
 Then stop the running container and start it again with the same command you used originally.
 Named volumes (``-v gokapi-data:/app/data``) preserve all your data automatically.
@@ -33,8 +33,16 @@ If you use Docker Compose:
 
 .. code-block:: bash
 
-   docker compose pull
-   docker compose up -d
+   docker compose up -d --build
+
+The bundled Compose file builds from the local source tree. If you use a
+separately published image, update and pull that explicit image reference
+instead. Keep the existing config/data mounts when recreating the container.
+
+When migrating an existing Gokapi Compose deployment, stop it with the old
+Compose file before switching to this repository's ``supashare`` service.
+Keep its volumes and bind directories; do not run old and new services
+against the same state at the same time.
 
 
 *******************

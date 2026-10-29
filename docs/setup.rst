@@ -38,9 +38,13 @@ Native Deployment
 Stable version
 """"""""""""""
 
-`Download the latest release <https://github.com/Activer007/SupaShare/releases/latest>`_ and copy the executable into a new folder with write permissions.
+Use explicitly published SupaShare artifacts from the `releases page
+<https://github.com/Activer007/SupaShare/releases>`_ when available, and copy
+the executable into a new folder with write permissions. Inherited upstream
+assets do not contain this fork's changes. Until renamed artifacts are
+published, build from source as described below.
 
-Choose the binary that matches your system:
+When downloading a SupaShare build, choose the binary matching your system:
 
 * **Windows:** ``supashare-windows_amd64``
 * **Mac (Intel):** ``supashare-darwin_amd64``
@@ -101,13 +105,15 @@ See :ref:`deprecation_nonroot` if you are migrating from the old ``DOCKER_NONROO
 Docker Compose
 """"""""""""""
 
-Download ``docker-compose.yaml`` and ``.env.dist`` from the repository. Rename ``.env.dist`` to ``.env`` and edit as needed.
+Use a complete checkout of this repository: the bundled Compose file builds
+the local Dockerfile and needs the application source. Rename ``.env.dist``
+to ``.env`` and edit as needed.
 
 The ``gokapi-data`` and ``gokapi-config`` folders are created automatically in the current directory. Start with:
 
 .. code-block:: bash
 
-   docker compose up -d
+   docker compose up -d --build
 
 By default the container restarts automatically on boot (``restart: always``). Change to ``restart: unless-stopped`` if you only want automatic restart after a crash.
 
@@ -149,7 +155,7 @@ The one-time helper runs as root only to prepare the two empty volume directory 
 
 Keep these exports in a private deployment environment file if needed and pass it explicitly with ``--env-file``. It needs image, UID/GID and volume names, not passwords. The profile does not import the original ``.env`` into the container. Add required Redis/S3/proxy settings explicitly in your deployment configuration; never enable ``DOCKER_NONROOT=true`` with this profile. Configure trusted proxy addresses according to the reverse proxy section.
 
-Read the bootstrap proof as described below using ``docker compose -f docker-compose.nonroot.yaml exec gokapi ...`` and the exact printed file path. Choose a SQLite path within the config volume, such as ``/app/config/gokapi.sqlite``. The image filesystem is read-only; data, logs and temporary uploads remain writable under ``/app/data``. Port ``53842`` is published on loopback by default; ``GOKAPI_PORT`` changes the host port. Use HTTPS or an SSH tunnel for remote setup.
+Read the bootstrap proof as described below using ``docker compose -f docker-compose.nonroot.yaml exec supashare ...`` and the exact printed file path. Choose a SQLite path within the config volume, such as ``/app/config/gokapi.sqlite``. The image filesystem is read-only; data, logs and temporary uploads remain writable under ``/app/data``. Port ``53842`` is published on loopback by default; ``GOKAPI_PORT`` changes the host port. Use HTTPS or an SSH tunnel for remote setup.
 
 The volumes are external: Compose refuses missing volumes and ``down`` retains them. Back up config/DB, data and encryption keys together. The existing ``docker --user`` bind-mount example remains supported, but Linux directories must already be owned and writable by that numeric user; Windows bind-mount permissions do not prove Linux volume permissions.
 
@@ -177,7 +183,9 @@ Then browse the same local URL. Docker still listens on its container interface 
 
 Each setup start creates a fresh proof in a new owner-only file (0600 on Linux). Failed validation can be retried with the same proof. A successful save revokes it immediately and deletes the file; already-authenticated requests cannot save a second configuration. A restart requires the new file, including after an interrupted installation. A stale file left by a crash is not accepted. Existing config files skip initial setup entirely.
 
-These instructions apply to builds of this fork containing SEC-010; the upstream ``f0rc3/gokapi`` images shown elsewhere on this page do not contain fork-only changes. This fork has not published a new image.
+These instructions apply to builds of this fork containing SEC-010. The upstream
+``f0rc3/gokapi`` images do not contain fork-only changes; build the local image
+from this repository until a SupaShare image is explicitly published.
 
 If you need to change the port before running setup, set ``GOKAPI_PORT`` — see :ref:`envvar`.
 
@@ -500,4 +508,4 @@ The ``DOCKER_NONROOT`` environment variable is deprecated. To migrate to ``docke
      -v ./gokapi-data:/app/data -v ./gokapi-config:/app/config \
      -p 127.0.0.1:53842:53842 -e TZ=UTC supashare:local
 
-Replace ``supashare`` with your actual container name if different. Replace ``$(id -u):$(id -g)`` with explicit IDs if you want a specific user. Ensure the bind-mount directories are owned by that user.
+Replace the legacy ``gokapi`` container name with your actual old container name if different. Replace ``$(id -u):$(id -g)`` with explicit IDs if you want a specific user. Ensure the bind-mount directories are owned by that user.
