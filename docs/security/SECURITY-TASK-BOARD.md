@@ -14,7 +14,21 @@
 
 G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BLOCKED 详见 [TEST-REPORT](TEST-REPORT.md)。初始M0仅测试/证据，后续生产实现及ADR以各增补条目为准。
 
-## 当前 SEC-030 文件替换增量：目标GREEN、CI_PENDING
+## 当前 M3：最小崩溃恢复与阶段收口
+
+按用户2026-10-29最新指令，后续范围由[M3-GOAL](M3-GOAL.md)冻结，运行时基线60b2fb0。
+不再自动推进新功能线；以下之外的原M3债务保留OPEN/VALIDATE，不改成已修复。
+
+| SEC-ID / 子项 | 状态 | PR | 测试 / Gate |
+| --- | --- | --- | --- |
+| SEC-030-R1 启动时最小有界恢复 | NOT_STARTED | — | 仅已确认自有未发布输入可清理；清理确认后退款 |
+| SEC-030-R2 不确定状态清单与人工runbook | NOT_STARTED | — | 保额保文件，不自动补提交/删canonical |
+| SEC-030-R3 三类崩溃验收与文档对账 | NOT_STARTED | — | Claim前、Claim后Commit前、Commit后清理前；参考SQLite+本地 |
+
+## SEC-030 文件替换增量：MERGED
+
+PR30合并60b2fb0；CI40823139886 SUCCESS，checkoutdda1f25，tree1325ff65与实际合并一致。
+生成、四组全仓、相关race/锁及当前扫描通过；新矩阵只在race步骤运行一次，无重复合并后CI。
 
 基线79f2577；分支codex/sec-030-replace-admission；ADR-020。
 G0/G1：仓库/用户改动保护、上游定向检查、5组隔离业务RED已完成；PR419不是相同quota修复。
