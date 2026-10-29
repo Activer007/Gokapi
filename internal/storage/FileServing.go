@@ -865,6 +865,13 @@ func FileExists(file models.File, dataDir string) bool {
 // Will be called periodically or after a file has been manually deleted in the admin view.
 // If the parameter periodic is true, this function is recursive and calls itself every hour.
 func CleanUp(periodic bool) {
+	// Session cleanup takes its own per-upload gate before touching staged
+	// input; it must run outside canonical publication/reference locks.
+	cleanupCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	if err := ChunkSessions().Sweep(cleanupCtx); err != nil {
+		log.Print("Chunk upload cleanup pending")
+	}
+	cancel()
 	downloadstatus.Clean()
 	timeNow := time.Now().Unix()
 	wasItemDeleted := false

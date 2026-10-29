@@ -23,8 +23,9 @@ import (
 	"time"
 
 	"github.com/forceu/gokapi/internal/configuration"
+	"github.com/forceu/gokapi/internal/configuration/database"
 	"github.com/forceu/gokapi/internal/encryption"
-	"github.com/forceu/gokapi/internal/storage/chunking"
+	"github.com/forceu/gokapi/internal/storage/chunking/chunksession"
 	"github.com/forceu/gokapi/internal/storage/filesystem"
 )
 
@@ -206,7 +207,7 @@ func TestSEC030ReceiveBodyAdmission(t *testing.T) {
 	}
 }
 
-func sec030ReceiveChunk(t *testing.T, directory string, fileFirst, unknownLength bool) {
+func sec030ReceiveChunk(t *testing.T, fileFirst, unknownLength bool) {
 	t.Helper()
 	payload := bytes.Repeat([]byte("q"), 64*1024)
 	id := rand.Text()
@@ -244,8 +245,6 @@ func sec030ReceiveChunk(t *testing.T, directory string, fileFirst, unknownLength
 	if unknownLength {
 		request.ContentLength = -1
 	}
-	path := filepath.Join(directory, "chunk-"+chunking.StorageID(id, user, ""))
-	t.Cleanup(func() { _ = os.Remove(path) })
 	recorder := httptest.NewRecorder()
 	code, err := ProcessNewChunk(recorder, request, true, "", user, 1024*1024)
 	if err != nil || code != 0 {
@@ -254,18 +253,15 @@ func sec030ReceiveChunk(t *testing.T, directory string, fileFirst, unknownLength
 	if recorder.Body.String() != `{"result":"OK"}` {
 		t.Fatalf("upload response changed: %q", recorder.Body.String())
 	}
-	stored, err := os.ReadFile(path)
-	if err != nil || !bytes.Equal(stored, payload) {
-		t.Fatalf("scoped chunk bytes differ: %v", err)
-	}
+	assertReceivedChunkSession(t, chunksession.Scope{ClientID: id, UserID: user}, payload)
 }
 
 func TestSEC030ReceiveFileFirstUnknownLengthLastChunk(t *testing.T) {
 	if !sec030ReceiveChild(t) {
 		return
 	}
-	directory := sec030ReceiveDirectory(t)
-	sec030ReceiveChunk(t, directory, true, true)
+	sec030ReceiveDirectory(t)
+	sec030ReceiveChunk(t, true, true)
 }
 
 func TestSEC030ReceiveDeclaredTailMustMatchPayload(t *testing.T) {
@@ -296,8 +292,15 @@ func TestSEC030ReceiveDeclaredTailMustMatchPayload(t *testing.T) {
 	if _, err := ProcessNewChunk(httptest.NewRecorder(), request, true, "", 9130, 1024*1024); err == nil {
 		t.Fatal("11-byte payload was accepted as a complete 13-byte last chunk")
 	}
-	if _, err := os.Stat(filepath.Join(directory, "chunk-"+chunking.StorageID(id, 9130, ""))); !os.IsNotExist(err) {
-		t.Fatal("invalid last chunk allocated a persistent file")
+	ledger, err := database.ReadUploadQuota(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, found := ledger.Records[chunksession.ID(chunksession.Scope{ClientID: id, UserID: 9130})]; found {
+		t.Fatal("invalid last chunk acquired a durable reservation")
+	}
+	if _, err := os.Lstat(filepath.Join(directory, ".gokapi-chunks-v1")); !os.IsNotExist(err) {
+		t.Fatal("invalid last chunk allocated a persistent namespace", err)
 	}
 	if count := sec030ReceivePayloadCount(t, directory); count != 0 {
 		t.Fatal("invalid last chunk retained receive payload")
@@ -308,9 +311,9 @@ func TestSEC030ReceiveKnownLengthOrders(t *testing.T) {
 	if !sec030ReceiveChild(t) {
 		return
 	}
-	directory := sec030ReceiveDirectory(t)
+	sec030ReceiveDirectory(t)
 	for _, fileFirst := range []bool{true, false} {
-		t.Run(strconv.FormatBool(fileFirst), func(t *testing.T) { sec030ReceiveChunk(t, directory, fileFirst, false) })
+		t.Run(strconv.FormatBool(fileFirst), func(t *testing.T) { sec030ReceiveChunk(t, fileFirst, false) })
 	}
 }
 
@@ -318,7 +321,7 @@ func TestSEC030ReceiveCipherChunkOverTuningSize(t *testing.T) {
 	if !sec030ReceiveChild(t) {
 		return
 	}
-	directory := sec030ReceiveDirectory(t)
+	sec030ReceiveDirectory(t)
 	config := configuration.Get()
 	originalChunkSize := config.ChunkSize
 	config.ChunkSize = 1
@@ -366,8 +369,6 @@ func TestSEC030ReceiveCipherChunkOverTuningSize(t *testing.T) {
 	}
 	request := httptest.NewRequest(http.MethodPost, "/uploadChunk", bytes.NewReader(body.Bytes()))
 	request.Header.Set("Content-Type", form.FormDataContentType())
-	path := filepath.Join(directory, "chunk-"+chunking.StorageID(id, user, ""))
-	t.Cleanup(func() { _ = os.Remove(path) })
 	recorder := httptest.NewRecorder()
 	code, err := ProcessNewChunk(recorder, request, false, "", user, maxFileSize)
 	if err != nil || code != 0 {
@@ -376,10 +377,7 @@ func TestSEC030ReceiveCipherChunkOverTuningSize(t *testing.T) {
 	if recorder.Body.String() != `{"result":"OK"}` {
 		t.Fatalf("encrypted chunk response changed: %q", recorder.Body.String())
 	}
-	stored, err := os.ReadFile(path)
-	if err != nil || !bytes.Equal(stored, ciphertext) {
-		t.Fatalf("encrypted scoped chunk bytes differ: %v", err)
-	}
+	assertReceivedChunkSession(t, chunksession.Scope{ClientID: id, UserID: user}, ciphertext)
 }
 
 func sec030ReceiveFourAvailable(t *testing.T) {

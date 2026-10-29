@@ -2,6 +2,8 @@ package fileupload
 
 import (
 	"bytes"
+	"context"
+	"crypto/rand"
 	"encoding/json"
 	"io"
 	"mime/multipart"
@@ -12,11 +14,17 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/forceu/gokapi/internal/configuration"
+	"github.com/forceu/gokapi/internal/configuration/database"
 	"github.com/forceu/gokapi/internal/models"
+	"github.com/forceu/gokapi/internal/storage"
+	"github.com/forceu/gokapi/internal/storage/chunking"
+	"github.com/forceu/gokapi/internal/storage/chunking/chunksession"
 	"github.com/forceu/gokapi/internal/test"
 	"github.com/forceu/gokapi/internal/test/testconfiguration"
+	"github.com/forceu/gokapi/internal/uploadquota"
 )
 
 func TestMain(m *testing.M) {
@@ -114,6 +122,48 @@ func TestProcessNewChunk(t *testing.T) {
 	response, err := io.ReadAll(w.Result().Body)
 	test.IsNil(t, err)
 	test.IsEqualString(t, string(response), "{\"result\":\"OK\"}")
+	assertReceivedChunkSession(t, chunksession.Scope{ClientID: "randomchunkuuid", UserID: 9}, []byte("testContentxx"))
+}
+
+// Inspect through the same coverage/Claim gate used by completion, without
+// guessing a private payload path. This test never publishes storage work: once
+// CloseInput has confirmed removal of its only resource, Abort is trustworthy.
+func assertReceivedChunkSession(t *testing.T, scope chunksession.Scope, expected []byte) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	limits, err := chunkUploadLimits()
+	if err != nil {
+		t.Fatal(err)
+	}
+	ledger, err := database.ReadUploadQuota(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	record, found := ledger.Records[chunksession.ID(scope)]
+	if !found || record.UserID != scope.UserID || record.RequestID != scope.RequestID || !record.BytesKnown || record.Bytes != int64(len(expected)) || record.Completing || record.StagingReleased {
+		t.Fatal("received chunk lost its scoped total declaration")
+	}
+	lease, err := storage.ChunkSessions().Prepare(ctx, scope, chunking.FileHeader{Size: int64(len(expected))}, "receive-test-"+rand.Text(), limits)
+	if err != nil {
+		t.Fatal("received payload cannot pass complete coverage", err)
+	}
+	defer func() {
+		defer lease.Release()
+		if err := lease.CloseInput(); err != nil {
+			t.Error("test input cleanup failed", err)
+			return
+		}
+		cleanupCtx, cleanupCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cleanupCancel()
+		if _, err := database.ApplyUploadQuota(cleanupCtx, uploadquota.Change{Action: uploadquota.Abort, Upload: lease.Upload, Now: time.Now().Unix(), Terminal: uploadquota.Aborted, CleanupConfirmed: true, CheckRequestPolicy: scope.RequestID != ""}); err != nil {
+			t.Error("test-only unpublished claim cleanup failed", err)
+		}
+	}()
+	actual, err := io.ReadAll(lease.Input)
+	if err != nil || !bytes.Equal(actual, expected) {
+		t.Fatal("scoped confirmed chunk bytes differ", err)
+	}
 }
 
 func TestCompleteChunk(t *testing.T) {
@@ -149,6 +199,10 @@ func TestCompleteChunk(t *testing.T) {
 	r.Header.Set("Content-type", "application/x-www-form-urlencoded")
 	chunkId, header, config, err = ParseFileHeader(r)
 	test.IsNil(t, err)
+	// This is the retained low-level legacy helper, not the runtime receive
+	// path. Give it its own legacy fixture instead of another test's upload.
+	err = chunking.NewChunk(strings.NewReader("testContentxx"), &multipart.FileHeader{Size: 13}, chunking.ChunkInfo{UUID: chunking.StorageID(chunkId, 9, config.FileRequestId), TotalFilesizeBytes: 13}, 100*1000*1000)
+	test.IsNil(t, err)
 	file, err := CompleteChunk(chunkId, header, 9, config)
 	test.IsNil(t, err)
 	test.IsEqualString(t, file.Name, "random.file")
@@ -160,7 +214,7 @@ func TestCompleteChunk(t *testing.T) {
 	data.Set("chunkid", "invalid")
 	w, r = test.GetRecorder("POST", "/uploadComplete", nil, nil, strings.NewReader(data.Encode()))
 	r.Header.Set("Content-type", "application/x-www-form-urlencoded")
-	_, _, _, err = ParseFileHeader(r)
+	chunkId, header, config, err = ParseFileHeader(r)
 	test.IsNil(t, err)
 	_, err = CompleteChunk(chunkId, header, 9, config)
 	test.IsNotNil(t, err)

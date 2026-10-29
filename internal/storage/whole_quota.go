@@ -18,6 +18,8 @@ import (
 	"github.com/forceu/gokapi/internal/configuration"
 	"github.com/forceu/gokapi/internal/configuration/database"
 	"github.com/forceu/gokapi/internal/encryption"
+	"github.com/forceu/gokapi/internal/environment"
+	"github.com/forceu/gokapi/internal/helper"
 	"github.com/forceu/gokapi/internal/models"
 	"github.com/forceu/gokapi/internal/storage/chunking"
 	"github.com/forceu/gokapi/internal/storage/filesystem/s3filesystem/aws"
@@ -31,8 +33,27 @@ func NewFileReserved(ctx context.Context, content io.Reader, header *multipart.F
 }
 
 func newFileReserved(ctx context.Context, content io.Reader, header *multipart.FileHeader, owner int, params models.UploadParameters, limits uploadquota.Limits, closeInput func() error, apply func(context.Context, uploadquota.Change) (uploadquota.Reservation, error)) (result models.File, err error) {
+	return finishReservedFile(ctx, content, header, owner, params, limits, uploadquota.Reservation{}, closeInput, apply)
+}
+
+// NewFileClaimed completes an already frozen and claimed chunk upload. It must
+// not create another reservation or choose a second metadata identity.
+func NewFileClaimed(ctx context.Context, content io.Reader, header *multipart.FileHeader, owner int, params models.UploadParameters, limits uploadquota.Limits, upload uploadquota.Reservation, closeInput func() error) (models.File, error) {
+	if upload.ID == "" {
+		if closeInput != nil {
+			return models.File{}, errors.Join(uploadquota.ErrInvalid, closeInput())
+		}
+		return models.File{}, uploadquota.ErrInvalid
+	}
+	return finishReservedFile(ctx, content, header, owner, params, limits, upload, closeInput, database.ApplyUploadQuota)
+}
+
+func finishReservedFile(ctx context.Context, content io.Reader, header *multipart.FileHeader, owner int, params models.UploadParameters, limits uploadquota.Limits, initial uploadquota.Reservation, closeInput func() error, apply func(context.Context, uploadquota.Change) (uploadquota.Reservation, error)) (result models.File, err error) {
 	if closeInput == nil {
 		return models.File{}, uploadquota.ErrInvalid
+	}
+	if ctx == nil || apply == nil {
+		return models.File{}, errors.Join(uploadquota.ErrInvalid, closeInput())
 	}
 	work := &wholeWork{}
 	var upload uploadquota.Reservation
@@ -56,7 +77,15 @@ func newFileReserved(ctx context.Context, content io.Reader, header *multipart.F
 			result, err = models.File{}, errors.Join(err, cleanupErr)
 		}
 	}()
-	if ctx == nil || content == nil || header == nil || owner <= 0 || apply == nil || params.FileRequestId != "" || header.Size < 0 || header.Size > (math.MaxInt64-(64<<10))/4 {
+	if content == nil || header == nil || owner <= 0 || header.Size < 0 || header.Size > (math.MaxInt64-(64<<10))/4 {
+		return models.File{}, uploadquota.ErrInvalid
+	}
+	if initial.ID != "" {
+		if initial.UserID != owner || initial.RequestID != params.FileRequestId || !initial.BytesKnown || initial.Bytes != header.Size || !initial.Completing || initial.FileID == "" || initial.State != uploadquota.Uploading {
+			return models.File{}, uploadquota.ErrConflict
+		}
+		upload, reserved = initial, true
+	} else if params.FileRequestId != "" {
 		return models.File{}, uploadquota.ErrInvalid
 	}
 	if err := ctx.Err(); err != nil {
@@ -79,24 +108,29 @@ func newFileReserved(ctx context.Context, content io.Reader, header *multipart.F
 	if err != nil {
 		return models.File{}, err
 	}
-	now := time.Now().Unix()
-	upload = uploadquota.Reservation{ID: "whole-" + rand.Text(), UserID: owner,
-		BytesKnown: true, Bytes: header.Size, StagingBytes: 4*header.Size + (64 << 10), ExpiresAt: now + uploadquota.MaxLifetime}
-	if _, err := apply(ctx, uploadquota.Change{Action: uploadquota.Reserve, Upload: upload, Limits: limits, Now: now}); err != nil {
-		// A failed provider reply may have created a reservation. It must not
-		// be silently retried under a new ID or assumed absent/refunded.
-		return models.File{}, err
+	if !reserved {
+		now := time.Now().Unix()
+		upload = uploadquota.Reservation{ID: "whole-" + rand.Text(), UserID: owner,
+			BytesKnown: true, Bytes: header.Size, StagingBytes: 4*header.Size + (64 << 10), ExpiresAt: now + uploadquota.MaxLifetime}
+		if _, err := apply(ctx, uploadquota.Change{Action: uploadquota.Reserve, Upload: upload, Limits: limits, Now: now}); err != nil {
+			// A failed reply may have created a reservation. Do not retry it
+			// under a fresh identity or assume that capacity was refunded.
+			return models.File{}, err
+		}
+		reserved = true
+		upload.FileID = createNewId()
+		if _, err := apply(ctx, uploadquota.Change{Action: uploadquota.Claim, Upload: upload, FileID: upload.FileID, Now: time.Now().Unix()}); err != nil {
+			return models.File{}, err
+		}
 	}
-	reserved = true
-	fileID := createNewId()
-	if _, err := apply(ctx, uploadquota.Change{Action: uploadquota.Claim, Upload: upload, FileID: fileID, Now: time.Now().Unix()}); err != nil {
+	if err := checkProcessingSpace(ctx, header.Size); err != nil {
 		return models.File{}, err
 	}
 	hash, encInfo, err := work.prepare(ctx, content, header.Size, params.IsEndToEndEncrypted)
 	if err != nil {
 		return models.File{}, err
 	}
-	file := buildNewMetaData(fileID, hash, parsed, owner, params)
+	file := buildNewMetaData(upload.FileID, hash, parsed, owner, params)
 	file.Encryption = encInfo
 	unlock, err := lockBlobPublication(ctx, file)
 	if err != nil {
@@ -148,11 +182,48 @@ func newFileReserved(ctx context.Context, content io.Reader, header *multipart.F
 	}
 	setHotlinkCandidate(&file)
 	commitAttempted = true
-	if _, err := apply(ctx, uploadquota.Change{Action: uploadquota.Commit, Upload: upload, File: &file, Limits: limits, Now: time.Now().Unix()}); err != nil {
+	if _, err := apply(ctx, uploadquota.Change{Action: uploadquota.Commit, Upload: upload, File: &file, Limits: limits, Now: time.Now().Unix(), CheckRequestPolicy: upload.RequestID != ""}); err != nil {
 		return models.File{}, err
 	}
 	committed = true
 	return file, nil
+}
+
+// This is a conservative free-space checkpoint, independent of logical quota.
+// It is not an atomic filesystem allocator against other processes or writers.
+func checkProcessingSpace(ctx context.Context, bytes int64) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	need, err := processingSpaceRequired(bytes, environment.New().MinFreeSpaceMB)
+	if err != nil {
+		return err
+	}
+	free, err := helper.GetFreeSpace(configuration.Get().DataDir)
+	if err != nil {
+		return err
+	}
+	if free < need {
+		return uploadquota.ErrStaging
+	}
+	return nil
+}
+
+func processingSpaceRequired(bytes int64, floorMiB int) (uint64, error) {
+	if bytes < 0 || bytes > (math.MaxInt64-(64<<10))/3 || floorMiB < 0 || int64(floorMiB) > math.MaxInt64/(1<<20) {
+		return 0, uploadquota.ErrInvalid
+	}
+	// Plaintext and ciphertext can coexist during preparation. The stream's
+	// authentication overhead grows with size; a fixed 64KiB alone is insufficient.
+	cipherBytes := encryption.CalculateEncryptedFilesize(bytes)
+	if cipherBytes < bytes || cipherBytes > math.MaxInt64-bytes-(64<<10) {
+		return 0, uploadquota.ErrInvalid
+	}
+	need, floor := bytes+cipherBytes+(64<<10), int64(floorMiB)*(1<<20)
+	if floor > math.MaxInt64-need {
+		return 0, uploadquota.ErrInvalid
+	}
+	return uint64(need + floor), nil
 }
 
 // Publication and reference changes use finite stripes shared by legacy whole

@@ -96,14 +96,15 @@ const (
 // carries the authenticated scope; Reserve/Bind additionally supply a declaration.
 // CleanupConfirmed may only be set after I/O has stopped and staged data is gone.
 type Change struct {
-	Action           Action
-	Upload           Reservation
-	Limits           Limits
-	Now              int64
-	FileID           string
-	File             *models.File
-	Terminal         State
-	CleanupConfirmed bool
+	Action             Action
+	Upload             Reservation
+	Limits             Limits
+	Now                int64
+	FileID             string
+	File               *models.File
+	Terminal           State
+	CleanupConfirmed   bool
+	CheckRequestPolicy bool
 }
 
 func EmptyLedger() Ledger {

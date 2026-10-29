@@ -32,3 +32,11 @@ func Set(id string, status int, file models.File, userId int, err error) {
 	pstatusdb.Set(newStatus)
 	go sse.PublishNewStatus(newStatus)
 }
+
+// SetCommitted publishes a verified durable result, including a receipt replay
+// following an earlier response or cleanup failure.
+func SetCommitted(id string, file models.File, userID int) {
+	status := models.UploadStatus{ChunkId: id, CurrentStatus: StatusFinished, FileId: file.Id, UserId: userID}
+	pstatusdb.SetCommitted(status)
+	go sse.PublishNewStatus(status)
+}

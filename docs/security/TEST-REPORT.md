@@ -2,7 +2,48 @@
 
 日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/Gokapi 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
 
+## SEC-030 分片/请求接线：IN_PROGRESS（2026-10-29）
+
+基线57e5116；Windows便携Go1.26.10，仍不启动/修复WSL。独立归档及当前临时SQLite/loopback Redis
+证据位于ignored sec030-chunks-local.secret和request-policy-*，不是生产数据。
+
+- API干净57归档加新HTTP合同：`go test ./internal/webserver/api -count=1 -tags=test,noaws,security_whole -run '^TestSEC030Chunk' -timeout 7m -v`，实际ASSERTION_RED退出1，29.099s。
+- chunksession新桩合同编译并执行后退出1，6.074s；新接口开发RED，不称旧代码存在同接口漏洞。
+- request env/core/双provider合同：真实stub RED退出1→目标及四包原foundation完整回归退出0；源码hash一致，未执行本轮全仓/race。
+- 会话target-1变量遮蔽失败、target-3 Windows句柄断言失败保留；target-4真实PASS，13.133s，固定清理ID/FD及范围/并行/space/过期合同通过。
+- stdlib uploadservice8项合同编译实际RED→目标PASS；本地race尝试因cgo关闭/无gcc为BLOCKED。
+- 接线首次编译FAIL（遗漏内部chunkParams接口），恢复后声明总量10个双provider/scoped子例PASS，7.686s。此编译失败不作为产品RED。
+
+本轮后续实际执行（原始日志仍在上述ignored目录，不把以前PR的绿色扩大到新代码）：
+
+| 命令/合同 | 实际结果 |
+| --- | --- |
+| 57归档 `go test ./internal/webserver/api -count=1 -tags=test,noaws,security_whole -run '^TestSEC030ChunkCompleteCoverage$' -timeout 45s -v` | ASSERTION_RED，退出1，7.134s，四种provider/入口均到达缺失覆盖拒绝断言 |
+| 完成全矩阵历史尝试 `-run '^TestSEC030ChunkComplete' -timeout 3m` | FAIL/timeout，186.201s；旧版本没有待测账本而等待settled，不能称全矩阵已获完整RED；随后收敛到上行最小合同 |
+| 会话最终 `go test ./internal/storage/chunking/chunksession -count=1 -tags=test,noaws,security_chunk -run '^TestSEC030ChunkSession' -timeout 90s -v` | PASS，16.500s，包括unknown/foreign/committed取消no-op且不清理/不退款 |
+| 新API `go test ./internal/webserver/api -count=1 -tags=test,noaws,security_whole -run '^TestSEC030Chunk' -timeout 7m -v` | PASS，45.622s；10/50 bytes/files/active、声明总量、FR累计、覆盖、完成竞争/重放及worker尾部 |
+| `go test ./internal/storage/processingstatus/pstatusdb ./internal/webserver/fileupload/uploadservice -count=1 -tags=test,noaws -timeout 45s -v` | PASS；首次遗漏test标签的命令为setup FAIL，未冒充产品RED |
+| `go test ./internal/storage ./internal/webserver -count=1 -tags=test,noaws,security_whole -run 'TestSEC030Whole\|TestSEC030UploadShutdown' -timeout 3m -v` | PASS，7.583s/11.376s；包含真实HTTP/worker尾部排空与低空间拒绝。空间fixture首次超出旧int parser的32位范围导致FAIL，改为合法2147483647 MiB，不分配大文件 |
+| `go test ./internal/webserver/api -count=1 -tags=test,noaws,security_whole -run '^TestSEC030ChunkE2E' -timeout 90s -v` | PASS，6.955s；真实连续writer/输出buffer reset/最终Close尾段，密文计量、假plaintext display不减quota、解密精确读回；不是浏览器/WASM运行 |
+| `go generate ./...` | PASS，原生Windows生成路由、env表、WASM及minified产物；仅保留本轮env文档变化，既有手工SEC013代理行恢复，无UI重写 |
+| 6包及status子包，`-tags=test,noaws,security_whole,security_chunk -run 'TestSEC030Chunk\|TestSEC030RequestReservationDisplay\|TestSEC030UploadShutdown\|TestSEC032BrowserChunkScope\|TestSEC031UploadSizeSemantics\|TestChunkComplete\|TestChunkUpload\|TestProcess' -timeout 5m -v` | PASS；API51.057s、fileupload9.647s、webserver13.700s、session15.683s，display/status通过；processingstatus父包无匹配，不算该包合同已执行 |
+| 新建57归档叠加当前源码及已生成embed，`go test ./... -count=1 -tags=test,noaws -timeout 4m` | FAIL。五个既知Windows断言仍失败（打开文件删除、localstorage路径、断线spool观察、SSL）；另发现两份SEC032旧fixture缺完整header/未存当前owner，已补有效参数及当前主体、保留精确400/12并加强不变断言。282份Go输入测试前后不变，不能声称全仓通过 |
+| 全新归档，`go test ./internal/webserver/api -count=1 -tags=test,noaws,security_whole,security_chunk -timeout 5m -v` | PASS，48.144s；包含全部API旧测试、新chunk/whole合同及两份修正guard，282份Go输入前后不变。之前在已跑过的Windows副本重跑5.749s FAIL/Users.Name冲突，属未清理的旧fixture残留，未隐去失败，改为全新副本才得此PASS |
+| 隔离副本 `GOOS=linux GOARCH=amd64 go test -c ./internal/webserver/api -o ../linux-chunk-large-api.test -tags=test,noaws,security_whole,security_chunk,security_large` | 首次FAIL（Linux专属large test一个未使用import），移除后实际编译PASS；只交叉编译，Linux大文件运行仍NOT_RUN |
+
+首次完成RED调用因归档工作目录下使用相对本地env路径未启动Go，标记NOT_RUN；绝对路径重试才是上表真实结果。
+首次组合regression保留FAIL：新私有payload布局使旧flat-path测试失效，Windows断线观察仍失败；
+旧fixture已改为通过冻结Lease精确读回和确认自身未发布资源清理，不删除安全断言或取消校验。
+低空间检查现覆盖N+真实密文长度+余量+MinFreeSpace，整数边界单测通过。
+本机race仍因cgo/GCC限制BLOCKED；本轮Linux四组全仓、相关race、scan、1–2GiB及真实Redis/S3
+仍NOT_RUN/待PR验证。20ms资源采样只代表采样峰值，不证明全部瞬时峰值。
+完整M3仍缺其他metadata正向准入、跨所有写者的物理容量协调、Claim/发布后崩溃对账及全部路径慢请求矩阵。
+有限模式扫描本轮59个待审文件未匹配私钥、GitHub Token、AWS访问Key或带敏感参数的URL；
+这不是全仓秘密审计。用户两个未跟踪目录未复制、未修改、未提交。
+
 ## SEC-030 整文件准入：代码 Gate 通过（2026-10-29）
+
+下列初期阶段片段保留当时的IN_PROGRESS/失败状态，最终结果以本节“最终Linux代码Gate”增补为准。
 
 工作基线 `710f4bf32ae80ac110bb5cd24e8d92848ac22bd8`，已验证代码9db2542，[PR #21](https://github.com/Activer007/Gokapi/pull/21)。本节先保留阶段记录，最终Linux结果见下方增补，最终文档head及合并结果另核实。范围为 `/api/files/add`，设计/默认值/回滚见[ADR-016](ADR-016-WHOLE-UPLOAD-ADMISSION.md)。此前PR的绿色不作为本轮接线结果。
 
@@ -784,6 +825,8 @@ CI在原generate之后串行增加同一脚本--occupied，只执行环境/编�
 起点f4ce5db，Windows PowerShell / WSL Ubuntu-24.04、Go1.26.0 linux/amd64；仅归档副本/合成临时数据，用户plan及deployment未跟踪目录未纳入。设计、接收目录升级/回滚及剩余边界见[ADR-015](ADR-015-BOUNDED-UPLOAD-RECEPTION.md)。四类入口共用receiver，保持认证先于正文；未接入持久chunk/metadata总额度，不宣称M3已完成。
 
 先失败合同：`bash docs/security/tools/run-sec030-receiver.sh red-policy`的6NrjZ8，环境0、contract1（严格配置桩允许非法值/回显值的断言失败）；`... red-entry`的hHKIGZ，环境0、contract1，旧入口10/50全部读取正文而非限4，未知长度正常末块被拒，已知长度的文件先/后两个对照PASS；`... red-storage`的wVRynQ，环境0、contract1，9MiB加密工作文件保留已经unlink的明文描述符，修为删除前显式Close。均是隔离资源合同，不自动升级为可利用漏洞声明。
+
+历史 `red-entry` 重放现固定使用已合并 `f563d9f5bcb4fea30cfb4c5fc1ccb0b22a284313` 的原测试文件（不叠加当前managed-session测试），输出ref与文件SHA256（`e6bd68ef9dc58ffd33379e8c259ea8cc96b6263f8a98b2e056d1d4e6daf286f0`）；仅真实10/50正文准入断言失败且known-orders对照PASS记 `ASSERTION_RED`/退出1，编译、setup、panic或未重现记退出2；本次修改后Go重放仍NOT_RUN。
 
 原有夹具修正：声明13字节的chunk只写11字节，改为实际13；保留服务器实际payload/剩余范围判断。旧SEC031的正文开销/未知长度拒绝改为正例，仍检查payload超单文件上限拒绝、无chunk/blob及ownedroot仅有marker。每provider/每根接收合同独立子进程，不能为测试切目录而放松单Pool/DataDir约束。首次联测QrWd7P生成0，目标/race1，失败为fixture多次换DataDir及本地pipe未关闭，随后修正；没有取消服务器端校验。
 

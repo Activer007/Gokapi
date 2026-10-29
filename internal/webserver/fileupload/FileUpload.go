@@ -18,7 +18,7 @@ import (
 	"github.com/forceu/gokapi/internal/models"
 	"github.com/forceu/gokapi/internal/storage"
 	"github.com/forceu/gokapi/internal/storage/chunking"
-	"github.com/forceu/gokapi/internal/storage/chunking/chunkreservation"
+	"github.com/forceu/gokapi/internal/storage/chunking/chunksession"
 	"github.com/forceu/gokapi/internal/storage/uploadreceive"
 	"github.com/forceu/gokapi/internal/webserver/errorHandling/errorcodes"
 )
@@ -100,19 +100,21 @@ func ProcessNewChunk(w http.ResponseWriter, r *http.Request, isApiCall bool, fil
 		return errorcodes.FileTooLarge, storage.ErrorFileTooLarge
 	}
 
-	if filerequestId != "" {
-		if !chunkreservation.SetUploading(filerequestId, chunkInfo.UUID) {
-			return errorcodes.InvalidChunkReservation, errors.New("chunk reservation has expired or was not requested")
-		}
-	}
-
-	chunkInfo.UUID = chunking.StorageID(chunkInfo.UUID, userId, filerequestId)
 	if err := r.Context().Err(); err != nil {
 		return errorcodes.InvalidUserInput, err
 	}
-	err = chunking.NewChunk(upload.File, upload.Header, chunkInfo, maxFileSize)
+	limits, err := chunkUploadLimits()
 	if err != nil {
-		return errorcodes.CannotAllocateFile, err
+		err = wholeUploadFailure{err}
+		return ReceiveErrorCode(err, errorcodes.CannotAllocateFile), err
+	}
+	_, err = storage.ChunkSessions().Write(r.Context(), chunksession.Scope{ClientID: chunkInfo.UUID, UserID: userId, RequestID: filerequestId}, chunkInfo, upload.File, upload.Header.Size, maxFileSize, limits)
+	if err != nil {
+		err = wholeUploadFailure{err}
+		return ReceiveErrorCode(err, errorcodes.CannotAllocateFile), err
+	}
+	if err := upload.Close(); err != nil {
+		return errorcodes.CannotAllocateFile, wholeUploadFailure{err}
 	}
 	_, _ = io.WriteString(w, "{\"result\":\"OK\"}")
 	return 0, nil
@@ -192,6 +194,11 @@ func closeReceived(upload *uploadreceive.Upload) {
 // ReceiveErrorStatus preserves ordinary validation responses and distinguishes
 // finite receiver backpressure from permanent payload rejection.
 func ReceiveErrorStatus(err error) int {
+	var failure wholeUploadFailure
+	if errors.As(err, &failure) {
+		status, _, _ := WholeUploadErrorResponse(err)
+		return status
+	}
 	switch {
 	case errors.Is(err, uploadreceive.ErrBusy):
 		return http.StatusTooManyRequests
@@ -203,6 +210,11 @@ func ReceiveErrorStatus(err error) int {
 }
 
 func ReceiveErrorCode(err error, fallback int) int {
+	var failure wholeUploadFailure
+	if errors.As(err, &failure) {
+		_, code, _ := WholeUploadErrorResponse(err)
+		return code
+	}
 	switch {
 	case errors.Is(err, uploadreceive.ErrBusy):
 		return errorcodes.UploadBusy

@@ -1,10 +1,19 @@
 # M0 安全基线
 
-研究日期：2026-10-27（Asia/Shanghai）。范围为个人 VPS / 小团队的单体 Go 服务。本文是源码与测试基线，不是安全认证。只向 **Activer007/Gokapi fork** 交付；Forceu/Gokapi 只读，不创建上游 PR、不推送、不触发其工作流。
+研究日期：2026-10-27（Asia/Shanghai）。范围为个人 VPS / 小团队的单体 Go 服务。本文是源码与测试基线，不是安全认证。只向用户已独立的 **Activer007/Gokapi** 交付；Forceu/Gokapi 只读，不创建上游 PR、不推送、不触发其工作流。
+
+## SEC-030 分片/请求准入增量：IN_PROGRESS（2026-10-29）
+
+当前起点57e5116，Go1.26.10 windows/amd64；本地tracked基线干净，保留用户两个未跟踪目录。
+CONFIRMED_CODE：旧分片绕开持久账本，预分配长度不等于完整覆盖，旧异步完成未在入队前Claim。
+隔离57加现有HTTP符号合同实际RED；当前新API全部目标、兼容目标、真实加密流分段及停服目标已PASS。
+统一请求累计/active env、当前request策略事务重读、私有有界范围证据和Claim后受控任务已接线，见ADR-017。
+这不是未知漏洞定性。VALIDATE：本机完整noaws真实FAIL，Linux全仓/race/大文件及完整M3 Gate尚未验收；
+跨所有写者的物理容量协调、其他metadata正向准入和发布后恢复仍开放，不沿用PR21绿色。
 
 ## SEC-030 整文件准入增量：代码 Gate 通过（2026-10-29）
 
-当前开发起点 `710f4bf32ae80ac110bb5cd24e8d92848ac22bd8`，仍仅为本地源码/合成隔离环境，尚未部署。CONFIRMED_CODE：开发中的 `/api/files/add` 已经由共用 receiver 进入 `NewFileReserved`，按真实 payload进行 Reserve/Claim，并把 metadata、hotlink和回执纳入同一次 provider Commit；当前源码事实不等于最终 Gate已经通过。范围、兼容和失败保持见 [ADR-016](ADR-016-WHOLE-UPLOAD-ADMISSION.md)。
+开发起点 `710f4bf32ae80ac110bb5cd24e8d92848ac22bd8`，仅源码/合成隔离环境，尚未部署。CONFIRMED_CODE：`/api/files/add` 由共用receiver进入NewFileReserved，按真实payload Reserve/Claim，并把metadata、hotlink和回执纳入同次provider Commit；本增量Gate结果如下，不扩大为完整M3已完成。范围、兼容和失败保持见 [ADR-016](ADR-016-WHOLE-UPLOAD-ADMISSION.md)。
 
 用户已确认每文件 MaxSize保留并新增累计预算；本增量选择可配置的有限默认 owner20GiB/1000文件/4在途、instance100GiB/5000文件/8在途、staging12GiB，没有将具体数值记为用户逐项批准。receiver另有12GiB接收预算；新持久暂存声明为 `4*实际payload+64KiB`。旧超额或异常metadata可能阻止新整文件准入，不自动删除/改写旧数据。
 

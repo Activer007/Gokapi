@@ -628,3 +628,33 @@ func TestSEC030WholeReservedActiveAndStagingAdmission(t *testing.T) {
 		}
 	}
 }
+
+func TestSEC030WholeProcessingSpaceCheckpoint(t *testing.T) {
+	// A large configured reserve simulates insufficient free space without
+	// allocating a large file or modifying the host filesystem capacity.
+	t.Setenv("GOKAPI_MIN_FREE_SPACE", "2147483647")
+	for _, backend := range []string{"sqlite", "redis"} {
+		t.Run(backend, func(t *testing.T) {
+			dir := wholeTestStore(t, backend)
+			input, header, closeInput, closed := wholeTestInput(t, []byte("space checkpoint"), "space.bin", "application/octet-stream")
+			counted := &wholeCountedReader{reader: input}
+			_, err := NewFileReserved(context.Background(), counted, header, wholeTestOwner, wholeTestParams(), wholeTestLimits(), closeInput)
+			if !errors.Is(err, uploadquota.ErrStaging) || counted.reads != 0 || *closed != 1 {
+				t.Fatal("space rejection consumed input or failed to close it", err)
+			}
+			ledger, err := database.ReadUploadQuota(context.Background())
+			if err != nil || len(ledger.Records) != 1 {
+				t.Fatal("missing durable cleanup receipt", err)
+			}
+			for _, record := range ledger.Records {
+				if record.State != uploadquota.Aborted || !record.StagingReleased {
+					t.Fatal("confirmed space failure retained an active reservation")
+				}
+			}
+			entries, err := os.ReadDir(dir)
+			if err != nil || len(entries) != 0 || len(database.GetAllMetadata()) != 0 {
+				t.Fatal("space rejection allocated work or published metadata", err)
+			}
+		})
+	}
+}

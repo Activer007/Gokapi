@@ -4,13 +4,23 @@
 
 基线 a9c25d453aab0c25f2d6e6926ec7312628638844，证据及分类见 [SECURITY-BASELINE](SECURITY-BASELINE.md)。模型面向个人 VPS / 小团队；不改变单体 Go、SQLite/Redis、本地/S3 或现有 API 架构。
 
+## SEC-030 分片/请求接线：待最终验证
+
+以57e5116为基线，ADR-017要求按owner/request稳定ID先冻结总声明，再使用有界持久范围回执；
+Truncate长度不能作为完整覆盖证明。当前request策略在事务/CAS内重读，Claim必须在创建任务之前。
+同步保留请求取消；异步有服务代际和有限截止时间，取消不代表I/O已经停止或可以退款。
+新进度、失败关闭、范围、重复完成和确认证据已获隔离局部GREEN；相关兼容目标、E2E真实writer
+分段及真实HTTP停服目标也通过，具体命令见TEST-REPORT。局部GREEN不证明完整M3或发布后恢复。
+既有ledger staging及独立receiver预算有限，但检查当前free不是跨所有写者的原子物理分配器；
+完整物理协调仍是后续Gate。未知发布/Claim后重启保额，不能将超时、cancel或无文件路径当作退款证明。
+
 ## SEC-030 整文件持久准入：本增量已验证
 
 起点710f4bf，已验证代码9db2542；Linux四组全仓、相关race及1–2GiB实传通过，具体证据/Windows限制以 [TEST-REPORT](TEST-REPORT.md)及[ADR-016](ADR-016-WHOLE-UPLOAD-ADMISSION.md)为准。只覆盖 `/api/files/add` 整文件接线，不扩大成所有上传路径已强制额度的结论。
 
 - 认证在外层完成；整文件强制空FileRequestId，owner来自当前授权主体，不从multipart覆盖。多个Key共享owner计量，去重和RealSize不能抵扣逻辑量；现存metadata仍进入快照。
 - 共用receiver先以有限正文槽/字节预算接收，再以实际file长度在provider原子Reserve/Claim；不能以receiver429当作累计额度拒绝证据。永久字节/数量拒绝为413/21，receiver429/20保持可区分。
-- 并发夹具必须先确认所有不同Key实际持久化且认证成功；SQLite唯一PublicId覆盖导致的401不证明任何quota边界。原错误夹具结果保留为FAIL，修订后的双provider竞争必须重新运行。
+- 并发夹具必须先确认所有不同Key实际持久化且认证成功；SQLite唯一PublicId覆盖导致的401不证明任何quota边界。原错误夹具结果保留为FAIL；修订后的双provider竞争已在PR21重新运行通过，详见TEST-REPORT。
 - metadata、hotlink和完成回执应在同一provider提交边界发布；拒绝不得提前创建可用hotlink或覆盖现有映射。Redis EXEC运行期错误必须明确返回，不能宣称整批自动回滚。
 - 处理放大采用有溢出检查的 `4*实际payload+64KiB` 持久预留，receiver预算独立。I/O停止、自有work/spool关闭并清理确认后才能释放；已发布或Commit不确定的目标继续占charge，不自动删除canonical、不按超时退款。
 - 已有共享blob只在长度/加密metadata验证后复用，未知服务器密文拒绝覆盖；E2E声明不能绕过必需服务器加密，无法表达的双层组合拒绝。新S3调用传递Context并严格传播存在性检查错误。

@@ -21,6 +21,17 @@ func (p DatabaseProvider) ApplyUploadQuota(ctx context.Context, change uploadquo
 		if err != nil {
 			return err
 		}
+		effective := change
+		if change.RequiresRequestPolicy() {
+			policy, err := readRequestPolicy(ctx, conn, change.Upload.RequestID)
+			if err != nil {
+				return err
+			}
+			effective, err = uploadquota.ApplyRequestPolicy(ledger, change, policy)
+			if err != nil {
+				return err
+			}
+		}
 		var files map[string]models.File
 		// Cleanup must remain possible when unrelated metadata is malformed.
 		// These terminal transitions never admit new uploads or write metadata;
@@ -31,7 +42,7 @@ func (p DatabaseProvider) ApplyUploadQuota(ctx context.Context, change uploadquo
 				return err
 			}
 		}
-		next, result, metadata, err := uploadquota.Apply(ledger, files, change)
+		next, result, metadata, err := uploadquota.Apply(ledger, files, effective)
 		if err != nil {
 			return err
 		}
