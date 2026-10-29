@@ -4,6 +4,27 @@
 
 ## M4首轮：052-A优先修复（2026-10-29）
 
+最终验证：[PR43](https://github.com/Activer007/SupaShare/pull/43)，冻结headd9d03ad34ef940132edc7c50d74d80d6fe07467d；
+[CI40870398244](https://github.com/Activer007/SupaShare/actions/runs/40870398244) SUCCESS，job123435790878。
+实际checkout48ea753a663d67699074ce9aadd914956d2666b2，父718c46a+d9d03ad，tree4dcb15ee8cd1a56aa69e6a4df9f4971e900fac63与冻结head一致。
+Ubuntu24.04、Go1.26.10 linux/amd64；完整命令与脱敏结果见[evidence](evidence/sec052-d9d03ad/ci-summary.txt)。
+
+| 最终CI真实命令 | 结果 |
+| --- | --- |
+| `go generate ./...` | PASS；既有scan步骤内再次生成也成功，未另开第二轮CI |
+| `go test ./... -parallel 8 -count=1 --tags=test,awsmock` | PASS |
+| `go test ./... -parallel 8 -count=1 --tags=test,noaws` | PASS |
+| `go test ./... --tags=test,noaws,integration -count=1` | PASS |
+| 既有合成AWS环境：`go test ./... --tags=test,awstest -count=1` | PASS，非真实S3 |
+| `go test -race ./internal/storage -count=1 -tags=test,noaws -run '^TestSEC052ServeFileFailure$'` | PASS，1.099s；仅新增小合同，无旧大文件测试 |
+| 既有receiver race及`bash docs/security/tools/run-sec030-whole.sh target` / `race` | PASS，两次source-unchanged均0，实际完整命令见evidence |
+| `bash docs/security/tools/run-sec062-toolchain.sh scan` | PASS，默认/noaws/WASM及server/CLI/generator构建和scan返回码均0 |
+
+扫描仍报模块级GO-2026-5932、GO-2022-0646/0635提示，受测调用图未报affected调用；不宣称依赖已修复。
+最终收尾仅安全文档/脱敏摘要，不改运行代码、模板、module、生成器或CI，不重复全仓测试。
+主动取消、其他浏览器、真实Redis/S3、ZIP、H2、大文件、Docker和生产演练分别保持VALIDATE/NOT_RUN；M4保持ACTIVE。
+以下开发期FAIL/RED记录保留，不以最终PASS覆盖。
+
 基线8c39931733be853dd68d11ad5b193088c4d928d5，v2.11.0，Go1.26.10 windows/amd64、CGO0、无gcc。
 独立managed worktree保留040开发并新建052修复；原用户工作区/两个未跟踪目录未改。
 冻结前origin/master已合入文档PR42（718c46a）；其20个README/docs/图片/FUNDING文件不改Go、模板、module或构建输入。
@@ -23,7 +44,7 @@
 错误分支随后抽成独立小合同：`go test ./internal/storage -count=1 -tags=test,noaws -run '^TestSEC052ServeFileFailure$' -timeout 60s -v`
 PASS，exit0/8.714s；无需TestNewFile或其20/50MiB测试；Linux CI仅对该合同补race。
 私密预检此前归档参数、test CLI flags和PowerShell逗号引号设置失败均未到业务，不计作RED；已保留原始记录并修正。
-原生race BLOCKED（CGO0/无gcc）；最终Linux CI待冻结后运行。不借用M3或其他SHA的PASS。
+原生race BLOCKED（CGO0/无gcc）；最终Linux CI已按上文独立验证，不借用M3或其他SHA的PASS。
 Firefox/真实S3/ZIP完整性、全浏览器、大文件/镜像/生产演练NOT_RUN；本阶段ACTIVE而非完成。
 
 ### 052一个Chromium+HTTPS E2E/WASM正负例

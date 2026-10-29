@@ -10,6 +10,8 @@ CONFIRMED_CODE：052本地服务器加密下载的限定真实HTTP终态合同�
 修复在密钥元数据前置检查失败时返回500、后置流失败时中断响应；正常字节/密钥/schema不变，见[ADR-023](ADR-023-ENCRYPTED-DOWNLOAD-ERROR.md)。
 一个Chromium+HTTPS真实E2E/WASM预检：正常native下载SHA256一致；认证失败显示错误但下载/busy悬挂，未观察到自然正常完成。
 此错误传播缺陷单独成立，最小修复将失败传递至流控制器并中止输出；GREEN与最终CI结果见TEST-REPORT。
+收尾[PR43](https://github.com/Activer007/SupaShare/pull/43)：最终CI40870398244 SUCCESS，实际候选48ea753/tree4dcb15ee与冻结headd9d03ad一致。
+正常SHA256与两条失败终态已取得独立GREEN；最终只补文档，不重跑未变化构建输入。
 VALIDATE：其他浏览器、真实S3/ZIP及其他组合不能借用本地或单Chromium结论；未证明客户端残留安全擦除。
 040已有最新业务RED但尚未合并修复；041/051/050仍需各自Gate。上游419/418当前只读REST复核仍open，非同一052修复。
 

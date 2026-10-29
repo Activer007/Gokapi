@@ -1,0 +1,43 @@
+SEC-052-A final CI, 2026-10-29
+Repository: Activer007/SupaShare; PR 43
+https://github.com/Activer007/SupaShare/actions/runs/40870398244
+Workflow run 40870398244; job 123435790878: SUCCESS
+Frozen head: d9d03ad34ef940132edc7c50d74d80d6fe07467d
+Actual checkout: 48ea753a663d67699074ce9aadd914956d2666b2
+Parents: 718c46a8b6ed2d132c8a9563973eaf7b045624bd d9d03ad34ef940132edc7c50d74d80d6fe07467d
+Tree: 4dcb15ee8cd1a56aa69e6a4df9f4971e900fac63 (same as frozen head)
+Ubuntu 24.04; go1.26.10 linux/amd64
+
+PASS go generate ./...
+PASS bash docs/security/tools/run-sec062-setup-listener.sh --occupied
+PASS go test ./... -parallel 8 -count=1 --tags=test,awsmock
+PASS go test ./... -parallel 8 -count=1 --tags=test,noaws
+PASS go test ./... --tags=test,noaws,integration -count=1
+PASS GOKAPI_AWS_BUCKET=gokapi GOKAPI_AWS_REGION=eu-central-1 GOKAPI_AWS_KEY=keyid GOKAPI_AWS_KEY_SECRET=secret go test ./... --tags=test,awstest -count=1
+AWS settings above are pre-existing synthetic fixture values, not deployment credentials or a real S3 test.
+PASS go test -race ./internal/environment ./internal/storage ./internal/storage/uploadreceive ./internal/webserver/fileupload ./internal/webserver/api ./internal/webserver -count=1 -tags=test,noaws -run 'TestSEC030Receive|TestSEC031UploadSizeSemantics|TestReceive|TestSpool|TestSEC062Range'
+PASS go test -race ./internal/storage -count=1 -tags=test,noaws -run '^TestSEC052ServeFileFailure$'
+  storage: 1.099s; independent small fixture; no TestNewFile large-file selection
+PASS bash docs/security/tools/run-sec030-whole.sh target
+PASS bash docs/security/tools/run-sec030-whole.sh race
+  both source-unchanged results: 0
+PASS bash docs/security/tools/run-sec062-toolchain.sh scan
+  environment/policy/scanner-install/scanner-version/scanner-buildinfo: 0
+  generate/formatting/source-default/source-noaws/wasm-source: 0
+  generator-build/generator-buildinfo/generator-binary-scan: 0
+  server-build/cli-build/gokapi-buildinfo/gokapi-binary-scan: 0
+  gokapi-cli-buildinfo/gokapi-cli-binary-scan: 0
+  module-only GO-2026-5932, GO-2022-0646, GO-2022-0635 warnings remain;
+  no affected calls reported by the tested call graphs, not a dependency-fix claim.
+
+Recorded Linux generated-input SHA256:
+bbe89866aa99baedda0edb8adace1a0795a3b92c0695f6ea575f5525fc231089  cmd/wasmdownloader/Main.go
+e04361f5d22e0de45b1a9740589346230b993416e04b5e7c796b47111b6656ee  internal/webserver/web/templates/html_download.tmpl
+def8f8e763efcb892547d3b5f34b00d665d3b11cd34990d200a31c2addecfee5  internal/webserver/web/main.wasm
+Windows private browser evidence has separately verified source/artifact provenance;
+raw template line endings and platform/build paths need not yield identical artifact hashes.
+
+NOT_RUN: workflow_dispatch-only historical compiler/Docker/large-file steps,
+real S3/Redis persistence, additional browsers, H2, user cancellation, ZIP integrity,
+deployment, image/advisory/CVE publication. No production data touched.
+Final documentation/evidence-only changes do not repeat unchanged runtime validation.
