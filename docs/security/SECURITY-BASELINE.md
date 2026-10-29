@@ -4,8 +4,17 @@
 
 ## 当前M4：可靠删除与下载内容边界
 
+SEC-040-A以主线c434e099开始，隔离开发保留已测试provider工作并同步该主线；CONFIRMED_CODE（原c434）：
+删除失败仍可丢管理锚点，最新业务RED12.290s。最小修复采用checked完整扫描/探测/删除/条件退休，复用metadata重试，见[ADR-022](ADR-022-RETRYABLE-DELETION.md)。
+本地相关合同GREEN：loopback DELETE失败、HEAD未知、假成功、另一进程重启重试、跨owner共享及路径边界；双provider完整引用/条件退休GREEN。
+收尾[PR44](https://github.com/Activer007/SupaShare/pull/44)：CI40887732123 SUCCESS，实际6af21ff/tree68eac331与冻结e1fd952一致；
+四组全仓、相关race、Linux实际权限/symlink、构建/扫描均PASS。开发期两次真实CI失败及夹具修正均在TEST-REPORT保留。
+本地路径别名及case-only歧义先取得候选防御合同RED后修复，不据此声称远程攻击者可利用；S3保持精确key身份。
+040-B取消/恢复/旧timer协调另有窄隔离业务RED，精确证据留自有私密审查；修复及外部反馈仍OPEN，不推定越权链/发布版本影响。
+VALIDATE：041旧内容候选、真实Redis/S3及崩溃中断窗口仍OPEN；040-A不能关闭整个M4。
+
 基线8c39931733be853dd68d11ad5b193088c4d928d5，v2.11.0；范围见[M4-GOAL](M4-GOAL.md)，阶段ACTIVE，M3保持完成。
-CONFIRMED_CODE：052本地服务器加密下载的限定真实HTTP终态合同触发P0 Gate，先做最小错误传播修复；
+HISTORICAL_FIXED（PR43）：052本地服务器加密下载的限定真实HTTP终态合同曾触发P0 Gate，已做最小错误传播修复；
 精确复现及原始输出保留在已核实的自有私密入口，公开不带构造细节。未证明远程利用链。
 修复在密钥元数据前置检查失败时返回500、后置流失败时中断响应；正常字节/密钥/schema不变，见[ADR-023](ADR-023-ENCRYPTED-DOWNLOAD-ERROR.md)。
 一个Chromium+HTTPS真实E2E/WASM预检：正常native下载SHA256一致；认证失败显示错误但下载/busy悬挂，未观察到自然正常完成。
@@ -13,7 +22,7 @@ CONFIRMED_CODE：052本地服务器加密下载的限定真实HTTP终态合同�
 收尾[PR43](https://github.com/Activer007/SupaShare/pull/43)：最终CI40870398244 SUCCESS，实际候选48ea753/tree4dcb15ee与冻结headd9d03ad一致。
 正常SHA256与两条失败终态已取得独立GREEN；最终只补文档，不重跑未变化构建输入。
 VALIDATE：其他浏览器、真实S3/ZIP及其他组合不能借用本地或单Chromium结论；未证明客户端残留安全擦除。
-040已有最新业务RED但尚未合并修复；041/051/050仍需各自Gate。上游419/418当前只读REST复核仍open，非同一052修复。
+040-A进度见本节首段；041/051/050仍需各自Gate。上游419/418最新连接器只读复核仍open/unmerged，无可直接复用的040失败重试方案。
 
 ## M3：最小恢复与收口（2026-10-29，冻结范围已完成）
 

@@ -870,8 +870,13 @@ func FileExists(file models.File, dataDir string) bool {
 
 // CleanUp removes expired files from the config and from the filesystem if they are not referenced by other files anymore
 // Will be called periodically or after a file has been manually deleted in the admin view.
-// If the parameter periodic is true, this function is recursive and calls itself every hour.
+// If periodic is true, the next pass is scheduled even when this pass fails.
 func CleanUp(periodic bool) {
+	if periodic {
+		defer func() {
+			time.AfterFunc(time.Hour, func() { CleanUp(true) })
+		}()
+	}
 	// Session cleanup takes its own per-upload gate before touching staged
 	// input; it must run outside canonical publication/reference locks.
 	cleanupCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -880,62 +885,32 @@ func CleanUp(periodic bool) {
 	}
 	cancel()
 	downloadstatus.Clean()
-	timeNow := time.Now().Unix()
-	wasItemDeleted := false
-	for key, element := range database.GetAllMetadata() {
-		if cleanUpBlobReference(key, element, timeNow) {
-			wasItemDeleted = true
-		}
-	}
-	if wasItemDeleted {
-		CleanUp(false)
+	if _, err := CleanUpContext(context.Background()); err != nil {
+		log.Print("File cleanup pending")
+		return
 	}
 	cleanOldTempFiles()
 	cleanHotlinks()
 	cleanInvalidApiKeys()
 	cleanInvalidFileRequests()
 	database.RunGarbageCollection()
-
-	if periodic {
-		go func() {
-			time.Sleep(time.Hour)
-			CleanUp(periodic)
-		}()
-	}
 }
 
 // Publication and new references cannot interleave with the last-reference
 // check and deletion. Re-read the row under the locator lock: a stale scan must
 // not delete a replacement that now points to a different blob.
 func cleanUpBlobReference(key string, scanned models.File, now int64) bool {
-	unlock, err := lockBlobPublication(context.Background(), scanned)
+	if key != scanned.Id {
+		return false
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), cleanupItemTimeout)
+	defer cancel()
+	result, err := cleanUpBlobReferenceContext(ctx, scanned, now, configuration.Get().DataDir)
 	if err != nil {
+		log.Print("File cleanup pending")
 		return false
 	}
-	defer unlock()
-	current, exists := database.GetMetaDataById(key)
-	if !exists || current.SHA1 != scanned.SHA1 || current.AwsBucket != scanned.AwsBucket {
-		return false
-	}
-	fileExists := FileExists(current, configuration.Get().DataDir)
-	if fileExists && !isExpiredFileWithoutDownload(current, now) && !isPendingToBeDeleted(current, now) {
-		return false
-	}
-	deleteFile := true
-	for _, other := range database.GetAllMetadata() {
-		if other.Id != current.Id && other.SHA1 == current.SHA1 && other.AwsBucket == current.AwsBucket {
-			deleteFile = false
-			break
-		}
-	}
-	if deleteFile && fileExists {
-		deleteSource(current, configuration.Get().DataDir)
-	}
-	if current.HotlinkId != "" {
-		database.DeleteHotlink(current.HotlinkId)
-	}
-	database.DeleteMetaData(key)
-	return true
+	return result.Retired != 0
 }
 
 func getUserMap() map[int]models.User {
@@ -1052,19 +1027,6 @@ func isExpiredFileWithoutDownload(file models.File, timeNow int64) bool {
 		return false
 	}
 	return IsExpiredFile(file, timeNow)
-}
-
-// deleteSource removes the source file from the file system or cloud storage.
-func deleteSource(file models.File, dataDir string) {
-	var err error
-	if !file.IsLocalStorage() {
-		_, err = aws.DeleteObject(file)
-	} else {
-		err = os.Remove(dataDir + "/" + file.SHA1)
-	}
-	if err != nil {
-		fmt.Println("Warning, cannot delete file " + file.Id + ": " + err.Error())
-	}
 }
 
 // DeleteFile is called when an admin requests deletion of a file.

@@ -1,0 +1,47 @@
+SEC-040-A final CI, 2026-10-29
+Repository: Activer007/SupaShare; PR44
+https://github.com/Activer007/SupaShare/actions/runs/40887732123
+Run40887732123 / job123495867631: SUCCESS
+Frozen head: e1fd9523bcdfd5e71015a62c5cef420167594d63
+Actual checkout: 6af21ff45d634b85620464c3e13ae62085efafc0
+Parents: c434e0997e61d368dd9c4705d3ba4e10a0a01882 e1fd9523bcdfd5e71015a62c5cef420167594d63
+Tree: 68eac331b8440ad8ce5b63baf36b924e0084ece3 (same as frozen head)
+Ubuntu24.04; go1.26.10 linux/amd64
+
+PASS go generate ./...
+PASS bash docs/security/tools/run-sec062-setup-listener.sh --occupied
+PASS go test ./... -parallel 8 -count=1 --tags=test,awsmock
+PASS go test ./... -parallel 8 -count=1 --tags=test,noaws
+PASS go test ./... --tags=test,noaws,integration -count=1
+PASS GOKAPI_AWS_BUCKET=gokapi GOKAPI_AWS_REGION=eu-central-1 GOKAPI_AWS_KEY=keyid GOKAPI_AWS_KEY_SECRET=secret go test ./... --tags=test,awstest -count=1
+  Pre-existing synthetic AWS fixture settings, not deployment credentials or a real cloud test.
+PASS go test -race ./internal/environment ./internal/storage ./internal/storage/uploadreceive ./internal/webserver/fileupload ./internal/webserver/api ./internal/webserver -count=1 -tags=test,noaws -run 'TestSEC030Receive|TestSEC031UploadSizeSemantics|TestReceive|TestSpool|TestSEC062Range'
+PASS go test -race ./internal/storage -count=1 -tags=test,noaws -run '^TestSEC052ServeFileFailure$'
+PASS go test -race ./internal/test/securityfixture ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,security_cleanup -run '^TestSEC040Cleanup' -timeout 3m -v
+  fixture17.236s; SQLite1.463s; miniredis1.149s.
+  TestSEC040CleanupLocalBoundaries/symlink: PASS0.05s
+  TestSEC040CleanupLocalBoundaries/permissions: PASS0.05s (not skipped)
+  Real SDK/loopback deletion failure, unknown HEAD, ignored DELETE, process-restart retry,
+  cross-owner sharing, missing/unsafe/directory boundaries and provider contracts: PASS.
+  Pre-cancel/nil contexts are not the SEC-040-B cancel/restore race.
+PASS bash docs/security/tools/run-sec030-whole.sh target
+PASS bash docs/security/tools/run-sec030-whole.sh race
+  source-unchanged: 0 in both commands
+PASS bash docs/security/tools/run-sec062-toolchain.sh scan
+  All19 SEC062_RESULT codes0, including default/noaws/WASM source scans,
+  generator/server/CLI builds, BuildInfo and binary scans.
+  Module-only GO-2026-5932, GO-2022-0646/0635 notices remain;
+  no affected calls reported by tested call graphs, not a dependency-fix claim.
+
+Prior real failures retained in TEST-REPORT:
+  CI40882137674: malformed API ownership-only fixture left empty locator;
+    all original permission/deletion assertions preserved after fixture correction.
+  CI40884877791: four full variants passed, then standalone download-race fixture
+    deleted SQLite before finite async statistics work ended; synctest draining fixed it.
+  Skipped steps in failed runs are NOT_RUN, not borrowed successes.
+
+NOT_RUN: real Redis persistence, real S3/history, SIGKILL/power-loss windows,
+additional browser/streaming matrices, workflow_dispatch-only Docker/large/history steps,
+deployment, image release or advisory/CVE publication.
+Final security documentation/evidence-only changes do not repeat unchanged runtime validation.
+SEC-040-B, SEC-041 and M4 remain open.

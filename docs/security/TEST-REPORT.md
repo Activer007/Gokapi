@@ -2,6 +2,64 @@
 
 日期：2026-10-27（Asia/Shanghai）。初始源码基线 a9c25d453aab0c25f2d6e6926ec7312628638844。目标是建立可复现证据；这里的 PASS 不代表上线许可。初始 M0 仅本地交付，后续按用户授权在 Activer007/SupaShare 创建、审查及合并 PR；无部署。最新审查结果见末尾增补，早期记录保留原始结果。
 
+## M4续作：SEC-040-A可靠删除（2026-10-29）
+
+最终验证：[PR44](https://github.com/Activer007/SupaShare/pull/44)，冻结heade1fd9523bcdfd5e71015a62c5cef420167594d63；
+[CI40887732123](https://github.com/Activer007/SupaShare/actions/runs/40887732123) SUCCESS，job123495867631。
+实际checkout6af21ff45d634b85620464c3e13ae62085efafc0，父c434e099+e1fd952；tree68eac331b8440ad8ce5b63baf36b924e0084ece3与冻结head一致。
+Ubuntu24.04、Go1.26.10 linux/amd64；逐项结果与实际完整命令见[脱敏摘要](evidence/sec040-e1fd952/ci-summary.txt)。
+
+| 最终CI真实命令 | 结果 |
+| --- | --- |
+| `go generate ./...` | PASS；既有scan内再生成也成功 |
+| `go test ./... -parallel 8 -count=1 --tags=test,awsmock` | PASS |
+| `go test ./... -parallel 8 -count=1 --tags=test,noaws` | PASS |
+| `go test ./... --tags=test,noaws,integration -count=1` | PASS |
+| 既有合成AWS环境：`go test ./... --tags=test,awstest -count=1` | PASS，非真实S3 |
+| `go test -race ./internal/test/securityfixture ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,security_cleanup -run '^TestSEC040Cleanup' -timeout 3m -v` | PASS，fixture17.236s/SQLite1.463s/miniredis1.149s；Linux symlink及permissions均实际PASS，无跳过 |
+| 既有receiver/download failure race、`bash docs/security/tools/run-sec030-whole.sh target` / `race` | PASS；两次source-unchanged均0；完整命令见摘要 |
+| `bash docs/security/tools/run-sec062-toolchain.sh scan` | PASS，全部19项返回码0；构建/实际BuildInfo/默认、noaws、WASM及二进制扫描已核实 |
+
+模块级GO-2026-5932、GO-2022-0646/0635提示仍保留，受测调用图未报affected调用，不宣称依赖已修复。
+原生Windows race/权限NOT_RUN记录保持原状，Linux最终结果独立列示；真实Redis持久化、真实S3/历史版本、断电/崩溃窗口、生产演练仍NOT_RUN。
+收尾只改安全文档/脱敏摘要，不改运行代码、模板、module、生成器或CI，不重复全仓。
+040-B另有两个窄竞态业务RED，精确负例留自有私密审查；尚未修复，未证明发布版本影响或越权链，不据A通过关闭B/041/M4。
+以下开发期RED/FAIL/SKIP均保留；最终成功不覆盖原始失败。
+
+主线c434e0997e61d368dd9c4705d3ba4e10a0a01882；040先保存provider草稿1c56bed，再同步主线为a58659d。
+未触碰用户工作树；旧M4草稿只移入ignored备份，沿用PR43已合并目标。环境portable Go1.26.10 Windows/amd64、CGO0/无gcc。
+测试使用临时SQLite、miniredis、真实SDK+loopback S3及子进程，不使用生产数据或真实云凭据。
+
+| 真实命令 | 结果 |
+| --- | --- |
+| `go test ./internal/test/securityfixture -count=1 -tags=test,security_red -run '^TestSEC040FailedDeletionKeepsManagementRecord$' -timeout 90s -v` | 业务RED，exit1/12.290s，实际DELETE失败且对象仍在，metadata丢失；旧12.079s记录保留 |
+| `go test ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,noaws,security_cleanup -run '^TestSEC040Cleanup(SQLite\|Redis)LocatorIdentity$' -timeout 60s -v` | 新候选防御合同RED，SQLite4.398s/miniredis4.128s；local alias/case歧义失败、S3 exact对照通过；非历史远程漏洞声明 |
+| `go test ./internal/test/securityfixture ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -count=1 -tags=test,security_red,security_cleanup -run '^TestSEC040' -timeout 2m -v` | GREEN，exit0；fixture34.068s/SQLite3.746s/miniredis3.538s；含原RED回归 |
+| `go test ./internal/storage -count=1 -tags=test,awsmock -run '^(TestCleanUp\|TestDeleteFile\|TestDeleteAllEncrypted)$' -timeout 90s -v` | FAIL，exit1/13.964s；CleanUp/Encrypted PASS，DeleteFile中空locator合成状态行令完整引用检查拒绝，未放宽生产guard |
+| 仅为该状态夹具补安全locator并清理已核对的自动测试副本后：`go test ./internal/storage -count=1 -tags=test,awsmock -run '^TestDeleteFile$' -timeout 90s -v` | PASS，exit0/13.433s；保留原物理删除断言，不重复已通过两项 |
+
+GREEN实际覆盖DELETE失败/HEAD未知/假成功均保留metadata+hotlink+源，公开GetFile/hotlink拒绝；单项远端错误后独立local仍回收。
+子进程先真实失败并正常退出，父进程此前未连该DB，fresh连接后重试成功；只证明正常进程重启，不冒称SIGKILL/断电/崩溃窗口。
+跨owner共享内容保留；local缺失可退休、目录/unsafe/symlink均保留，Windows实际symlink子例PASS；provider hotlink转属/冲突/损坏/取消合同PASS。
+pre-cancel/nil仅证明context入口拒绝及无DELETE，不是040-B取消删除竞态。新增Unix权限拒绝子例Windows NOT_RUN，交最终Linux CI实测。
+原生race BLOCKED（无CGO/gcc）；真实Redis持久化、真实S3、完整041回收、中途取消、断电及生产演练NOT_RUN。
+`go test ./internal/test/securityfixture -count=1 -tags='test,security_cleanup' -run '^TestSEC040CleanupLocalBoundaries/permissions$' -timeout 30s -v`
+exit0/10.948s，但权限子例明确SKIP/NOT_RUN（Windows），不能记权限合同PASS；最终Linux CI需核对实际子例。
+上表tags按Go参数展示，PowerShell复现时将逗号参数加单引号，如`-tags='test,awsmock'`。
+首冻结head583be126d8ac75b838677dbfd7bb0d91211b46ad的push CI40882137674（job123476150976）FAIL：
+generate与setup合同PASS，`go test ./... -parallel 8 -count=1 --tags=test,awsmock`仅API包失败，后续noaws/integration/awstest/race/build/scan均SKIPPED/NOT_RUN。
+API的TestDeleteFile/RestoreFile/List三处失败经两份独立源码审查定位：前序testDeleteUserCall留下空SHA1合成行，完整引用检查拒绝，符合unknown保留策略。
+仅给该所有权夹具补明确不存在的安全locator；不改生产guard、权限、owner或原断言。
+修正后`go test ./internal/webserver/api -count=1 -tags='test,awsmock' -timeout 2m -v` PASS/exit0/10.709s，含产生前序状态的TestUserDelete及原三失败项。
+该真实CI失败及测试输入修正要求新的最终验证；不把首轮失败或后续未执行项改记PASS。
+修正API夹具后的80b9ef8在PR CI40884877791（job123485928025）中，生成、四组全仓及receiver race均PASS；
+独立SEC052 race断言PASS后，TestMain删除SQLite与尚未结束的异步SaveStatTraffic竞争，发生disk I/O panic，整项FAIL；040 race及其后步骤SKIPPED。
+仅给该小测试的两次ServeFile调用加synctest作用域，等待有限counter/traffic任务结束，不使用sleep、不关掉统计、不修改生产实现或错误断言。
+修正后`go test ./internal/storage -count=1 -tags='test,noaws' -run '^TestSEC052ServeFileFailure$' -timeout 60s -v` PASS/exit0/5.839s；原生race仍BLOCKED，Linux需重新核实。
+这次补测由真实测试生命周期失败引起，未把此前四组全仓PASS覆盖为其他SHA的整套PASS。
+本地开发证据在ignored sec040-delete-local.secret，不借用052或M3的PASS。
+一次stdlib文档查询意外触发module索引联网并被sandbox阻止，非测试/非RED；改直接读取本地GOROOT源码确认Root API，未改依赖或代理。
+
 ## M4首轮：052-A优先修复（2026-10-29）
 
 最终验证：[PR43](https://github.com/Activer007/SupaShare/pull/43)，冻结headd9d03ad34ef940132edc7c50d74d80d6fe07467d；

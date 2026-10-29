@@ -92,8 +92,19 @@ func FileExistsContext(ctx context.Context, file models.File) (bool, int64, erro
 	return false, 0, errors.New(errorString)
 }
 
-// DeleteObject deletes a file from S3
+// DeleteObject reports that S3 deletion is unsupported in this build.
 func DeleteObject(file models.File) (bool, error) {
+	return DeleteObjectContext(context.Background(), file)
+}
+
+// DeleteObjectContext never reports an unsupported deletion as successful.
+func DeleteObjectContext(ctx context.Context, file models.File) (bool, error) {
+	if ctx == nil {
+		return false, errors.New("invalid AWS context")
+	}
+	if err := ctx.Err(); err != nil {
+		return false, err
+	}
 	return false, errors.New(errorString)
 }
 
