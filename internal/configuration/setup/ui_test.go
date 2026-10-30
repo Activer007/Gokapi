@@ -62,6 +62,12 @@ func TestUISetupTemplate(t *testing.T) {
 			if strings.Contains(body, "ZgotmplZ") || strings.Contains(body, "<title><script>") || !strings.Contains(body, "&lt;script&gt;") {
 				t.Fatal("setup title was not escaped correctly")
 			}
+			if !strings.Contains(body, `class="setup-page"`) || !strings.Contains(body, `href="./ui.css?v=2"`) {
+				t.Fatal("setup must load its standalone presentation resources")
+			}
 		}
+	}
+	if _, err := webserverDirEmb.ReadFile("static/setup/ui.css"); err != nil {
+		t.Fatal("setup stylesheet missing from production embed:", err)
 	}
 }
