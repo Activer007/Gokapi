@@ -14,6 +14,7 @@ func TestWriteDownloadHeaders(t *testing.T) {
 	file := models.File{Name: "testname.zip", ContentType: "application/zip", SizeBytes: 1234}
 	w, _ := test.GetRecorder("GET", "/test", nil, nil, nil)
 	Write(file, w, true, false)
+	test.IsEqualString(t, w.Result().Header.Get("X-Content-Type-Options"), "nosniff")
 	test.IsEqualString(t, w.Result().Header.Get("Content-Disposition"), "attachment; filename=\"testname.zip\"; filename*=UTF-8''testname.zip")
 	test.IsEqualString(t, w.Result().Header.Get("Content-Security-Policy"), "") // must NOT be set for downloads
 	test.IsEqualString(t, w.Result().Header.Get("Content-Type"), "application/zip")
@@ -22,6 +23,7 @@ func TestWriteDownloadHeaders(t *testing.T) {
 	// --- ASCII filename, inline ---
 	w, _ = test.GetRecorder("GET", "/test", nil, nil, nil)
 	Write(file, w, false, false)
+	test.IsEqualString(t, w.Result().Header.Get("X-Content-Type-Options"), "nosniff")
 	test.IsEqualString(t, w.Result().Header.Get("Content-Disposition"), "inline; filename=\"testname.zip\"; filename*=UTF-8''testname.zip")
 	test.IsEqualString(t, w.Result().Header.Get("Content-Security-Policy"), "sandbox")
 	test.IsEqualString(t, w.Result().Header.Get("Content-Type"), "application/zip")

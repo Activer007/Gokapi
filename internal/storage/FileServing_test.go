@@ -1023,6 +1023,7 @@ func TestServeFilesAsZipSanitisation(t *testing.T) {
 	// reaches the Content-Disposition header.
 	w := httptest.NewRecorder()
 	ServeFilesAsZip([]models.File{}, "../../etc/evil", w, r)
+	test.IsEqualString(t, w.Result().Header.Get("X-Content-Type-Options"), "nosniff")
 	cd := w.Result().Header.Get("Content-Disposition")
 	test.IsEqualBool(t, strings.HasPrefix(cd, ".."), false)
 	test.IsEqualBool(t, strings.Contains(cd, "/"), false)
