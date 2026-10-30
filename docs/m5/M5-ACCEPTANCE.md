@@ -1,6 +1,6 @@
 # M5 验收检查表
 
-状态与命令以每包报告和精确代码提交为准；尚未执行不记 PASS。
+当前 Goal 仅为 FIX-01。状态与命令以本包报告和精确代码提交为准；尚未执行不记 PASS，其他阶段不作为当前完成条件。
 
 ## FIX-01
 
@@ -17,8 +17,8 @@
 | RED/GREEN、目标 30 次、要求的 race 与全仓 integration、相关 noaws/awsmock/安全测试 | [FIX-01 报告](FIX-01-REPORT.md) | PASS（本地） |
 | 无 production/API/schema/权限/密文变更；生成资产无漂移；独立 review | 差异与生成 guard，[PR #59](https://github.com/Activer007/SupaShare/pull/59) 最新 head review | 本地 PASS；远端结果以 PR 对应 SHA 摘要为准 |
 
-## 后续工作包及总收口
+## 当前收口边界
 
-FIX-02、FIX-03、REL-01 的实际验收尚未执行，均 NOT_RUN。后续每包开始时需建立自己的基线、RED/GREEN、测试命令、风险、PR 和最终 SHA；不得借 FIX-01 的结果完成它们。
+当前仅核对上表的 FIX-01 八项不变量、指定回归、报告及 PR #59 最新 head 的自动 review。FIX-02、FIX-03、REL-01 的历史分支/证据保留，但不继续执行，也不借用其结果证明 FIX-01。
 
-最新 master 必要完整测试、安装/升级、实际备份恢复、回滚演练与 RC 清单目前均未取得 M5 收口证据。真实 Redis/S3 持久化、断电和生产环境也未从 miniredis/loopback/进程退出推定通过。发布仍需另行明确批准。
+真实 Redis/S3 持久化、断电、安装升级、整站备份恢复/回滚及发布候选准备均不属于本包验证范围；不从 miniredis/loopback/进程退出推定这些项目通过。FIX-01 交付完成后停止自动续作，后续阶段等待用户明确指示；本包通过不表示全部 M5 完成或已经合并。Actions 保持关闭，不自动合并、发布或部署。
