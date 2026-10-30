@@ -5,9 +5,13 @@ These images support the English and Chinese SupaShare READMEs.
 | File | Source |
 | --- | --- |
 | `supashare-cover.png` | Original brand artwork generated with the built-in Codex image generation tool on 2026-10-29. It is an illustration, not an application screenshot. |
-| `workspace-en.jpg` | Real English workspace, SupaShare 2.11.0, source commit `8c39931733be853dd68d11ad5b193088c4d928d5`. |
+| `workspace-en.jpg` | Real English workspace, SupaShare 2.12.0, B6 delivery sources based on B5 `4fae48a` plus mainline `811376b`; captured 2026-10-30 at CSS 1586×992, DPR 1. |
 | `workspace-zh.jpg` | The same workspace in Simplified Chinese. |
-| `permissions-en.jpg` | Real permission editor opened for a demonstration ordinary user; no permission changes were saved. |
+| `permissions-en.jpg` | Earlier 2.11.0 permission editor, commit `8c39931733be853dd68d11ad5b193088c4d928d5`, opened for a demonstration ordinary user; no permission changes were saved. Its caption retains the captured version. |
+
+The `ui-upgrade/` directory contains real per-batch screenshots from the 2.11.0
+development cycle; their scope and viewport evidence are recorded in
+`../ui-upgrade-execution.md`. They are not relabelled as 2.12.0 captures.
 
 The screenshots were captured through the browser tool from a loopback-only, isolated SQLite/config/data fixture built from the source above. Account names and file content are synthetic. Screenshots contain no real user data, passwords or API keys. They have not been restyled or redrawn by image generation.
 

@@ -6,6 +6,41 @@ const vm = require('node:vm');
 const templates = path.join(__dirname, '../../internal/webserver/web/templates');
 const read = name => fs.readFileSync(path.join(templates,name),'utf8');
 
+test('key backup waits for output close and allows retry after write or close failure', async () => {
+    const template = read('html_end2end.tmpl');
+    const script = template.slice(template.indexOf('async function downloadKey('), template.indexOf('function newKey()'));
+    for (const failure of [null, 'write', 'close']) {
+        let releaseClose, error;
+        const calls = [];
+        const elements = {downpw:{}, genbutton:{}, errordiv:{style:{}}};
+        const writer = {
+            async write(bytes) { calls.push('write'); assert.equal(new TextDecoder().decode(bytes), 'synthetic-key'); if (failure === 'write') throw new Error('write failed'); },
+            async close() { calls.push('close'); if (failure === 'close') throw new Error('close failed'); await new Promise(resolve => { releaseClose = resolve; }); },
+            async abort() { calls.push('abort'); }
+        };
+        const context = vm.createContext({TextEncoder, window:{gokapiBackupPending:true}, document:{getElementById:id=>elements[id]},
+            streamSaver:{createWriteStream:()=>({getWriter:()=>writer})}, displayError:value=>error=value, t:key=>key});
+        vm.runInContext(script,context);
+        const pending = context.downloadKey('synthetic-key');
+        assert.equal(elements.downpw.disabled,true);
+        assert.equal(elements.genbutton.disabled,true);
+        assert.equal(context.window.gokapiBackupPending,true);
+        if (!failure) {
+            await new Promise(resolve=>setImmediate(resolve));
+            assert.equal(context.window.gokapiTransferBusy,true);
+            assert.equal(context.window.gokapiBackupPending,true);
+            releaseClose();
+        }
+        await pending;
+        assert.equal(context.window.gokapiBackupPending,!!failure);
+        assert.equal(context.window.gokapiTransferBusy,false);
+        assert.equal(elements.downpw.disabled,false);
+        assert.equal(elements.genbutton.disabled,false);
+        assert.equal(!!error,!!failure);
+        assert.deepEqual(calls,failure === 'write' ? ['write','abort'] : failure === 'close' ? ['write','close','abort'] : ['write','close']);
+    }
+});
+
 test('password-protected download transfers the password and disables its actual submit control', () => {
     const template = read('html_download_password.tmpl');
     const elements = Object.fromEntries([...template.matchAll(/id="([^"]+)"/g)].map(match => [match[1], {}]));

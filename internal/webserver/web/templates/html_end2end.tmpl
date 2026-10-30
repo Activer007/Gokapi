@@ -22,17 +22,28 @@
   <button type="button" id="genbutton" class="btn btn-primary" disabled onclick="window.location='./admin';">{{$.UI.T "common.continue"}}</button>
 </section>
     <script>
-	function downloadKey(key) {
-	    const uInt8 = new TextEncoder().encode(key)
-
-    const fileStream = streamSaver.createWriteStream('SupaShareE2E.txt', {
-		size: uInt8.byteLength
-	    })
-
-	    const writer = fileStream.getWriter()
-	    writer.write(uInt8)
-	    writer.close()
-
+	async function downloadKey(key) {
+        const downloadButton = document.getElementById('downpw');
+        const continueButton = document.getElementById('genbutton');
+        downloadButton.disabled = true;
+        continueButton.disabled = true;
+        window.gokapiTransferBusy = true;
+        document.getElementById('errordiv').style.display = 'none';
+        let writer;
+        try {
+            const bytes = new TextEncoder().encode(key);
+            writer = streamSaver.createWriteStream('SupaShareE2E.txt', {size: bytes.byteLength}).getWriter();
+            await writer.write(bytes);
+            await writer.close();
+            window.gokapiBackupPending = false;
+        } catch (error) {
+            await Promise.allSettled([writer?.abort(error)]);
+            displayError(error || t('download.transferFailed'));
+        } finally {
+            window.gokapiTransferBusy = false;
+            downloadButton.disabled = false;
+            continueButton.disabled = false;
+        }
 	}
 	
 function newKey() {
