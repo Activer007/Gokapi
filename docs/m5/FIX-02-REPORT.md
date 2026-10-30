@@ -33,7 +33,7 @@ master 仍为 `77b8fa2c729db05a5e2ae3434b50f02eda127def`，#56/#57/#58 已合并
 | `go generate ./...` + tracked diff guard | PASS；资产无漂移 |
 | `go test ./internal/webserver ./internal/webserver/api -tags=test,noaws -run '^TestCollectionInitial(Limits\|PolicyAPI)$' -count=3 -timeout=180s -v` | PASS；视图 96×3、API 27×3 全部通过 |
 | 相关七个包的 race，选择新合同、CollectionPolicy defaults、SEC030RequestEnvironment/Policy、SEC031UploadSizeSemantics、UIUploadManagementContexts | PASS；详细包/regex 见 results。filerequest 包为 `[no tests to run]`，不将其当作专用 reservation-display 合同已执行 |
-| `go test ./... -tags=test,noaws -count=1 -timeout=300s` | PASS，wall84s；含实际 Web UI/HTTP 和继承的 FIX-01 回归 |
+| `go test ./... -tags=test,noaws -count=1 -timeout=300s` | PASS，wall84s；含实际 Web UI/HTTP 和 FIX-01 的 API 删除生命周期回归，不包含其额外安全 tags/SDK 全套 |
 | 相关 webserver/API/SQLite/Redis，`test,awsmock` | PASS，wall3s；所列 filerequest 包同样无匹配专用测试 |
 | 默认及 `-tags=noaws` server build | PASS / PASS |
 | `node --test build/tests/*.test.cjs`（实际展开文件名） | PASS 51/51，0 skip |

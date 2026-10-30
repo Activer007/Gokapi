@@ -23,7 +23,7 @@
 | --- | --- | --- |
 | 创建额度不依赖可见收集；空库、过滤后为空及孤儿行都正确 | `TestCollectionInitialLimits`：实际 view → template，SQLite/miniredis × 四种上限 × 四种列表 × 三种角色，共 96 组 | PASS（本地）；旧实现 18 组 RED |
 | 普通用户正确获得每项上限；0 独立关闭该项；管理员/超管仍豁免 guest cap | 同一矩阵、首次表单 Node 合同、真实 Chrome 三角色 | PASS（本地） |
-| 首次普通用户创建成功，刷新后可见，五天/一次默认值保持 | 真实页面空列表 → 新建 → API 200，7 文件/13MB 配置；刷新仍 1 行 | PASS（Chrome/loopback） |
+| 首次普通用户创建成功，刷新后可见，五天/一次默认值保持 | Node 默认值合同验证五天/一次；Chrome 空列表 → 新建 → API 200，7 文件/13MB、一次；刷新仍 1 行 | PASS（Node + Chrome/loopback） |
 | 不能通过省略、0 或超 guest cap 的新建值绕过限制 | `TestCollectionInitialPolicyAPI`，27 个真实 handler 用例，拒绝不新增 FR/key；成功保持 owner/凭证绑定 | PASS（本地） |
 | 生成资源一致；相关回归/race/awsmock、全仓 noaws、默认/noaws build | [FIX-02 报告](FIX-02-REPORT.md) 与结果清单 | PASS（本地） |
 | 独立 PR 与最新 head 自动 review | [PR #60](https://github.com/Activer007/SupaShare/pull/60)，不借用 PR #59 的审查 | 以该 PR 最新 head 的实际摘要为准 |
