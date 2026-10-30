@@ -4,6 +4,11 @@
 
 基线 a9c25d453aab0c25f2d6e6926ec7312628638844，证据及分类见 [SECURITY-BASELINE](SECURITY-BASELINE.md)。模型面向个人 VPS / 小团队；不改变单体 Go、SQLite/Redis、本地/S3 或现有 API 架构。
 
+2026-10-30当前M4：040-A/B、041、052-A/B、051已分别通过限定合同并合并自有主线；以下不变量不因PR合并而扩大为全组合保证。
+050冻结候选538b8ec（含setup UI PR53）为CI_GREEN / [PR54交付](https://github.com/Activer007/SupaShare/pull/54)（合并后生效）。最终CI41002041972/job123888516757 SUCCESS，实际checkout2860f5d的tree9f7fbc5与冻结候选相等；generate+guard、四组全仓、全部相关race含050/SSE、上传10个marker及toolchain19个marker均PASS，见[CI摘要](evidence/sec050-538b8ec/ci-summary.txt)。模块级三项公告提示保留，不作全依赖安全保证。
+最终d7浏览器1497项源清单Changed0/Missing0/Extra0，同权限确认PID75888已退出，drained=true，三份metadata及canonical保持；不从该清理证明原生取消。验收完成；交付以PR54实际合并状态为准。下列050交付/阶段完成记录随PR54合并生效，合并前goal保持ACTIVE；实际merge SHA/tree见PR54最终核对comment，逐项依据见[M4审计](M4-COMPLETION-AUDIT.md)。
+当前受证书校验阻塞的HTTPS补验由用户明确豁免为SKIPPED_USER，非PASS；历史过程中的BLOCKED不再是本次阻塞Gate，不改变生产TLS/完整性不变量或其他测试要求。Forceu/Gokapi仍只读，M3原延期不重开。
+
 ## M4可靠删除边界
 
 040-B本项不变量：旧授权快照不改变新owner/locator；旧timer不覆盖新计划；成功恢复必须排除正在回收的同一源；
@@ -13,7 +18,7 @@
 共享内容仍由metadata保留；退休旧候选的ack必须比较token，不能删除同时登记的新意图；不改变逻辑配额，不扫描历史孤儿。
 SQLite/Redis持久候选须随离线迁库保留；丢失/损坏结构不作为空集合。基线65dd7ef正常重启RED与原合同GREEN、骤停已运行；最终CI40932505670在d26875d输入上相关race/四组/build/scan均PASS，不推定真实后端持久化或断电。
 候选之外的普通GC最后物理删除也复用同一未知发布门禁，防止完整pass通过另一条过期metadata绕过候选保留；完整交互合同已RED→GREEN。
-040-B已在cf30b57的私密候选及最终CI40922295319上通过；041由PR50及最终CI40932505670证明上述限定合同，证据见TEST-REPORT；M4其余范围保持OPEN。
+040-B已在cf30b57的私密候选及最终CI40922295319上通过；041由PR50及最终CI40932505670证明上述限定合同，均已合并。证据见TEST-REPORT；050仅剩PR54实际合并及最终核对，本文件明确限制保持原状态。
 040-B候选的FR撤销边界：持独立请求门禁复读scope，先持久过期/撤key再完整枚举；保存及owner迁移同门禁。
 Claim不等于永久发布许可，Commit须按当前provider policy拒绝过期FR；清理失败不得重新开放请求或丢失锚点。
 普通用户删除与全部进行中/新认证上传的原子隔离仍VALIDATE，不从本轮逐文件条件更新推出该广义保证。
@@ -30,19 +35,24 @@ metadata是删除重试锚点；未确认探测/删除/引用/退休时不报告
 
 ## M4下载内容隔离边界
 
+SEC-050不变量（811376b开始）：通用nosniff/no-referrer在最外层、状态写出前设置，原ResponseWriter直传，保留Flusher等流式能力；S3对象不继承这些头。
+页面CSP只在renderPage设置，先Report-Only观察；不覆盖文件inline的强制sandbox，不对静态StreamSaver iframe全站施加框架/嵌入禁令。脚本策略不直接强制，禁止加入会向外部报告私密URL的report端点或样本。
+在a084231真实Chrome观察后，只对login/download/error强制base-uri self/object-src none；其他页面及所有脚本限制继续Report-Only。不设置全局frame-ancestors/COOP/COEP/HSTS，保留当前部署与StreamSaver边界。自定义脚本插入base或object须服从页面策略，默认页面兼容不推定任意插件兼容。
+d7b810b真实Chrome已分别观察三页强制头与Report-Only，中文切换及正常73B原生附件SHA256保持；这些结果不改标为538b8ec整树PASS。主应用handler策略不覆盖独立setup维护服务器；setup UI的单独合并不改变这一边界。
+
 应用控制的文件与ZIP响应须明确nosniff，保留现有声明MIME、attachment/inline、解码后文件名及精确内容；inline原有强制sandbox不得被Report-Only替代。
 nosniff不是上传内容校验，也不能单独证明无XSS。真实上传/浏览器执行origin须独立验证，字符串头合同不作替代。
 S3默认重定向后的对象响应属于另一响应边界；应用头不会继承到对象。须核对最终MIME/Disposition/bytes与实际origin，代理和服务器解密分支另查。
 本次loopback最终对象明确未带本站nosniff/sandbox；已核对字节/文件名/MIME，不能将其描述成应用源内容隔离。真实云/CDN及同源部署组合保留VALIDATE。
 实际上传的PNG/HTML附件完成及hotlink两个样本上下文属于窄浏览器证据，不从marker未出现推出全局无XSS。当前HTTPS完整性补验经用户明确豁免为SKIPPED_USER；证书验证和生产不变量不变，不用模块/HTTP结果冒充该浏览器Gate。
-本轮仅在header helper和ZIP写出各增加一行，不改变静态/WASM/worker响应或加密协议；相关政策合同RED→GREEN，进一步HTTP/浏览器/后端Gate保持开放。
+051仅在header helper和ZIP写出各增加一行，不改变静态/WASM/worker响应或加密协议；其限定HTTP/浏览器/loopback后端证据见TEST-REPORT。050通用头和页面策略独立验收，不从051推出。
 
 ## M4下载失败边界
 
 052-B主动中断不变量：真实客户端取消后handler应有界退出，不正常结束部分附件；源ciphertext与metadata保持。
 WASM底层读取与cancel竞争时不得在取消后的controller继续enqueue/close并破坏后续正常解密；Response已resolve后观察body/writer/下载终态，不要求已完成的外层Promise再次reject。
 052-B以每响应atomic标记实现该模块不变量，私密真实Node24/native stream同合同RED→GREEN且同实例正常SHA256保持；源码hash与最终CI40942043033一致。服务器正常/部分输出/HTTP1取消及其Linux race通过；wasm race为实际不支持，不能扩大为所有JS调度或浏览器已验。
-服务器128KiB防御合同和真实HTTP/1首字节后取消已GREEN；WASM模块合同已GREEN，浏览器新增合同仍VALIDATE，不用socket前的受控Writer替代真实客户端下载证据。
+服务器128KiB防御合同和真实HTTP/1首字节后取消已GREEN；WASM模块合同已GREEN；本次HTTPS浏览器新增合同为SKIPPED_USER，其他未经验证组合仍VALIDATE，不用socket前的受控Writer替代真实客户端下载证据。
 1e5d80a单成员ZIP正常SHA256和受损成员格式拒绝已实测；负例HTTP正常EOF仍是限制，不将ZIP解析拒绝扩大成原生下载取消或所有ZIP故障通过。
 
 受支持加密下载只有完整流认证并正确结束后，才能正常完成；不能把密钥初检或HTTP 200当作完整性证据。
@@ -52,7 +62,7 @@ WASM底层读取与cancel竞争时不得在取消后的controller继续enqueue/c
 失败提示不能代替真实下载终态。一个Chromium+HTTPS正负例独立取证，其他路径继续VALIDATE。
 本地及该浏览器窄合同GREEN，最终CI40870398244/新增小合同race通过；详见TEST-REPORT，不推定主动取消或其他路径也已完成。
 精确负面合同留私密审查，当前结论不证明外部攻击者可制造该前提；格式/加密协议不变。
-M4完整范围见M4-GOAL，删除/旧内容引用与浏览器边界待后续证明，不能从此窄修复推出全部完成。
+M4完整范围见M4-GOAL：删除/旧内容引用已由各自后续合同证明，当前浏览器豁免仅限明确的一项；050仅剩PR54实际合并及最终核对，既有已知限制保持原状态，不能从此窄修复推出全部完成。
 
 ## M3恢复/收口范围（历史冻结）
 

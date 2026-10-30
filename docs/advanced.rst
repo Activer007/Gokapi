@@ -801,3 +801,26 @@ Long configured names remain available through the brand link's title. Custom
 footer text and links remain configuration values and are not translated.
 An upgrade does not guarantee compatibility with arbitrary third-party styles;
 check your overrides in both languages and at your usual desktop zoom level.
+
+Response security policies
+==========================
+
+The main application server sends ``X-Content-Type-Options: nosniff`` and
+``Referrer-Policy: no-referrer`` before serving its routes. Responses from an
+external S3 object server or CDN have their own headers.
+
+Rendered application pages observe a Content Security Policy with
+``base-uri 'self'; object-src 'none'; script-src 'self' 'wasm-unsafe-eval'`` in
+Report-Only mode. Existing inline scripts and event handlers can produce
+browser console messages and continue running. No reporting endpoint or script
+sample collection is configured. This is an observation policy, not enforced
+script isolation.
+
+Login, download and error pages additionally enforce only
+``base-uri 'self'; object-src 'none'``. Custom scripts that insert a base element
+or embedded objects on these pages must respect this policy. Other rendered
+pages remain in the observation stage. The static StreamSaver iframe and worker
+do not inherit the application page CSP; inline file responses retain their
+separate enforced ``sandbox`` policy. No encryption format or data migration is
+required. Reverting this page policy removes its restrictions without changing
+stored files or keys.

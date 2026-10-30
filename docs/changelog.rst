@@ -26,7 +26,8 @@ v2.12.0 (source update; not a published release)
   configuration branches. Inline validation stays visible on smaller desktops;
   long forms scroll while navigation and footer actions remain reachable.
 * This source version also contains separately delivered storage reclamation,
-  download cancellation and MIME-sniffing fixes. Follow the existing stopped-service
+  download cancellation, MIME-sniffing fixes and response security policies
+  documented in the advanced guide. Follow the existing stopped-service
   backup and rollback guidance in ``docs/security/ADR-025-OLD-CONTENT-RECLAMATION.md``;
   the UI changes themselves do not introduce a data/configuration migration.
 

@@ -119,9 +119,9 @@ Iteration policy (user request, 2026-10-30): reuse passed checks for unchanged c
 
 Delivered as [PR #53](https://github.com/Activer007/SupaShare/pull/53), head `4fae48a`. CI passed. Automatic approval required this PR's separate confirmation; the user authorized it and the merge completed as `86af244`.
 
-## Final delivery — validated locally, preparing PR
+## Final delivery — 2.12.0
 
-Source version: **2.12.0**, following the existing version-source/generation rules. This is a source update, not a Release, container publication or production deployment. B6 integrates master through `86af244`; independent security changes remain attributed to their own PRs.
+Source version: **2.12.0**, following the existing version-source/generation rules. This is a source update, not a Release, container publication or production deployment. B6 integrates master through `13a17b7`; independent security changes remain attributed to their own PRs.
 
 Final corrections and documentation:
 
@@ -132,7 +132,7 @@ Final corrections and documentation:
 
 Final validation on 2026-10-30:
 
-- One final native Linux snapshot ran `bash build/test-ui-local.sh` successfully: resource generation, **41 Node tests**, both full Go suites (`test,noaws` and `test,awsmock`), selected race checks, and default/noaws production builds. Later edits are documentation/evidence only. No repeat full suite was run. Generated bundles and version metadata were imported and compared byte-for-byte with that validated snapshot (19 files).
+- One final native Linux snapshot ran `bash build/test-ui-local.sh` successfully: resource generation, **41 Node tests**, both full Go suites (`test,noaws` and `test,awsmock`), selected race checks, and default/noaws production builds. All 525 runtime/build/specification files matched delivery commit `7ed8001`. Generated bundles and version metadata were imported and compared byte-for-byte with that validated snapshot (19 files). Subsequent mainline integration received the focused validation below instead of a repeated local full suite.
 - Runtime packaging check: 11 referenced JavaScript/CSS/brand/WASM/API resources returned HTTP 200 with nonempty content from the real embedded preview; the API specification reports 2.12.0. Setup's separately embedded stylesheet was checked in B5 and remains covered by the final setup tests.
 - Browser additions to earlier batch coverage: API empty state, actual forgot-password recovery instructions/back link, expired-share error and recovery with a valid link, initial E2E generation, backup download, long custom PublicName/username, custom Title, multiple footer links, custom CSS precedence and public/admin custom JS after application functions. The API documentation title/specification were inspected after reload.
 - Ordinary browser download matches **3,430 bytes**, SHA-256 `28ee9e08116d331eb8825b22af65397d9374b27c6d964020dcebec20b60d126c`. The generated backup matches all **44 bytes** of the displayed disposable key; the key itself is not committed.
@@ -140,6 +140,10 @@ Final validation on 2026-10-30:
 - Final Chinese workspace and selected concept were displayed together at **1586×992, DPR 1**. English workspace uses the same dimensions. Custom-brand correction was inspected at **1280×720, DPR 1**, with full-page capture to include the footer. Earlier batch checks supply 1440×900 and 1920×1080 coverage without repeating unchanged pages. No warning/error was captured in the inspected final custom page or successful E2E transfer tab.
 
 ### Coverage and explicit limits
+
+Delivery PR: [#55](https://github.com/Activer007/SupaShare/pull/55). Initial head `7ed8001` passed CI run `41003604446`, and the user explicitly authorized its merge. Meanwhile PR #54 updated master to `13a17b7`. The sole merge conflict was in `docs/advanced.rst`; both customization and response-policy documentation were retained. A fresh native Linux snapshot of the integrated runtime passed `go test -race ./internal/webserver ./internal/webserver/headers -tags=test,noaws -run 'TestUI|TestSEC050|TestPostUpload|TestWriteDownloadHeaders' -count=1`. The updated PR requires CI on its final head before merging.
+
+PR #54 adds response policies independently of the UI work. Its script policy is Report-Only and may emit expected console messages for existing inline scripts. The earlier browser observations above predate that integration and do not claim a message-free console under the new observation policy. Enforced public-page restrictions cover base/object elements, not script execution; focused tests cover response headers and retained download/worker behavior.
 
 | Requirement | Evidence / result |
 | --- | --- |

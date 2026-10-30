@@ -16,23 +16,26 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 
 ## 当前M4：可靠删除、旧内容回收与下载边界
 
-基线8c399317，范围[M4-GOAL](M4-GOAL.md)，ACTIVE。单进程/可信团队及公开能力边界不变，不重开广义M3延期。
+阶段起点8c399317；2026-10-30当前050冻结候选538b8ec/tree9f7fbc5，范围[M4-GOAL](M4-GOAL.md)。**验收完成；交付以PR54实际合并状态为准**。下列050交付/阶段完成记录随PR54合并生效，合并前goal保持ACTIVE；实际merge SHA/tree见PR54最终核对comment。单进程/可信团队及公开能力边界不变，不重开广义M3延期。
 
 | SEC-ID | 状态 | 当前证据/Gate |
 | --- | --- | --- |
-| 052-A | IMPLEMENTED / CI_GREEN / [PR43](https://github.com/Activer007/SupaShare/pull/43) | 本地真实HTTP与Chromium/WASM正负合同GREEN，CI40870398244及聚焦race成功；ADR-023，精确证据私密保留 |
-| 052-B | IMPLEMENTED / CI_GREEN / [PR51](https://github.com/Activer007/SupaShare/pull/51) | 冻结5db6d0a，CI40942043033四组/服务器相关race/build/scan PASS；模块同合同RED→GREEN且源hash与CI一致；128KiB/真实HTTP1取消GREEN，无协议/schema/API迁移；不替代浏览器验收 |
-| 040-A | IMPLEMENTED / CI_GREEN / [PR44](https://github.com/Activer007/SupaShare/pull/44) | CI40887732123，四组全仓/相关race及Linux权限/链接PASS；失败、重启重试、共享引用与ADR-022；无schema迁移 |
-| 040-B | IMPLEMENTED / CI_GREEN / [PR48](https://github.com/Activer007/SupaShare/pull/48) | 冻结cf30b57含主线PR47；CI40922295319四组/全部相关race/build/scan PASS；两私密候选、FR Commit/跨owner、明确WATCH中止/unknown边界GREEN；ADR-024；普通用户全在途原子隔离仍VALIDATE |
-| 041 | IMPLEMENTED / CI_GREEN / [PR50](https://github.com/Activer007/SupaShare/pull/50) | 冻结d26875d，CI40932505670四组/相关race/build/scan PASS；原合同RED→GREEN、进程exit97、共享/重新引用、旧token/满容量/故障/迁库及完整GC交互；SQLite17/Redis10，ADR-025；真实持久化/断电仍NOT_RUN |
-| 052其余 | P1 / VALIDATE / BROWSER_BLOCKED | 浏览器新增截断/原生取消需用户手动处理临时证书；旧临时地址已失效，准备继续时须新建夹具。052-B局部修复不关闭此验收，更不关闭整个052/M4 |
-| 051 | P1 / VERIFIED / PR52 | 两处nosniff策略RED→GREEN；真实HTTP/loopback S3最终边界及7c9a6ad上传浏览器样本通过；最终CI40996624682 SUCCESS。对象头边界/真实云/全局无XSS不外推，审查合并以PR为准 |
-| 050 | P1 / NOT_STARTED | 最小响应头、兼容及渐进CSP |
+| 052-A | MERGED c434e099 / CI_GREEN / [PR43](https://github.com/Activer007/SupaShare/pull/43) | 本地真实HTTP与Chromium/WASM正负合同GREEN，CI40870398244及聚焦race成功；ADR-023，精确证据私密保留 |
+| 052-B | MERGED 1e5d80a / CI_GREEN / [PR51](https://github.com/Activer007/SupaShare/pull/51) | 冻结5db6d0a，CI40942043033四组/服务器相关race/build/scan PASS；模块同合同RED→GREEN且源hash与CI一致；128KiB/真实HTTP1取消GREEN，无协议/schema/API迁移；不替代浏览器验收 |
+| 040-A | MERGED dee4382f / CI_GREEN / [PR44](https://github.com/Activer007/SupaShare/pull/44) | CI40887732123，四组全仓/相关race及Linux权限/链接PASS；失败、重启重试、共享引用与ADR-022；无schema迁移 |
+| 040-B | MERGED 65dd7ef / CI_GREEN / [PR48](https://github.com/Activer007/SupaShare/pull/48) | 冻结cf30b57含主线PR47；CI40922295319四组/全部相关race/build/scan PASS；两私密候选、FR Commit/跨owner、明确WATCH中止/unknown边界GREEN；ADR-024；普通用户全在途原子隔离仍VALIDATE |
+| 041 | MERGED 0b6b2e2 / CI_GREEN / [PR50](https://github.com/Activer007/SupaShare/pull/50) | 冻结d26875d，CI40932505670四组/相关race/build/scan PASS；原合同RED→GREEN、进程exit97、共享/重新引用、旧token/满容量/故障/迁库及完整GC交互；SQLite17/Redis10，ADR-025；真实持久化/断电仍NOT_RUN |
+| 052其余 | P1 / SKIPPED_USER（本次HTTPS补验） | 新夹具健康正例被Service Worker证书校验拒绝，用户明确允许跳过；不是完整性PASS。052-A/B历史证据保留范围，真实云/其他组合限制不清空 |
+| 051 | P1 / MERGED / [PR52](https://github.com/Activer007/SupaShare/pull/52) | 合并811376b，树等于已审35949c8；两处nosniff策略RED→GREEN；真实HTTP/loopback S3最终边界及7c9a6ad上传浏览器样本通过；最终CI40996624682 SUCCESS。对象头边界/真实云/全局无XSS不外推 |
+| 050 | P1 / CI_GREEN / [PR54交付](https://github.com/Activer007/SupaShare/pull/54)（合并后生效） | 538b8ec冻结；d7三页强制策略/真实Chrome/中文切换/原生附件限定样本通过，1497项源不变及drained/metadata保持。最终CI41002041972 SUCCESS，实际2860f5d/tree与冻结相等；generate+guard/四组/全部相关race/上传10及toolchain19个marker均PASS，[摘要](evidence/sec050-538b8ec/ci-summary.txt) |
 
-公开只保留必要修复，私密精确负例不提交。每PR一个SEC；本PR完成不代表M4已完成。
+公开只保留必要修复，私密精确负例不提交。每PR一个SEC；[M4审计](M4-COMPLETION-AUDIT.md)逐项映射验收与合并生效条件，最终安全文档随PR54同一纯文档skip-ci提交交付。三项模块级公告提示及其他明确限制不清空。
 2026-10-29梳理后的开发安排与最小Gate见[M4执行安排](M4-GOAL.md#2026-10-29-执行安排当前工作基线-dee4382f)：040-B→041→052余项→051→050；升级须有实证，非缺头或源码猜测。
 
-2026-10-30用户豁免：当前052的Chromium+HTTPS补验因Service Worker证书校验受阻；用户没有可信隔离HTTPS入口并明确允许跳过。记SKIPPED_USER，不是PASS；不扩大为其他测试豁免。历史052证据保留原范围，050仍需实施。
+2026-10-30用户豁免：当前052的Chromium+HTTPS补验因Service Worker证书校验受阻；用户没有可信隔离HTTPS入口并明确允许跳过。记SKIPPED_USER，不是PASS；仅本次补验退出阻塞Gate，不扩大为其他测试豁免。历史052证据保留原范围，050交付仍须以PR54实际合并及最终核对comment为准。
+050仅覆盖主应用handler，独立setup维护服务器不在通用头范围；S3最终对象不继承本站头。真实后端持久化/断电、任意插件/严格脚本CSP及其他已知限制保持原状态；上游只读，不部署或发布。
+
+以下M3及更早条目保留各自开发时点与失败历史；涉及040/041/052/051/050的旧“未开始/待验证”以本节当前状态覆盖，未完成限制不因此清空。
 
 ## M3完成记录：最小崩溃恢复与阶段收口
 
@@ -141,7 +144,7 @@ G3回滚及限定场景验证见ADR017，不等于完整M3/真实生产G4通过�
 | SEC-031 | P0 CONFIRMED_CODE / VALIDATE | 双 provider 顺序实测确认 MaxSize 每文件；用户确认保留并新增累计限制，usage纠正；并发/累计预算未实施 | [PR #15](https://github.com/Activer007/SupaShare/pull/15)已合并8019c61、CI40707671124 PASS；[M3语义](M3-UPLOAD-SEMANTICS.md)、ADR-013；#436非累计/事务修复 |
 | SEC-032 | P0 CONFIRMED_CODE / VALIDATE | M2 上传授权验收通过：取消、File Request 完成、普通分片/进度隔离 | 50965ba / 3d93cdb / 3a9627c；ADR-007/011/012；资源预算与完整生命周期仍开放 |
 | SEC-040 | P0 CONFIRMED_CODE | 删除错误与元数据生命周期不一致；S3 RED | 003 → G1/G2/G3；先保留记录/传递错误/重试；复杂状态机后置；不把 #419 当相同修复 |
-| SEC-041 | P0 CONFIRMED_CODE + HISTORICAL_FIXED | 旧内容回收缺口与历史替换越权是两件事 | 020/040 → G1/G2/G3；先评审 [#419](https://github.com/Activer007/SupaShare/pull/419)，多引用与中断回滚；仅 fork 应用经验证的补丁 |
+| SEC-041 | P0 CONFIRMED_CODE + HISTORICAL_FIXED | 旧内容回收缺口与历史替换越权是两件事 | 020/040 → G1/G2/G3；先评审上游 [#419](https://github.com/Forceu/Gokapi/pull/419)，多引用与中断回滚；仅自有仓库应用经验证的补丁 |
 | SEC-042 | P1 VALIDATE | 双层元数据扫描；真实性能瓶颈待测 | 040/041 → 基准后 G3；先 1k/10k 扫描计数，必要时 Blob 索引，SQLite/Redis 都可重建 |
 | SEC-050 | P1 VALIDATE | 全路由响应头/CSP 覆盖待测 | 012/023 → G1；先审上游 [#418](https://github.com/Forceu/Gokapi/pull/418)，下载/WASM/SSE 兼容，逐步启用 |
 | SEC-051 | P1 HISTORICAL_FIXED / VALIDATE | SVG/文件名历史 XSS 已修，其他 MIME 路径需回归 | 020/050 → G1；浏览器执行与 Content-Disposition；E2E 无明文扫描承诺 |
