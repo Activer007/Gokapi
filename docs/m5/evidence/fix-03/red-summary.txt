@@ -1,0 +1,34 @@
+M5-FIX-03 RED classification, 2026-10-30
+Baseline: 831d08860aabc93fe1f7fc31112ba24cfd91cb67.
+Raw logs and exact stage manifests remain in this chat's m5-fix-03 artifacts.
+
+Local initial 8-fault contract: baseline RED exit1, corrected same-test GREEN/race exit0.
+Missing/raw known-short source silently returned HTTP200; post-header truncation/write
+failure often already gave client errors, but handler returned normally and completed
+guards. Encrypted ZIP authentication failure appended error text and finalized ZIP.
+Archive write/flush errors were ignored. Do not classify every path as quiet success.
+
+SDK baseline-compatible contract: RED exit1; GREEN SDK whole-package/race exit0.
+Proxy non200/known or unknown size mismatch/copy errors were not reliably returned.
+S3 forced decryption/authentication and remote ZIP already caused ordinary handler
+panic in baseline: corrected contract uses ErrAbortHandler and retains all started
+archive member guards. It is not first discovery of silent authenticated corruption.
+
+Remote initial 12 cases: baseline 8 failing contracts, 4 healthy controls; GREEN/race0.
+Real downstream timeout must cancel upstream context; fallback escape is not PASS.
+
+Additional edge RED is against an intermediate FIX-03 candidate, NOT baseline831:
+- completed416 incorrectly retained guard;
+- empty S3 proxy implicitly200 incorrectly retained guard;
+- valid local encrypted ZIP with declared plaintext size+1 finalized successfully.
+Same final three test files: additional RED local/remote exit1; GREEN/race each0.
+Local and S3 forced-decryption empty files were already PASS and are positive controls.
+
+Legacy fixture investigation is separate from business RED:
+- baseline831 and caee47c SDK targets failed missing loopback credentials;
+- selected ServeFile depended on prior TestNewFile global ID;
+- final same fixture file passes baseline and corrected candidates, SDK/mock/noaws.
+Keep original failed full-SDK and selected-awsmock logs; do not relabel them PASS.
+
+Final-code full regression results are in results.tsv, not inferred from stage runs.
+No GitHub Actions, release, tag, image publication, deployment, or automatic merge.

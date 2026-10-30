@@ -40,3 +40,11 @@ Close仍随worker返回执行，不新增锁、队列或加密格式。回滚取
 PR51冻结5db6d0a，最终CI40942043033 SUCCESS；四组全仓/相关服务器race/构建扫描通过，私密模块GREEN源码95a9df1与CI源hash一致。实际Go race不支持js/wasm，未声称WASM race通过；浏览器Gate继续开放。
 
 2026-10-30当前状态覆盖上述过程记录：用户手动放行页面后，新7c9a6ad夹具的健康正例仍被Chrome的Service Worker证书校验拒绝，未进入完整性负例。用户没有可信隔离HTTPS入口，并明确允许跳过本次补验，故标SKIPPED_USER，退出本次阻塞Gate但不计PASS。历史浏览器正常/认证失败、服务器及模块证据保持原范围；没有安装信任、降低TLS验证或修改生产加密边界。
+
+## 2026-10-30：M5-FIX-03 下载与 ZIP 终态补充
+
+同一失败终态合同扩展到本地原始下载、S3 代理/强制解密和 ZIP。S3 SDK 层返回错误并传递请求取消；HTTP 层在未发送附件时返回通用 500，已开始输出则使用 `http.ErrAbortHandler`，不以 `false` 触发外层重定向。校验已知长度及实际读写计数，保留本地旧 metadata 中 0 表示未知长度的兼容行为。
+
+ZIP 仅在所有成员、central directory、最终 Flush 和请求状态均成功后完成成员 guard；成员或封档失败不通过 defer Close 补写成功目录，不追加错误文本、不提前完成已输出的成员。Close 成功后的最终传输 Flush 仍可能失败；此时中断并保留 guard，不承诺追回已交给底层的 footer。失败沿用既有 guard 超时与尝试计数，不删除源、退休 metadata 或退款。完整的 304/412/416 等条件/Range 响应仍释放 guard，含义是该 HTTP 响应结束，不宣称已交付文件。
+
+本次真实 loopback HTTP、SDK、race 与 Chrome 下载正负例的范围、RED/GREEN 和限制见 [FIX-03 报告](../m5/FIX-03-REPORT.md)。这不补记上述 HTTPS/WASM 跳过项为 PASS，也不外推为真实云 S3、HTTP/2 或所有浏览器组合已验证；不改变密文格式、公开路由或授权模型。

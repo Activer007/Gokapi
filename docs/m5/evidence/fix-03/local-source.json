@@ -1,0 +1,15 @@
+{
+  "baseline": "831d08860aabc93fe1f7fc31112ba24cfd91cb67",
+  "archiveSha256": "401de436917c5c30e411dfdfe79084f143fd5ddbb06497cd4c4888f52f692288",
+  "testSha256": "ec1815b970694c5de2a2ebb27a29d3f1e970f0d6f89f270a8f343ca809464222",
+  "helperSha256": "c367d83abe7814f01673c2cd10bb49fb260346fab11f4cab13e8b0a1914bd92b",
+  "productionHashes": {
+    "internal/storage/FileServing.go": "fb39a545f1ed2ef2947e8607209c32390409b554a655bc2d592e5105b218ee9a",
+    "internal/storage/download_response.go": "16cba7eab44765bdb64bca686f381a94ce8bda678d80d73f7ce561efc661574b",
+    "internal/storage/filesystem/s3filesystem/aws/Aws_slim.go": "814eff14203e64487d20f6f57f00347197d563ac99bb0364f1e333cebdaecfbe"
+  },
+  "fixtureChange": "Healthy calls use actual ResponseWriter/ReaderFrom; shared HTTP helper tag test; shared abort assertion; server decryption iff encrypted&&!IsEndToEndEncrypted",
+  "nativeRed": "/home/activer/codex-validation/m5-fix-03/local-terminal-red-frozen",
+  "nativeGreen": "/home/activer/codex-validation/m5-fix-03/local-terminal-green-frozen",
+  "noCI": true
+}

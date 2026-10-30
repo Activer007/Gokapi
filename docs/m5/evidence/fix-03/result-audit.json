@@ -1,0 +1,11 @@
+{
+  "tested_code": "cc41c169a87c904cfbee22634bf99af766f8cf96",
+  "command_count": 14,
+  "all_command_exits_zero": true,
+  "tracked_inputs_after_tests_ok": 1538,
+  "clean_before_build": true,
+  "tracked_diff_after_tests_empty": true,
+  "original_shell_wrapper_exit": 1,
+  "wrapper_reason": "Last exit line ended in CR: bash exit received 0\\r and rejected the numeric argument after all 14 commands and VALIDATION_EXIT=0. No Go command failed. Retained original script; independently checked all results without rerunning passing tests.",
+  "independent_result_audit_exit": 0
+}
