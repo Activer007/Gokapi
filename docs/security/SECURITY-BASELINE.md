@@ -4,6 +4,8 @@
 
 ## 当前M4：可靠删除与下载内容边界
 
+SEC-050开始：自有PR52已合并811376bdcaa895b0dcb427de112640fa95c1a691，fetch后新分支codex/sec-050-response-policy、初始干净；Go1.26.10 windows/amd64。CONFIRMED_CODE：现有通用handler未统一nosniff/no-referrer，renderPage未设页面CSP；具体影响及兼容继续VALIDATE，先最小策略RED。上游Forceu/Gokapi PR418/419仍open/unmerged。
+
 SEC-051续作（2026-10-30）：基线1e5d80a31acd626d3c7991561a8681459c062acc（PR51已合并），fetch后自有主线一致、初始干净，Go1.26.10 windows/amd64；分支codex/sec-051-download-boundaries。
 CONFIRMED_CODE：应用控制的文件/ZIP响应未给出nosniff；三个新增头不变量断言得到策略RED（exit1/10.188s），不是XSS漏洞复现。仅两处响应写出补头后同命令GREEN（exit0/9.593s）；不改变MIME、文件名、Disposition或inline sandbox。
 2213640真实本地HTTP与loopback S3响应合同PASS，最终对象的nosniff/sandbox缺失单独记录，不把重定向头算对象保护；首次本地编译内存SETUP_FAIL后限并发重试通过。CI40993218654 SUCCESS仅对应2213640。自有PR49现已合并4baeade，干净整合为7c9a6ad；文件响应/加密/依赖叶子不变，新UI浏览器与整合CI继续VALIDATE。首次IAB下载观察工具超时，未取得业务终态，不作PASS或漏洞结论。
@@ -227,8 +229,8 @@ P0/P1 为本项目修复优先级，不是 CVSS。未证明的 OIDC/CSRF 不认�
 | --- | --- | --- |
 | [#384](https://github.com/Activer007/SupaShare/pull/384) | merged，60d00f2，2026-03-20 | Argon2id 在 HEAD，不在 v2.2.4；保留兼容测试 |
 | [#400](https://github.com/Activer007/SupaShare/pull/400) | merged，c2880b7，2026-05-06 | 下载计数竞态修复在 HEAD，不在 v2.2.4 |
-| [#407](https://github.com/Activer007/SupaShare/issues/407) / [#419](https://github.com/Activer007/SupaShare/pull/419) | issue open / PR open，未合并 | 旧 blob 回收不能被历史替换授权修复代替；SEC-041 先审 patch |
-| [#418](https://github.com/Activer007/SupaShare/pull/418) | open，未合并 | CSP 候选；SEC-050 先检查 WASM/下载兼容 |
+| [#407](https://github.com/Forceu/Gokapi/issues/407) / [#419](https://github.com/Forceu/Gokapi/pull/419) | issue open / PR open，未合并 | 旧 blob 回收不能被历史替换授权修复代替；SEC-041 先审 patch |
+| [#418](https://github.com/Forceu/Gokapi/pull/418) | open，未合并 | CSP 候选；SEC-050 先检查 WASM/下载兼容 |
 | [#423](https://github.com/Activer007/SupaShare/pull/423) | open，未合并 | SQL provider 扩展不是 M0 必需，不迁移 PostgreSQL |
 | [#424](https://github.com/Activer007/SupaShare/pull/424) | open，未合并 | SDK v2 候选；SEC-061 避免与本地补丁冲突 |
 | [#431](https://github.com/Activer007/SupaShare/issues/431) | open | 用户额度需求，未作为 stable 功能 |

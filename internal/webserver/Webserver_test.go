@@ -503,6 +503,9 @@ func TestPostUpload(t *testing.T) {
 	defer resp.Body.Close()
 
 	test.IsEqualInt(t, resp.StatusCode, http.StatusOK)
+	test.IsEqualString(t, resp.Header.Get("X-Content-Type-Options"), "nosniff")
+	test.IsEqualString(t, resp.Header.Get("Referrer-Policy"), "no-referrer")
+	test.IsEqualString(t, resp.Header.Get("Content-Security-Policy"), "")
 	scanner := bufio.NewScanner(resp.Body)
 
 	test.HttpPostUploadRequest(t, test.HttpTestConfig{

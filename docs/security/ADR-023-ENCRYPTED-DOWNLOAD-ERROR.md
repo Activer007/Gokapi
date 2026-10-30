@@ -38,3 +38,5 @@ WASM的ReadableStream初始化/读取失败必须调用controller.error，让实
 Close仍随worker返回执行，不新增锁、队列或加密格式。回滚取消标记会恢复已验证的运行时异常风险，无数据/schema迁移。
 浏览器页面writer取消传播、真实原生下载取消和新增截断负例仍需各自实测，不能以模块PASS替代；当前HTTPS临时证书被浏览器工具拒绝，等待用户手动处理，未旁路验证或安装信任。
 PR51冻结5db6d0a，最终CI40942043033 SUCCESS；四组全仓/相关服务器race/构建扫描通过，私密模块GREEN源码95a9df1与CI源hash一致。实际Go race不支持js/wasm，未声称WASM race通过；浏览器Gate继续开放。
+
+2026-10-30当前状态覆盖上述过程记录：用户手动放行页面后，新7c9a6ad夹具的健康正例仍被Chrome的Service Worker证书校验拒绝，未进入完整性负例。用户没有可信隔离HTTPS入口，并明确允许跳过本次补验，故标SKIPPED_USER，退出本次阻塞Gate但不计PASS。历史浏览器正常/认证失败、服务器及模块证据保持原范围；没有安装信任、降低TLS验证或修改生产加密边界。

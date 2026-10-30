@@ -1,5 +1,21 @@
 # M0 本地测试报告
 
+## M4：SEC-050响应策略（2026-10-30，开发中）
+
+基线811376bdcaa895b0dcb427de112640fa95c1a691（PR52已合并、树与已审35949c8一致），fetch后独立codex/sec-050-response-policy，初始干净，Go1.26.10 windows/amd64/CGO0。
+不变量先见THREAT-MODEL；开发期仅实际HTTP通用头/资源MIME、现有SSE上传合同与页面Report-Only，先RED后补最小handler。缺头/CSP策略RED不等于XSS证据。WASM/worker/SSE及现有下载sandbox兼容须独立检查。
+当前052证书阻塞补验经用户授权SKIPPED_USER，不计PASS，也不扩大为其他测试豁免。上游418/419已再次只读核实open/unmerged，不直接套补丁。
+
+| 实际命令/阶段（均Go1.26.10、GOMAXPROCS=2、GOMEMLIMIT=512MiB） | 结果 |
+| --- | --- |
+| `go test -p=1 ./internal/webserver -count=1 -tags='test,noaws' -run '^TestSEC050(PublicResponseHeaders\|ArtifactResponseHeaders\|PageReportOnly)$\|^TestPostUpload$' -timeout=90s -v` 首次 | SETUP_FAIL3.374s：go:embed缺e2e.wasm，未运行断言 |
+| 补齐已核实7c生成的两个ignored WASM（cmd/crypto/依赖输入未变）后同命令 | exit1/52.995s；通用头、页面策略实际RED；另有iframe index.html→./的301测试前提不符，独立记录，不作漏洞RED |
+| 仅修测试为规范`/serviceworker/`，`-run '^TestSEC050ArtifactResponseHeaders/streamsaver-frame$' -timeout=60s` | RED15.447s：真实内容/MIME前提通过，仅通用头缺失 |
+| 最小补头/Report-Only后，`go test -p=1 ./internal/webserver ./internal/webserver/headers -count=1 -tags='test,noaws' -run '^TestSEC050\|^TestPostUpload$\|^TestWriteDownloadHeaders$' -timeout=90s -v` | 整体FAIL21.347s：所有新策略/资源/原writer/既有sandbox断言PASS；原上传固定ID因Windows残留SQLite状态409，不能报整组PASS |
+| 全新811376b完整归档+逐文件当前overlay，保留原现场，仅`go test -p=1 ./internal/webserver -count=1 -tags='test,noaws' -run '^TestPostUpload$' -timeout=60s -v` | PASS40.744s；真实初始/完成SSE及时Flush、实际上传完成与新头均通过。原有RemoveAll忽略Windows打开SQLite删除错误的限制不在本PR重构 |
+
+Report-Only浏览器观察及逐页base/object强制仍待执行；初始脚本限制不会强制，不以策略头证明无XSS。最终全仓/相关race尚NOT_RUN，冻结后仅一次既有CI。
+
 ## M4：SEC-051最小响应隔离（2026-10-30，开发中）
 
 基线1e5d80a31acd626d3c7991561a8681459c062acc，Go1.26.10 windows/amd64、CGO0；独立codex/sec-051-download-boundaries，未修改生产数据/上游。
