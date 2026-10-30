@@ -1137,6 +1137,9 @@ func downloadPresigned(w http.ResponseWriter, r *http.Request) {
 	}
 	presignedUrl, ok := presign.Get(presignKey[0])
 	if !ok {
+		if tryCollectionRetry(w, r, presignKey[0]) {
+			return
+		}
 		responseError(w, storage.ErrorInvalidPresign)
 		return
 	}
@@ -1164,6 +1167,12 @@ func downloadPresigned(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		files = append(files, storedFile)
+	}
+	for _, file := range files {
+		if file.IsFileRequest() {
+			serveCollectionPresign(w, r, presignedUrl, files, consumer)
+			return
+		}
 	}
 	if !presign.Consume(presignedUrl.Id) {
 		responseError(w, storage.ErrorInvalidPresign)

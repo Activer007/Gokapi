@@ -740,6 +740,10 @@ func apiDownloadSingle(w http.ResponseWriter, r requestParser, user models.User,
 		return
 	}
 	if !request.PresignUrl {
+		if file.IsFileRequest() {
+			serveCollectionDownload(w, request.WebRequest, []models.File{file}, "", user)
+			return
+		}
 		forceDecryption := file.Encryption.IsEncrypted && !file.Encryption.IsEndToEndEncrypted
 		storage.ServeFile(file, w, request.WebRequest, true, request.IncreaseCounter, forceDecryption, false)
 		return
@@ -765,10 +769,32 @@ func apiDownloadZip(w http.ResponseWriter, r requestParser, user models.User, ap
 		requestedFileIds = append(requestedFileIds, file.Id)
 	}
 	if !request.PresignUrl {
+		for _, file := range requestedFiles {
+			if file.IsFileRequest() {
+				serveCollectionDownload(w, request.WebRequest, requestedFiles, request.Filename, user)
+				return
+			}
+		}
 		storage.ServeFilesAsZip(requestedFiles, request.Filename, w, request.WebRequest)
 		return
 	}
 	createAndOutputPresignedUrl(requestedFileIds, w, request.Filename, apiKey)
+}
+
+// Collection allowances are enforced by the server, regardless of the optional
+// increaseCounter header used by ordinary management downloads.
+func serveCollectionDownload(w http.ResponseWriter, r *http.Request, files []models.File, filename string, user models.User) {
+	if !storage.ValidateManagementRange(r, files) {
+		sendError(w, http.StatusRequestedRangeNotSatisfiable, errorcodes.InvalidUserInput, "Invalid download range")
+		return
+	}
+	download, err := storage.PrepareManagementDownload(r.Context(), files, user.Id, false, r.Method != http.MethodHead)
+	if err != nil {
+		sendError(w, http.StatusNotFound, errorcodes.NotFound, "Download unavailable")
+		return
+	}
+	defer download.Close()
+	download.Serve(w, r, filename)
 }
 
 func checkDownloadAllowed(fileId string, user models.User) (models.File, int, int, string) {
