@@ -15,6 +15,16 @@ It is not possible to downgrade to an older version after a schema migration has
    **Back up your data before updating**, especially for major version upgrades.
    Copy the ``data`` and ``config`` directories (or their Docker volumes) to a safe location.
 
+   Stop the application before taking this filesystem backup. Include the actual
+   SQLite file from ``DatabaseUrl`` if it is outside those directories, any
+   remaining SQLite WAL/SHM files, and all encryption material. Keep the
+   pre-upgrade snapshot unchanged until the upgrade has been verified.
+
+   Test a restore in a separate directory or separate Docker volumes. To roll
+   back, restore the complete pre-upgrade snapshot and run the matching old
+   binary/image. Never point the old version at the migrated database, and
+   never run both versions against the same state.
+
 
 ***************
 Docker

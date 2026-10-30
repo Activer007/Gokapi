@@ -1,13 +1,18 @@
-# 当前工作：依次合并 FIX-02、FIX-03
+# 当前 Goal：M5 快速收尾（REL-01 Lite）
 
-2026-10-30。用户已授权先处理冲突并合并 [PR #60](https://github.com/Activer007/SupaShare/pull/60)，再合并 [PR #61](https://github.com/Activer007/SupaShare/pull/61)。仓库仅为 `Activer007/SupaShare`；FIX-01、FIX-02 已分别通过 PR #59、#60 合并到 master，当前处理 PR #61。
+2026-10-30。仓库仅为 `Activer007/SupaShare`。PR #56～#61 已合并，FIX-01/02/03 已完成；本轮基线为 master `54e65f45b63978823c9eee8155dc19d81ba51442`，源码版本 **2.13.1 / API 21301**。
 
 ## 本轮范围
 
-- 保留 FIX-02 的额度初始化修复及已有测试、文档和证据，不额外清理或重构。
-- 保留 FIX-03 的下载失败终态修复及源码版本 2.13.1，同步基线时不覆盖其独立改动。
-- 核对精确提交的审查结果，解决必要冲突，依次合并。复用未受影响的有效验证，达到要求后收口。
+- 仅验证 SQLite＋本地存储的安装初始化、登录、上传、分享下载 SHA-256、File Request 收集及重启持久化。
+- 使用合成数据，从已知 2.12.0 快照 `94ba10fd57feec60e463f63bd11e5f41d20cae46` 升级到当前版本，核对 schema 17→18、旧文件/链接、用户及收集设置。
+- 应用停止后备份完整 config/data（本次 SQLite 位于 config），在独立目录恢复新版备份；仅用升级前快照运行旧版，不将迁移后的数据库交给旧版。
+- 必须取得 Docker Compose 全新安装的实际结果；原生运行通过不能代替 Compose 验收。
 
-REL-01 及发布准备不在本轮范围，已有分支、命名 stash、改动与证据保留。GitHub Actions 保持关闭，不启动新 CI，不发布 Release/tag/镜像，不部署或修改上游。
+## 当前结果与完成条件
 
-各包原始受测提交与限制见[任务看板](M5-TASK-BOARD.md)、[验收表](M5-ACCEPTANCE.md)及各自 PR；本轮合并不表示整个 M5 或生产发布验收完成。
+原生隔离安装、核心流程、重启、升级、备份恢复和快照回滚已通过，详见[验收表](M5-ACCEPTANCE.md)。Docker Desktop 被本机 `dockerInference` 临时对象访问错误阻断，Compose 为 **NOT_RUN**；该项通过前不关闭 M5。
+
+复用 FIX-01/02/03 的有效证据，不重跑源码未变的完整测试，不新增大型报告或框架。旧 REL-01 分支及命名 stash 保留，未直接应用。实际修改以小型独立 PR 交付，不自动合并。
+
+真实 Redis/云 S3、HA、断电矩阵及生产发布不在本轮范围。GitHub Actions 保持关闭，不发布 Release/tag/镜像或部署。完成本 Goal 后停止，不自动进入下一里程碑。
