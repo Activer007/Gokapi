@@ -29,7 +29,8 @@ body.public-shell::after { display: none; }
 .public-download { max-width: 600px; text-align: center; }
 .public-download .filename-text { overflow-wrap: anywhere; }
 .download-art { display: block; width: 200px; height: 132px; object-fit: contain; margin: -8px auto 20px; }
-.download-metadata { display: flex; justify-content: space-between; gap: 24px; padding: 18px 0; margin: 24px 0; border-block: 1px solid var(--ss-border); }
+.download-metadata { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 24px; padding: 18px 0; margin: 24px 0; border-block: 1px solid var(--ss-border); font-size: 14px; }
+.download-metadata > div { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
 .download-metadata dt { color: var(--ss-muted); font-weight: 400; }
 .download-metadata dd { margin: 0; font-weight: 600; }
 .download-state { min-height: 24px; margin: 16px 0 0; font-size: 14px; }

@@ -60,6 +60,8 @@ type Database interface {
 	GetApiKey(id string) (models.ApiKey, bool)
 	// SaveApiKey saves the API key to the database
 	SaveApiKey(apikey models.ApiKey)
+	// InsertApiKey atomically creates a key without replacing an existing credential.
+	InsertApiKey(apikey models.ApiKey) (bool, error)
 	// UpdateTimeApiKey writes the content of LastUsage to the database
 	UpdateTimeApiKey(apikey models.ApiKey)
 	// DeleteApiKey deletes an API key with the given ID

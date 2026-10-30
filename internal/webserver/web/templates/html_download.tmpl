@@ -7,7 +7,11 @@
   {{else}}
     <h1 id="filename" class="filename-text">{{.Name}}</h1>
   {{end}}
-  <dl class="download-metadata"><dt>{{.UI.T "download.size"}}</dt><dd>{{.Size}}</dd></dl>
+  <dl class="download-metadata">
+    <div><dt>{{.UI.T "download.size"}}</dt><dd>{{.Size}}</dd></div>
+    <div><dt>{{.UI.T "download.uploadedAt"}}</dt><dd><time id="downloadUploadDate">{{.UI.T "download.uploadTimeUnknown"}}</time></dd></div>
+  </dl>
+  <script>insertLocalUploadDate({{.UploadDate}}, "downloadUploadDate");</script>
   <div id="buttondiv" class="download-actions">
     {{if .ClientSideDecryption}}
       <button id="downloadbutton" class="btn btn-primary" type="button" disabled onclick="Download(this);"><span id="wasmspinner" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>{{.UI.T "common.loading"}}</button>

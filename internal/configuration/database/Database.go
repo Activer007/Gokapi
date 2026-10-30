@@ -347,6 +347,11 @@ func SaveApiKey(apikey models.ApiKey) {
 	db.SaveApiKey(apikey)
 }
 
+// InsertApiKey returns false on a credential collision and never overwrites it.
+func InsertApiKey(apikey models.ApiKey) (bool, error) {
+	return db.InsertApiKey(apikey)
+}
+
 // UpdateTimeApiKey writes the content of LastUsage to the database
 func UpdateTimeApiKey(apikey models.ApiKey) {
 	// To reduce database writes, the entry is only updated if the last timestamp is more than 30 seconds old

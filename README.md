@@ -8,7 +8,7 @@
 
 SupaShare is a self-hosted file sharing and collection application for teams using desktop browsers. Share files with download limits and expiry dates, collect files through request links, and manage access from a focused dark workspace. English and Simplified Chinese are built in.
 
-Developed from Gokapi and independently maintained by Activer007, SupaShare has its own interface, improvements and version line. The current source version is **2.12.0**. Build from this repository; use the [Releases page](https://github.com/Activer007/SupaShare/releases) to check for explicitly published SupaShare packages. Upstream Gokapi images do not include these changes.
+Developed from Gokapi and independently maintained by Activer007, SupaShare has its own interface, improvements and version line. The current source version is **2.13.0**. Build from this repository; use the [Releases page](https://github.com/Activer007/SupaShare/releases) to check for explicitly published SupaShare packages. Upstream Gokapi images do not include these changes.
 
 [Quick start](#quick-start) · [Interface](#interface) · [Site customization](#site-customization) · [Documentation](#documentation)
 
@@ -17,7 +17,7 @@ Developed from Gokapi and independently maintained by Activer007, SupaShare has 
 | Capability | What you can do |
 | --- | --- |
 | Controlled sharing | Set a download limit, expiry date and optional password for a file. |
-| File collection | Give external contributors a File Request link to upload within its limits, without creating an account. |
+| File collection | Share a short upload link with a five-day default deadline and a per-file allowance of 1–10 downloads, defaulting to one. Contributors need no account. |
 | Bilingual workspace | Switch between English and Simplified Chinese across setup, public pages and administration. |
 | Your site identity | Set the public name, browser title, footer text and help links in the existing configuration file. |
 | Easier account handoff | Create an internal-login user, then copy their username, generated temporary password and login URL together. The user must change the password after their first browser login. |
@@ -27,11 +27,13 @@ Developed from Gokapi and independently maintained by Activer007, SupaShare has 
 
 Ordinary uploads require authentication. File Request links grant their holders a limited upload capability. Deduplication is available where the storage/encryption mode supports it; end-to-end encrypted uploads do not use deduplication. See the [setup guide](docs/setup.rst) for encryption tradeoffs.
 
+Collection downloads count for ordinary users; administrator downloads preserve the remaining allowance. The download page shows upload time beside file size. See [file collection policies](docs/file-collections.rst) for legacy compatibility, ZIP behavior and bounded retries.
+
 Independent development also includes fixes to setup credentials, session revocation, proxy trust checks and upload authorization/resource handling, plus bounded recovery of interrupted uploads. The [changelog](docs/changelog.rst) summarizes delivered changes; the [security task records](docs/security/SECURITY-TASK-BOARD.md) distinguish verified scope from deferred work.
 
 ## Interface
 
-The **2.12.0** desktop interface uses top navigation, a compact upload area,
+The desktop interface introduced in **2.12.0** uses top navigation, a compact upload area,
 expandable upload rules and a wide searchable file list. Collections,
 administration, public pages and setup follow the same charcoal/blue design.
 The workspace images below are real **2.12.0** application screenshots with

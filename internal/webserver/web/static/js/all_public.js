@@ -113,6 +113,21 @@ function insertFormattedDate(unixTimestamp, id) {
     document.getElementById(id).innerText = formatUnixTimestamp(unixTimestamp);
 }
 
+// Upload metadata uses the browser's local time, including the offset in effect
+// at the upload instant. Keep the localized fallback for legacy/missing dates.
+function insertLocalUploadDate(unixTimestamp, id) {
+    const element = document.getElementById(id);
+    const timestamp = Number(unixTimestamp);
+    const date = new Date(timestamp * 1000);
+    if (!element || !Number.isFinite(timestamp) || timestamp <= 0 || Number.isNaN(date.getTime())) return;
+    const offset = -date.getTimezoneOffset();
+    const pad = value => String(value).padStart(2, '0');
+    const zone = `UTC${offset >= 0 ? '+' : '-'}${pad(Math.floor(Math.abs(offset) / 60))}:${pad(Math.abs(offset) % 60)}`;
+    element.textContent = `${formatUnixTimestamp(timestamp)} (${zone})`;
+    element.dateTime = date.toISOString();
+    element.title = date.toISOString();
+}
+
 function insertDateWithNegative(unixTimestamp, id, negative) {
     document.getElementById(id).innerText = formatTimestampWithNegative(unixTimestamp, negative);
 }

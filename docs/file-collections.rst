@@ -42,6 +42,11 @@ again. A different browser, missing cookie or server restart requires a new gran
 The bounded retry cache can disable retries under capacity pressure. Direct API
 downloads enforce the same counting policy but do not create browser retry grants.
 
+Explicit ZIP requests retain archive format even with one member. End-to-end
+encrypted files require client-side decryption and can be downloaded individually
+as ciphertext; server-side ZIP requests containing them are rejected before any
+allowances are charged.
+
 At zero remaining downloads the file is unavailable for new downloads and enters
 the existing cleanup process. Active transfers and their bounded retry window
 protect the content from expiry cleanup. Administrator exemption does not grant
@@ -58,3 +63,23 @@ an old response means legacy unlimited. Explicit download-policy overrides for
 individual collection files also use the 1--10 range. SQLite upgrades to schema
 18 with a zero default for existing rows; missing Redis fields likewise read as
 legacy unlimited. Offline database migration preserves both old and new policies.
+
+Collection links and download details
+------------------------------------
+
+New collection links use ``/r/<token>``. The token contains 128 random bits in
+22 URL-safe characters and directly identifies the collection's upload-only
+credential. The internal collection ID is omitted from the URL. Ordinary API
+credentials retain their existing length. Both forms resolve live credentials,
+owner permissions, collection deadlines and upload capacity on every request.
+
+Previously issued ``/publicUpload?id=...&key=...`` links continue to work. Existing
+30-character collection keys can also use the short route without regeneration.
+The public upload page resolves assets and API requests against the configured
+deployment path, including reverse-proxy subdirectories.
+
+Public download pages show file size and the recorded upload time on one metadata
+row, wrapping when the window is narrow. Times use the browser's local timezone
+with an explicit UTC offset; missing timestamps display an unknown-time label.
+This applies to both ordinary and encrypted download pages. Collection files
+continue to be retrieved through the authenticated management page.

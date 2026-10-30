@@ -7,7 +7,6 @@ Handling of webserver and requests / uploads
 import (
 	"bytes"
 	"context"
-	"crypto/subtle"
 	"embed"
 	"encoding/base64"
 	"encoding/json"
@@ -130,6 +129,7 @@ func Start() {
 	mux.HandleFunc("/logs", requireLogin(showLogs, true, false))
 	mux.HandleFunc("/logout", doLogout)
 	mux.HandleFunc("/publicUpload", showPublicUpload)
+	mux.HandleFunc("/r/{token}", showPublicUpload)
 	mux.HandleFunc("/uploadChunk", requireLogin(uploadChunk, false, false))
 	mux.HandleFunc("/uploadStatus", requireLogin(sse.GetStatusSSE, false, false))
 	mux.HandleFunc("/users", requireLogin(showUserAdmin, true, false))
@@ -631,6 +631,7 @@ func showDownload(w http.ResponseWriter, r *http.Request) {
 	view := &DownloadView{
 		Name:               file.Name,
 		Size:               file.Size,
+		UploadDate:         file.UploadDate,
 		Id:                 file.Id,
 		IsDownloadView:     true,
 		EndToEndEncryption: file.Encryption.IsEndToEndEncrypted,
@@ -792,6 +793,7 @@ type DownloadView struct {
 	pageView
 	Name                 string
 	Size                 string
+	UploadDate           int64
 	Id                   string
 	Cipher               string
 	PublicName           string
@@ -1034,23 +1036,20 @@ type userInfo struct {
 // Handling of /publicUpload
 func showPublicUpload(w http.ResponseWriter, r *http.Request) {
 	addNoCacheHeader(w)
-	fileRequestId := queryUrl(w, r, "id", errorHandling.TypeInvalidFileRequest)
-	request, ok := filerequest.Get(fileRequestId)
+	request, ok := publicUploadRequest(r)
 	if !ok {
-		errorHandling.RedirectGenericErrorPage(w, r, errorHandling.TypeInvalidFileRequest)
-		return
-	}
-	if !request.IsUnlimitedTime() && request.Expiry < time.Now().Unix() {
-		errorHandling.RedirectGenericErrorPage(w, r, errorHandling.TypeInvalidFileRequest)
-		return
-	}
-	if !request.IsUnlimitedFiles() && request.UploadedFiles >= request.MaxFiles {
-		errorHandling.RedirectGenericErrorPage(w, r, errorHandling.TypeInvalidFileRequest)
-		return
-	}
-	apiKey := queryUrl(w, r, "key", errorHandling.TypeInvalidFileRequest)
-	if subtle.ConstantTimeCompare([]byte(request.ApiKey), []byte(apiKey)) != 1 {
-		errorHandling.RedirectGenericErrorPage(w, r, errorHandling.TypeInvalidFileRequest)
+		if r.PathValue("token") == "" {
+			errorHandling.RedirectGenericErrorPage(w, r, errorHandling.TypeInvalidFileRequest)
+		} else {
+			// Render here so the error route and its assets remain correct under /r/.
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			addPageResponsePolicy(w, "error")
+			w.WriteHeader(http.StatusNotFound)
+			view := &genericView{IsGenericError: true, ErrorId: errorHandling.TypeInvalidFileRequest,
+				ErrorCardWidth: errorHandling.WidthWide, PublicName: configuration.Get().PublicName, CustomContent: customStaticInfo}
+			view.BaseHref = publicUploadBasePath()
+			helper.CheckIgnoreTimeout(renderPage(w, r, "error", view))
+		}
 		return
 	}
 
@@ -1063,6 +1062,7 @@ func showPublicUpload(w http.ResponseWriter, r *http.Request) {
 		FileRequest:   &request,
 		CustomContent: customStaticInfo,
 	}
+	view.BaseHref = publicUploadBasePath()
 
 	err := renderPage(w, r, "publicUpload", view)
 	helper.CheckIgnoreTimeout(err)
