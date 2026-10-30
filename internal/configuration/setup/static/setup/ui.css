@@ -1,0 +1,78 @@
+/* Setup is embedded separately from the application; keep vendor assets intact. */
+body.setup-page {
+    --setup-bg: #1f2329;
+    --setup-surface: #252a31;
+    --setup-border: #414955;
+    --setup-text: #f4f6fa;
+    --setup-muted: #b5bfce;
+    background: var(--setup-bg);
+    color: var(--setup-text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+}
+.setup-page .modal-backdrop { background: var(--setup-bg); opacity: 1; }
+.setup-page .wizard-dialog { width: min(1100px, calc(100% - 48px)) !important; margin: 32px auto !important; }
+.setup-page .wizard-content { height: auto !important; border: 1px solid var(--setup-border); border-radius: 12px; background: var(--setup-surface); box-shadow: 0 16px 48px #0003; overflow: hidden; }
+.setup-page .wizard-header { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 24px; padding: 22px 28px; border-bottom: 1px solid var(--setup-border); }
+.setup-page .wizard-header h3 { color: var(--setup-text); font-size: 23px; line-height: 1.4; overflow-wrap: anywhere; }
+.setup-page .wizard-subtitle { display: none; }
+.setup-page .setup-languages { display: flex; gap: 6px; margin-left: auto; }
+.setup-page .setup-languages .btn { padding: 6px 12px; min-height: 36px; }
+.setup-page .setup-languages [aria-pressed="true"] { background: #303947; border-color: #687486; color: #fff; }
+.setup-page .wizard-body { display: grid; grid-template-columns: 235px minmax(0, 1fr); height: auto !important; }
+.setup-page .wizard-steps { float: none !important; width: auto; height: auto !important; background: #20252c; border-right: 1px solid var(--setup-border); }
+.setup-page .wizard-nav-container { height: auto !important; max-height: calc(100vh - 240px); min-height: 140px; overflow-y: auto; padding: 16px 10px; }
+.setup-page .wizard-nav-list > li > a { background: transparent; color: var(--setup-muted); padding: 7px 12px; line-height: 1.5; border-radius: 6px; margin: 3px 0; }
+.setup-page .wizard-nav-list > li.already-visited > a { color: #8dbbff; }
+.setup-page .wizard-nav-list > li.active > a { background: #173f72; color: #fff; }
+.setup-page .wizard-nav-list > li.already-visited > a:hover { background: #303947; }
+.setup-page .wizard-nav-link .glyphicon { margin: 5px 0 0 8px; pointer-events: none; }
+.setup-page .wizard-progress-container { position: static; margin: 0; padding: 12px 22px 20px; }
+.setup-page .progress { height: 5px; margin: 0; background: var(--setup-border); box-shadow: none; }
+.setup-page .progress-bar { background: #1677ff; }
+.setup-page .wizard-cards { height: auto !important; }
+.setup-page .wizard-card-container { height: clamp(240px, calc(100vh - 260px), 590px) !important; margin-left: 0; overflow-y: auto; }
+.setup-page .wizard-card, .setup-page .wizard-error, .setup-page .wizard-failure, .setup-page .wizard-success, .setup-page .wizard-loading { height: auto !important; min-height: 100%; padding: 26px 32px; border: 0; overflow: visible; overflow-wrap: anywhere; }
+.setup-page .wizard-card > h3 { display: block !important; margin: 0 0 22px; color: var(--setup-text); font-size: 25px; line-height: 1.4; font-weight: 650; }
+.setup-page .wizard-input-section { margin-bottom: 0; }
+.setup-page .form-horizontal .form-group { margin-left: 0; margin-right: 0; }
+.setup-page .wizard-input-section p { color: var(--setup-muted); }
+.setup-page label { font-weight: 550; }
+.setup-page .form-group > .col-sm-8 { float: none; width: 100% !important; padding: 0; margin-bottom: 16px; }
+.setup-page .form-group > .col-sm-8 + br, .setup-page .form-group > .col-sm-8 + br + br { display: none; }
+.setup-page .form-control, .setup-page .input-field { height: 42px; max-width: 100%; padding: 8px 12px; color: var(--setup-text); background: #1b2027; border: 1px solid #5d6878; border-radius: 6px; box-shadow: none; }
+.setup-page .form-control::placeholder, .setup-page .input-field::placeholder { color: #9ca8b9; }
+.setup-page select.form-control { width: 100% !important; }
+.setup-page input[type="checkbox"] { transform: none; width: 17px; height: 17px; accent-color: #1677ff; vertical-align: middle; }
+.setup-page a { color: #8dbbff; }
+.setup-page a:hover { color: #c0d9ff; }
+.setup-page .wizard-footer { border-top: 1px solid var(--setup-border); }
+.setup-page .wizard-buttons-container { padding: 16px 32px; min-height: 76px; }
+.setup-page .btn { min-height: 42px; padding: 9px 20px; border-radius: 6px; color: var(--setup-text); background: #303947; border: 1px solid #5d6878; font-size: 14px; }
+.setup-page .btn:hover { background: #3d4858; }
+.setup-page .btn-primary, .setup-page .btn-success { background: #0963d5; border-color: #1677ff; color: #fff; }
+.setup-page .btn-primary:hover, .setup-page .btn-success:hover { background: #0756bb; }
+.setup-page .wizard-back { margin-right: 10px; }
+.setup-page :focus-visible { outline: 3px solid #8dbbff; outline-offset: 3px; }
+.setup-page .alert { border-radius: 6px; padding: 16px; }
+.setup-page .alert-success { background: #193c30; border-color: #438a6b; color: #bbf0d2; }
+.setup-page .alert-error, .setup-page .error-popover { background: #482b31; border-color: #c16a77; color: #ffd2d7; }
+.setup-page .setup-field-error { position: static; display: block; width: 100%; max-width: none; margin: 8px 0 12px; background: #482b31; border-color: #c16a77; color: #ffd2d7; box-shadow: none; }
+.setup-page .setup-field-error .arrow, .setup-page .setup-field-error .popover-title { display: none; }
+.setup-page [aria-invalid="true"] { border-color: #e58a98; }
+.setup-page .setup-warning { color: #ffc7a0; }
+.setup-page code { color: #b9d5ff; background: #1b2027; white-space: normal; }
+.setup-page .oauthscopes { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
+.setup-page .oauthscopes .input-field { flex: 1 1 180px; min-width: 0; }
+.setup-page .wizard-modal .chzn-container .chzn-results { max-height: 150px; }
+@media (max-width: 900px) {
+    .setup-page .wizard-dialog { width: calc(100% - 24px) !important; margin: 12px auto !important; }
+    .setup-page .wizard-body { grid-template-columns: 180px minmax(0, 1fr); }
+    .setup-page .wizard-card, .setup-page .wizard-error, .setup-page .wizard-failure, .setup-page .wizard-success { padding: 20px; }
+    .setup-page .wizard-header { padding: 16px 20px; }
+    .setup-page .wizard-buttons-container { padding: 16px 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .setup-page .fade, .setup-page .progress-bar { transition: none; animation: none; }
+}
