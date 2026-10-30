@@ -58,3 +58,23 @@ an old response means legacy unlimited. Explicit download-policy overrides for
 individual collection files also use the 1--10 range. SQLite upgrades to schema
 18 with a zero default for existing rows; missing Redis fields likewise read as
 legacy unlimited. Offline database migration preserves both old and new policies.
+
+Collection links and download details
+------------------------------------
+
+New collection links use ``/r/<token>``. The token contains 128 random bits in
+22 URL-safe characters and directly identifies the collection's upload-only
+credential. The internal collection ID is omitted from the URL. Ordinary API
+credentials retain their existing length. Both forms resolve live credentials,
+owner permissions, collection deadlines and upload capacity on every request.
+
+Previously issued ``/publicUpload?id=...&key=...`` links continue to work. Existing
+30-character collection keys can also use the short route without regeneration.
+The public upload page resolves assets and API requests against the configured
+deployment path, including reverse-proxy subdirectories.
+
+Public download pages show file size and the recorded upload time on one metadata
+row, wrapping when the window is narrow. Times use the browser's local timezone
+with an explicit UTC offset; missing timestamps display an unknown-time label.
+This applies to both ordinary and encrypted download pages. Collection files
+continue to be retrieved through the authenticated management page.
