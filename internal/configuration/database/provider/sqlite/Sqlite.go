@@ -22,7 +22,7 @@ type DatabaseProvider struct {
 }
 
 // DatabaseSchemeVersion contains the version number to be expected from the current database. If lower, an upgrade will be performed
-const DatabaseSchemeVersion = 17
+const DatabaseSchemeVersion = 18
 
 // New returns an instance
 func New(dbConfig models.DbConnection) (DatabaseProvider, error) {
@@ -119,6 +119,9 @@ func (p DatabaseProvider) Upgrade(currentDbVersion int) {
 	}
 	if currentDbVersion < 17 {
 		helper.Check(p.initBlobReclaims())
+	}
+	if currentDbVersion < 18 {
+		helper.Check(p.initFileRequestDownloadPolicy())
 	}
 }
 
@@ -265,6 +268,7 @@ func (p DatabaseProvider) createNewDatabase() error {
 			"creation"	INTEGER NOT NULL,
 			"apiKey"	TEXT NOT NULL UNIQUE,
 			"note"	TEXT NOT NULL,
+			"allowedDownloads" INTEGER NOT NULL DEFAULT 0,
 			PRIMARY KEY("id")
 		);
 		CREATE TABLE "Statistics" (

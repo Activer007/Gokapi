@@ -11,10 +11,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alicebob/miniredis/v2"
 	"github.com/Activer007/SupaShare/internal/configuration/database/dbabstraction"
 	"github.com/Activer007/SupaShare/internal/models"
 	"github.com/Activer007/SupaShare/internal/uploadquota"
+	"github.com/alicebob/miniredis/v2"
 	redigo "github.com/gomodule/redigo/redis"
 )
 
@@ -50,6 +50,8 @@ func TestSEC030MigrationReceipts(t *testing.T) {
 			p := quotaMigrationOpen(t, source)
 			file := models.File{Id: "retained", UserId: 1, SizeBytes: 7, SHA1: "synthetic-shared"}
 			p.SaveMetaData(file)
+			request := models.FileRequest{Id: "retained-collection", UserId: 1, ApiKey: "collection-key", AllowedDownloads: 10}
+			p.SaveFileRequest(request)
 			change := migrationReservation()
 			if _, err := p.ApplyUploadQuota(ctx, change); err != nil {
 				t.Fatal(err)
@@ -73,6 +75,9 @@ func TestSEC030MigrationReceipts(t *testing.T) {
 			after, err := q.ReadUploadQuota(ctx)
 			if err != nil || !reflect.DeepEqual(before, after) || !reflect.DeepEqual(p.GetAllMetadata(), q.GetAllMetadata()) {
 				t.Fatalf("copy lost metadata/receipts: %v", err)
+			}
+			if got, ok := q.GetFileRequest(request.Id); !ok || !reflect.DeepEqual(got, request) {
+				t.Fatal("cross-provider copy lost the collection download policy")
 			}
 			if err := MigrateChecked(ctx, source, target); !errors.Is(err, uploadquota.ErrConflict) {
 				t.Fatalf("nonempty destination accepted: %v", err)
@@ -101,12 +106,14 @@ func TestSEC030MigrationInvalidAndLegacy(t *testing.T) {
 		source, target := quotaMigrationConfig(t, 0), quotaMigrationConfig(t, 1)
 		p := quotaMigrationOpen(t, source)
 		p.SaveMetaData(models.File{Id: "legacy", UserId: 1, SizeBytes: 2})
+		request := models.FileRequest{Id: "legacy-collection", UserId: 1, ApiKey: "legacy-key"}
+		p.SaveFileRequest(request)
 		raw, err := sql.Open("sqlite", source.HostUrl)
 		if err != nil {
 			t.Fatal(err)
 		}
 		defer raw.Close()
-		if _, err := raw.Exec("DROP TABLE UploadQuota; PRAGMA user_version=15"); err != nil {
+		if _, err := raw.Exec("DROP TABLE UploadQuota; ALTER TABLE UploadRequests DROP COLUMN allowedDownloads; PRAGMA user_version=15"); err != nil {
 			t.Fatal(err)
 		}
 		if err := MigrateChecked(ctx, source, target); err != nil {
@@ -118,6 +125,9 @@ func TestSEC030MigrationInvalidAndLegacy(t *testing.T) {
 		q := quotaMigrationOpen(t, target)
 		if len(q.GetAllMetadata()) != 1 {
 			t.Fatal("legacy metadata lost")
+		}
+		if got, ok := q.GetFileRequest(request.Id); !ok || !reflect.DeepEqual(got, request) {
+			t.Fatal("legacy collection copy changed unlimited policy")
 		}
 	})
 	t.Run("cancelled", func(t *testing.T) {

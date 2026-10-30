@@ -1759,7 +1759,7 @@
           {
             "name": "expiry",
             "in": "header",
-            "description": "The expiry as a UTC unix timestamp. No expiry if 0",
+            "description": "The collection deadline as a UTC unix timestamp. Defaults to five days from creation when omitted for a new request. No deadline if 0; omitted updates preserve the existing deadline. Collected files have an independent lifetime.",
             "required": false,
             "style": "simple",
             "explode": false,
@@ -1787,6 +1787,18 @@
             "explode": false,
             "schema": {
               "type": "integer"
+            }
+          },
+          {
+            "name": "allowedDownloads",
+            "in": "header",
+            "description": "Download allowance for each subsequently uploaded file. Defaults to 1 for a new collection; omitted updates preserve the existing policy. Ordinary management consumers spend one allowance per file, including ZIP members. Administrators do not spend allowances.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10,
+              "default": 1
             }
           }
         ],
@@ -2375,6 +2387,12 @@
         "type": "object",
         "description": "Represents a file upload request and its associated metadata.",
         "properties": {
+          "alloweddownloads": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10,
+            "description": "Per-file allowance inherited by subsequent uploads. New collections default to 1. Zero is retained for legacy unlimited collections; new explicit values must be 1 through 10."
+          },
           "id": {
             "type": "string",
             "description": "The internal ID of the file request",

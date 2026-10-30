@@ -150,29 +150,16 @@ function saveFileRequestDefaults() {
     } else {
         localStorage.setItem("fr_maxsize", 0);
     }
-    if (document.getElementById("mc_expiry").checked) {
-        let diff = document.getElementById("mi_expiry").value - Math.round(Date.now() / 1000);
-        localStorage.setItem("fr_expiry", diff);
-    } else {
-        localStorage.setItem("fr_expiry", 0);
-    }
 }
 
 function loadFileRequestDefaults() {
     const defaultMaxFiles = localStorage.getItem("fr_maxfiles");
     const defaultMaxSize = localStorage.getItem("fr_maxsize");
-    let defaultExpiry = localStorage.getItem("fr_expiry");
-
-    if (defaultExpiry !== "0" && defaultExpiry !== null) {
-        let defaultDate = new Date(Date.now() + Number((defaultExpiry) * 1000));
-        defaultDate.setHours(12, 0, 0, 0);
-        defaultExpiry = Math.floor(defaultDate.getTime() / 1000);
-    }
-
-    setModalValues("", "", defaultMaxFiles, defaultMaxSize, defaultExpiry, "");
+    const defaultExpiry = Math.floor(Date.now() / 1000) + 5 * 24 * 60 * 60;
+    setModalValues("", "", defaultMaxFiles, defaultMaxSize, defaultExpiry, "", 1);
 }
 
-function setModalValues(id, name, maxFiles, maxSize, expiry, notes) {
+function setModalValues(id, name, maxFiles, maxSize, expiry, notes, allowedDownloads) {
     const previousError = document.querySelector('#addEditModal .save-error');
     if (previousError) previousError.textContent = '';
     document.getElementById("freqId").value = id;
@@ -240,7 +227,7 @@ function setModalValues(id, name, maxFiles, maxSize, expiry, notes) {
     }
 
     if (expiry === null || expiry == 0) {
-        const defaultDate = Math.floor(new Date(Date.now() + (14 * 24 * 60 * 60 * 1000)).getTime() / 1000);
+        const defaultDate = Math.floor(Date.now() / 1000) + 5 * 24 * 60 * 60;
         document.getElementById("mi_expiry").disabled = true;
         document.getElementById("mc_expiry").checked = false;
         document.getElementById("mi_expiry").value = defaultDate;
@@ -252,10 +239,20 @@ function setModalValues(id, name, maxFiles, maxSize, expiry, notes) {
         createCalendar("mi_expiry", expiry);
     }
     document.getElementById("mNotes").value = notes;
+
+    const keepLegacyDownloads = !!id && Number(allowedDownloads || 0) === 0;
+    document.getElementById("legacyDownloadsOption").hidden = !keepLegacyDownloads;
+    document.getElementById("mc_keepdownloads").checked = keepLegacyDownloads;
+    document.getElementById("mi_downloads").value = keepLegacyDownloads ? 1 : (allowedDownloads ?? 1);
+    handleRequestDownloadPolicyChange();
 }
 
-function editFileRequest(id, name, maxFiles, maxSize, expiry, notes) {
-    setModalValues(id, name, maxFiles, maxSize, expiry, notes);
+function handleRequestDownloadPolicyChange() {
+    document.getElementById("mi_downloads").disabled = document.getElementById("mc_keepdownloads").checked;
+}
+
+function editFileRequest(id, name, maxFiles, maxSize, expiry, notes, allowedDownloads) {
+    setModalValues(id, name, maxFiles, maxSize, expiry, notes, allowedDownloads);
     document.getElementById("m_urequestlabel").innerText = t("request.editTitle");
     $('#addEditModal').modal('show');
 
@@ -284,14 +281,18 @@ async function saveFileRequest() {
         expiry = document.getElementById("mi_expiry").value;
     }
 
-    for (const fieldId of ['mi_maxfiles','mi_maxsize']) {
+    const allowedDownloads = document.getElementById("mc_keepdownloads").checked
+        ? undefined : Number(document.getElementById("mi_downloads").value);
+
+    for (const fieldId of ['mi_maxfiles','mi_maxsize','mi_downloads']) {
         const field = document.getElementById(fieldId);
         field.required = true;
         if (!field.disabled && !field.reportValidity()) return;
     }
     await runModalSave('addEditModal', buttonSave, async () => {
         if (expiry !== 0 && (!Number.isFinite(Number(expiry)) || Number(expiry) <= Date.now()/1000)) throw new Error(t('settings.invalidExpiry'));
-        const data = await apiURequestSave(id, name, maxFiles, maxSize, expiry, notes);
+        if (allowedDownloads !== undefined && (!Number.isInteger(allowedDownloads) || allowedDownloads < 1 || allowedDownloads > 10)) throw new Error(t('request.invalidDownloads'));
+        const data = await apiURequestSave(id, name, maxFiles, maxSize, expiry, notes, allowedDownloads);
         insertOrReplaceFileRequest(data);
         saveFileRequestDefaults();
         showToast(3500,t('settings.saved'));
@@ -425,7 +426,7 @@ function createFileRequestRow(jsonResult, user) {
     editBtn.className = "btn btn-outline-light btn-sm";
     editBtn.title = t("request.edit");
     editBtn.onclick = () =>
-        editFileRequest(jsonResult.id, jsonResult.name, jsonResult.maxfiles, jsonResult.maxsize, jsonResult.expiry, jsonResult.notes);
+        editFileRequest(jsonResult.id, jsonResult.name, jsonResult.maxfiles, jsonResult.maxsize, jsonResult.expiry, jsonResult.notes, jsonResult.alloweddownloads);
 
     editBtn.appendChild(icon("bi-pencil"));
 
@@ -450,7 +451,16 @@ function createFileRequestRow(jsonResult, user) {
 
 function prepareFileRequestRow(row) {
     const download = row.querySelector('[id^="download-"]');
-    if (download) bindRequestDownload(download, (download.dataset.fileIds || '').split(',').filter(Boolean), download.dataset.recordName || '');
+    if (download) {
+        // Saved responses still include exhausted files until cleanup. Keep
+        // their exclusions when replacing a row after any collection edit.
+        const ids = (download.dataset.fileIds || '').split(',').filter(id => {
+            if (!id) return false;
+            const remaining = document.getElementById(`cell-downloadsRemaining-${id}`)?.dataset.remaining;
+            return remaining === undefined || Number(remaining) !== 0;
+        });
+        bindRequestDownload(download, ids, download.dataset.recordName || '');
+    }
     const copy = row.querySelector('.copyurl');
     if (copy) { copy.textContent = t('common.copyLink'); copy.setAttribute('aria-label', t('common.copyLink')); }
     const actions = row.querySelector('.btn-group');
@@ -464,4 +474,59 @@ function updateFileRequestEmptyState() {
     document.getElementById('requestCount').textContent = String(count);
     document.getElementById('requestEmpty').hidden = count !== 0;
     document.getElementById('requestTableWrap').hidden = count === 0;
+}
+
+function expireCollectionFile(id) {
+    const row = document.getElementById(`cell-listupload-${id}`);
+    if (!row) return;
+    row.querySelectorAll('[data-collection-download]').forEach(control => {
+        control.disabled = true;
+        control.setAttribute('aria-disabled', 'true');
+        control.removeAttribute('onclick');
+        control.removeAttribute('href');
+        control.classList.add('disabled');
+    });
+    const status = document.getElementById(`cell-expired-file-${id}`);
+    if (status) status.hidden = false;
+    removeDownloadFileReference(id, row.dataset.requestId);
+}
+
+function applyCollectionDownloadEvent(data) {
+    let event;
+    try { event = JSON.parse(data); } catch (_) { return; }
+    if (event.event !== 'download' || !Number.isInteger(event.downloads_remaining) || event.downloads_remaining < 0) return;
+    const cell = document.getElementById(`cell-downloadsRemaining-${event.file_id}`);
+    if (!cell) return;
+    // Publications can arrive out of order after concurrent downloads.
+    if (Number(cell.dataset.remaining) >= 0 && event.downloads_remaining > Number(cell.dataset.remaining)) return;
+    cell.dataset.remaining = String(event.downloads_remaining);
+    cell.textContent = String(event.downloads_remaining);
+    if (event.downloads_remaining === 0) expireCollectionFile(event.file_id);
+}
+
+function registerCollectionChanges() {
+    const connectDirect = () => {
+        const source = new EventSource('./uploadStatus');
+        source.onmessage = event => applyCollectionDownloadEvent(event.data);
+        // EventSource reconnects itself after a transient transport failure.
+    };
+    if (typeof SharedWorker !== 'undefined') {
+        try {
+            const worker = new SharedWorker('./js/sse-worker.js');
+            worker.port.onmessage = event => {
+                if (event.data.type === 'message') applyCollectionDownloadEvent(event.data.data);
+                else if (event.data.type === 'shutdown') window.location.href = './login';
+            };
+            worker.onerror = () => {
+                worker.onerror = null;
+                worker.port.close();
+                sseWorkerPort = null;
+                connectDirect();
+            };
+            worker.port.start();
+            sseWorkerPort = worker.port;
+            return;
+        } catch (_) { /* Fall through when SharedWorker is unavailable. */ }
+    }
+    connectDirect();
 }

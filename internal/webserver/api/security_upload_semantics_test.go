@@ -19,7 +19,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alicebob/miniredis/v2"
 	"github.com/Activer007/SupaShare/internal/configuration"
 	"github.com/Activer007/SupaShare/internal/configuration/database"
 	"github.com/Activer007/SupaShare/internal/models"
@@ -27,6 +26,7 @@ import (
 	"github.com/Activer007/SupaShare/internal/storage/chunking/chunksession"
 	"github.com/Activer007/SupaShare/internal/storage/filesystem"
 	"github.com/Activer007/SupaShare/internal/webserver/errorHandling/errorcodes"
+	"github.com/alicebob/miniredis/v2"
 )
 
 // Characterize the existing public contract before introducing a separate total
@@ -74,7 +74,7 @@ func TestSEC031UploadSizeSemantics(t *testing.T) {
 			})
 			user := models.User{Id: 9031, Name: "synthetic-uploader", UserLevel: models.UserLevelUser, Permissions: models.UserPermGuestUploads}
 			key := models.ApiKey{Id: rand.Text(), UserId: user.Id, Permissions: models.ApiPermUpload}
-			request := models.FileRequest{Id: rand.Text(), UserId: user.Id, ApiKey: key.Id, MaxFiles: 2, MaxSize: 1, Expiry: time.Now().Add(time.Hour).Unix()}
+			request := models.FileRequest{Id: rand.Text(), UserId: user.Id, ApiKey: key.Id, MaxFiles: 2, MaxSize: 1, Expiry: time.Now().Add(time.Hour).Unix(), AllowedDownloads: 1}
 			key.UploadRequestId = request.Id
 			database.SaveUser(user, false)
 			database.SaveApiKey(key)
@@ -148,7 +148,12 @@ func TestSEC031UploadSizeSemantics(t *testing.T) {
 			// Each file is below 1 MiB; together they exceed it. This is a
 			// characterization of MaxSize, not proof of a new total quota.
 			expected := make(map[string][]byte)
+			expectedDownloads := make(map[string]int)
 			for i := 0; i < 2; i++ {
+				if i == 1 {
+					request.AllowedDownloads = 10
+					database.SaveFileRequest(request)
+				}
 				uuid := reserve()
 				if i == 0 {
 					t.Run("minimum-free-space", func(t *testing.T) {
@@ -235,6 +240,7 @@ func TestSEC031UploadSizeSemantics(t *testing.T) {
 					t.Fatal("independent uploads reused a metadata identity")
 				}
 				expected[result.FileInfo.Id] = payload
+				expectedDownloads[result.FileInfo.Id] = request.AllowedDownloads
 			}
 			var total int64
 			var count int
@@ -244,6 +250,9 @@ func TestSEC031UploadSizeSemantics(t *testing.T) {
 					continue
 				}
 				count++
+				if file.UnlimitedDownloads || file.DownloadsRemaining != expectedDownloads[file.Id] || !file.UnlimitedTime {
+					t.Fatalf("collection upload lost its policy snapshot: remaining=%d unlimited=%v", file.DownloadsRemaining, file.UnlimitedDownloads)
+				}
 				total += file.SizeBytes
 				data, err := os.ReadFile(filepath.Join(configuration.Get().DataDir, file.SHA1))
 				if err != nil || !bytes.Equal(data, expected[file.Id]) || len(data) != 768*1024 {

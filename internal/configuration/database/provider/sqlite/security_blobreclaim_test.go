@@ -38,8 +38,8 @@ func TestSEC041SQLiteReplacementCandidateSurvivesReopenAndStaleAck(t *testing.T)
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { p.Close() })
-	if p.GetDbVersion() != 17 {
-		t.Fatal("fresh database is not schema 17")
+	if p.GetDbVersion() != DatabaseSchemeVersion {
+		t.Fatal("fresh database is not the current schema")
 	}
 	target := models.File{Id: "replacement-target", UserId: 1, SHA1: "old-blob", SizeBytes: 3,
 		UnlimitedTime: true, UnlimitedDownloads: true}

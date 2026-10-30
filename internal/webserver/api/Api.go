@@ -97,6 +97,11 @@ func apiEditFile(w http.ResponseWriter, r requestParser, user models.User, _ mod
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to edit file.")
 		return
 	}
+	if file.IsFileRequest() && request.foundHeaders["allowedDownloads"] &&
+		(request.AllowedDownloads < 1 || request.AllowedDownloads > 10) {
+		sendError(w, http.StatusBadRequest, errorcodes.InvalidUserInput, "Collection downloads must be between 1 and 10")
+		return
+	}
 	if request.UnlimitedDownloads {
 		file.UnlimitedDownloads = true
 	} else {
@@ -634,7 +639,7 @@ func apiChunkUploadRequestComplete(w http.ResponseWriter, r requestParser, user 
 		sendError(w, http.StatusUnauthorized, errorcodes.RequestExpired, "Filerequest has expired")
 		return
 	}
-	params := fileupload.CreateUploadConfig(0, 0, "", true, true, false, request.FileSize, fileRequest.Id)
+	params := fileupload.CreateUploadConfig(fileRequest.AllowedDownloads, 0, "", true, fileRequest.AllowedDownloads == 0, false, request.FileSize, fileRequest.Id)
 	task, err := fileupload.PrepareChunkCompletion(chunkRequestContext(request.Request), request.Uuid, request.FileHeader, user.Id, params)
 	if err != nil {
 		sendUploadAdmissionError(w, err)
@@ -832,6 +837,11 @@ func apiDuplicateFile(w http.ResponseWriter, r requestParser, user models.User, 
 	}
 	if !authorization.Authorize(user, authorization.ReadFile, file.UserId) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to duplicate this file")
+		return
+	}
+	if file.IsFileRequest() && request.foundHeaders["allowedDownloads"] &&
+		(request.AllowedDownloads < 1 || request.AllowedDownloads > 10) {
+		sendError(w, http.StatusBadRequest, errorcodes.InvalidUserInput, "Collection downloads must be between 1 and 10")
 		return
 	}
 	uploadConfig := fileupload.CreateUploadConfig(request.AllowedDownloads,
@@ -1392,6 +1402,9 @@ func apiURequestSave(w http.ResponseWriter, r requestParser, user models.User, _
 	}
 	if request.IsExpirySet {
 		uploadRequest.Expiry = request.Expiry
+	}
+	if request.IsAllowedDownloadsSet {
+		uploadRequest.AllowedDownloads = request.AllowedDownloads
 	}
 	if request.IsMaxFilesSet {
 		uploadRequest.MaxFiles = request.MaxFiles
