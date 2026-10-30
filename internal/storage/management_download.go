@@ -139,9 +139,15 @@ func PrepareManagementDownload(ctx context.Context, snapshots []models.File, act
 			if err != nil {
 				return nil, ErrDownloadUnavailable
 			}
-			valid := !file.Encryption.IsEncrypted || file.RequiresClientDecryption() || encryption.IsCorrectKey(file.Encryption, handle)
-			if !file.Encryption.IsEncrypted && actualSize != file.SizeBytes {
-				valid = false
+			expectedSize := file.SizeBytes
+			if file.Encryption.IsEncrypted && !file.Encryption.IsEndToEndEncrypted && expectedSize >= 0 {
+				// Server-encrypted metadata stores plaintext size. E2E metadata
+				// already stores ciphertext size, so it must not gain overhead twice.
+				expectedSize = encryption.CalculateEncryptedFilesize(expectedSize)
+			}
+			valid := file.SizeBytes >= 0 && expectedSize >= file.SizeBytes && actualSize == expectedSize
+			if valid && file.Encryption.IsEncrypted && !file.RequiresClientDecryption() {
+				valid = encryption.IsCorrectKey(file.Encryption, handle)
 			}
 			_ = handle.Close()
 			if !valid {
