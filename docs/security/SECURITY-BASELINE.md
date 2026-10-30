@@ -4,6 +4,17 @@
 
 ## 当前M4：可靠删除与下载内容边界
 
+2026-10-30当前状态：**验收完成；交付以PR54实际合并状态为准**。下列050交付/阶段完成记录随PR54合并生效，合并前goal保持ACTIVE；实际merge SHA/tree见PR54最终核对comment。040-A（PR44/dee4382f）、040-B（PR48/65dd7ef）、041（PR50/0b6b2e2）、052-A（PR43/c434e099）、052-B（PR51/1e5d80a）及051（PR52/811376b）均已合并自有主线；各自CI只证明其记录的输入范围。
+050冻结候选538b8ec029278068872397d56f20f8b8bfaf9ca3/tree9f7fbc556d1c63f458c6384deac22f260ccbc07e保留setup UI PR53，主应用策略与d7b810b一致；状态为CI_GREEN / [PR54交付](https://github.com/Activer007/SupaShare/pull/54)（合并后生效）。最终安全文档与证据收尾进入该PR的同一纯文档skip-ci提交，不另开文档PR或重复未变代码测试。
+策略/资源合同及三页base/object策略均RED→GREEN；a084231的Report-Only观察和d7b810b的真实Chrome三页策略/中文切换/73B原生附件SHA256取得各自限定PASS。最终1497项源清单Changed0/Missing0/Extra0；同权限确认PID75888不存在，lifecycle drained=true，三份metadata及canonicalUnchanged保持；清理证据不冒充取消测试。
+[CI41002041972](https://github.com/Activer007/SupaShare/actions/runs/41002041972)/job123888516757 **SUCCESS**：实际checkout2860f5df93a713de8009fd06efc7b6ac1837e3e0（86af244+538b8ec），输入tree与冻结候选逐字相等。generate+guard、四组全仓、全部相关race含050/SSE、上传10个marker、toolchain19个marker均PASS，见[最终摘要](evidence/sec050-538b8ec/ci-summary.txt)。模块级GO-2026-5932、GO-2022-0646/0635提示仍保留，不宣称依赖全部无风险。
+当前052证书阻塞的HTTPS补验经用户明确豁免为SKIPPED_USER，不计PASS；仅移除本次补验阻塞，历史052证据保持原范围。其他M4验收未获豁免。
+050通用头仅覆盖主应用handler，独立setup维护服务器另属边界；S3最终对象不继承本站头。真实后端持久化/断电、任意插件及严格脚本CSP等限制保留，M3延期不重开。逐项收口及合并生效条件见[M4审计](M4-COMPLETION-AUDIT.md)；无部署或发布。
+
+### 历史开发过程（保留当时状态、失败及原输入SHA）
+
+下述“当前/待验证/未合并”均为对应开发时点的记录，不覆盖上方2026-10-30当前状态及用户明确修订；原始证据不改写。
+
 SEC-050开始：自有PR52已合并811376bdcaa895b0dcb427de112640fa95c1a691，fetch后新分支codex/sec-050-response-policy、初始干净；Go1.26.10 windows/amd64。CONFIRMED_CODE：现有通用handler未统一nosniff/no-referrer，renderPage未设页面CSP；具体影响及兼容继续VALIDATE，先最小策略RED。上游Forceu/Gokapi PR418/419仍open/unmerged。
 当前候选已完成策略RED→相关响应/资源/sandbox GREEN；原SSE上传在Windows遗留SQLite现场失败，保留现场后全新副本补测GREEN。a084231真实Chrome完成Report-Only观察及正常下载/语言切换；随后仅三类页面基础策略RED→GREEN，脚本继续观察。最终浏览器与CI仍待，缺头或观察信息不定性XSS。
 

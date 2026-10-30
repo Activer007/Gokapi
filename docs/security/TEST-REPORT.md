@@ -1,6 +1,6 @@
 # M0 本地测试报告
 
-## M4：SEC-050响应策略（2026-10-30，开发中）
+## M4：SEC-050响应策略（2026-10-30，最终验收）
 
 基线811376bdcaa895b0dcb427de112640fa95c1a691（PR52已合并、树与已审35949c8一致），fetch后独立codex/sec-050-response-policy，初始干净，Go1.26.10 windows/amd64/CGO0。
 不变量先见THREAT-MODEL；开发期仅实际HTTP通用头/资源MIME、现有SSE上传合同与页面Report-Only，先RED后补最小handler。缺头/CSP策略RED不等于XSS证据。WASM/worker/SSE及现有下载sandbox兼容须独立检查。
@@ -22,7 +22,32 @@ Report-Only候选a084231/tree724cabd已固定：独立完整archive SHA256 DD7E6
 | 仅增加选定页面强制策略断言，`go test -p=1 ./internal/webserver -count=1 -tags='test,noaws' -run '^TestSEC050PagePolicy$' -timeout=60s -v` | RED29.260s；login/download/error缺强制base/object，forgotpw仍PASS |
 | 加最小按页面switch后，`go test -p=1 ./internal/webserver -count=1 -tags='test,noaws' -run '^TestSEC050PagePolicy$\|^TestUIPublicPages$' -timeout=60s -v` | GREEN16.918s；三类基础策略强制，其他页及脚本保持Report-Only，原公开页面输出不变 |
 
-最终浏览器/全仓/新增定向race尚NOT_RUN，冻结后仅一次既有CI。脚本观察不计严格XSS防线；主应用路由与独立setup维护服务器不混称，S3最终头不继承。
+上述为开发期记录；最终结果如下。脚本观察不计严格XSS防线；主应用路由与独立setup维护服务器不混称，S3最终头不继承。
+
+### 最终冻结、浏览器与CI
+
+最终策略d7b810b73c3eb5b5664b349171c036284e08e954/tree74fd30ff81341f424bb431165ad7de1d451695e9的隔离完整归档SHA256为890E2E38E349619214F872DAC27F5CC9955F48D88F01ECD89FAFE8CB21E7F1BE。
+1495tracked输入中527项关键源码/构建输入按raw或Git规范逐一匹配；两个既有WASM相关输入未变，复用7c产物，生成由最终CI独立执行。helper实际`go build -mod=readonly -p=1 -tags=noaws -o server.exe .` PASS60.554s，构建及浏览器前后1497项源Changed0/Missing0/Extra0。
+真实Chrome分别载入login、download、error页，CDP记录实际Document响应的强制`base-uri 'self'; object-src 'none'`及独立脚本Report-Only策略；原生PNG附件完成、73B及SHA256匹配，中文切换正常。同名文件保存为`synthetic-normal (2).png`是Chrome本地碰撞处理。
+仅真实默认主应用页面及本地明文附件获得该浏览器PASS，不外推HTTPS/WASM、真实S3或任意插件。显式停止后同权限核实PID75888不存在、drained=true，三份canonical源/metadata不变；helper的NOT_EVALUATED不代替单独浏览器裁决。
+
+期间主线合入setup UI PR53/86af244；干净整合为538b8ec029278068872397d56f20f8b8bfaf9ca3/tree9f7fbc556d1c63f458c6384deac22f260ccbc07e。d7→538仅七项setup UI/docs文件，主应用handler、模板、WASM、storage、crypto、依赖及workflow闭包diff为空；d7浏览器结果保留其实际标签，不冒称538整树浏览器PASS。
+[PR54](https://github.com/Activer007/SupaShare/pull/54)的最终[CI41002041972](https://github.com/Activer007/SupaShare/actions/runs/41002041972) SUCCESS，job123888516757；实际checkout2860f5df93a713de8009fd06efc7b6ac1837e3e0，父86af244+538，已fetch核实tree与冻结538完全一致。Ubuntu24.04/image20261025.353.1、Go1.26.10 linux/amd64；[脱敏摘要](evidence/sec050-538b8ec/ci-summary.txt)保留实际源码/产物hash。
+
+| 最终实际命令/检查 | 结果 |
+| --- | --- |
+| `go generate ./...`及`git diff --exit-code`；配置端口占用setup合同 | PASS |
+| `go test ./... -parallel 8 -count=1 --tags=test,awsmock` | PASS |
+| `go test ./... -parallel 8 -count=1 --tags=test,noaws` | PASS |
+| `go test ./... --tags=test,noaws,integration -count=1` | PASS |
+| `go test ./... --tags=test,awstest -count=1`（workflow内合成loopback配置） | PASS，非真实云 |
+| `go test -race ./internal/webserver ./internal/webserver/headers -count=1 -tags=test,noaws -run '^TestSEC050\|^TestPostUpload$\|^TestWriteDownloadHeaders$' -timeout=90s` | PASS，webserver2.625s/headers1.014s，实际SSE与策略/资源合同 |
+| workflow内既有receiver、052、040、041/provider/loopback S3相关race | PASS，原命令未缩小，见冻结workflow |
+| `bash docs/security/tools/run-sec030-whole.sh target`及`race` | PASS，10个实际marker全0，两次source-unchanged均0 |
+| `bash docs/security/tools/run-sec062-toolchain.sh scan` | PASS，19项marker全0；真实源/WASM源码与generator/server/CLI产物构建及扫描 |
+
+模块级GO-2026-5932、GO-2022-0646、GO-2022-0635仍出现，受测图未报告affected调用；未升级依赖或添加ignore，不声称零风险。dispatch-only历史编译器、Docker及大文件矩阵SKIPPED；同head push41001915393由并发策略取消，不记FAIL。Windows原生race缺CGO为BLOCKED，js/wasm race不支持的原结果保留。
+最终自审未发现代码/工作流阻断；不是外部独立批准。此后仅补docs/evidence、使用skip-ci，不改变已测运行时/workflow/构建输入；合并交付及实际merge SHA/tree以PR54最终核对记录为准。当前HTTPS补验仅SKIPPED_USER，所有历史失败与限制继续保留。
 
 ## M4：SEC-051最小响应隔离（2026-10-30，开发中）
 
