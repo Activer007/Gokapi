@@ -1,6 +1,6 @@
 # M5-FIX-01：删除生命周期与回归测试稳定性
 
-更新：2026-10-30。状态：本地验收 PASS，PR/远端 review 待交付；不自动合并。
+更新：2026-10-30。状态：本地验收 PASS；[PR #59](https://github.com/Activer007/SupaShare/pull/59) 的远端 review 以其最新 head 摘要为准，不自动合并。
 
 ## G0 与源码基线
 
@@ -90,4 +90,4 @@ python3 "$repo/docs/m5/tools/inject-deletion-observer.py" \
 
 ## PR 与审查
 
-PR：待创建；受测代码为 `a122c0179c87c697132309eb6612efe99b1d1215`，最终 PR head 和自动 review 结论将在实际取得后更新。当前不自动合并、不发布、不部署；GitHub Actions 保持关闭。
+独立 [PR #59](https://github.com/Activer007/SupaShare/pull/59)，最终受测代码为 `a122c0179c87c697132309eb6612efe99b1d1215`；此后的提交只交付本包文档/复现工具/证据。最终 PR head 和自动 review 对应 SHA 可在该 PR 的 Codex Review Summary 核对，未取得前不得推定通过。最终检查结论与精确 head 另记录在 PR 交付 comment，不用自引用文档提交冒充代码证据。当前不自动合并、不发布、不部署；GitHub Actions 保持关闭。
