@@ -1,0 +1,8 @@
+Rate limiting disabled for unit tests
+=== RUN   TestDeleteFile
+    Api_test.go:1180: M5_SETUP_OK live pending metadata gate held
+    Api_test.go:2111: M5_OBSERVER_CAPTURE elapsed_ms=1100 found=true pending=1793359661 error=<nil>
+    Api_test.go:2148: M5_DRAIN_OK metadata_absent=true shared_source=false
+--- PASS: TestDeleteFile (1.16s)
+PASS
+ok  	github.com/Activer007/SupaShare/internal/webserver/api	1.239s
