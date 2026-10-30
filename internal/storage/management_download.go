@@ -15,6 +15,7 @@ import (
 	"github.com/Activer007/SupaShare/internal/configuration/database"
 	"github.com/Activer007/SupaShare/internal/encryption"
 	"github.com/Activer007/SupaShare/internal/models"
+	"github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws"
 	"github.com/Activer007/SupaShare/internal/webserver/api/mutex/apimutex"
 	"github.com/Activer007/SupaShare/internal/webserver/downloadstatus"
 	"github.com/Activer007/SupaShare/internal/webserver/headers"
@@ -139,28 +140,43 @@ func PrepareManagementDownload(ctx context.Context, snapshots []models.File, act
 			(!file.UnlimitedTime && file.ExpireAt < time.Now().Unix()) ||
 			(!(options.RetryCharged && file.IsFileRequest()) && !file.UnlimitedDownloads && file.DownloadsRemaining < 1) ||
 			!authorization.Authorize(actor, authorization.ReadFile, file.UserId) ||
-			!checkIfValidAws(file) || !FileExists(file, configuration.Get().DataDir) {
+			!checkIfValidAws(file) || file.SizeBytes < 0 {
 			return nil, ErrDownloadUnavailable
 		}
-		// Detect local read/key failures before consuming an allowance or sending
-		// archive headers. Mid-transfer failures can use the same bounded grant.
+		expectedSize := file.SizeBytes
+		if file.Encryption.IsEncrypted && !file.Encryption.IsEndToEndEncrypted {
+			// Server-encrypted metadata stores plaintext size. E2E metadata
+			// already stores ciphertext size and must not gain overhead twice.
+			expectedSize = encryption.CalculateEncryptedFilesize(file.SizeBytes)
+		}
+		if expectedSize < file.SizeBytes {
+			return nil, ErrDownloadUnavailable
+		}
+		if file.Encryption.IsEncrypted && !file.Encryption.IsEndToEndEncrypted {
+			// Management downloads decrypt both local and S3 files. Validate the
+			// wrapped key before any member is charged; E2E/raw files skip this.
+			if !encryption.IsDecryptionAvailable() || len(file.Encryption.Nonce) != 12 {
+				return nil, ErrDownloadUnavailable
+			}
+			fileKey, err := encryption.GetCipherFromFile(file.Encryption)
+			if err != nil || len(fileKey) != 32 {
+				return nil, ErrDownloadUnavailable
+			}
+		}
+		// Read a trustworthy local/S3 length before charging or sending headers.
+		// An uncertain S3 HEAD must not admit a download or consume its allowance.
 		if file.IsLocalStorage() {
 			handle, actualSize, err := getFileHandler(file, configuration.Get().DataDir)
 			if err != nil {
 				return nil, ErrDownloadUnavailable
 			}
-			expectedSize := file.SizeBytes
-			if file.Encryption.IsEncrypted && !file.Encryption.IsEndToEndEncrypted && expectedSize >= 0 {
-				// Server-encrypted metadata stores plaintext size. E2E metadata
-				// already stores ciphertext size, so it must not gain overhead twice.
-				expectedSize = encryption.CalculateEncryptedFilesize(expectedSize)
-			}
-			valid := file.SizeBytes >= 0 && expectedSize >= file.SizeBytes && actualSize == expectedSize
-			if valid && file.Encryption.IsEncrypted && !file.RequiresClientDecryption() {
-				valid = encryption.IsCorrectKey(file.Encryption, handle)
-			}
 			_ = handle.Close()
-			if !valid {
+			if actualSize != expectedSize {
+				return nil, ErrDownloadUnavailable
+			}
+		} else {
+			exists, actualSize, err := aws.FileExistsContext(ctx, file)
+			if err != nil || !exists || actualSize != expectedSize {
 				return nil, ErrDownloadUnavailable
 			}
 		}
