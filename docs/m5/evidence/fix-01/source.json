@@ -1,0 +1,20 @@
+{
+  "baseline_commit": "77b8fa2c729db05a5e2ae3434b50f02eda127def",
+  "tested_code_commit": "a122c0179c87c697132309eb6612efe99b1d1215",
+  "baseline_archive_sha256": "be10f8c4b5aaf6099a4390e9d4566d4997851dbff818eb0327bb002e6e6b4b18",
+  "tested_code_archive_sha256": "cb440a9eda2a46cbac7ce395cacf3e8fa9995b1d4888a6bcfa6caa324409ad1e",
+  "go": "go1.26.10 linux/amd64",
+  "cgo_enabled": "1",
+  "tested_inputs_verified_before_and_after": 1515,
+  "changed_go_files_sha256": {
+    "internal/webserver/api/Api_test.go": "22ecffb44251758648181f44558d1682715a7b2b31b15a3fd5eb9cbf1b5a2aea",
+    "internal/storage/security_deletion_lifecycle_test.go": "326eb00933d6ab00b85d620f9f522f55bfb900c00e51cd8ac4927a44c1528066",
+    "internal/test/securityfixture/deletion_postdelete_probe_test.go": "3a00c2959cdb94fc6c9ee7f4b4efef708d8ef301f7e86b75a75719ebcafcfe18"
+  },
+  "controlled_injector_sha256": "8051f9041adaaf959a58414f57d65f5b58f338b52a24b71995e142f3c461d142",
+  "controlled_red": {"exit": 1, "captured_pending_ms": 1102, "setup_and_drain_confirmed": true},
+  "controlled_green": {"exit": 0, "captured_pending_ms": 1100, "setup_and_drain_confirmed": true},
+  "actions_enabled": false,
+  "ci_run_for_package": false,
+  "production_files_changed": false
+}

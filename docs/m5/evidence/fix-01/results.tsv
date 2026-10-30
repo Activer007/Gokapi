@@ -1,0 +1,10 @@
+name	exit	seconds	command
+lifecycle-target	0	2	go test ./internal/storage -tags=test\,noaws\,security_deletion -run \^TestSEC040Deletion\(BeforeDeadline\|QueuedCallbackAfterRestore\)\$ -count=10 -timeout=90s -v
+generate	0	1	go generate ./...
+generate-drift	0	0	git diff --exit-code
+required-race	0	7	go test -race ./internal/webserver/api ./internal/storage -tags=test\,noaws\,integration -run TestDeleteFile\|TestSEC040\|TestSEC041 -count=1
+required-integration	0	36	go test ./... -tags=test\,noaws\,integration -count=1
+extended-security-race	0	10	go test -race ./internal/webserver/api ./internal/storage ./internal/storage/filerequest ./internal/configuration/database ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -tags=test\,noaws\,integration\,security_deletion\,security_cleanup\,security_reclaim -run TestDeleteFile\|TestSEC040\|TestSEC041 -count=1 -timeout=180s
+affected-awsmock	0	10	go test ./internal/webserver/api ./internal/storage ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -tags=test\,awsmock\,security_deletion\,security_cleanup -run TestDeleteFile\|TestRestoreFile\|TestCleanUp\|TestSEC040\|TestSEC041 -count=1 -timeout=180s
+sdk-cleanup-race	0	31	go test -race ./internal/test/securityfixture -tags=test\,security_cleanup -run \^TestSEC040 -count=1 -timeout=180s -v
+final-repeat	0	34	go test ./internal/webserver/api -tags=test,noaws,integration -run '^TestDeleteFile$' -count=30 -v

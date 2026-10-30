@@ -1093,10 +1093,33 @@ func testApiModifyCall(t *testing.T, apiKey models.ApiKey, targetKey string, per
 // ## /files ##
 
 func TestDeleteFile(t *testing.T) {
+	// Own this blob instead of depending on references left by other tests.
+	// Recreate it for every -count iteration, since the last share removes it.
+	const blob = "api-delete-lifecycle-blob"
+	path := filepath.Join(configuration.Get().DataDir, blob)
+	if err := os.WriteFile(path, []byte("def"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		for _, id := range []string{"smalltestfile1", "smalltestfile2", "smalltestfileDelay"} {
+			file, found, err := database.ReadRecoveryFile(ctx, id)
+			if err != nil {
+				t.Error("read deletion fixture during cleanup", err)
+				continue
+			}
+			if found {
+				if _, err := storage.DeleteFileContext(ctx, file, true); err != nil {
+					t.Error("drain deletion fixture before the next test", err)
+				}
+			}
+		}
+	})
 	database.SaveMetaData(models.File{
 		Id:                 "smalltestfile1",
 		Name:               "smalltestfile1",
-		SHA1:               "03cfd743661f07975fa2f1220c5194cbaff48451",
+		SHA1:               blob,
 		ExpireAt:           2147483646,
 		DownloadsRemaining: 1,
 		UserId:             idUser,
@@ -1104,7 +1127,7 @@ func TestDeleteFile(t *testing.T) {
 	database.SaveMetaData(models.File{
 		Id:                 "smalltestfile2",
 		Name:               "smalltestfile2",
-		SHA1:               "03cfd743661f07975fa2f1220c5194cbaff48451",
+		SHA1:               blob,
 		ExpireAt:           2147483646,
 		DownloadsRemaining: 1,
 		UserId:             idSuperAdmin,
@@ -1112,7 +1135,7 @@ func TestDeleteFile(t *testing.T) {
 	database.SaveMetaData(models.File{
 		Id:                 "smalltestfileDelay",
 		Name:               "smalltestfileDelay",
-		SHA1:               "03cfd743661f07975fa2f1220c5194cbaff48451",
+		SHA1:               blob,
 		ExpireAt:           2147483646,
 		DownloadsRemaining: 1,
 		UserId:             idUser,
@@ -1128,30 +1151,59 @@ func TestDeleteFile(t *testing.T) {
 	testDeleteFileCall(t, apiKey, "", "", 400, `{"Result":"error","ErrorMessage":"header id is required","ErrorCode":4}`)
 	testDeleteFileCall(t, apiKey, "invalid", "", 404, `{"Result":"error","ErrorMessage":"Invalid file ID provided.","ErrorCode":5}`)
 	testDeleteFileCall(t, apiKey, "smalltestfile1", "invalid", 400, `{"Result":"error","ErrorMessage":"invalid value in header delay supplied","ErrorCode":4}`)
-	testDeleteFileCall(t, apiKey, "smalltestfile1", "", 200, "")
-	testDeleteFileCall(t, apiKey, "smalltestfileDelay", "1", 200, "")
+	deleted := testDeleteFileCall(t, apiKey, "smalltestfile1", "", 200, "")
+	test.IsEqualString(t, deleted.Header().Get(deletionStatusHeader), storage.DeletionShared)
+	_, ok = database.GetMetaDataById("smalltestfile1")
+	test.IsEqualBool(t, ok, false)
 	testDeleteFileCall(t, apiKey, "smalltestfile2", "", 401, `{"Result":"error","ErrorMessage":"No permission to delete this file","ErrorCode":6}`)
 	_, ok = database.GetMetaDataById("smalltestfile2")
 	test.IsEqualBool(t, ok, true)
 	grantUserPermission(t, idUser, models.UserPermDeleteOtherUploads)
-	testDeleteFileCall(t, apiKey, "smalltestfile2", "", 200, "")
+	deleted = testDeleteFileCall(t, apiKey, "smalltestfile2", "", 200, "")
+	test.IsEqualString(t, deleted.Header().Get(deletionStatusHeader), storage.DeletionShared)
 	removeUserPermission(t, idUser, models.UserPermDeleteOtherUploads)
 
-	time.Sleep(200 * time.Millisecond)
-	_, ok = database.GetMetaDataById("smalltestfile1")
-	test.IsEqualBool(t, ok, false)
 	_, ok = database.GetMetaDataById("smalltestfile2")
 	test.IsEqualBool(t, ok, false)
-	file, ok := database.GetMetaDataById("smalltestfileDelay")
-	test.IsEqualBool(t, ok, true)
-	test.IsEqualBool(t, file.PendingDeletion != 0, true)
-
-	time.Sleep(900 * time.Millisecond)
-	_, ok = database.GetMetaDataById("smalltestfileDelay")
-	test.IsEqualBool(t, ok, false)
+	if content, err := os.ReadFile(path); err != nil || string(content) != "def" {
+		t.Fatal("deleting shared references changed the surviving source", err)
+	}
+	// Schedule only after the synchronous shared/permission checks. Otherwise
+	// a valid timer firing could make the second share the last reference.
+	scheduled := testDeleteFileCall(t, apiKey, "smalltestfileDelay", "1", 200, "")
+	test.IsEqualString(t, scheduled.Header().Get(deletionStatusHeader), storage.DeletionAccepted)
+	// The deadline makes the callback eligible; metadata/blob locks and checked
+	// I/O can still be in progress. Wait for confirmed retirement, not a fixed
+	// scheduling margin. A read error must never look like successful deletion.
+	waitForDeletedMetadata(t, "smalltestfileDelay")
+	if _, err := os.Lstat(path); !os.IsNotExist(err) {
+		t.Fatal("last share retired without removing its private source", err)
+	}
 }
 
-func testDeleteFileCall(t *testing.T, apiKey models.ApiKey, fileId, delay string, resultCode int, expectedResponse string) {
+func waitForDeletedMetadata(t *testing.T, id string) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
+	defer cancel()
+	ticker := time.NewTicker(10 * time.Millisecond)
+	defer ticker.Stop()
+	for {
+		file, found, err := database.ReadRecoveryFile(ctx, id)
+		if err != nil {
+			t.Fatal("could not confirm deletion", err)
+		}
+		if !found {
+			return
+		}
+		select {
+		case <-ticker.C:
+		case <-ctx.Done():
+			t.Fatalf("deletion did not finish: expiry=%d pending=%d: %v", file.ExpireAt, file.PendingDeletion, ctx.Err())
+		}
+	}
+}
+
+func testDeleteFileCall(t *testing.T, apiKey models.ApiKey, fileId, delay string, resultCode int, expectedResponse string) *httptest.ResponseRecorder {
 	t.Helper()
 	const apiUrl = "/files/delete"
 	const headerFileId = "id"
@@ -1170,8 +1222,11 @@ func testDeleteFileCall(t *testing.T, apiKey models.ApiKey, fileId, delay string
 		test.ResponseBodyIs(t, w, expectedResponse)
 	}
 
-	defer test.ExpectPanic(t)
-	apiDeleteFile(w, &paramAuthCreate{}, models.User{Id: 7}, apiKey)
+	func() {
+		defer test.ExpectPanic(t)
+		apiDeleteFile(w, &paramAuthCreate{}, models.User{Id: 7}, apiKey)
+	}()
+	return w
 }
 
 func TestRestoreFile(t *testing.T) {
