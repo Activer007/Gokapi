@@ -358,7 +358,7 @@ function createFileRequestRow(jsonResult, user) {
         return i;
     }
 
-    const publicUrl = `${baseUrl}publicUpload?id=${jsonResult.id}&key=${jsonResult.apikey}`;
+    const publicUrl = `${baseUrl}r/${encodeURIComponent(jsonResult.apikey)}`;
 
     const tr = document.createElement("tr");
     tr.id = `row-${jsonResult.id}`;

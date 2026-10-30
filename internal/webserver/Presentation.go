@@ -21,7 +21,8 @@ type pageUI struct {
 }
 
 type pageView struct {
-	UI pageUI
+	UI       pageUI
+	BaseHref string
 }
 
 func (p pageUI) UserLevel(rank models.UserRank) string {

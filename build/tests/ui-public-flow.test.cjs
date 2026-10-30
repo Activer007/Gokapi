@@ -6,6 +6,27 @@ const vm = require('node:vm');
 const templates = path.join(__dirname, '../../internal/webserver/web/templates');
 const read = name => fs.readFileSync(path.join(templates,name),'utf8');
 
+test('download upload time includes the browser offset and preserves missing-date fallbacks', () => {
+    const common = fs.readFileSync(path.join(__dirname, '../../internal/webserver/web/static/js/all_public.js'), 'utf8');
+    for (const offset of [-345, 210, 0]) {
+        const element = {textContent: 'Unknown'};
+        class LocalDate extends Date { getTimezoneOffset() { return offset; } }
+        const context = vm.createContext({Date: LocalDate, window: {}, document: {getElementById: () => element}});
+        vm.runInContext(common, context);
+        context.insertLocalUploadDate(1748180908, 'date');
+        const zone = offset === -345 ? 'UTC+05:45' : offset === 210 ? 'UTC-03:30' : 'UTC+00:00';
+        assert.ok(element.textContent.endsWith(`(${zone})`));
+        assert.match(element.textContent, /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/);
+        assert.equal(element.dateTime, '2025-05-25T13:48:28.000Z');
+        assert.equal(element.title, element.dateTime);
+        for (const missing of [0, -1, undefined, Infinity, 'invalid', 9e30]) {
+            element.textContent = 'Unknown';
+            context.insertLocalUploadDate(missing, 'date');
+            assert.equal(element.textContent, 'Unknown');
+        }
+    }
+});
+
 test('key backup waits for output close and allows retry after write or close failure', async () => {
     const template = read('html_end2end.tmpl');
     const script = template.slice(template.indexOf('async function downloadKey('), template.indexOf('function newKey()'));

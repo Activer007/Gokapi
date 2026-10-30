@@ -108,6 +108,20 @@ func (p DatabaseProvider) SaveApiKey(apikey models.ApiKey) {
 	helper.Check(err)
 }
 
+// InsertApiKey uses the primary-key constraint as a cross-process collision gate.
+func (p DatabaseProvider) InsertApiKey(apikey models.ApiKey) (bool, error) {
+	result, err := p.sqliteDb.Exec(`INSERT INTO ApiKeys
+		(Id, FriendlyName, LastUsed, Permissions, Expiry, IsSystemKey, UserId, PublicId, UploadRequestId)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(Id) DO NOTHING`,
+		apikey.Id, apikey.FriendlyName, apikey.LastUsed, apikey.Permissions, apikey.Expiry,
+		apikey.IsSystemKey, apikey.UserId, apikey.PublicId, apikey.UploadRequestId)
+	if err != nil {
+		return false, err
+	}
+	count, err := result.RowsAffected()
+	return count == 1, err
+}
+
 // UpdateTimeApiKey writes the content of LastUsage to the database
 func (p DatabaseProvider) UpdateTimeApiKey(apikey models.ApiKey) {
 	_, err := p.sqliteDb.Exec("UPDATE ApiKeys SET LastUsed = ? WHERE Id = ?",

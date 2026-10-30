@@ -27,6 +27,8 @@
   "download.decrypting": "Decrypting...",
   "download.encrypted": "Encrypted",
   "download.size": "Size",
+  "download.uploadedAt": "Uploaded",
+  "download.uploadTimeUnknown": "Unknown",
   "common.loading": "Loading...",
   "download.action": "Download",
   "download.enterPassword": "Enter password",

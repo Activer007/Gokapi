@@ -1415,7 +1415,11 @@ func apiURequestSave(w http.ResponseWriter, r requestParser, user models.User, _
 			sendFileDeletionError(w, uploadquota.ErrConflict, false)
 			return
 		}
-		apiKey := generateNewKey(false, user.Id, "File Request Public Access", uploadRequest.Id)
+		apiKey, err := generateFileRequestKey(user.Id, uploadRequest.Id)
+		if err != nil {
+			sendError(w, http.StatusServiceUnavailable, errorcodes.InternalServer, "Unable to create file request credential")
+			return
+		}
 		uploadRequest.ApiKey = apiKey.Id
 	}
 

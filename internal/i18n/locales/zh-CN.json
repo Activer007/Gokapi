@@ -27,6 +27,8 @@
   "download.decrypting": "正在解密…",
   "download.encrypted": "已加密",
   "download.size": "文件大小",
+  "download.uploadedAt": "上传时间",
+  "download.uploadTimeUnknown": "未知",
   "common.loading": "正在加载…",
   "download.action": "下载文件",
   "download.enterPassword": "请输入密码",

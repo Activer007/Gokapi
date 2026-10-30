@@ -27,7 +27,7 @@
                         
 {{ range $fileRequest := .FileRequests }}
                             <tr id="row-{{ .Id }}" class="no-bottom-border filerequest-item">
-		                    <td><a href="{{ $.ServerUrl }}publicUpload?id={{ .Id }}&key={{ .ApiKey }}" target="_blank">{{ .Name }}</a></td>
+		                    <td><a href="{{ $.ServerUrl }}r/{{ .ApiKey }}" target="_blank">{{ .Name }}</a></td>
 				    {{ template "uRFileCell" (newFileRequestContext . $.UI) }}
 		                    <td>{{ .GetReadableTotalSize }}</td>
             			    <td><span id="cell-lastupdate-{{ .Id }}"></span></td>
@@ -44,7 +44,7 @@
                                 {{ template "uRDownloadbutton" (newFileRequestContext . $.UI) }}
                                 
                                 
-                                <button id="copy-{{ .Id }}" type="button" data-clipboard-text="{{ $.ServerUrl }}publicUpload?id={{ .Id }}&key={{ .ApiKey }}" class="copyurl btn btn-outline-light btn-sm" title="{{$.UI.T "common.copyURL"}}"><i class="bi bi-copy"></i></button>
+                                <button id="copy-{{ .Id }}" type="button" data-clipboard-text="{{ $.ServerUrl }}r/{{ .ApiKey }}" class="copyurl btn btn-outline-light btn-sm" title="{{$.UI.T "common.copyURL"}}"><i class="bi bi-copy"></i></button>
                                 
                                 <button id="edit-{{ .Id }}" type="button" title="{{$.UI.T "request.edit"}}" class="btn btn-outline-light btn-sm" onclick="editFileRequest('{{ .Id }}', '{{ .Name }}', {{ .MaxFiles }}, {{ .MaxSize }}, {{ .Expiry }}, '{{ .Notes }}', {{ .AllowedDownloads }})">
 		                        	<i class="bi bi-pencil"></i></button>
