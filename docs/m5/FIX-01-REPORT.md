@@ -88,7 +88,7 @@ python3 "$repo/docs/m5/tools/inject-deletion-observer.py" \
 
 自然随机基线 30 次通过不证明历史 CI 的具体阻塞根因；有界等待超时将继续明确失败，不会无限等待或重试真实清理错误。queued callback 合同验证 Cancel 先完成的交错，不冒称穷尽所有调度；其他结果受既有状态冲突合同约束。
 
-真实 Redis 持久化、云 S3、断电、安装升级/整站备份恢复/回滚演练、RC 与生产发布均未作为 **FIX-01** 执行，不能记为本包 PASS。本包无 UI 变更，不新增浏览器矩阵；API 通过真实 handler 请求，远端 I/O 通过真实 loopback HTTP 验证。FIX-02/03/REL-01 不属于当前 Goal，保留历史工作但不自动续作；本包完成不表示全部 M5 完成。
+真实 Redis 持久化、云 S3、断电、安装升级/整站备份恢复/回滚演练、RC 与生产发布均未作为 **FIX-01** 执行，不能记为本包 PASS。本包无 UI 变更，不新增浏览器矩阵；API 通过真实 handler 请求，远端 I/O 通过真实 loopback HTTP 验证。FIX-02/03/REL-01 不属于当轮 FIX-01 Goal，其历史工作另行保留；本包完成不表示全部 M5 完成。
 
 ## PR 与审查
 

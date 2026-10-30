@@ -1,0 +1,15 @@
+{
+  "baseline": "831d08860aabc93fe1f7fc31112ba24cfd91cb67",
+  "scope": "Same additional edge contracts and healthy controls as pre-fix RED, over root minimal fixes",
+  "hashes": {
+    "internal/storage/FileServing.go": "365d72250c4bb8f4b70e3ea49e93f93004ef41cb2fe91e87b00d308907fae632",
+    "internal/storage/download_response.go": "3a54b01404a448765240a1b51546c8721b17116bf290ad5dd14979f9a24ee974",
+    "internal/storage/filesystem/s3filesystem/aws/Aws.go": "0cdaac572bf619a974aa34d70b7734c4df476df63194e193b1fad3d946847cdb",
+    "internal/storage/filesystem/s3filesystem/aws/Aws_slim.go": "814eff14203e64487d20f6f57f00347197d563ac99bb0364f1e333cebdaecfbe",
+    "internal/storage/security_download_terminal_test.go": "39e924df2f82e5a2dc4248806a58edc6e192edb04b4506ecf66441c440904490",
+    "internal/storage/security_download_terminal_http_test.go": "435e9850a37d57f2542d0745e7ec4a1bf1520179cf3ded1a5c701c182ca2e63a",
+    "internal/storage/security_download_remote_terminal_test.go": "8ab7b5df203567ceabd33733d04baa1007b689baf9fa1a5b10ccc3209e1ea210"
+  },
+  "native": "/home/activer/codex-validation/m5-fix-03/terminal-edges-green",
+  "noCI": true
+}

@@ -315,6 +315,17 @@ func GetDefaultBucketName() string {
 
 // Stream downloads a file from AWS sequentially, used for saving to a Zip file
 func Stream(writer io.Writer, file models.File) error {
+	return StreamContext(context.Background(), writer, file)
+}
+
+// StreamContext keeps the legacy mock byte behavior while honoring cancellation.
+func StreamContext(ctx context.Context, writer io.Writer, file models.File) error {
+	if ctx == nil {
+		return errors.New("invalid AWS download context")
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	if !isValidCredentials() {
 		return errors.New("invalid credentials / invalid bucket / invalid region")
 	}
@@ -325,8 +336,20 @@ func Stream(writer io.Writer, file models.File) error {
 			return err
 		}
 		defer data.Close()
-		_, err = io.Copy(writer, data)
+		_, err = io.Copy(writer, &mockDownloadContextReader{ctx: ctx, Reader: data})
 		return err
 	}
 	return errors.New("file not found")
+}
+
+type mockDownloadContextReader struct {
+	ctx context.Context
+	io.Reader
+}
+
+func (r *mockDownloadContextReader) Read(p []byte) (int, error) {
+	if err := r.ctx.Err(); err != nil {
+		return 0, err
+	}
+	return r.Reader.Read(p)
 }

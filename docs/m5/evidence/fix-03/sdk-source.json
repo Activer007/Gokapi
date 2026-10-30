@@ -1,0 +1,27 @@
+{
+  "baseline_commit": "831d08860aabc93fe1f7fc31112ba24cfd91cb67",
+  "baseline_archive_sha256": "401de436917c5c30e411dfdfe79084f143fd5ddbb06497cd4c4888f52f692288",
+  "sdk_inputs_sha256": {
+    "internal/storage/filesystem/s3filesystem/aws/Aws.go": "0cdaac572bf619a974aa34d70b7734c4df476df63194e193b1fad3d946847cdb",
+    "internal/storage/filesystem/s3filesystem/aws/Aws_mock.go": "d6da0e244fe9d622cf257a24eca079f4a3ce7f053da4635713f88192e9b5ddaa",
+    "internal/storage/filesystem/s3filesystem/aws/Aws_slim.go": "814eff14203e64487d20f6f57f00347197d563ac99bb0364f1e333cebdaecfbe",
+    "internal/storage/filesystem/s3filesystem/aws/Aws_test.go": "c9a64dba560532610d97b34d306285521b1e8b782a9c828c7ef8d7a03e6dcf74",
+    "internal/storage/filesystem/s3filesystem/aws/security_download_sdk_test.go": "d8426efd8682fd37f18dbd5bc54c1ffd69ca8d411bba97083423437ae077cc5e",
+    "internal/storage/filesystem/s3filesystem/aws/security_download_stream_context_test.go": "488c751239e63eea972c9d877bff36447a7365c694022998bf37362b90417e82",
+    "internal/storage/filesystem/s3filesystem/aws/stream_context_test.go": "03116d0d8726024483334d0a19e323522185684293b26eb1f52b59f3c60d8f13"
+  },
+  "red_command": "go test ./internal/storage/filesystem/s3filesystem/aws -tags=test -run '^TestM5SDKDownload' -count=1 -timeout=90s -v",
+  "red_exit": 1,
+  "green_command": "go test ./internal/storage/filesystem/s3filesystem/aws -tags=test,awstest -count=1 -timeout=90s -v",
+  "green_exit": 0,
+  "race_command": "go test -race ./internal/storage/filesystem/s3filesystem/aws -tags=test,awstest -count=1 -timeout=90s -v",
+  "race_exit": 0,
+  "awsmock_canceled_boundary_exit": 0,
+  "noaws_canceled_boundary_exit": 0,
+  "go": "go version go1.26.10 linux/amd64",
+  "real_aws_credentials": false,
+  "network": "synthetic loopback HTTP only",
+  "setup_attempt_excluded": "First inline WSL script failed mkdir before any Go test; sdk-red.sh used script file thereafter",
+  "committed": false,
+  "ci_started": false
+}

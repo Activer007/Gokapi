@@ -120,5 +120,16 @@ func GetDefaultBucketName() string {
 
 // Stream downloads a file from AWS sequentially, used for saving to a Zip file
 func Stream(writer io.Writer, file models.File) error {
+	return StreamContext(context.Background(), writer, file)
+}
+
+// StreamContext never reports an unsupported or canceled transfer as successful.
+func StreamContext(ctx context.Context, writer io.Writer, file models.File) error {
+	if ctx == nil {
+		return errors.New("invalid AWS download context")
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	return errors.New(errorString)
 }

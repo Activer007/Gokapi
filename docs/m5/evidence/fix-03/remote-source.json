@@ -1,0 +1,14 @@
+{
+  "baseline": "831d08860aabc93fe1f7fc31112ba24cfd91cb67",
+  "archiveSha256": "401de436917c5c30e411dfdfe79084f143fd5ddbb06497cd4c4888f52f692288",
+  "testSha256": "2b2634af53033d27164f6c85e5232b2a63f4db661b9f707fb1e4e5b0ab9b9347",
+  "helperSha256": "c367d83abe7814f01673c2cd10bb49fb260346fab11f4cab13e8b0a1914bd92b",
+  "productionHashes": {
+    "internal/storage/FileServing.go": "14d1f3225dfe10499fb51b6b752eae19788e4da8544f483cce6087634aa63366",
+    "internal/storage/download_response.go": "16cba7eab44765bdb64bca686f381a94ce8bda678d80d73f7ce561efc661574b",
+    "internal/storage/filesystem/s3filesystem/aws/Aws.go": "0cdaac572bf619a974aa34d70b7734c4df476df63194e193b1fad3d946847cdb"
+  },
+  "nativeRed": "/home/activer/codex-validation/m5-fix-03/remote-terminal-red",
+  "nativeGreen": "/home/activer/codex-validation/m5-fix-03/remote-terminal-green",
+  "noCI": true
+}

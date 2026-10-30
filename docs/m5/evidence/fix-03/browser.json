@@ -1,0 +1,26 @@
+{
+  "version": "2.13.1",
+  "versionInt": 21301,
+  "browserPlugin": "absent",
+  "fallback": "existing Playwright/Chrome",
+  "errors": [],
+  "footer": "由以下项目提供支持： SupaShare v2.13.1",
+  "api": {
+    "status": 200,
+    "body": {
+      "Version": "2.13.1",
+      "VersionInt": 21301
+    }
+  },
+  "swagger": "2.13.1",
+  "healthy": {
+    "bytes": 180224,
+    "filename": "version-healthy.txt",
+    "sha256": "0e119c878acc71e98bd9e149381a106dfb4ac0167aa2cff536e4b54326f57e6a",
+    "failure": null
+  },
+  "broken": {
+    "filename": "version-broken.txt",
+    "failure": "canceled"
+  }
+}

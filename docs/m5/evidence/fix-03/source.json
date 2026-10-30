@@ -1,0 +1,37 @@
+{
+  "baseline_commit": "831d08860aabc93fe1f7fc31112ba24cfd91cb67",
+  "master_commit": "77b8fa2c729db05a5e2ae3434b50f02eda127def",
+  "tested_code_commit": "cc41c169a87c904cfbee22634bf99af766f8cf96",
+  "tested_code_tree": "94eb9a6eb7e8c50d644ce4d2bb458cb220fd53ce",
+  "native_tracked_input_count": 1538,
+  "native_input_match_exact_git_blobs": true,
+  "native_input_manifest_sha256": "a510a01e8db1f8d963d7fb16a466ccb4077475d350b9990971f7f6c500494e97",
+  "git_bundle_sha256": "d40ae708007bdaf89c1feb7612483de72dd071baa1a1cbfc5e90bc7ef84c707b",
+  "production_sha256": {
+    "cmd/supashare/Main.go": "82edc7d8dbf7d3f7a43e9df5d096dde83823b1a7a491a2e13b8be94aeea9525d",
+    "internal/storage/FileServing.go": "365d72250c4bb8f4b70e3ea49e93f93004ef41cb2fe91e87b00d308907fae632",
+    "internal/storage/download_response.go": "3a54b01404a448765240a1b51546c8721b17116bf290ad5dd14979f9a24ee974",
+    "internal/storage/filesystem/s3filesystem/aws/Aws.go": "0cdaac572bf619a974aa34d70b7734c4df476df63194e193b1fad3d946847cdb",
+    "internal/storage/filesystem/s3filesystem/aws/Aws_mock.go": "d6da0e244fe9d622cf257a24eca079f4a3ce7f053da4635713f88192e9b5ddaa",
+    "internal/storage/filesystem/s3filesystem/aws/Aws_slim.go": "814eff14203e64487d20f6f57f00347197d563ac99bb0364f1e333cebdaecfbe",
+    "internal/webserver/api/VersionNumbers.go": "1de74ac9ebdfb22ca347b488a1d11d6415565a105b1deb977585c750204e4748",
+    "internal/webserver/web/templates/string_constants.tmpl": "aeaaea685c841056f388f2aaf6aec301d29121ac103ef89d731751497a71eae0",
+    "openapi.json": "d9e4dae49b6d4554e6730c5bb6af237a44fe834201a3d311fffa12e4cbf04fcb",
+    "internal/webserver/web/static/apidocumentation/openapi.json": "d9e4dae49b6d4554e6730c5bb6af237a44fe834201a3d311fffa12e4cbf04fcb",
+    "build/go-generate/minifyStaticContent.go": "d249e870bc4f7a42fbb2dadaba66de4f8afe73d703aa0d86728aff5ceae7ce91"
+  },
+  "browser_production_commit": "caee47cc41104f4bd3b0181e4e83ce960ccb7b2b",
+  "version": "2.13.1",
+  "version_int": 21301,
+  "ci_started": false,
+  "published": false,
+  "toolchain": {
+    "go": "go1.26.10",
+    "os": "linux",
+    "arch": "amd64",
+    "cgo": 1,
+    "native_fs": "WSL Ubuntu-24.04",
+    "node": "24.16.0"
+  },
+  "raw_logs_location": "Codex chat artifacts / m5-fix-03; compact evidence committed under docs/m5/evidence/fix-03"
+}

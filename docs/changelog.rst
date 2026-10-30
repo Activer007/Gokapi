@@ -8,6 +8,21 @@ Overview of all changes
 -----------------------
 
 
+v2.13.1 (source update; not a published release)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Stabilize deletion lifecycle regression tests with checked completion waits,
+  isolated shared-blob fixtures, and explicit cancellation/recovery contracts.
+* Initialize ordinary users' file collection limits before listing requests,
+  so the first collection can be created when the visible list is empty.
+  Preserve administrator exemptions and server-side quota checks.
+* Abort interrupted local/S3 downloads and failed ZIP streams without appending
+  error text or finalizing a failed archive. Check known payload lengths and
+  propagate cancellation to S3 reads; retain successful empty-file, range and
+  conditional-response behavior and existing download-attempt accounting.
+* Synchronize application, API, Swagger, footer and generated asset versions.
+
+
 v2.13.0 (source update; not a published release)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -701,24 +701,44 @@ func ServeFile(file models.File, w http.ResponseWriter, r *http.Request, forceDo
 
 	logging.LogDownload(file, r, configuration.Get().SaveIp)
 	go serverstats.AddTraffic(uint64(file.SizeBytes))
+	response := &downloadResponse{ResponseWriter: w}
+	w = response
 
 	if !file.IsLocalStorage() {
 		// If non-blocking, we are not setting a download complete status as there is no reliable way to
 		// confirm that the file has been completely downloaded. It expires automatically after 24 hours.
 		statusId := downloadstatus.SetDownload(file)
 		isBlocking, err := aws.ServeFile(w, r, file, forceDownload, forceDecryption)
-		// TODO chances are high that an error is returned here, we should consider proper output
-		helper.Check(err)
-		if isBlocking {
+		if err != nil {
+			log.Print("Remote download interrupted")
+			if response.status != 0 {
+				panic(http.ErrAbortHandler)
+			}
+			w.Header().Del("Content-Disposition")
+			w.Header().Del("Content-Length")
+			http.Error(w, "Unable to serve download", http.StatusInternalServerError)
+			return true
+		}
+		if response.interrupted(r) {
+			panic(http.ErrAbortHandler)
+		}
+		if isBlocking && response.completed() {
 			downloadstatus.SetComplete(statusId)
 		}
 		return true
 	}
-	fileHandler, _, err := getFileHandler(file, configuration.Get().DataDir)
-	defer fileHandler.Close()
+	fileHandler, size, err := getFileHandler(file, configuration.Get().DataDir)
 	if err != nil {
-		fmt.Println(err)
-		_, _ = w.Write([]byte("Error getting file handler"))
+		log.Print("Local download unavailable")
+		http.Error(w, "Unable to serve download", http.StatusInternalServerError)
+		return true
+	}
+	defer fileHandler.Close()
+	// Legacy raw rows can have unknown (zero) size. Preserve that compatibility,
+	// but a known nonzero payload size must not silently become a shorter file.
+	if (!file.Encryption.IsEncrypted || file.RequiresClientDecryption()) &&
+		(file.SizeBytes < 0 || (file.SizeBytes > 0 && size != file.SizeBytes)) {
+		http.Error(w, "Unable to serve download", http.StatusInternalServerError)
 		return true
 	}
 	if file.Encryption.IsEncrypted && !file.RequiresClientDecryption() {
@@ -740,7 +760,13 @@ func ServeFile(file models.File, w http.ResponseWriter, r *http.Request, forceDo
 	} else {
 		http.ServeContent(w, r, file.Name, time.Now(), fileHandler)
 	}
-	downloadstatus.SetComplete(statusId)
+	if response.interrupted(r) {
+		log.Print("Local download interrupted")
+		panic(http.ErrAbortHandler)
+	}
+	if response.completed() {
+		downloadstatus.SetComplete(statusId)
+	}
 	return true
 }
 
@@ -777,7 +803,9 @@ func ServeFilesAsZip(files []models.File, filename string, w http.ResponseWriter
 
 	saveIp := configuration.Get().SaveIp
 	zipWriter := zip.NewWriter(w)
-	defer zipWriter.Close()
+	// A failed archive must not be finalized by a deferred Close. Only the
+	// successful central-directory write permits any member to complete.
+	var statusIDs []string
 	filenames := make(map[string]bool)
 	for _, file := range files {
 		file.Name = makeFilenameUnique(file.Name, &filenames)
@@ -787,53 +815,80 @@ func ServeFilesAsZip(files []models.File, filename string, w http.ResponseWriter
 			Modified: time.Unix(file.UploadDate, 0),
 		}
 		entryWriter, err := zipWriter.CreateHeader(header)
-		helper.Check(err)
+		if err != nil {
+			panic(http.ErrAbortHandler)
+		}
 		logging.LogDownload(file, r, saveIp)
 		go serverstats.AddTraffic(uint64(file.SizeBytes))
-		if !file.IsLocalStorage() {
-			statusId := downloadstatus.SetDownload(file)
-			err = aws.Stream(entryWriter, file)
-			helper.Check(err)
-			downloadstatus.SetComplete(statusId)
-			_ = zipWriter.Flush()
-			flushingWriter, ok := w.(http.Flusher)
-			if ok {
-				flushingWriter.Flush()
-			}
-			continue
+		statusIDs = append(statusIDs, downloadstatus.SetDownload(file))
+		if err := serveZipMember(r.Context(), entryWriter, file); err != nil {
+			log.Print("Archive download interrupted")
+			panic(http.ErrAbortHandler)
 		}
-		fileHandler, _, err := getFileHandler(file, configuration.Get().DataDir)
-		if err != nil {
-			fmt.Println(err)
-			_, _ = w.Write([]byte("Error getting file handler"))
-			return
+		if err := zipWriter.Flush(); err != nil {
+			panic(http.ErrAbortHandler)
 		}
-		statusId := downloadstatus.SetDownload(file)
-		if file.Encryption.IsEncrypted {
-			if !encryption.IsCorrectKey(file.Encryption, fileHandler) {
-				_, _ = w.Write([]byte("Internal error - Error decrypting file, source data might be damaged or an incorrect key has been used"))
-				_ = fileHandler.Close()
-				return
-			}
-			err = encryption.DecryptReader(file.Encryption, fileHandler, entryWriter)
-			if err != nil {
-				_, _ = w.Write([]byte("Error decrypting file"))
-				fmt.Println(err)
-				_ = fileHandler.Close()
-				return
-			}
-		} else {
-			_, err = io.Copy(entryWriter, fileHandler)
-			helper.Check(err)
-			_ = fileHandler.Close()
-		}
-		downloadstatus.SetComplete(statusId)
-		_ = zipWriter.Flush()
-		flushingWriter, ok := w.(http.Flusher)
-		if ok {
-			flushingWriter.Flush()
+		if err := http.NewResponseController(w).Flush(); err != nil && !errors.Is(err, http.ErrNotSupported) {
+			panic(http.ErrAbortHandler)
 		}
 	}
+	if err := zipWriter.Close(); err != nil {
+		panic(http.ErrAbortHandler)
+	}
+	if err := http.NewResponseController(w).Flush(); err != nil && !errors.Is(err, http.ErrNotSupported) {
+		panic(http.ErrAbortHandler)
+	}
+	if r.Context().Err() != nil {
+		panic(http.ErrAbortHandler)
+	}
+	for _, id := range statusIDs {
+		downloadstatus.SetComplete(id)
+	}
+}
+
+func serveZipMember(ctx context.Context, writer io.Writer, file models.File) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if file.Encryption.IsEndToEndEncrypted {
+		return ErrDownloadUnavailable
+	}
+	if !file.IsLocalStorage() {
+		return aws.StreamContext(ctx, writer, file)
+	}
+	reader, size, err := getFileHandler(file, configuration.Get().DataDir)
+	if err != nil {
+		return err
+	}
+	defer reader.Close()
+	if file.Encryption.IsEncrypted {
+		if file.RequiresClientDecryption() || !encryption.IsCorrectKey(file.Encryption, reader) {
+			return ErrDownloadUnavailable
+		}
+		if file.SizeBytes < 0 {
+			return ErrDownloadUnavailable
+		}
+		if file.SizeBytes > 0 {
+			expectedSize := encryption.CalculateEncryptedFilesize(file.SizeBytes)
+			if expectedSize < file.SizeBytes || size != expectedSize {
+				return ErrDownloadUnavailable
+			}
+		}
+		output := &downloadCounter{Writer: writer}
+		err := encryption.DecryptReader(file.Encryption, reader, output)
+		if err == nil && file.SizeBytes > 0 && output.written != file.SizeBytes {
+			err = io.ErrUnexpectedEOF
+		}
+		return err
+	}
+	if file.SizeBytes < 0 || (file.SizeBytes > 0 && size != file.SizeBytes) {
+		return ErrDownloadUnavailable
+	}
+	written, err := io.Copy(writer, reader)
+	if err == nil && written != size {
+		err = io.ErrUnexpectedEOF
+	}
+	return err
 }
 
 func getFileHandler(file models.File, dataDir string) (*os.File, int64, error) {

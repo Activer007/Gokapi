@@ -28,8 +28,19 @@
 | 生成资源一致；相关回归/race/awsmock、全仓 noaws、默认/noaws build | [FIX-02 报告](FIX-02-REPORT.md) 与结果清单 | PASS（本地） |
 | 独立 PR 与最新 head 自动 review | [PR #60](https://github.com/Activer007/SupaShare/pull/60)，不借用 PR #59 的审查 | 以该 PR 最新 head 的实际摘要为准 |
 
+## FIX-03
+
+| 不变量 / Gate | 直接证据 | 当前状态 |
+| --- | --- | --- |
+| 本地源缺失、raw/E2E 已知长度错误在附件前失败；读取/写入/认证失败产生真实传输错误 | `TestFIX03LocalDownloadTerminal` 与 SEC052 合同 | PASS（本地/race/相关回归） |
+| S3 上游状态/长度校验，代理/强制解密/ZIP 的后置错误不正常完成 | `TestM5SDKDownload*`、`TestFIX03RemoteDownloadTerminal`；实际 SDK → loopback origin → net/http client | PASS（目标/race） |
+| ZIP 成员失败不补封档、不提前完成先前成员；最终传输失败中断并保留源/metadata | 本地与远端双成员 archive 故障、writer/flush、加密已知长度负例 | PASS（目标/race） |
+| 真实客户端取消向 S3 传播；健康空文件/Range/HEAD/304/416、E2E 单文件边界保持 | 终态合同对照及 StreamContext；E2E ZIP 仍拒绝 | PASS（目标/race） |
+| 版本源、API、页脚、Swagger、README、changelog 与生成资产同步为 2.13.1/21301 | 生成 guard、CLI、真实 Chrome/API/Swagger 与下载正负例 | PASS；源码更新，未发布 |
+| 完整回归、默认/noaws 构建、精确 SHA、独立 PR 与最新 head review | [FIX-03 报告](FIX-03-REPORT.md) | 本地 PASS；远端结果以 PR 对应最新 SHA 摘要为准 |
+
 ## 当前收口边界
 
-FIX-01 已通过 PR #59 合并。FIX-02、FIX-03 的审查分别对应 `831d088`、`793613e`，均 completed/no findings；本轮仅处理合入 master 所需的文档冲突，按顺序合并 PR #60、#61。合并后的状态以各 PR 为准。
+FIX-01、FIX-02 已分别通过 PR #59、#60 合并。FIX-02、FIX-03 的原代码审查分别对应 `831d088`、`793613e`，均 completed/no findings；本轮仅处理合入 master 所需的文档冲突，按顺序合并 PR #60、#61。合并后的状态以各 PR 为准。
 
 REL-01 继续延期，保留已有改动和证据；不将真实 Redis/S3、断电、安装升级、备份恢复或发布候选演练记为本轮通过。GitHub Actions 保持关闭，不发布 Release/tag/镜像或部署。

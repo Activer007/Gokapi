@@ -25,6 +25,7 @@ func TestMain(m *testing.M) {
 	testFile.AwsBucket = "gokapi-test"
 	testFile.SHA1 = "testfile"
 	testFile.Name = "Testfile.jpg"
+	testFile.SizeBytes = 16 // The synthetic object uploaded below contains 16 bytes.
 	invalidFile.AwsBucket = "gokapi-test"
 	invalidFile.SHA1 = "invalid"
 	invalidBucket.AwsBucket = "invalid"

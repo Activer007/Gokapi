@@ -1,0 +1,109 @@
+{
+  "purpose": "Audit legacy SDK/mock FileServing fixtures without changing production",
+  "baseline_commit": "831d08860aabc93fe1f7fc31112ba24cfd91cb67",
+  "current_code_commit": "caee47cc41104f4bd3b0181e4e83ce960ccb7b2b",
+  "baseline_archive_sha256": "401de436917c5c30e411dfdfe79084f143fd5ddbb06497cd4c4888f52f692288",
+  "current_archive_sha256": "7df02c98839398dca54e081335617f0bf90eb227088ad1da5f4057db73c8759d",
+  "changed_file": "internal/storage/FileServing_test.go",
+  "changed_file_sha256": "7e30f26fcb93bf215d63875f2b3e705a216fb569ebbf7d9aff4aefef56290e50",
+  "tested_source": "Immutable source archive plus only the supplied FileServing_test.go; native WSL directories exclusively under fixture-audit",
+  "native_root": "/home/activer/codex-validation/m5-fix-03/fixture-audit",
+  "toolchain": "go1.26.10 linux/amd64",
+  "credentials": "REAL_AWS_CREDENTIALS=false; synthetic loopback credentials; AWS metadata disabled; caller credential/profile variables unset",
+  "final_cases": [
+    {
+      "case": "baseline-final-sdk",
+      "exit": "0"
+    },
+    {
+      "case": "final-sdk-targets",
+      "exit": "0"
+    },
+    {
+      "case": "final-mock-selected",
+      "exit": "0"
+    },
+    {
+      "case": "final-noaws-selected",
+      "exit": "0"
+    },
+    {
+      "case": "final-sdk-storage",
+      "exit": "0"
+    },
+    {
+      "case": "final-mock-storage",
+      "exit": "0"
+    },
+    {
+      "case": "final-sdk-race",
+      "exit": "0"
+    },
+    {
+      "case": "final-mock-race",
+      "exit": "0"
+    }
+  ],
+  "baseline_reproduction_cases": [
+    {
+      "case": "baseline-sdk",
+      "exit": "1"
+    },
+    {
+      "case": "baseline-mock-selected",
+      "exit": "1"
+    },
+    {
+      "case": "current-sdk",
+      "exit": "1"
+    },
+    {
+      "case": "current-mock-selected",
+      "exit": "1"
+    }
+  ],
+  "preliminary_cases": [
+    {
+      "case": "baseline-fixed-sdk",
+      "exit": "0"
+    },
+    {
+      "case": "green-sdk-targets",
+      "exit": "0"
+    },
+    {
+      "case": "green-mock-selected",
+      "exit": "0"
+    },
+    {
+      "case": "green-noaws-selected",
+      "exit": "0"
+    },
+    {
+      "case": "green-sdk-storage",
+      "exit": "0"
+    },
+    {
+      "case": "green-mock-storage",
+      "exit": "0"
+    },
+    {
+      "case": "green-sdk-race",
+      "exit": "0"
+    },
+    {
+      "case": "green-mock-race",
+      "exit": "0"
+    }
+  ],
+  "classification": [
+    "SDK cloudconfig/Init false and invalid S3 fixture already fail at immutable baseline831d088 because legacy EnableS3 is a no-op in SDK builds and StartS3TestServer supplies only endpoint",
+    "awsmock TestServeFile alone already fails baseline because idNewFile only comes from TestNewFile; caee reports ErrAbortHandler on the invalid empty model instead of silently returning a bad response",
+    "No production change or weakened error expectation: fixture setup now aborts on invalid initialization, uses independent local/remote files, real 20MiB S3 bytes with matching metadata, once-only driver restoration, and scoped synthetic credential env"
+  ],
+  "limitations": [
+    "These package results are source caee47c plus the fixture test patch, not a claim about a future final-v2 commit, full repository or real cloud backend",
+    "Original final/full-sdk.log and related-awsmock.log retained unchanged",
+    "First fixture draft logs are preliminary and use a 35-byte S3 NewFile case; final-* logs and the recorded final file hash use actual20MiB"
+  ]
+}

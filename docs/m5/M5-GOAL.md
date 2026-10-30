@@ -1,6 +1,6 @@
 # 当前工作：依次合并 FIX-02、FIX-03
 
-2026-10-30。用户已授权先处理冲突并合并 [PR #60](https://github.com/Activer007/SupaShare/pull/60)，再合并 [PR #61](https://github.com/Activer007/SupaShare/pull/61)。仓库仅为 `Activer007/SupaShare`；FIX-01 已通过 PR #59 合并到 master。
+2026-10-30。用户已授权先处理冲突并合并 [PR #60](https://github.com/Activer007/SupaShare/pull/60)，再合并 [PR #61](https://github.com/Activer007/SupaShare/pull/61)。仓库仅为 `Activer007/SupaShare`；FIX-01、FIX-02 已分别通过 PR #59、#60 合并到 master，当前处理 PR #61。
 
 ## 本轮范围
 
