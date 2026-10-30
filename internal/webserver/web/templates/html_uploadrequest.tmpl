@@ -46,7 +46,7 @@
                                 
                                 <button id="copy-{{ .Id }}" type="button" data-clipboard-text="{{ $.ServerUrl }}publicUpload?id={{ .Id }}&key={{ .ApiKey }}" class="copyurl btn btn-outline-light btn-sm" title="{{$.UI.T "common.copyURL"}}"><i class="bi bi-copy"></i></button>
                                 
-                                <button id="edit-{{ .Id }}" type="button" title="{{$.UI.T "request.edit"}}" class="btn btn-outline-light btn-sm" onclick="editFileRequest('{{ .Id }}', '{{ .Name }}', {{ .MaxFiles }}, {{ .MaxSize }}, {{ .Expiry }}, '{{ .Notes }}')">
+                                <button id="edit-{{ .Id }}" type="button" title="{{$.UI.T "request.edit"}}" class="btn btn-outline-light btn-sm" onclick="editFileRequest('{{ .Id }}', '{{ .Name }}', {{ .MaxFiles }}, {{ .MaxSize }}, {{ .Expiry }}, '{{ .Notes }}', {{ .AllowedDownloads }})">
 		                        	<i class="bi bi-pencil"></i></button>
                                 
                                 
@@ -62,20 +62,21 @@
 
 				    <ul class="list-group list-group-flush">
       {{ range .Files }}
-				      <li id="cell-listupload-{{ .Id }}" class="list-group-itemtext-light d-flex align-items-center border-bottom-0  filelist-item ">
+				      <li id="cell-listupload-{{ .Id }}" data-request-id="{{$fileRequest.Id}}" class="list-group-itemtext-light d-flex align-items-center border-bottom-0  filelist-item ">
 
 					<div class="flex-grow-1 collection-file-name">
-					  <a href="#" id="cell-name-{{ .Id }}" class="text-decoration-none text-light" onClick="downloadFileWithPresign('{{ .Id }}');">
+					  <a href="#" id="cell-name-{{ .Id }}" data-collection-download class="text-decoration-none text-light" onClick="downloadFileWithPresign('{{ .Id }}'); return false;">
 					    {{ .Name }}
 					  </a>
 					</div>
 
 					<div class="small me-3 text-nowrap text-light">
 					  {{ .Size }} · <span id="cell-date-file-{{.Id}}"></span>
+                          <span class="d-block" title="{{$.UI.T "files.remaining"}}">{{$.UI.T "files.remaining"}}: <span id="cell-downloadsRemaining-{{.Id}}" data-remaining="{{if .UnlimitedDownloads}}-1{{else}}{{.DownloadsRemaining}}{{end}}">{{if .UnlimitedDownloads}}{{$.UI.T "common.unlimited"}}{{else}}{{.DownloadsRemaining}}{{end}}</span> <span id="cell-expired-file-{{.Id}}" {{if or .UnlimitedDownloads (gt .DownloadsRemaining 0)}}hidden{{end}}>· {{$.UI.T "common.expired"}}</span></span>
 					</div>
 					<script>insertFormattedDate({{ .UploadDate }}, "cell-date-file-{{.Id}}");</script>
 
-					<button class="btn btn-outline-light btn-sm"
+					<button class="btn btn-outline-light btn-sm" data-collection-download
 						 onClick="downloadFileWithPresign('{{ .Id }}');"
                         title="{{$.UI.T "common.download"}}">
 					  <i class="bi bi-download"></i>
@@ -117,7 +118,9 @@
 	var limitMaxSize = {{.FileRequestMaxSize}};
 	var limitMaxFiles = {{.FileRequestMaxFiles}};
     document.querySelectorAll('.filerequest-item').forEach(prepareFileRequestRow);
+    document.querySelectorAll('[data-remaining="0"]').forEach(cell => expireCollectionFile(cell.id.slice('cell-downloadsRemaining-'.length)));
     updateFileRequestEmptyState();
+	registerCollectionChanges();
 	
 </script>
 
@@ -195,6 +198,15 @@
           <div class="input-group">
             <input type="text" id="mi_expiry"  disabled class="form-control" aria-label="{{$.UI.T "common.expiry"}}" aria-describedby="requestLimitsHelp" data-allow-regular-paste>
           </div>
+        </div>
+        <div class="settings-field mb-3">
+          <label class="form-label" for="mi_downloads">{{$.UI.T "request.allowedDownloads"}}</label>
+          <input type="number" id="mi_downloads" min="1" max="10" step="1" value="1" required class="form-control" aria-describedby="requestDownloadsHelp" data-allow-regular-paste>
+          <div id="legacyDownloadsOption" class="form-check mt-2" hidden>
+            <input class="form-check-input" id="mc_keepdownloads" type="checkbox" onchange="handleRequestDownloadPolicyChange()">
+            <label class="form-check-label" for="mc_keepdownloads">{{$.UI.T "request.keepLegacyDownloads"}}</label>
+          </div>
+          <p class="form-text text-muted" id="requestDownloadsHelp">{{$.UI.T "request.downloadsHelp"}}</p>
         </div>
         <div class="mb-2">
           <label class="form-label" for="mNotes">{{$.UI.T "request.notesLabel"}}</label>

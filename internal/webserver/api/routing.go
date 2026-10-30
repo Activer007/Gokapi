@@ -846,24 +846,32 @@ func (p *paramURequestDelete) ProcessParameter(r *http.Request) error {
 }
 
 type paramURequestSave struct {
-	Request       *http.Request
-	Id            string `header:"id"`
-	Name          string `header:"name" supportBase64:"true"`
-	Notes         string `header:"notes" supportBase64:"true"`
-	Expiry        int64  `header:"expiry"`
-	MaxFiles      int    `header:"maxfiles"`
-	MaxSizeMb     int    `header:"maxsize"`
-	IsNameSet     bool
-	IsExpirySet   bool
-	IsMaxFilesSet bool
-	IsMaxSizeSet  bool
-	IsNotesSet    bool
+	Request               *http.Request
+	Id                    string `header:"id"`
+	Name                  string `header:"name" supportBase64:"true"`
+	Notes                 string `header:"notes" supportBase64:"true"`
+	Expiry                int64  `header:"expiry"`
+	MaxFiles              int    `header:"maxfiles"`
+	MaxSizeMb             int    `header:"maxsize"`
+	AllowedDownloads      int    `header:"allowedDownloads"`
+	IsAllowedDownloadsSet bool
+	IsNameSet             bool
+	IsExpirySet           bool
+	IsMaxFilesSet         bool
+	IsMaxSizeSet          bool
+	IsNotesSet            bool
 
 	foundHeaders map[string]bool
 }
 
 func (p *paramURequestSave) ProcessParameter(r *http.Request) error {
 	p.Request = r
+	if p.foundHeaders["allowedDownloads"] {
+		p.IsAllowedDownloadsSet = true
+		if p.AllowedDownloads < 1 || p.AllowedDownloads > 10 {
+			return errors.New("allowedDownloads must be an integer from 1 to 10")
+		}
+	}
 	if p.foundHeaders["name"] {
 		p.IsNameSet = true
 	}

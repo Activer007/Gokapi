@@ -990,7 +990,7 @@ async function apiURequestDelete(id) {
 
 
 
-async function apiURequestSave(id, name, maxfiles, maxsize, expiry, notes) {
+async function apiURequestSave(id, name, maxfiles, maxsize, expiry, notes, allowedDownloads) {
     const apiUrl = './api/uploadrequest/save';
     const reqPerm = 'PERM_MANAGE_FILE_REQUESTS';
 
@@ -1016,6 +1016,8 @@ async function apiURequestSave(id, name, maxfiles, maxsize, expiry, notes) {
             'notes': 'base64:' + Base64.encode(notes),
         },
     };
+
+    if (allowedDownloads !== undefined) requestOptions.headers.allowedDownloads = allowedDownloads;
 
     try {
         const response = await fetch(apiUrl, requestOptions);

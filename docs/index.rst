@@ -33,6 +33,7 @@ Contents
 
    setup
    usage
+   file-collections
    update
    repository-identity
    advanced

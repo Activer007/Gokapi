@@ -1350,6 +1350,19 @@ func (p *paramURequestSave) ParseRequest(r *http.Request) error {
 		}
 	}
 
+	// RequestParser header value "allowedDownloads", required: false
+	exists, err = checkHeaderExists(r, "allowedDownloads", false, false)
+	if err != nil {
+		return err
+	}
+	p.foundHeaders["allowedDownloads"] = exists
+	if exists {
+		p.AllowedDownloads, err = parseHeaderInt(r, "allowedDownloads")
+		if err != nil {
+			return fmt.Errorf("invalid value in header allowedDownloads supplied")
+		}
+	}
+
 	return p.ProcessParameter(r)
 }
 

@@ -9,15 +9,41 @@ import (
 )
 
 type schemaFileRequests struct {
-	Id       string
-	Name     string
-	UserId   int
-	Expiry   int64
-	MaxFiles int
-	MaxSize  int
-	Creation int64
-	ApiKey   string
-	Note     string
+	Id               string
+	Name             string
+	UserId           int
+	Expiry           int64
+	MaxFiles         int
+	MaxSize          int
+	Creation         int64
+	ApiKey           string
+	Note             string
+	AllowedDownloads int
+}
+
+func (p DatabaseProvider) hasFileRequestDownloadPolicy() (bool, error) {
+	var count int
+	err := p.sqliteDb.QueryRow("SELECT count(*) FROM pragma_table_info('UploadRequests') WHERE name = 'allowedDownloads'").Scan(&count)
+	return count != 0, err
+}
+
+func (p DatabaseProvider) initFileRequestDownloadPolicy() error {
+	exists, err := p.hasFileRequestDownloadPolicy()
+	if err != nil || exists {
+		return err
+	}
+	return p.rawSqlite(`ALTER TABLE UploadRequests ADD COLUMN allowedDownloads INTEGER NOT NULL DEFAULT 0;`)
+}
+
+func (p DatabaseProvider) fileRequestColumns() string {
+	columns := "id, name, userid, expiry, maxFiles, maxSize, creation, apiKey, note, "
+	exists, err := p.hasFileRequestDownloadPolicy()
+	helper.Check(err)
+	if exists {
+		return columns + "allowedDownloads"
+	}
+	// Offline migration must read legacy source databases without altering them.
+	return columns + "0 AS allowedDownloads"
 }
 
 // GetFileRequest returns the FileRequest or false if not found
@@ -26,9 +52,9 @@ func (p DatabaseProvider) GetFileRequest(id string) (models.FileRequest, bool) {
 		return models.FileRequest{}, false
 	}
 	var rowResult schemaFileRequests
-	row := p.sqliteDb.QueryRow("SELECT * FROM UploadRequests WHERE Id = ?", id)
+	row := p.sqliteDb.QueryRow("SELECT "+p.fileRequestColumns()+" FROM UploadRequests WHERE Id = ?", id)
 	err := row.Scan(&rowResult.Id, &rowResult.Name, &rowResult.UserId, &rowResult.Expiry,
-		&rowResult.MaxFiles, &rowResult.MaxSize, &rowResult.Creation, &rowResult.ApiKey, &rowResult.Note)
+		&rowResult.MaxFiles, &rowResult.MaxSize, &rowResult.Creation, &rowResult.ApiKey, &rowResult.Note, &rowResult.AllowedDownloads)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.FileRequest{}, false
@@ -37,15 +63,16 @@ func (p DatabaseProvider) GetFileRequest(id string) (models.FileRequest, bool) {
 		return models.FileRequest{}, false
 	}
 	result := models.FileRequest{
-		Id:           rowResult.Id,
-		Name:         rowResult.Name,
-		UserId:       rowResult.UserId,
-		MaxFiles:     rowResult.MaxFiles,
-		MaxSize:      rowResult.MaxSize,
-		Expiry:       rowResult.Expiry,
-		CreationDate: rowResult.Creation,
-		ApiKey:       rowResult.ApiKey,
-		Notes:        rowResult.Note,
+		Id:               rowResult.Id,
+		Name:             rowResult.Name,
+		UserId:           rowResult.UserId,
+		MaxFiles:         rowResult.MaxFiles,
+		MaxSize:          rowResult.MaxSize,
+		Expiry:           rowResult.Expiry,
+		CreationDate:     rowResult.Creation,
+		ApiKey:           rowResult.ApiKey,
+		Notes:            rowResult.Note,
+		AllowedDownloads: rowResult.AllowedDownloads,
 	}
 	return result, true
 }
@@ -53,24 +80,25 @@ func (p DatabaseProvider) GetFileRequest(id string) (models.FileRequest, bool) {
 // GetAllFileRequests returns an array with all file requests, ordered by creation date
 func (p DatabaseProvider) GetAllFileRequests() []models.FileRequest {
 	result := make([]models.FileRequest, 0)
-	rows, err := p.sqliteDb.Query("SELECT * FROM UploadRequests ORDER BY Creation DESC, Name")
+	rows, err := p.sqliteDb.Query("SELECT " + p.fileRequestColumns() + " FROM UploadRequests ORDER BY Creation DESC, Name")
 	helper.Check(err)
 	defer rows.Close()
 	for rows.Next() {
 		rowData := schemaFileRequests{}
 		err = rows.Scan(&rowData.Id, &rowData.Name, &rowData.UserId, &rowData.Expiry, &rowData.MaxFiles,
-			&rowData.MaxSize, &rowData.Creation, &rowData.ApiKey, &rowData.Note)
+			&rowData.MaxSize, &rowData.Creation, &rowData.ApiKey, &rowData.Note, &rowData.AllowedDownloads)
 		helper.Check(err)
 		result = append(result, models.FileRequest{
-			Id:           rowData.Id,
-			Name:         rowData.Name,
-			UserId:       rowData.UserId,
-			MaxFiles:     rowData.MaxFiles,
-			MaxSize:      rowData.MaxSize,
-			Expiry:       rowData.Expiry,
-			CreationDate: rowData.Creation,
-			ApiKey:       rowData.ApiKey,
-			Notes:        rowData.Note,
+			Id:               rowData.Id,
+			Name:             rowData.Name,
+			UserId:           rowData.UserId,
+			MaxFiles:         rowData.MaxFiles,
+			MaxSize:          rowData.MaxSize,
+			Expiry:           rowData.Expiry,
+			CreationDate:     rowData.Creation,
+			ApiKey:           rowData.ApiKey,
+			Notes:            rowData.Note,
+			AllowedDownloads: rowData.AllowedDownloads,
 		})
 	}
 	return result
@@ -79,21 +107,22 @@ func (p DatabaseProvider) GetAllFileRequests() []models.FileRequest {
 // SaveFileRequest stores the file request associated with the file in the database
 func (p DatabaseProvider) SaveFileRequest(request models.FileRequest) {
 	newData := schemaFileRequests{
-		Id:       request.Id,
-		Name:     request.Name,
-		UserId:   request.UserId,
-		MaxFiles: request.MaxFiles,
-		MaxSize:  request.MaxSize,
-		Expiry:   request.Expiry,
-		Creation: request.CreationDate,
-		ApiKey:   request.ApiKey,
-		Note:     request.Notes,
+		Id:               request.Id,
+		Name:             request.Name,
+		UserId:           request.UserId,
+		MaxFiles:         request.MaxFiles,
+		MaxSize:          request.MaxSize,
+		Expiry:           request.Expiry,
+		Creation:         request.CreationDate,
+		ApiKey:           request.ApiKey,
+		Note:             request.Notes,
+		AllowedDownloads: request.AllowedDownloads,
 	}
 
 	_, err := p.sqliteDb.Exec(`INSERT OR REPLACE INTO UploadRequests
-   				 (id, name, userid, expiry, maxFiles, maxSize, creation, apiKey, note) 
-         			 VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		newData.Id, newData.Name, newData.UserId, newData.Expiry, newData.MaxFiles, newData.MaxSize, newData.Creation, newData.ApiKey, newData.Note)
+		(id, name, userid, expiry, maxFiles, maxSize, creation, apiKey, note, allowedDownloads)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		newData.Id, newData.Name, newData.UserId, newData.Expiry, newData.MaxFiles, newData.MaxSize, newData.Creation, newData.ApiKey, newData.Note, newData.AllowedDownloads)
 	helper.Check(err)
 }
 

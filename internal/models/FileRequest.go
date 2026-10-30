@@ -10,22 +10,23 @@ import (
 
 // FileRequest contains information about a file request
 type FileRequest struct {
-	Id              string   `json:"id" redis:"id"`                     // The internal ID of the file request
-	UserId          int      `json:"userid" redis:"userid"`             // The user ID of the owner
-	MaxFiles        int      `json:"maxfiles" redis:"maxfiles"`         // The maximum number of files allowed
-	MaxSize         int      `json:"maxsize" redis:"maxsize"`           // The maximum file size allowed in MB
-	Expiry          int64    `json:"expiry" redis:"expiry"`             // The expiry time of the file request
-	CreationDate    int64    `json:"creationdate" redis:"creationdate"` // The timestamp of the file request creation
-	Name            string   `json:"name" redis:"name"`                 // The given name for the file request
-	ApiKey          string   `json:"apikey" redis:"apikey"`             // The API key related to the file request
-	Notes           string   `json:"notes" redis:"notes"`               // The custom note that was set for this file request
-	UploadedFiles   int      `json:"uploadedfiles" redis:"-"`           // Contains the number of uploaded files for this request. Needs to be calculated with Populate()
-	CombinedMaxSize int      `json:"combinedmaxsize" redis:"-"`         // The lesser of MaxSize and the server's max upload size. Needs to be calculated with Populate()
-	ReservedUploads int      `json:"reserveduploads" redis:"-"`         // How many uploads are currently reserved but not finalised. Needs to be calculated with Populate()
-	LastUpload      int64    `json:"lastupload" redis:"-"`              // Contains the timestamp of the last upload for this request. Needs to be calculated with Populate()
-	TotalFileSize   int64    `json:"totalfilesize" redis:"-"`           // Contains the file size of all uploaded files. Needs to be calculated with Populate()
-	FileIdList      []string `json:"fileidlist" redis:"-"`              // Contains an array of the IDs of all uploaded files. Needs to be calculated with Populate()
-	Files           []File   `json:"-" redis:"-"`                       // Contains an array of the IDs of all uploaded files. Needs to be calculated with Populate()
+	Id               string   `json:"id" redis:"id"`                             // The internal ID of the file request
+	UserId           int      `json:"userid" redis:"userid"`                     // The user ID of the owner
+	MaxFiles         int      `json:"maxfiles" redis:"maxfiles"`                 // The maximum number of files allowed
+	MaxSize          int      `json:"maxsize" redis:"maxsize"`                   // The maximum file size allowed in MB
+	AllowedDownloads int      `json:"alloweddownloads" redis:"alloweddownloads"` // Downloads allowed for each subsequent upload; 0 preserves legacy unlimited requests
+	Expiry           int64    `json:"expiry" redis:"expiry"`                     // The expiry time of the file request
+	CreationDate     int64    `json:"creationdate" redis:"creationdate"`         // The timestamp of the file request creation
+	Name             string   `json:"name" redis:"name"`                         // The given name for the file request
+	ApiKey           string   `json:"apikey" redis:"apikey"`                     // The API key related to the file request
+	Notes            string   `json:"notes" redis:"notes"`                       // The custom note that was set for this file request
+	UploadedFiles    int      `json:"uploadedfiles" redis:"-"`                   // Contains the number of uploaded files for this request. Needs to be calculated with Populate()
+	CombinedMaxSize  int      `json:"combinedmaxsize" redis:"-"`                 // The lesser of MaxSize and the server's max upload size. Needs to be calculated with Populate()
+	ReservedUploads  int      `json:"reserveduploads" redis:"-"`                 // How many uploads are currently reserved but not finalised. Needs to be calculated with Populate()
+	LastUpload       int64    `json:"lastupload" redis:"-"`                      // Contains the timestamp of the last upload for this request. Needs to be calculated with Populate()
+	TotalFileSize    int64    `json:"totalfilesize" redis:"-"`                   // Contains the file size of all uploaded files. Needs to be calculated with Populate()
+	FileIdList       []string `json:"fileidlist" redis:"-"`                      // Contains an array of the IDs of all uploaded files. Needs to be calculated with Populate()
+	Files            []File   `json:"-" redis:"-"`                               // Contains an array of the IDs of all uploaded files. Needs to be calculated with Populate()
 }
 
 // Populate inserts the number of uploaded files and the last upload date
