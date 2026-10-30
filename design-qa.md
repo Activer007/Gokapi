@@ -2,7 +2,7 @@
 
 final result: passed
 
-Scope: B1 workspace, B2 collection, B3 administration and B4 public-page visual validation only. This is not acceptance of the full B0–B6 upgrade.
+Scope: B1 workspace, B2 collection, B3 administration, B4 public-page and B5 setup visual validation only. This is not acceptance of the full B0–B6 upgrade.
 
 Source: `docs/images/ui-concepts/ui-enhanced-compact.png`, 1586×992 pixels.
 Implementation: `docs/images/ui-upgrade/foundation-zh.jpg`, 1586×992 pixels, CSS viewport 1586×992, devicePixelRatio 1. Source and final implementation were displayed together in the same comparison tool result on 2026-10-29, without resizing or browser chrome. Original iteration captures remain under `local-ui.secret/ui-upgrade/foundation/`.
@@ -70,3 +70,16 @@ The selected concept and download capture were displayed together at 1586×992, 
 - Fixed P2/functionality: asynchronous WASM errors could leave loading controls indefinitely; download-password submission accessed a missing button; undefined transfer errors caused a second exception. Final error paths provide feedback without announcing completion, and hide the unavailable transfer action.
 - Real encrypted content, bad-cipher failure and recovery were verified in Chrome. Chrome screenshot scaling is not used as matched-reference evidence; the in-app captures provide visual comparison.
 - No remaining P0/P1/P2 visual issue observed in these B4 surfaces. Installation and full-site keyboard/zoom/regression acceptance remain pending.
+
+
+## B5 installation adaptation
+
+Final result for B5 visual scope: passed.
+
+The selected concept and real Go-rendered setup page were inspected at CSS 1586×992, DPR 1. `docs/images/ui-upgrade/setup-zh.jpg` shows the final database step. The wizard retains its existing local step navigation and standalone resource boundary; the shared charcoal/blue palette, borders, form hierarchy, focus and buttons follow the selected design.
+
+- Fixed P2: right-positioned validation popovers collapsed into a clipped vertical strip at 1280×720. Errors now participate in field layout, remain readable, and focus the failed control. The final error screenshot confirms full text and a visible primary action.
+- Fixed P2: legacy overlay cards could overflow fixed wizard dimensions. Content and step navigation now scroll independently while the footer remains reachable. The long Redis form and S3 Test Configuration action were reached by keyboard.
+- Labels persist for account, storage and encryption inputs. Decorative navigation glyphs are hidden from assistive technology; the page and step headings have an explicit hierarchy.
+- Checked Chinese/English initial and reconfiguration views at 1280×720, 1440×900 and 1920×1080. No page-level horizontal overflow in the inspected states. No remaining P0/P1/P2 visual issue observed in this scope.
+- Preview boundary: screenshots use authenticated Go-rendered HTML plus real assets served through a read-only local preview. Authenticated installation/reconfiguration writes are covered by the native integration suite, not browser submissions. Actual zoom and full-site acceptance remain pending.

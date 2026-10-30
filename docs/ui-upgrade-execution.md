@@ -77,7 +77,7 @@ Limitations: the generated-password browser login attempt was inconclusive and i
 
 Delivered as PR #47: https://github.com/Activer007/SupaShare/pull/47. Head `96418bd` passed CI, was retargeted to master after #46, and was merged with explicit user authorization as `ef690e8`.
 
-## Public pages and encryption — verified, preparing PR
+## Public pages and encryption — merged
 
 - Login, password change/recovery, download/password challenge, errors and encryption setup share a bounded charcoal panel, labelled fields, clear actions and the common public header/footer. Collection pages reuse the same shell and retain their 960px content width. Old public-only overrides were removed.
 - Password challenge now has the submit-button ID its script accesses. Mismatched password submission displays feedback and focuses confirmation. Existing POST fields, CSRF, password/session rules, redirects and custom-resource ordering remain.
@@ -93,3 +93,26 @@ Validation on 2026-10-30:
 - Screenshots: `docs/images/ui-upgrade/login-zh.jpg`, `download-zh.jpg`, `encryption-unlock-zh.jpg`. Detailed synthetic evidence and byte-verification scripts remain under `local-ui.secret/ui-upgrade/`.
 
 Limits: no production HTTPS/ServerURL/Docker changes, no external-helper migration, no version increment. External helper availability, initial key-generation backup flow, API empty state and remaining global checks continue in B5–B6. A Chrome clipboard probe did not observe the page's write through the automation clipboard; only the success feedback and correct decrypted link binding are accepted from that check.
+
+Delivered as PR #49: https://github.com/Activer007/SupaShare/pull/49. Head `b248135` passed CI on retry and was merged after explicit user authorization as `4baeade`. The first CI attempt failed the Redis branch of `TestSEC030WholeReservedGCRechecksCommittedReference`; the unchanged test passed 30 consecutive native Linux repetitions, and the full CI retry passed. No test assertion or cleanup behavior was weakened.
+
+
+## Installation wizard — verified, preparing PR
+
+- The separately embedded setup page now uses charcoal surfaces, blue actions, persistent field labels, a scrollable card and a reachable footer. The existing local step list remains; no application-wide sidebar or new framework was introduced. Language controls remain visible across steps.
+- Keyboard activation works for previously visited steps. Step changes focus the heading; invalid submissions focus the first failed field. Validation uses Bootstrap's existing lifecycle but renders text directly below its field, fixing clipped right-side popovers at 1280×720. Recovery clears the field's error association.
+- All 56 serialized field names and ordering, authentication/storage/encryption branches, initial defaults and reconfiguration values remain intact. The final Continue control is a real button and uses textContent for its waiting state. Help points to SupaShare's setup documentation.
+
+Validation on 2026-10-30:
+
+- Synchronized master `4baeade`, including independent deletion/reclamation and WASM cancellation fixes from the security work. That mainline includes a bounded retry for definite Redis cleanup WATCH aborts related to the earlier CI failure; this UI batch does not modify cleanup code.
+- Native Linux snapshot ran `bash build/test-ui-local.sh` successfully: generation, 40 Node tests, both complete Go tag suites, targeted race tests and default/noaws production builds. Two subsequent presentation-only refinements (heading level and duplicate help-label removal) passed all 40 Node tests and setup/i18n UI/reconfiguration tests.
+- Both setup translation dictionaries resolve every template key. The production embed includes the standalone stylesheet. The full setup integration tests exercise authenticated initial installation and reconfiguration; no credential mutation was submitted through the browser.
+- Browser: Chinese/English initial pages, SQLite/Redis, invalid URL and recovery, persistent credential labels, keyboard return to a visited step, Redis field/footer reachability. Reconfiguration retains its site/database/authentication values and reaches the final Submit step; S3 fields and Test Configuration are reachable without invoking external services.
+- Actual viewports: 1280×720 (Next bottom 633px; footer bottom 651px), 1440×900 (English long form), 1920×1080 (reconfiguration finish), and 1586×992 at DPR 1 for comparison with the selected concept. No captured warning/error in the inspected final setup tab. Browser zoom percentage is still pending; changing the effective viewport is not claimed as browser zoom.
+- Browser authentication support and process-lifecycle issues interrupted the first preview attempts. Final visual checks use actual authenticated Go-rendered initial/reconfiguration HTML served by an ignored, read-only loopback preview with the real setup CSS/JS. It cannot submit configuration. This verifies rendering and client interaction, while the native authenticated integration tests verify commits; it is not a claim of browser-driven installation.
+- Tracked screenshot: `docs/images/ui-upgrade/setup-zh.jpg`. Additional error/long-form/finish evidence is under `local-ui.secret/ui-upgrade/setup/`.
+
+Remaining: global zoom/customization checks, API empty state, initial E2E backup flow, latest-mainline encrypted download check, final documentation/version and B6 acceptance. Version remains 2.11.0.
+
+Iteration policy (user request, 2026-10-30): reuse passed checks for unchanged code; run focused checks only for affected behavior or new failures. B5's completed full suite is retained without another local full run before its PR. The final review corrected only an OIDC documentation link and prose punctuation. Consolidate remaining cross-page checks into B6, then run the complete local suite once against the final delivery snapshot. Repository-required CI remains enabled.

@@ -4,64 +4,12 @@
 		<title>{{.UITitle}}</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<script>window.gokapiMessages = {{.UI.Messages}};</script>
-        <script src="./ui.js?v=1"></script>
+        <script src="./ui.js?v=2"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link href="./bootstrap/bootstrap.css" rel="stylesheet">
 		<link href="./src/bootstrap-wizard.css" rel="stylesheet">
 		<link href="./chosen/chosen.css" rel="stylesheet">
-		<style>
-			.wizard-modal p {
-				margin: 0 0 10px;
-				padding: 0;
-			}
-
-			#wizard-ns-detail-servers, .wizard-additional-servers {
-				font-size: 12px;
-				margin-top: 10px;
-				margin-left: 15px;
-			}
-			#wizard-ns-detail-servers > li, .wizard-additional-servers li {
-				line-height: 20px;
-				list-style-type: none;
-			}
-			#wizard-ns-detail-servers > li > img {
-				padding-right: 5px;
-			}
-
-			.wizard-modal .chzn-container .chzn-results {
-				max-height: 150px;
-			}
-			.wizard-addl-subsection {
-				margin-bottom: 40px;
-			}
-			.create-server-agent-key {
-				margin-left: 15px; 
-				width: 90%;
-			}
-			
-			
-
-			    .oauthscopecontainer {
-			      margin: 0 auto;
-			    }
-
-			    .oauthscopes {
-				display: flex;
-				flex-wrap: wrap;
-				align-items: center; /* Align items vertically in the center */
-				margin-bottom: 5px;
-			    }
-
-			    #oauth_restrict_users, #oauth_restrict_groups {
-			      margin-right: 10px;
-			    }
-
-			    #label_ousers, #label_ogroups {
-			      margin-right: 10px;
-			    }
-			    
-
-		</style>
+		<link href="./ui.css?v=2" rel="stylesheet">
 		<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 		<!--[if lt IE 9]>
@@ -69,7 +17,7 @@
 		<script src="js/respond-1.3.0.min.js"></script>
 		<![endif]-->
 	</head>
-	<body style="padding:30px;">
+	<body class="setup-page">
 
 		
 
@@ -80,31 +28,31 @@
 			<!-- Step 0 Welcome -->
 			<div class="wizard-card wizard-card-overlay" data-cardname="{{$.UI.T "setup.welcome"}}">
 				<h3>{{$.UI.T "setup.welcome"}}</h3>
-                <div style="margin-bottom:15px" aria-label="{{.UI.T "language.label"}}">
-                    <button type="button" class="btn" onclick="switchSetupLanguage('zh-CN')" lang="zh-CN">中文</button>
-                    <button type="button" class="btn" onclick="switchSetupLanguage('en')" lang="en">English</button>
+                <div id="setup-languages" class="setup-languages" role="group" aria-label="{{.UI.T "language.label"}}">
+                    <button type="button" class="btn" onclick="switchSetupLanguage('zh-CN')" aria-pressed="{{if eq .UI.Language "zh-CN"}}true{{else}}false{{end}}" lang="zh-CN">中文</button>
+                    <button type="button" class="btn" onclick="switchSetupLanguage('en')" aria-pressed="{{if eq .UI.Language "en"}}true{{else}}false{{end}}" lang="en">English</button>
                 </div>
 
 				<div class="wizard-input-section">
 				
 {{ if .IsInitialSetup }}
 					<p>
-						{{$.UI.T "setup.welcomeIntro"}} <a href="https://gokapi.readthedocs.io/en/stable/" title="{{$.UI.T "setup.documentationTitle"}}" target="_blank">{{$.UI.T "setup.documentation"}}</a>.
+						{{$.UI.T "setup.welcomeIntro"}} <a href="https://github.com/Activer007/SupaShare/blob/master/docs/setup.rst" title="{{$.UI.T "setup.documentationTitle"}}" target="_blank" rel="noopener noreferrer">{{$.UI.T "setup.documentation"}}</a>.
 					</p>
 {{ else }}
 					<p>
-						{{$.UI.T "setup.reconfigureIntro"}} <a href="https://gokapi.readthedocs.io/en/stable/" title="{{$.UI.T "setup.documentationTitle"}}" target="_blank" rel="noopener noreferrer">{{$.UI.T "setup.documentation"}}</a>.
+						{{$.UI.T "setup.reconfigureIntro"}} <a href="https://github.com/Activer007/SupaShare/blob/master/docs/setup.rst" title="{{$.UI.T "setup.documentationTitle"}}" target="_blank" rel="noopener noreferrer">{{$.UI.T "setup.documentation"}}</a>.
 					</p>
 {{ end }}
 					<br>
 {{ if .IsDataNotMounted }}
 					<p>
-					<span style="color:#FF0000;"><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.dataMountBefore"}} <code>/app/data</code> {{$.UI.T "setup.mountAfter"}}</span>
+					<span class="setup-warning"><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.dataMountBefore"}} <code>/app/data</code> {{$.UI.T "setup.mountAfter"}}</span>
 					</p>
 {{ end }}
 {{ if .IsConfigNotMounted }}
 					<p>
-					<span style="color:#FF0000;"><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.dataMountBefore"}} <code>/app/config</code> {{$.UI.T "setup.mountAfter"}}</span>
+					<span class="setup-warning"><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.dataMountBefore"}} <code>/app/config</code> {{$.UI.T "setup.mountAfter"}}</span>
 					</p>
 {{ end }}
 
@@ -119,7 +67,7 @@
 					
 {{ if not .IsInitialSetup }}
 				<p>
-					<span style="color:red"><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.migrateBefore"}} <code>gokapi migrate-database</code> {{$.UI.T "setup.migrateAfter"}}</span>
+					<span class="setup-warning"><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.migrateBefore"}} <code>supashare migrate-database</code> {{$.UI.T "setup.migrateAfter"}}</span>
 				</p><br>
 {{ end }}
 
@@ -236,6 +184,7 @@
 					</p>
 
 
+						<label for="authentication_sel">{{$.UI.T "setup.authentication"}}</label>
 						<select name="authentication_sel" id="authentication_sel" style="width:350px;" class="select form-control" onchange="authSelectionChanged(this.value);">
 							<optgroup label="{{$.UI.T "setup.standalone"}}">
 								<option value="0" selected>{{$.UI.T "setup.usernamePassword"}}</option>
@@ -264,12 +213,15 @@
 					</p>
 
 							<div class="col-sm-8">
+								<label for="auth_username">{{$.UI.T "setup.username"}}</label>
 								<input type="text" class="form-control" id="auth_username" name="auth_username" placeholder="{{$.UI.T "setup.username"}}" data-min="3" required data-validate="validateMinLength">
 							</div><br><br>
 							<div class="col-sm-8">
+								<label for="auth_pw">{{$.UI.T "setup.password"}}</label>
 								<input type="password" autocomplete="new-password" class="form-control" id="auth_pw" name="auth_pw" placeholder="{{$.UI.T "setup.password"}}" data-min={{ .MinPasswordLength }} required data-validate="validatePassword">
 							</div><br><br>
 							<div class="col-sm-8">
+								<label for="auth_pw2">{{$.UI.T "setup.passwordRepeat"}}</label>
 								<input type="password" autocomplete="new-password" class="form-control" id="auth_pw2" name="auth_pw2" placeholder="{{$.UI.T "setup.passwordRepeat"}}" data-min={{ .MinPasswordLength }} required>
 						</div>
 					</div>
@@ -286,7 +238,7 @@
 					<div class="wizard-input-section">
 						<div class="form-group">
 					<p>
-						{{$.UI.T "setup.oidcIntro"}} <a href="https://gokapi.readthedocs.io/en/stable/setup.html#oauth2-openid-connect" target="_blank" rel="noopener noreferrer">{{$.UI.T "setup.documentation"}}</a> {{$.UI.T "setup.oidcAfter"}}<br>
+						{{$.UI.T "setup.oidcIntro"}} <a href="https://github.com/Activer007/SupaShare/blob/master/docs/setup.rst#oauth2--openid-connect" target="_blank" rel="noopener noreferrer">{{$.UI.T "setup.documentation"}}</a> {{$.UI.T "setup.oidcAfter"}}<br>
 					</p>
 
 							<div class="col-sm-8" style="width:90%">
@@ -308,7 +260,7 @@
 								<input type="text" class="form-control" id="oauth_admin_user" name="oauth_admin_user" placeholder="{{$.UI.T "setup.adminEmail"}}" data-min="3" required data-validate="validateMinLength">
 							</div>
 							<div class="col-sm-8" style="width:90%">
-                            {{$.UI.T "setup.recheck"}}
+                            <label for="oauth_recheck_interval">{{$.UI.T "setup.recheck"}}</label>
 							<select name="oauth_recheck_interval" id="oauth_recheck_interval" style="width:350px;" class="select form-control">
 								<option value="6"> {{$.UI.T "setup.hours6"}}</option>
 								<option value="12" selected>{{$.UI.T "setup.hours12"}}</option>
@@ -326,14 +278,14 @@
 								      <input type="hidden" name="oauth_restrict_groups.unchecked" value="false">
 								      <input type="checkbox" id="oauth_restrict_groups" name="oauth_restrict_groups" onchange="handleOauthCheckboxChange(this)"  value="true">
 								      <label id="label_ogroups" for="oauth_restrict_groups" class="checkboxLabel">{{$.UI.T "setup.groups"}}</label>
-								      <input type="text" id="oauth_scope_groups" name="oauth_scope_groups" class="input-field" placeholder="{{$.UI.T "setup.scopeIdentifier"}}" data-min="1" data-validate="validateMinLength" disabled>&nbsp;
-								      <input type="text" id="oauth_allowed_groups" name="oauth_allowed_groups" class="input-field" placeholder="{{$.UI.T "setup.allowedGroups"}}" data-min="1" data-validate="validateMinLength" disabled>
+								      <input type="text" id="oauth_scope_groups" aria-label="{{$.UI.T "setup.scopeIdentifier"}}" name="oauth_scope_groups" class="input-field" placeholder="{{$.UI.T "setup.scopeIdentifier"}}" data-min="1" data-validate="validateMinLength" disabled>&nbsp;
+								      <input type="text" id="oauth_allowed_groups" aria-label="{{$.UI.T "setup.allowedGroups"}}" name="oauth_allowed_groups" class="input-field" placeholder="{{$.UI.T "setup.allowedGroups"}}" data-min="1" data-validate="validateMinLength" disabled>
 								    </div>
 								    
 								     <div><br>
 								     <input type="hidden" name="oauth_only_registered_users.unchecked" value="false">
 								     <input  id="oauth_only_registered_users" name="oauth_only_registered_users" type="checkbox" value="true">
-								     <span>&nbsp;{{$.UI.T "setup.registeredOnly"}}</span>
+								     <label for="oauth_only_registered_users">{{$.UI.T "setup.registeredOnly"}}</label>
 								     </div>
 								  </div>
 							</div> 
@@ -375,7 +327,7 @@
 						    <br>
 						     <input type="hidden" name="auth_header_only_registered_users.unchecked" value="false">
 						     <input id="auth_header_only_registered_users" name="auth_header_only_registered_users" type="checkbox" value="true">
-						     <span>&nbsp;{{$.UI.T "setup.registeredOnly"}}</span>
+						     <label for="auth_header_only_registered_users">{{$.UI.T "setup.registeredOnly"}}</label>
 					</div>
 				</div>
 			</div>
@@ -386,7 +338,7 @@
 
 				<div class="wizard-input-section">
 					<p>
-						<span style="color:#FF0000;">{{$.UI.T "setup.warning"}}</span> {{$.UI.T "setup.disabledAuthHelp"}}
+						<span class="setup-warning">{{$.UI.T "setup.warning"}}</span> {{$.UI.T "setup.disabledAuthHelp"}}
 						
 						<ul>
 {{ range .ProtectedUrls }}
@@ -411,6 +363,7 @@
 						{{$.UI.T "setup.storageChoose"}}
 					</p>
 
+					<label for="storage_sel">{{$.UI.T "setup.storage"}}</label>
 					<select name="storage_sel" id="storage_sel" style="width:350px;" class="select form-control" onchange="storageSelectionChanged(this.selectedIndex);">
 							<option value="local" selected>{{$.UI.T "setup.localStorage"}}</option>
 							<option value="cloud" {{ if not .HasAwsFeature }} disabled {{ end }} >{{$.UI.T "setup.cloudStorage"}}</option>
@@ -427,9 +380,8 @@
 
 					<div id="cloudstorage_options" style="visibility: hidden">
 
-						<br><p>
-							{{$.UI.T "setup.picturesLocation"}}
-						</p>
+						<br>
+						<label for="storage_sel_image">{{$.UI.T "setup.picturesLocation"}}</label>
 						<select name="storage_sel_image" id="storage_sel_image" style="width:350px;" class="select form-control">
 								<option value="nochange" selected>{{$.UI.T "setup.useCloud"}}</option>
 								<option value="local">{{$.UI.T "setup.localPictures"}}</option>
@@ -438,6 +390,7 @@
 						<br><p>
 							{{$.UI.T "setup.proxyHelp"}}
 						</p>
+						<label for="storage_sel_proxy">{{$.UI.T "setup.proxyDownloads"}}</label>
 						<select name="storage_sel_proxy" id="storage_sel_proxy" style="width:350px;" class="select form-control">
 								<option value="presigned" selected>{{$.UI.T "setup.default"}}</option>
 								<option value="proxy">{{$.UI.T "setup.proxyDownloads"}}</option>
@@ -583,11 +536,12 @@ function TestAWS(button, isManual) {
 					
 {{ if not .IsInitialSetup }}
 				<p>
-					<span style="color:red"><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.encryptionChange"}}</span>
+					<span class="setup-warning"><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.encryptionChange"}}</span>
 				</p><br>
 {{ end }}
 					
 
+					<label for="encrypt_sel">{{$.UI.T "setup.encryptionLevel"}}</label>
 					<select name="encrypt_sel" id="encrypt_sel" style="width:350px;" class="select form-control" onchange="encryptionSelectionChanged(this.selectedIndex, false);">
 							<option value="0" selected>{{$.UI.T "setup.level0"}}</option>
 							<option value="1" >{{$.UI.T "setup.level1Stored"}}</option>
@@ -631,7 +585,7 @@ function TestAWS(button, isManual) {
 					  <li>{{$.UI.T "setup.hotlinks"}}</li>
 					  <li>{{$.UI.T "setup.noProgress"}}</li>
 					  <li>{{$.UI.T "setup.unreadablePassword"}}</li>
-					  <li><span style="color:red"><b>{{$.UI.T "setup.warning"}}</b></span> {{$.UI.T "setup.startupInput"}}</li>
+					  <li><span class="setup-warning"><b>{{$.UI.T "setup.warning"}}</b></span> {{$.UI.T "setup.startupInput"}}</li>
 					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.temporaryPlaintext"}}</li>
 					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.notAudited"}}</li>
 					</ul></p>
@@ -664,7 +618,7 @@ function TestAWS(button, isManual) {
 					  <li>{{$.UI.T "setup.noProgress"}}</li>
 					  <li>{{$.UI.T "setup.unreadablePassword"}}</li>
 					  <li><b>{{$.UI.T "setup.important"}}</b> {{$.UI.T "setup.corsHelp"}}</li>
-					  <li><span style="color:red"><b>{{$.UI.T "setup.warning"}}</b></span> {{$.UI.T "setup.startupInput"}}</li>
+					  <li><span class="setup-warning"><b>{{$.UI.T "setup.warning"}}</b></span> {{$.UI.T "setup.startupInput"}}</li>
 					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.slowDownload"}}</li>
 					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.temporaryPlaintext"}}</li>
 					  <li><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.notAudited"}}</li>
@@ -713,7 +667,7 @@ function TestAWS(button, isManual) {
 					
 {{ if not .IsInitialSetup }}
 				<p>
-					<span style="color:red"><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.passwordChange"}}</span>
+					<span class="setup-warning"><b>{{$.UI.T "setup.warning"}}</b> {{$.UI.T "setup.passwordChange"}}</span>
 				</p><br>
 {{ end }}
 					
@@ -723,9 +677,11 @@ function TestAWS(button, isManual) {
 
 					
 							<div class="col-sm-8">
+								<label for="enc_pw">{{$.UI.T "setup.password"}}</label>
 								<input type="password" autocomplete="new-password" class="form-control" id="enc_pw" name="enc_pw" placeholder="{{$.UI.T "setup.password"}}" data-min="8" required data-validate="validatePassword2" value="{{ if not .IsInitialSetup }}unc{{end}}">
 							</div><br><br>
 							<div class="col-sm-8">
+								<label for="enc_pw2">{{$.UI.T "setup.passwordRepeat"}}</label>
 								<input type="password" autocomplete="new-password" class="form-control" id="enc_pw2" name="enc_pw2" placeholder="{{$.UI.T "setup.passwordRepeat"}}" data-min="8" required value="{{ if not .IsInitialSetup }}unc{{end}}">
 						</div>
 		
@@ -765,7 +721,7 @@ function TestAWS(button, isManual) {
 					</div>
 					{{$.UI.T "setup.startupPasswordHelp"}}<br><br>
 	
-					<a id="bt_finishsetup" class="btn btn-success im-done">{{$.UI.T "setup.continue"}}</a>
+					<button type="button" id="bt_finishsetup" class="btn btn-success im-done">{{$.UI.T "setup.continue"}}</button>
 				</div>
 			</div>
 		</div>
@@ -788,9 +744,10 @@ function TestAWS(button, isManual) {
                     buttons: {cancelText:t("common.cancel"),nextText:t("setup.next"),backText:t("setup.back"),submitText:t("setup.submit"),submittingText:t("setup.submitting")}
 				});
 				
+				enhanceSetupWizard(wizard);
 				wizard.el.find(".wizard-success .im-done").click(function() {
 					document.getElementById("bt_finishsetup").disabled=true;
-					document.getElementById("bt_finishsetup").text=t("setup.pleaseWait");
+					document.getElementById("bt_finishsetup").textContent=t("setup.pleaseWait");
 					setTimeout(function(){ window.location.href = $("#url").val()+"admin";}, 1500);
 				});
 			
