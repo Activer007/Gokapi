@@ -1168,6 +1168,14 @@ func downloadPresigned(w http.ResponseWriter, r *http.Request) {
 		}
 		files = append(files, storedFile)
 	}
+	if presignedUrl.IsArchive() {
+		for _, file := range files {
+			if file.Encryption.IsEndToEndEncrypted {
+				responseError(w, storage.ErrorFileNotFound)
+				return
+			}
+		}
+	}
 	for _, file := range files {
 		if file.IsFileRequest() {
 			serveCollectionPresign(w, r, presignedUrl, files, consumer)
@@ -1179,7 +1187,7 @@ func downloadPresigned(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(files) == 1 {
+	if !presignedUrl.IsArchive() {
 		file := files[0]
 		forceDecryption := file.Encryption.IsEncrypted && !file.Encryption.IsEndToEndEncrypted
 		storage.ServeFile(file, w, r, true, false, forceDecryption, false)

@@ -45,6 +45,12 @@ func collectionDownloadScene(t *testing.T) securityfixture.Scene {
 func collectionDownloadGrant(t *testing.T, key string, ids ...string) string {
 	t.Helper()
 	id := issueTestPresign(t, key, ids)
+	trackCollectionDownloadGrant(t, id)
+	return id
+}
+
+func trackCollectionDownloadGrant(t *testing.T, id string) {
+	t.Helper()
 	t.Cleanup(func() {
 		collectionRetries.Lock()
 		lease := collectionRetries.grants[id]
@@ -56,7 +62,6 @@ func collectionDownloadGrant(t *testing.T, key string, ids ...string) string {
 			finishCollectionRetry(id, lease, false)
 		}
 	})
-	return id
 }
 
 func collectionDownloadCall(id string, user models.User, method, rangeValue string, cookie *http.Cookie) *httptest.ResponseRecorder {

@@ -29,8 +29,15 @@ var ErrDownloadUnavailable = errors.New("download unavailable")
 type ManagementDownload struct {
 	Files   []models.File
 	Charged bool
+	Archive bool
 	guards  []string
 	once    sync.Once
+}
+
+type ManagementDownloadOptions struct {
+	RetryCharged bool
+	Count        bool
+	Archive      bool
 }
 
 func (d *ManagementDownload) Close() {
@@ -44,7 +51,7 @@ func (d *ManagementDownload) Close() {
 // ValidateManagementRange accepts a single satisfiable range for seekable local
 // files. Generated ZIPs and decrypted streams can be retried in full instead.
 // This runs before claiming a capability or consuming any allowance.
-func ValidateManagementRange(r *http.Request, files []models.File) bool {
+func ValidateManagementRange(r *http.Request, files []models.File, archive bool) bool {
 	if r.Method == http.MethodHead {
 		return true
 	}
@@ -52,7 +59,7 @@ func ValidateManagementRange(r *http.Request, files []models.File) bool {
 	if rangeValue == "" {
 		return true
 	}
-	if len(files) != 1 || files[0].Encryption.IsEncrypted || !files[0].IsLocalStorage() || len(rangeValue) > 128 || !strings.HasPrefix(rangeValue, "bytes=") {
+	if archive || len(files) != 1 || files[0].Encryption.IsEncrypted || !files[0].IsLocalStorage() || len(rangeValue) > 128 || !strings.HasPrefix(rangeValue, "bytes=") {
 		return false
 	}
 	parts := strings.Split(strings.TrimPrefix(rangeValue, "bytes="), "-")
@@ -82,14 +89,14 @@ func (d *ManagementDownload) Serve(w http.ResponseWriter, r *http.Request, filen
 		r.Header.Del(name)
 	}
 	if r.Method == http.MethodHead {
-		if len(d.Files) == 1 {
+		if !d.Archive {
 			headers.Write(d.Files[0], w, true, false)
 		} else {
 			w.Header().Set("Content-Type", "application/zip")
 		}
 		return
 	}
-	if len(d.Files) == 1 {
+	if !d.Archive {
 		file := d.Files[0]
 		ServeFile(file, w, r, true, false, file.Encryption.IsEncrypted && !file.Encryption.IsEndToEndEncrypted, false)
 		return
@@ -100,7 +107,7 @@ func (d *ManagementDownload) Serve(w http.ResponseWriter, r *http.Request, filen
 // PrepareManagementDownload rechecks the current actor and every file under the
 // metadata locks before charging any ZIP member. A retry can bypass exhausted
 // allowances only when its server-held grant already charged this same snapshot.
-func PrepareManagementDownload(ctx context.Context, snapshots []models.File, actorID int, retryCharged, count bool) (*ManagementDownload, error) {
+func PrepareManagementDownload(ctx context.Context, snapshots []models.File, actorID int, options ManagementDownloadOptions) (*ManagementDownload, error) {
 	ids := make([]string, 0, len(snapshots))
 	seen := make(map[string]bool)
 	for _, file := range snapshots {
@@ -122,12 +129,15 @@ func PrepareManagementDownload(ctx context.Context, snapshots []models.File, act
 	if !ok {
 		return nil, ErrDownloadUnavailable
 	}
-	download := &ManagementDownload{Charged: retryCharged}
+	download := &ManagementDownload{Charged: options.RetryCharged, Archive: options.Archive || len(snapshots) > 1}
 	for _, snapshot := range snapshots {
 		file, found := database.GetMetaDataById(snapshot.Id)
+		// Archives decrypt encrypted members on the server. E2E members have
+		// no server key and must be rejected before any member is charged.
 		if !found || !sameDownloadFile(snapshot, file) || file.IsPendingForDeletion() ||
+			(download.Archive && file.Encryption.IsEndToEndEncrypted) ||
 			(!file.UnlimitedTime && file.ExpireAt < time.Now().Unix()) ||
-			(!(retryCharged && file.IsFileRequest()) && !file.UnlimitedDownloads && file.DownloadsRemaining < 1) ||
+			(!(options.RetryCharged && file.IsFileRequest()) && !file.UnlimitedDownloads && file.DownloadsRemaining < 1) ||
 			!authorization.Authorize(actor, authorization.ReadFile, file.UserId) ||
 			!checkIfValidAws(file) || !FileExists(file, configuration.Get().DataDir) {
 			return nil, ErrDownloadUnavailable
@@ -161,7 +171,7 @@ func PrepareManagementDownload(ctx context.Context, snapshots []models.File, act
 	for _, file := range download.Files {
 		download.guards = append(download.guards, downloadstatus.SetDownload(file))
 	}
-	if count && !actor.IsAdmin() && !retryCharged {
+	if options.Count && !actor.IsAdmin() && !options.RetryCharged {
 		for i, file := range download.Files {
 			if !file.IsFileRequest() {
 				continue
