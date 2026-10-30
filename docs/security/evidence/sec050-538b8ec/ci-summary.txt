@@ -1,0 +1,46 @@
+SEC-050 final integrated candidate
+Repository: Activer007/SupaShare (no upstream writes)
+PR: https://github.com/Activer007/SupaShare/pull/54
+Frozen source: 538b8ec029278068872397d56f20f8b8bfaf9ca3
+Frozen tree: 9f7fbc556d1c63f458c6384deac22f260ccbc07e
+CI: https://github.com/Activer007/SupaShare/actions/runs/41002041972
+Job: 123888516757, SUCCESS, 2026-10-30T04:17:28Z..04:28:59Z
+Actual checkout: 2860f5df93a713de8009fd06efc7b6ac1837e3e0
+Parents: 86af244da4ce3fc3d010c71d0f4f47eb62912ab7 + 538b8ec029278068872397d56f20f8b8bfaf9ca3
+Actual checkout tree: 9f7fbc556d1c63f458c6384deac22f260ccbc07e (equals frozen tree).
+Runner: Ubuntu24.04 image20261025.353.1; Go1.26.10 linux/amd64
+PASS: generate + git diff guard; occupied-port setup; four whole tag sets
+PASS: response policy, generated artifact MIME, original writer, real SSE upload race
+PASS: existing receiver/decryption/deletion/reclaim/provider/loopback S3 races
+PASS: upload target/race (10 markers including both source-unchanged)
+PASS: toolchain/build/scan (19 markers); tested graphs reported no affected calls
+Module-only scan notices remain: GO-2026-5932, GO-2022-0646, GO-2022-0635.
+SKIPPED: dispatch-only historical/compiler container/large-file matrix.
+Push41001915393 cancelled by workflow same-head concurrency; not a failure.
+CI source SHA256:
+9e8db19d64a13ea9af9f1da5ba8f16ddc0907fc7e83dbc0a5d8a5c3402ee94c7 internal/webserver/Presentation.go
+b92d6036f0e3716a38348f20ff41a08fe03625c96a02b101b3a62eb320e32ad4 internal/webserver/ResponsePolicy.go
+67c7f7186ac015832ee592b0755ae890d936a5ca6f07837fa3f11438ac72532f internal/webserver/Webserver.go
+ac224425e0d9535dc1382f39b088f2c65dc182e861b7c05080b4636c0dae8a4e internal/webserver/security_response_policy_test.go
+81595f60990a3d5e572c19e43ac9636d0f9e8760f4e5f69f40a8fab31e423b83 internal/webserver/headers/Headers.go
+95a9df12230ed53d49516730df616c9dc2a01f1ef5cba0bea9329d56fc3a8b2e cmd/wasmdownloader/Main.go
+c662d8cf646174dabe936f8b888dec0827c4b84aa3e978b0844de72775515a5d internal/webserver/web/templates/html_download.tmpl
+CI main.wasm SHA256: cf921abaae1fbd4339f29f35b81bd94cfc42aa97980e750a35797f924520e2ac
+Toolchain archive main.wasm SHA256: d9a0538e499965764d100981e332dc9e92f7141a3efaceeb57d50257b24864fe
+Local reused main.wasm SHA256: 9b9c1013d8f0a993833cd1b5c69f393e18988a5fa46b8141ec08ecaa5b562bf3
+Different build contexts: no byte reproducibility assertion.
+Report-Only Chrome source: a08423119970ea7a765058982c21db2605226e98.
+Observed existing inline policy messages, normal download SHA256 and language switch.
+Final enforced browser source: d7b810b73c3eb5b5664b349171c036284e08e954.
+Final source archive SHA256: 890e2e38e349619214f872dac27f5cc9955f48d88f01ecd89fafe8cb21e7f1be
+Actual login/download/error Document headers: limited enforced base/object CSP and
+separate script Report-Only. Normal native PNG73B SHA256 and Chinese switch PASS.
+Final helper build PASS60.554s; after browser1497 files changed0/missing0/extra0.
+Helper exited/drained normally; three canonical sources/metadata unchanged.
+d7->538 integrated setup UI PR53 only; main response/download/WASM/dependency/build
+closure unchanged. Browser labels remain d7, not whole538 browser claims.
+Scope: default main application pages and local plain attachment; dedicated setup
+server, final S3/CDN responses, strict script CSP and arbitrary plugins not covered.
+Current HTTPS/E2E supplement: SKIPPED_USER after ServiceWorker certificate setup
+block; no browser truncation/cancel/integrity PASS inferred from this waiver.
+No raw logs, keys, tokens, private share URLs or synthetic payload included here.

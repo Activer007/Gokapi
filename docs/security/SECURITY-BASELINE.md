@@ -4,6 +4,20 @@
 
 ## 当前M4：可靠删除与下载内容边界
 
+2026-10-30当前状态：**验收完成；交付以PR54实际合并状态为准**。下列050交付/阶段完成记录随PR54合并生效，合并前goal保持ACTIVE；实际merge SHA/tree见PR54最终核对comment。040-A（PR44/dee4382f）、040-B（PR48/65dd7ef）、041（PR50/0b6b2e2）、052-A（PR43/c434e099）、052-B（PR51/1e5d80a）及051（PR52/811376b）均已合并自有主线；各自CI只证明其记录的输入范围。
+050冻结候选538b8ec029278068872397d56f20f8b8bfaf9ca3/tree9f7fbc556d1c63f458c6384deac22f260ccbc07e保留setup UI PR53，主应用策略与d7b810b一致；状态为CI_GREEN / [PR54交付](https://github.com/Activer007/SupaShare/pull/54)（合并后生效）。最终安全文档与证据收尾进入该PR的同一纯文档skip-ci提交，不另开文档PR或重复未变代码测试。
+策略/资源合同及三页base/object策略均RED→GREEN；a084231的Report-Only观察和d7b810b的真实Chrome三页策略/中文切换/73B原生附件SHA256取得各自限定PASS。最终1497项源清单Changed0/Missing0/Extra0；同权限确认PID75888不存在，lifecycle drained=true，三份metadata及canonicalUnchanged保持；清理证据不冒充取消测试。
+[CI41002041972](https://github.com/Activer007/SupaShare/actions/runs/41002041972)/job123888516757 **SUCCESS**：实际checkout2860f5df93a713de8009fd06efc7b6ac1837e3e0（86af244+538b8ec），输入tree与冻结候选逐字相等。generate+guard、四组全仓、全部相关race含050/SSE、上传10个marker、toolchain19个marker均PASS，见[最终摘要](evidence/sec050-538b8ec/ci-summary.txt)。模块级GO-2026-5932、GO-2022-0646/0635提示仍保留，不宣称依赖全部无风险。
+当前052证书阻塞的HTTPS补验经用户明确豁免为SKIPPED_USER，不计PASS；仅移除本次补验阻塞，历史052证据保持原范围。其他M4验收未获豁免。
+050通用头仅覆盖主应用handler，独立setup维护服务器另属边界；S3最终对象不继承本站头。真实后端持久化/断电、任意插件及严格脚本CSP等限制保留，M3延期不重开。逐项收口及合并生效条件见[M4审计](M4-COMPLETION-AUDIT.md)；无部署或发布。
+
+### 历史开发过程（保留当时状态、失败及原输入SHA）
+
+下述“当前/待验证/未合并”均为对应开发时点的记录，不覆盖上方2026-10-30当前状态及用户明确修订；原始证据不改写。
+
+SEC-050开始：自有PR52已合并811376bdcaa895b0dcb427de112640fa95c1a691，fetch后新分支codex/sec-050-response-policy、初始干净；Go1.26.10 windows/amd64。CONFIRMED_CODE：现有通用handler未统一nosniff/no-referrer，renderPage未设页面CSP；具体影响及兼容继续VALIDATE，先最小策略RED。上游Forceu/Gokapi PR418/419仍open/unmerged。
+当前候选已完成策略RED→相关响应/资源/sandbox GREEN；原SSE上传在Windows遗留SQLite现场失败，保留现场后全新副本补测GREEN。a084231真实Chrome完成Report-Only观察及正常下载/语言切换；随后仅三类页面基础策略RED→GREEN，脚本继续观察。最终浏览器与CI仍待，缺头或观察信息不定性XSS。
+
 SEC-051续作（2026-10-30）：基线1e5d80a31acd626d3c7991561a8681459c062acc（PR51已合并），fetch后自有主线一致、初始干净，Go1.26.10 windows/amd64；分支codex/sec-051-download-boundaries。
 CONFIRMED_CODE：应用控制的文件/ZIP响应未给出nosniff；三个新增头不变量断言得到策略RED（exit1/10.188s），不是XSS漏洞复现。仅两处响应写出补头后同命令GREEN（exit0/9.593s）；不改变MIME、文件名、Disposition或inline sandbox。
 2213640真实本地HTTP与loopback S3响应合同PASS，最终对象的nosniff/sandbox缺失单独记录，不把重定向头算对象保护；首次本地编译内存SETUP_FAIL后限并发重试通过。CI40993218654 SUCCESS仅对应2213640。自有PR49现已合并4baeade，干净整合为7c9a6ad；文件响应/加密/依赖叶子不变，新UI浏览器与整合CI继续VALIDATE。首次IAB下载观察工具超时，未取得业务终态，不作PASS或漏洞结论。
@@ -227,8 +241,8 @@ P0/P1 为本项目修复优先级，不是 CVSS。未证明的 OIDC/CSRF 不认�
 | --- | --- | --- |
 | [#384](https://github.com/Activer007/SupaShare/pull/384) | merged，60d00f2，2026-03-20 | Argon2id 在 HEAD，不在 v2.2.4；保留兼容测试 |
 | [#400](https://github.com/Activer007/SupaShare/pull/400) | merged，c2880b7，2026-05-06 | 下载计数竞态修复在 HEAD，不在 v2.2.4 |
-| [#407](https://github.com/Activer007/SupaShare/issues/407) / [#419](https://github.com/Activer007/SupaShare/pull/419) | issue open / PR open，未合并 | 旧 blob 回收不能被历史替换授权修复代替；SEC-041 先审 patch |
-| [#418](https://github.com/Activer007/SupaShare/pull/418) | open，未合并 | CSP 候选；SEC-050 先检查 WASM/下载兼容 |
+| [#407](https://github.com/Forceu/Gokapi/issues/407) / [#419](https://github.com/Forceu/Gokapi/pull/419) | issue open / PR open，未合并 | 旧 blob 回收不能被历史替换授权修复代替；SEC-041 先审 patch |
+| [#418](https://github.com/Forceu/Gokapi/pull/418) | open，未合并 | CSP 候选；SEC-050 先检查 WASM/下载兼容 |
 | [#423](https://github.com/Activer007/SupaShare/pull/423) | open，未合并 | SQL provider 扩展不是 M0 必需，不迁移 PostgreSQL |
 | [#424](https://github.com/Activer007/SupaShare/pull/424) | open，未合并 | SDK v2 候选；SEC-061 避免与本地补丁冲突 |
 | [#431](https://github.com/Activer007/SupaShare/issues/431) | open | 用户额度需求，未作为 stable 功能 |

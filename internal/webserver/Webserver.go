@@ -157,7 +157,7 @@ func Start() {
 		IdleTimeout:       time.Minute,
 		ReadTimeout:       timeOutWebserverRead,
 		WriteTimeout:      timeOutWebserverWrite,
-		Handler:           browseraccess.DesktopOnly(withLanguagePreference(withManagementBudget(mux, managementBudget)), defaultLanguage),
+		Handler:           withResponsePolicy(browseraccess.DesktopOnly(withLanguagePreference(withManagementBudget(mux, managementBudget)), defaultLanguage)),
 		BaseContext:       func(net.Listener) context.Context { return workers.Context() },
 	}
 	srvMu.Lock()
