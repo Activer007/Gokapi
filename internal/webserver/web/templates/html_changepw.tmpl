@@ -1,44 +1,22 @@
-{{define "changepw"}}{{ template "header" . }} 
-      <div class="row">
-        <div class="col">
-		<div id="container" class="card" style="width: 25em">
-		  <div class="card-body">
-		    <h2 class="card-title">{{.UI.T "page.changepw"}}</h2>
-		    <br>
-		    <p class="card-text"> {{.UI.T "password.requested"}}<br>{{.UI.T "password.prompt"}}<br><br>
-			<form method="post" action="./changePassword" id="form" name="form" onSubmit="return submitForm()">
-			    <div class="mb-3">
-				<input type="password" class="form-control mx-auto" style="max-width: 300px;" 
-				       required minlength="{{.MinPasswordLength}}" placeholder="{{.UI.T "password.new"}}"
-				       id="newpw" name="newpw" autocomplete="new-password">
-			    </div>
-
-			    <div class="mb-3">
-				<input type="password" class="form-control mx-auto" style="max-width: 300px;" 
-				       required minlength="{{.MinPasswordLength}}" placeholder="{{.UI.T "password.confirm"}}"
-				       id="newpw_c" name="newpw_c" onchange="checkSame()" autocomplete="new-password">
-			    </div>
-				<input type="hidden" id="csrf-token" name="csrf-token" value="{{.CsrfToken}}">
-
-{{ if ne .ErrorMessage "" }}
-			    <p id="errormessage" class="text-danger" style="margin-top:1em">{{.UI.T .ErrorMessage}}</p>
-{{ end }}
-
-			    <div id="pwnotsame" class="text-warning" style="display: none; margin-top:1em">
-				{{.UI.T "password.mismatch"}}
-			    </div>
-
-			    <div class="mt-4">
-				<button type="submit" id="submitbutton" class="btn btn-primary w-100 mx-auto" style="max-width: 300px;">
-				    {{.UI.T "page.changepw"}}
-				</button>
-			    </div>
-			</form>
-			<br>
-		  </div>
-		</div>
-	    </div>
-   	 </div>
+{{define "changepw"}}{{template "header" .}}
+<section id="container" class="public-panel" aria-labelledby="passwordTitle">
+  <h1 id="passwordTitle">{{.UI.T "page.changepw"}}</h1>
+  <p>{{.UI.T "password.requested"}} {{.UI.T "password.prompt"}}</p>
+  <form method="post" action="./changePassword" id="form" name="form" onsubmit="return submitForm()">
+    <div class="mb-3">
+      <label for="newpw" class="form-label">{{.UI.T "password.new"}}</label>
+      <input type="password" class="form-control" required minlength="{{.MinPasswordLength}}" id="newpw" name="newpw" autocomplete="new-password" oninput="checkSame()">
+    </div>
+    <div class="mb-3">
+      <label for="newpw_c" class="form-label">{{.UI.T "password.confirm"}}</label>
+      <input type="password" class="form-control" required minlength="{{.MinPasswordLength}}" id="newpw_c" name="newpw_c" oninput="checkSame()" autocomplete="new-password" aria-describedby="pwnotsame">
+    </div>
+    <input type="hidden" id="csrf-token" name="csrf-token" value="{{.CsrfToken}}">
+    {{if ne .ErrorMessage ""}}<p id="errormessage" class="public-form-error" role="alert">{{.UI.T .ErrorMessage}}</p>{{end}}
+    <div id="pwnotsame" class="public-form-error" role="status" style="display:none">{{.UI.T "password.mismatch"}}</div>
+    <button type="submit" id="submitbutton" class="btn btn-primary w-100 mt-2">{{.UI.T "page.changepw"}}</button>
+  </form>
+</section>
 <script>
 
 function isSamePw() {
@@ -60,7 +38,9 @@ function checkSame() {
 }
 
 function submitForm() {
+    checkSame();
     if (!isSamePw()) {
+        document.getElementById("newpw_c").focus();
         return false;
     }
     document.getElementById("submitbutton").disabled = true;

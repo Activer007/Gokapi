@@ -1,18 +1,12 @@
-{{define "forgotpw"}}{{ template "header" . }} 
-      <div class="row">
-        <div class="col">
-		<div id="container" class="card" style="width: 35em">
-		  <div class="card-body">
-		    <h3 class="card-title">{{.UI.T "page.forgotpw"}}</h3>
-		    <br>
-		    <p class="card-text">
-			{{.UI.T "forgot.userHelp"}}<br><br>{{.UI.T "forgot.adminBefore"}}<code class="text-nowrap">--reconfigure</code>{{.UI.T "forgot.adminAfter"}}
-		    </p><br>
-		  </div>
-		</div>
-	    </div>
-   	 </div>
-{{ template "pagename" "ForgotPw"}}
-{{ template "customjs" .}}
+{{define "forgotpw"}}{{template "header" .}}
+<section id="container" class="public-panel public-panel-wide" aria-labelledby="forgotTitle">
+  <i class="bi bi-key public-icon" aria-hidden="true"></i>
+  <h1 id="forgotTitle">{{.UI.T "page.forgotpw"}}</h1>
+  <p>{{.UI.T "forgot.userHelp"}}</p>
+  <p>{{.UI.T "forgot.adminBefore"}}<code>--reconfigure</code>{{.UI.T "forgot.adminAfter"}}</p>
+  <a href="./login" class="btn btn-primary text-white mt-2">{{.UI.T "login.back"}}</a>
+</section>
+{{template "pagename" "ForgotPw"}}
+{{template "customjs" .}}
 {{template "footer" .UI}}
 {{end}}

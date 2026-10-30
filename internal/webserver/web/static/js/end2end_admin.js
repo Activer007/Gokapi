@@ -80,30 +80,16 @@ function isE2EKeySet() {
 }
 
 
-function loadWasm(func) {
+async function loadWasm(func) {
     const go = new Go(); // Defined in wasm_exec.js
-    const WASM_URL = 'e2e.wasm?v=1';
-
-    var wasm;
-
     try {
-        if ('instantiateStreaming' in WebAssembly) {
-            WebAssembly.instantiateStreaming(fetch(WASM_URL), go.importObject).then(function(obj) {
-                wasm = obj.instance;
-                go.run(wasm);
-                func();
-            })
-        } else {
-            fetch(WASM_URL).then(resp =>
-                resp.arrayBuffer()
-            ).then(bytes =>
-                WebAssembly.instantiate(bytes, go.importObject).then(function(obj) {
-                    wasm = obj.instance;
-                    go.run(wasm);
-                    func();
-                })
-            )
-        }
+        const response = await fetch('e2e.wasm?v=1');
+        if (!response.ok) throw new Error(t("download.initialiseFailed"));
+        const obj = 'instantiateStreaming' in WebAssembly
+            ? await WebAssembly.instantiateStreaming(response, go.importObject)
+            : await WebAssembly.instantiate(await response.arrayBuffer(), go.importObject);
+        go.run(obj.instance).catch(displayError);
+        func();
     } catch (err) {
         displayError(err);
     }

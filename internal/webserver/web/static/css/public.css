@@ -1,0 +1,39 @@
+/* Public authentication, download and collection surfaces share the desktop shell. */
+body.public-shell { background: var(--ss-bg); color: var(--ss-text); font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; }
+body.public-shell::after { display: none; }
+.public-shell .public-layout { min-height: 100vh; max-width: 1440px; padding: 0 48px; }
+.public-header { min-height: 80px; display: flex; align-items: center; justify-content: space-between; gap: 32px; border-bottom: 1px solid var(--ss-border); }
+.public-header .workspace-brand { text-align: left; max-width: 70%; }
+.public-header .language-switch { flex-shrink: 0; margin: 0 !important; }
+.public-header .language-switch button { border-color: var(--ss-border); color: var(--ss-muted); padding: 7px 10px; }
+.public-header .language-switch [aria-pressed="true"] { background: #303947; color: white; }
+.public-main { display: flex; flex-direction: column; justify-content: center; flex: 1 0 auto; padding: 40px 0; }
+.public-shell .site-footer { padding: 24px 0 20px; font-size: 13px; color: var(--ss-muted) !important; }
+.public-panel { width: 100%; max-width: 480px; margin: 0 auto; padding: 32px; background: var(--ss-surface); border: 1px solid var(--ss-border); border-radius: var(--ss-radius); text-align: left; overflow-wrap: anywhere; }
+.public-panel-wide { max-width: 680px; }
+.public-panel h1 { font-size: 28px; line-height: 1.35; font-weight: 700; margin: 0 0 16px; }
+.public-panel p { line-height: 1.7; color: var(--ss-muted); }
+.public-panel .form-label { font-weight: 550; margin-bottom: 8px; }
+.public-panel .form-control { min-height: 44px; background: #1c2128; color: var(--ss-text); border-color: #687486; }
+.public-panel .form-control::placeholder { color: var(--ss-muted); opacity: 1; }
+.public-panel .form-control:disabled { background: #303947; color: var(--ss-muted); }
+.public-panel .form-control:focus { border-color: var(--ss-link); box-shadow: 0 0 0 3px #1677ff33; }
+.public-panel a { color: var(--ss-link); }
+.public-shell .btn-primary { background: var(--ss-primary); border-color: var(--ss-primary); border-radius: 8px; min-height: 44px; padding: 10px 22px; }
+.public-shell .btn-primary:hover { background: #0756bb; border-color: #0756bb; }
+.public-shell .modal-content { background: var(--ss-surface); border-color: var(--ss-border); text-align: left; border-radius: var(--ss-radius); }
+.public-form-error { margin: 16px 0; padding: 12px 14px; border: 1px solid #bb6470; background: #412b31; border-radius: 8px; color: #ffd3d8; }
+.public-secondary { margin: 24px 0 0; text-align: center; }
+.public-icon { display: block; color: var(--ss-link); font-size: 36px; margin-bottom: 20px; }
+.public-reasons { color: var(--ss-muted); line-height: 1.8; padding-left: 22px; }
+.public-download { max-width: 600px; text-align: center; }
+.public-download .filename-text { overflow-wrap: anywhere; }
+.download-art { display: block; width: 200px; height: 132px; object-fit: contain; margin: -8px auto 20px; }
+.download-metadata { display: flex; justify-content: space-between; gap: 24px; padding: 18px 0; margin: 24px 0; border-block: 1px solid var(--ss-border); }
+.download-metadata dt { color: var(--ss-muted); font-weight: 400; }
+.download-metadata dd { margin: 0; font-weight: 600; }
+.download-state { min-height: 24px; margin: 16px 0 0; font-size: 14px; }
+.download-actions { display: grid; gap: 8px; }
+.public-download .public-form-error { text-align: left; }
+.encryption-panel kbd { display: inline-block; max-width: 100%; white-space: normal; overflow-wrap: anywhere; padding: 10px; }
+@media (max-width: 800px) { .public-shell .public-layout { padding: 0 20px; } .public-panel { padding: 24px; } }
