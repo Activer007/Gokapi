@@ -1,0 +1,21 @@
+{
+  "master_at_start_and_freeze": "77b8fa2c729db05a5e2ae3434b50f02eda127def",
+  "base_reviewed_pr59_commit": "29367b5ebdf951bc013bbe14dd752f4b6f328396",
+  "base_archive_sha256": "fc0c88b6de3bf9d002c2e29a7fdfff096d22e0658e4b53e9c0e85eeb4488a86b",
+  "tested_code_commit": "9c18a42d834531290e426863486ad37e85f3f3e7",
+  "tested_code_archive_sha256": "54d1f3e661eccad143ad0204b23d4e61330983866ab3fd797162c200300f2332",
+  "toolchain": {"go":"go1.26.10 linux/amd64","cgo":"1","node":"v24.16.0"},
+  "changed_inputs_sha256": {
+    "internal/webserver/Webserver.go": "75d3dd5b6fba34d13f88e16f5f8d0d5195e28614576c49afbd7afbe04c471d21",
+    "internal/webserver/collection_initial_limits_test.go": "72120d2ba4219fd60053a8695e3be471668d040faa3220e73940c9f40cbe51cc",
+    "internal/webserver/api/collection_initial_policy_test.go": "7d171b532f45f526a7b8666763ef52f80e14b2b95dc8f570a27e4aa72b46d4fa",
+    "build/tests/ui-collections.test.cjs": "ac3e34418771b8cfaa649dc0bd70f8806dd5405de6fd8cf10b0c5bd64337207a"
+  },
+  "red": {"exit":1,"failing_leaf_cases":18,"passing_controls":78,"matrix_leaf_cases":96,"seconds":1.733},
+  "green": {"view_leaf_cases_per_iteration":96,"api_leaf_cases_per_iteration":27,"iterations":3,"all_pass":true},
+  "red_fixture": {"test_port_only":"127.0.0.1:53843 to 127.0.0.1:0","original_sha256":"6f1286a4ba60b51734f09f5a21c23a8dbe52e4f7342b4a3f292dc819efc8701f","adapted_sha256":"9cb6d53b805b1578503ee4515e5ac3ad64a1144c0a827d81a71aab300889adaa"},
+  "final_validation_fixture_port_changed": false,
+  "actions_enabled": false,
+  "ci_started": false,
+  "merged_or_released": false
+}

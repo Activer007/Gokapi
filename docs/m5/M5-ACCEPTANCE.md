@@ -1,6 +1,6 @@
 # M5 验收检查表
 
-当前 Goal 仅为 FIX-01。状态与命令以本包报告和精确代码提交为准；尚未执行不记 PASS，其他阶段不作为当前完成条件。
+保留各包已完成的验证与原始受测提交；本轮按用户授权依次合并 PR #60、#61，不重复运行未受影响的验证。
 
 ## FIX-01
 
@@ -15,10 +15,21 @@
 | 重复删除/清理/陈旧快照不误退休、不重复退款 | provider SEC040/041、SEC041 重复 candidate、post-delete 第三次 GC | PASS（本地） |
 | 真实 I/O 失败保留锚点，恢复/重启可重试 | `TestSEC040CleanupRestart`、Redis retirement retry、post-delete 双 provider 恢复闭环 | PASS（本地） |
 | RED/GREEN、目标 30 次、要求的 race 与全仓 integration、相关 noaws/awsmock/安全测试 | [FIX-01 报告](FIX-01-REPORT.md) | PASS（本地） |
-| 无 production/API/schema/权限/密文变更；生成资产无漂移；独立 review | 差异与生成 guard，[PR #59](https://github.com/Activer007/SupaShare/pull/59) 最新 head review | 本地 PASS；远端结果以 PR 对应 SHA 摘要为准 |
+| 无 production/API/schema/权限/密文变更；生成资产无漂移；独立 review | 差异与生成 guard，[PR #59](https://github.com/Activer007/SupaShare/pull/59) 最新 head review | PASS；PR #59 已合并 |
+
+## FIX-02
+
+| 不变量 / Gate | 直接证据 | 当前状态 |
+| --- | --- | --- |
+| 创建额度不依赖可见收集；空库、过滤后为空及孤儿行都正确 | `TestCollectionInitialLimits`：实际 view → template，SQLite/miniredis × 四种上限 × 四种列表 × 三种角色，共 96 组 | PASS（本地）；旧实现 18 组 RED |
+| 普通用户正确获得每项上限；0 独立关闭该项；管理员/超管仍豁免 guest cap | 同一矩阵、首次表单 Node 合同、真实 Chrome 三角色 | PASS（本地） |
+| 首次普通用户创建成功，刷新后可见，五天/一次默认值保持 | Node 默认值合同验证五天/一次；Chrome 空列表 → 新建 → API 200，7 文件/13MB、一次；刷新仍 1 行 | PASS（Node + Chrome/loopback） |
+| 不能通过省略、0 或超 guest cap 的新建值绕过限制 | `TestCollectionInitialPolicyAPI`，27 个真实 handler 用例，拒绝不新增 FR/key；成功保持 owner/凭证绑定 | PASS（本地） |
+| 生成资源一致；相关回归/race/awsmock、全仓 noaws、默认/noaws build | [FIX-02 报告](FIX-02-REPORT.md) 与结果清单 | PASS（本地） |
+| 独立 PR 与最新 head 自动 review | [PR #60](https://github.com/Activer007/SupaShare/pull/60)，不借用 PR #59 的审查 | 以该 PR 最新 head 的实际摘要为准 |
 
 ## 当前收口边界
 
-当前仅核对上表的 FIX-01 八项不变量、指定回归、报告及 PR #59 最新 head 的自动 review。FIX-02、FIX-03、REL-01 的历史分支/证据保留，但不继续执行，也不借用其结果证明 FIX-01。
+FIX-01 已通过 PR #59 合并。FIX-02、FIX-03 的审查分别对应 `831d088`、`793613e`，均 completed/no findings；本轮仅处理合入 master 所需的文档冲突，按顺序合并 PR #60、#61。合并后的状态以各 PR 为准。
 
-真实 Redis/S3 持久化、断电、安装升级、整站备份恢复/回滚及发布候选准备均不属于本包验证范围；不从 miniredis/loopback/进程退出推定这些项目通过。FIX-01 交付完成后停止自动续作，后续阶段等待用户明确指示；本包通过不表示全部 M5 完成或已经合并。Actions 保持关闭，不自动合并、发布或部署。
+REL-01 继续延期，保留已有改动和证据；不将真实 Redis/S3、断电、安装升级、备份恢复或发布候选演练记为本轮通过。GitHub Actions 保持关闭，不发布 Release/tag/镜像或部署。
