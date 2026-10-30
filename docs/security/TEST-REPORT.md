@@ -14,7 +14,15 @@
 | 最小补头/Report-Only后，`go test -p=1 ./internal/webserver ./internal/webserver/headers -count=1 -tags='test,noaws' -run '^TestSEC050\|^TestPostUpload$\|^TestWriteDownloadHeaders$' -timeout=90s -v` | 整体FAIL21.347s：所有新策略/资源/原writer/既有sandbox断言PASS；原上传固定ID因Windows残留SQLite状态409，不能报整组PASS |
 | 全新811376b完整归档+逐文件当前overlay，保留原现场，仅`go test -p=1 ./internal/webserver -count=1 -tags='test,noaws' -run '^TestPostUpload$' -timeout=60s -v` | PASS40.744s；真实初始/完成SSE及时Flush、实际上传完成与新头均通过。原有RemoveAll忽略Windows打开SQLite删除错误的限制不在本PR重构 |
 
-Report-Only浏览器观察及逐页base/object强制仍待执行；初始脚本限制不会强制，不以策略头证明无XSS。最终全仓/相关race尚NOT_RUN，冻结后仅一次既有CI。
+Report-Only候选a084231/tree724cabd已固定：独立完整archive SHA256 DD7E6E8CD8EB6A9A012DB11E274697A5171D7BEB9976ABDF545883340F009C31；1495tracked输入按raw或Git换行规范逐一对齐，两个既有WASM相关输入未变，复用产物而未重复generate。helper实际 `go build -mod=readonly -p=1 -tags=noaws -o server.exe .` PASS20.367s，构建前后1497项未变。
+真实Chrome观察登录/下载/错误页，CDP实际响应显示精确Report-Only且无强制头；捕获6项现有inline脚本/handler策略信息，语言切换成功，正常73B附件原生完成且SHA256一致（Chrome因同名已有文件保存为`synthetic-normal (1).png`，不是产品改名）。未注入JS、替换页面或配置报告端点；浏览器等待语言控件的role selector第一次未匹配，经新AX观察后以实际控件完成，非产品失败。显式stop后drained=true、三份源/metadata保持。
+
+| 观察后实际命令 | 结果 |
+| --- | --- |
+| 仅增加选定页面强制策略断言，`go test -p=1 ./internal/webserver -count=1 -tags='test,noaws' -run '^TestSEC050PagePolicy$' -timeout=60s -v` | RED29.260s；login/download/error缺强制base/object，forgotpw仍PASS |
+| 加最小按页面switch后，`go test -p=1 ./internal/webserver -count=1 -tags='test,noaws' -run '^TestSEC050PagePolicy$\|^TestUIPublicPages$' -timeout=60s -v` | GREEN16.918s；三类基础策略强制，其他页及脚本保持Report-Only，原公开页面输出不变 |
+
+最终浏览器/全仓/新增定向race尚NOT_RUN，冻结后仅一次既有CI。脚本观察不计严格XSS防线；主应用路由与独立setup维护服务器不混称，S3最终头不继承。
 
 ## M4：SEC-051最小响应隔离（2026-10-30，开发中）
 

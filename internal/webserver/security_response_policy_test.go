@@ -108,7 +108,7 @@ func TestSEC050ArtifactResponseHeaders(t *testing.T) {
 	}
 }
 
-func TestSEC050PageReportOnly(t *testing.T) {
+func TestSEC050PagePolicy(t *testing.T) {
 	for _, tc := range []struct {
 		name, content string
 		view          interface{ setUI(pageUI) }
@@ -130,8 +130,12 @@ func TestSEC050PageReportOnly(t *testing.T) {
 			if response.Header().Get("Content-Security-Policy-Report-Only") != sec050ReportOnlyPolicy {
 				t.Error("page CSP observation policy missing or changed")
 			}
-			if response.Header().Get("Content-Security-Policy") != "" {
-				t.Error("page CSP must be observed before enforcement")
+			wantEnforced := ""
+			if tc.name == "login" || tc.name == "download" || tc.name == "error" {
+				wantEnforced = "base-uri 'self'; object-src 'none'"
+			}
+			if response.Header().Get("Content-Security-Policy") != wantEnforced {
+				t.Error("staged page CSP missing or applied to another page")
 			}
 		})
 	}

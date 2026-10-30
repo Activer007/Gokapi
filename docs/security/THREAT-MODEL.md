@@ -32,6 +32,7 @@ metadata是删除重试锚点；未确认探测/删除/引用/退休时不报告
 
 SEC-050不变量（811376b开始）：通用nosniff/no-referrer在最外层、状态写出前设置，原ResponseWriter直传，保留Flusher等流式能力；S3对象不继承这些头。
 页面CSP只在renderPage设置，先Report-Only观察；不覆盖文件inline的强制sandbox，不对静态StreamSaver iframe全站施加框架/嵌入禁令。脚本策略不直接强制，禁止加入会向外部报告私密URL的report端点或样本。
+在a084231真实Chrome观察后，只对login/download/error强制base-uri self/object-src none；其他页面及所有脚本限制继续Report-Only。不设置全局frame-ancestors/COOP/COEP/HSTS，保留当前部署与StreamSaver边界。自定义脚本插入base或object须服从页面策略，默认页面兼容不推定任意插件兼容。
 
 应用控制的文件与ZIP响应须明确nosniff，保留现有声明MIME、attachment/inline、解码后文件名及精确内容；inline原有强制sandbox不得被Report-Only替代。
 nosniff不是上传内容校验，也不能单独证明无XSS。真实上传/浏览器执行origin须独立验证，字符串头合同不作替代。

@@ -89,6 +89,6 @@ func renderPage(w http.ResponseWriter, r *http.Request, name string, view interf
 		FooterText: settings.FooterText, FooterLinks: settings.FooterLinks})
 	addNoCacheHeader(w)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Header().Set("Content-Security-Policy-Report-Only", pageReportOnlyPolicy)
+	addPageResponsePolicy(w, name)
 	return templateFolder.ExecuteTemplate(w, name, view)
 }

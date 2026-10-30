@@ -5,6 +5,7 @@
 ## 当前M4：可靠删除与下载内容边界
 
 SEC-050开始：自有PR52已合并811376bdcaa895b0dcb427de112640fa95c1a691，fetch后新分支codex/sec-050-response-policy、初始干净；Go1.26.10 windows/amd64。CONFIRMED_CODE：现有通用handler未统一nosniff/no-referrer，renderPage未设页面CSP；具体影响及兼容继续VALIDATE，先最小策略RED。上游Forceu/Gokapi PR418/419仍open/unmerged。
+当前候选已完成策略RED→相关响应/资源/sandbox GREEN；原SSE上传在Windows遗留SQLite现场失败，保留现场后全新副本补测GREEN。a084231真实Chrome完成Report-Only观察及正常下载/语言切换；随后仅三类页面基础策略RED→GREEN，脚本继续观察。最终浏览器与CI仍待，缺头或观察信息不定性XSS。
 
 SEC-051续作（2026-10-30）：基线1e5d80a31acd626d3c7991561a8681459c062acc（PR51已合并），fetch后自有主线一致、初始干净，Go1.26.10 windows/amd64；分支codex/sec-051-download-boundaries。
 CONFIRMED_CODE：应用控制的文件/ZIP响应未给出nosniff；三个新增头不变量断言得到策略RED（exit1/10.188s），不是XSS漏洞复现。仅两处响应写出补头后同命令GREEN（exit0/9.593s）；不改变MIME、文件名、Disposition或inline sandbox。
