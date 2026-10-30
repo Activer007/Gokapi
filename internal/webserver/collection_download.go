@@ -47,7 +47,7 @@ func collectionRetryCookie(id string) string {
 }
 
 func serveCollectionPresign(w http.ResponseWriter, r *http.Request, grant models.Presign, files []models.File, actor models.User) {
-	if !storage.ValidateManagementRange(r, files) {
+	if !storage.ValidateManagementRange(r, files, grant.IsArchive()) {
 		http.Error(w, "Invalid download range", http.StatusRequestedRangeNotSatisfiable)
 		return
 	}
@@ -60,7 +60,9 @@ func serveCollectionPresign(w http.ResponseWriter, r *http.Request, grant models
 		responseError(w, storage.ErrorInvalidPresign)
 		return
 	}
-	download, err := storage.PrepareManagementDownload(r.Context(), files, actor.Id, false, r.Method != http.MethodHead)
+	download, err := storage.PrepareManagementDownload(r.Context(), files, actor.Id, storage.ManagementDownloadOptions{
+		Count: r.Method != http.MethodHead, Archive: grant.IsArchive(),
+	})
 	if err != nil {
 		responseError(w, storage.ErrorFileNotFound)
 		return
@@ -143,7 +145,7 @@ func tryCollectionRetry(w http.ResponseWriter, r *http.Request, id string) bool 
 			return true
 		}
 	}
-	if !storage.ValidateManagementRange(r, lease.download.Files) {
+	if !storage.ValidateManagementRange(r, lease.download.Files, lease.grant.IsArchive()) {
 		http.Error(w, "Invalid download range", http.StatusRequestedRangeNotSatisfiable)
 		return true
 	}
@@ -154,7 +156,9 @@ func tryCollectionRetry(w http.ResponseWriter, r *http.Request, id string) bool 
 	// Serialize admissions, not the actual streams: a role downgrade may need
 	// to charge this grant once, while several Range retries arrive together.
 	lease.mu.Lock()
-	download, err := storage.PrepareManagementDownload(r.Context(), lease.download.Files, actor.Id, lease.charged, r.Method != http.MethodHead)
+	download, err := storage.PrepareManagementDownload(r.Context(), lease.download.Files, actor.Id, storage.ManagementDownloadOptions{
+		RetryCharged: lease.charged, Count: r.Method != http.MethodHead, Archive: lease.grant.IsArchive(),
+	})
 	if err == nil {
 		lease.charged = download.Charged
 	}
