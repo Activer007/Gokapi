@@ -451,7 +451,16 @@ function createFileRequestRow(jsonResult, user) {
 
 function prepareFileRequestRow(row) {
     const download = row.querySelector('[id^="download-"]');
-    if (download) bindRequestDownload(download, (download.dataset.fileIds || '').split(',').filter(Boolean), download.dataset.recordName || '');
+    if (download) {
+        // Saved responses still include exhausted files until cleanup. Keep
+        // their exclusions when replacing a row after any collection edit.
+        const ids = (download.dataset.fileIds || '').split(',').filter(id => {
+            if (!id) return false;
+            const remaining = document.getElementById(`cell-downloadsRemaining-${id}`)?.dataset.remaining;
+            return remaining === undefined || Number(remaining) !== 0;
+        });
+        bindRequestDownload(download, ids, download.dataset.recordName || '');
+    }
     const copy = row.querySelector('.copyurl');
     if (copy) { copy.textContent = t('common.copyLink'); copy.setAttribute('aria-label', t('common.copyLink')); }
     const actions = row.querySelector('.btn-group');

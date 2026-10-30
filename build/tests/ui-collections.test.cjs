@@ -40,6 +40,39 @@ test('collection count and empty state follow creation and deletion',()=>{
     assert.equal(elements.requestTableWrap.hidden,false);
 });
 
+test('rebuilt collection download buttons retain exhausted-file exclusions after an edit',()=>{
+    const cells={
+        'cell-downloadsRemaining-spent':{dataset:{remaining:'0'}},
+        'cell-downloadsRemaining-ready':{dataset:{remaining:'2'}},
+        'cell-downloadsRemaining-legacy':{dataset:{remaining:'-1'}},
+    };
+    const calls=[];
+    const context=vm.createContext({document:{getElementById:id=>cells[id]},
+        downloadFilesZipWithPresign:(...args)=>calls.push(['zip',...args]),
+        downloadFileWithPresign:id=>calls.push(['file',id])});
+    vm.runInContext(source,context);
+    for (const [ids,expected] of [
+        [['spent','ready','legacy','new-file'],['ready','legacy','new-file']],
+        [['spent','ready'],['ready']],
+        [['spent'],[]],
+    ]) {
+        // createFileRequestRow binds the API response's complete fileidlist,
+        // then prepares the replacement while its existing file list remains.
+        const button={dataset:{},classList:{toggle(){}},removeAttribute(){}};
+        context.bindRequestDownload(button,ids,'Renamed collection');
+        const row={querySelector:selector=>selector==='[id^="download-"]'?button:null};
+        context.prepareFileRequestRow(row);
+        assert.equal(button.dataset.fileIds,expected.join(','));
+        assert.equal(button.disabled,expected.length===0);
+        if (expected.length===0) {
+            assert.equal(button.onclick,null);
+        } else {
+            button.onclick();
+            assert.deepEqual(calls.at(-1),expected.length===1?['file',expected[0]]:['zip',expected.join(','),'Renamed collection']);
+        }
+    }
+});
+
 test('failed collection and received-file deletions allow retry',async()=>{
     const buttons={deleteRequest:{disabled:false},deleteFile:{disabled:false}};
     const context=vm.createContext({document:{getElementById:id=>id==='delete-r'?buttons.deleteRequest:id==='button-delete-f'?buttons.deleteFile:{}},
