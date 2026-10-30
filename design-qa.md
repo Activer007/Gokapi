@@ -2,7 +2,7 @@
 
 final result: passed
 
-Scope: B1 workspace, B2 collection and B3 administration visual validation only. This is not acceptance of the full B0–B6 upgrade.
+Scope: B1 workspace, B2 collection, B3 administration and B4 public-page visual validation only. This is not acceptance of the full B0–B6 upgrade.
 
 Source: `docs/images/ui-concepts/ui-enhanced-compact.png`, 1586×992 pixels.
 Implementation: `docs/images/ui-upgrade/foundation-zh.jpg`, 1586×992 pixels, CSS viewport 1586×992, devicePixelRatio 1. Source and final implementation were displayed together in the same comparison tool result on 2026-10-29, without resizing or browser chrome. Original iteration captures remain under `local-ui.secret/ui-upgrade/foundation/`.
@@ -58,3 +58,15 @@ The selected concept and final users/API/status captures were displayed together
 - Six status cards form one row on wide screens and two rows at 1280px. Log controls wrap without page-level horizontal overflow; longer logs use normal vertical page scrolling.
 - Explicit status confirmation dialogs match other administration dialogs, retain error feedback and restore focus on close. Final cancel verification leaves logs and traffic untouched.
 - No remaining P0/P1/P2 visual issue observed in these B3 surfaces. First-login, public authentication/download pages and complete acceptance continue in B4–B6.
+
+## B4 public-page adaptation
+
+Final result for B4 visual scope: passed.
+
+The selected concept and download capture were displayed together at 1586×992, DPR 1; login and existing-key unlock captures were inspected at the same dimensions. These flows use centered task panels rather than reproducing an authenticated file table. The top brand/language row, charcoal surfaces, blue actions and folder artwork retain the selected visual language.
+
+- Persistent labels, 44px fields/actions, readable helper/error text and one primary action make authentication and download steps clear. Filename and longer error text wrap inside bounded panels.
+- English first-login at 1280×720 keeps all fields, submit action and footer visible. Public collection shell remains 960px wide at 1586×992 with no horizontal page overflow.
+- Fixed P2/functionality: asynchronous WASM errors could leave loading controls indefinitely; download-password submission accessed a missing button; undefined transfer errors caused a second exception. Final error paths provide feedback without announcing completion, and hide the unavailable transfer action.
+- Real encrypted content, bad-cipher failure and recovery were verified in Chrome. Chrome screenshot scaling is not used as matched-reference evidence; the in-app captures provide visual comparison.
+- No remaining P0/P1/P2 visual issue observed in these B4 surfaces. Installation and full-site keyboard/zoom/regression acceptance remain pending.

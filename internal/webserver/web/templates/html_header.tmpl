@@ -45,7 +45,7 @@
          <script src="./js/min/end2end_download.min.{{ template "js_e2eversion"}}.js"></script>
 {{end}}
   </head>
-  <body class="d-flex h-100 text-center text-white bg-dark {{if .IsAdminView}}admin-shell{{end}}">
+  <body class="d-flex h-100 text-center text-white bg-dark {{if .IsAdminView}}admin-shell{{else}}public-shell{{end}}">
 {{ if .IsAdminView }}
   <div class="d-flex w-100 min-vh-100 p-3 mx-auto flex-column admin-layout">
       <header class="masthead workspace-header">
@@ -82,14 +82,11 @@
   {{template "clipboard_fallback" .UI}}
   <main class="workspace-main">
 {{ else }}
-  <div class="d-flex w-100 h-100 p-3 mx-auto flex-column">
-  <header class="mb-auto">
-    <div>
-      <h1><a href="/index" style="text-decoration: none;display: block;">{{.PublicName}}</a></h1>
-          {{template "language_switch" .UI}}
-    </div>
-  </header>
-  <main>
+  <div class="d-flex w-100 mx-auto flex-column public-layout">
+    <header class="public-header">
+      <a class="workspace-brand" href="./index">{{.PublicName}}</a>
+      {{template "language_switch" .UI}}
+    </header>
+    <main class="public-main">
 {{ end }}
 {{end}}
-

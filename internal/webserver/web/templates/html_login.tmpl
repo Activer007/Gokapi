@@ -1,51 +1,24 @@
-{{define "login"}}{{ template "header" . }} 
-      <div class="row">
-        <div class="col">
-		<div id="container" class="card" style="width: 20em">
-		  <div class="card-body">
-		    <h1 class="card-title">{{.UI.T "page.login"}}</h1>
-		    <br>
-		    <p class="card-text">
-			<form method="post" action="./login" id="form" name="form" onSubmit="submitForm()">
-			    <div class="mb-3">
-				<label class="form-label d-block text-start" for="username">{{.UI.T "login.username"}}</label>
-				<input type="text" class="form-control mx-auto" style="max-width: 300px;" 
-				       autocomplete="username" placeholder="{{.UI.T "login.username"}}" value="{{.User}}" id="username">
-				<input type="hidden" id="uname_hidden" name="username">
-			    </div>
-
-			    <div class="mb-3">
-				<label class="form-label d-block text-start" for="password">{{.UI.T "login.password"}}</label>
-				<input type="password" class="form-control mx-auto" style="max-width: 300px;" 
-				       autocomplete="current-password" placeholder="{{.UI.T "login.password"}}" id="password">
-				<input type="hidden" id="pw_hidden" name="password">
-			    </div>
-
-{{ if .IsFailedLogin }}
-	{{ if .IsFailedCsfr }}
-			    <div class="mb-3">
-				<span class="text-danger">{{.UI.T "login.expired"}}</span>
-			    </div>
-	{{ else }}
-			    <div class="mb-3">
-				<span class="text-danger">{{.UI.T "login.invalid"}}</span>
-			    </div>
-	{{ end }}
-{{ end }}
-
-			    <div class="mt-4">
-				<button type="submit" id="submitbutton" class="btn btn-primary w-100 mx-auto" style="max-width: 300px;">
-				    {{.UI.T "page.login"}}
-				</button>
-			    </div>
-				<input type="hidden" id="csrf-token" name="csrf-token" value="{{.CsrfToken}}">
-			</form>
-			<br><br>
-			<a href="./forgotpw">{{.UI.T "login.forgot"}}</a></p>
-		  </div>
-		</div>
-	    </div>
-   	 </div>
+{{define "login"}}{{template "header" .}}
+<section id="container" class="public-panel" aria-labelledby="loginTitle">
+  <h1 id="loginTitle">{{.UI.T "page.login"}}</h1>
+  <p>{{.UI.T "login.help"}}</p>
+  <form method="post" action="./login" id="form" name="form" onsubmit="return submitForm()">
+    <div class="mb-3">
+      <label class="form-label" for="username">{{.UI.T "login.username"}}</label>
+      <input type="text" class="form-control" autocomplete="username" value="{{.User}}" id="username" required>
+      <input type="hidden" id="uname_hidden" name="username">
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="password">{{.UI.T "login.password"}}</label>
+      <input type="password" class="form-control" autocomplete="current-password" id="password" required>
+      <input type="hidden" id="pw_hidden" name="password">
+    </div>
+    {{if .IsFailedLogin}}<div class="public-form-error" role="alert">{{if .IsFailedCsfr}}{{.UI.T "login.expired"}}{{else}}{{.UI.T "login.invalid"}}{{end}}</div>{{end}}
+    <button type="submit" id="submitbutton" class="btn btn-primary w-100 mt-2">{{.UI.T "page.login"}}</button>
+    <input type="hidden" id="csrf-token" name="csrf-token" value="{{.CsrfToken}}">
+  </form>
+  <p class="public-secondary"><a href="./forgotpw">{{.UI.T "login.forgot"}}</a></p>
+</section>
 <script>
 function submitForm(){
 	document.getElementById("username").disabled = true;

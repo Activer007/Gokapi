@@ -34,7 +34,7 @@ Limitations: 720×450 tests effective narrow desktop layout; actual browser zoom
 Delivered as PR #45: https://github.com/Activer007/SupaShare/pull/45. Final head `41c4ef3` passed GitHub CI. After explicit user confirmation, merged into master as `b7a5f85`. CI annotations concern runner/action runtime migrations, not test failures. The full B0–B6 upgrade is not complete.
 
 
-## Collections batch — PR #46, awaiting merge approval
+## Collections batch — merged
 
 Branch: `codex/ui-upgrade-collections`, based on merged B1 `b7a5f85`.
 
@@ -54,9 +54,9 @@ Validation:
 
 Scope limits: collection expiry/active-reservation concurrency and exhaustive network failure behavior retain existing automated coverage and remain part of B6 cross-page regression. Public error-page styling belongs to B4. No full-site acceptance or version increment is claimed.
 
-Delivered as PR #46: https://github.com/Activer007/SupaShare/pull/46. Head `f8563e1` passed GitHub CI. Automatic approval review required separate user confirmation for this merge; the request remains pending. PR #45's authorization was not extended to this PR.
+Delivered as PR #46: https://github.com/Activer007/SupaShare/pull/46. Head `f8563e1` passed GitHub CI. After separate explicit user authorization, merged as `ad82481`.
 
-## Administration batch — locally verified
+## Administration batch — merged
 
 Branch: `codex/ui-upgrade-management`, based on B2 `f8563e1`.
 
@@ -74,3 +74,22 @@ Validation on 2026-10-30:
 - Screenshots: `docs/images/ui-upgrade/users-zh.jpg`, `api-zh.jpg`, `status-zh.jpg`; additional synthetic evidence in `local-ui.secret/ui-upgrade/management/`.
 
 Limitations: the generated-password browser login attempt was inconclusive and is not accepted as first-login coverage; B4 will use a known disposable forced-reset fixture to inspect that gate. API empty-state browser coverage and full-site regression remain pending. Version remains 2.11.0.
+
+Delivered as PR #47: https://github.com/Activer007/SupaShare/pull/47. Head `96418bd` passed CI, was retargeted to master after #46, and was merged with explicit user authorization as `ef690e8`.
+
+## Public pages and encryption — verified, preparing PR
+
+- Login, password change/recovery, download/password challenge, errors and encryption setup share a bounded charcoal panel, labelled fields, clear actions and the common public header/footer. Collection pages reuse the same shell and retain their 960px content width. Old public-only overrides were removed.
+- Password challenge now has the submit-button ID its script accesses. Mismatched password submission displays feedback and focuses confirmation. Existing POST fields, CSRF, password/session rules, redirects and custom-resource ordering remain.
+- Normal downloads use native file links. WASM initialization awaits asynchronous failures; encrypted transfer failures handle empty rejection reasons, abort output and clear completion feedback. Download errors explain recovery through the original share link. The existing external HTTP helper address is unchanged.
+
+Validation on 2026-10-30:
+
+- Native Linux generation, 40 Node tests and i18n/webserver Go tests passed. The final native-link template refinement passed all 40 Node tests plus `go test ./internal/webserver -tags=test,noaws -run 'TestUI|TestSEC012PasswordChangeRevokesSessions' -count=1`. The final collection-width-only refinement was regenerated and visually verified.
+- Browser: incorrect login, preserved username, known forced-reset fixture redirected to password change; incorrect/correct download password; missing-key error; existing E2E key unlock; real E2E paste upload and decrypted dynamic filename/link. Password mutation itself is covered by Go/Node tests, not claimed as a browser submission.
+- Normal downloaded file: all 3,430 bytes match the original. Chrome WASM + local service-worker download: all 221,184 bytes match, SHA-256 `e6d7e87d2542d0864a03b5a06bbd2768b3aa5739175f3b76ce8ee0ae1a1d548d`. Wrong cipher shows authentication failure, and reopening the original link recovers an identical file. Actual browser E2E upload/share/download round trip matches all 54 original UTF-8 bytes.
+- The in-app browser blocked ordinary scripted download navigation and aborted stream saving; normal native-link saving and Chrome were used for final file checks. Chrome is an allowed Product Design fallback when the in-app browser is blocked. The local-worker test uses loopback's secure context and a disposable fixture with an HTTPS public URL loaded into configuration; it is not an actual TLS/deployment test. Earlier previews that changed the URL without reloading still selected the external helper and are not counted as local-worker checks.
+- Actual full comparison captures: Chinese login/download/encryption unlock and public collection shell at CSS 1586×992, DPR 1; English first-login page at 1280×720. Missing-key page was inspected at 1280×720. Chrome completion DOM and files passed; its viewport screenshot scaling limitation is not counted as a pixel-matched comparison. Final successful encrypted download had no captured warning/error.
+- Screenshots: `docs/images/ui-upgrade/login-zh.jpg`, `download-zh.jpg`, `encryption-unlock-zh.jpg`. Detailed synthetic evidence and byte-verification scripts remain under `local-ui.secret/ui-upgrade/`.
+
+Limits: no production HTTPS/ServerURL/Docker changes, no external-helper migration, no version increment. External helper availability, initial key-generation backup flow, API empty state and remaining global checks continue in B5–B6. A Chrome clipboard probe did not observe the page's write through the automation clipboard; only the success feedback and correct decrypted link binding are accepted from that check.

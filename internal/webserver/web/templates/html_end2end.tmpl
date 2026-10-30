@@ -8,28 +8,19 @@
 
 	
 {{ if not .HasBeenSetup }}	
-      <div class="row">
-        <div class="col">
-		<div class="card" style="width: 50%;">
-		  <div class="card-body">
-            <h2 class="card-title">{{$.UI.T "e2e.title"}}</h2>
-		    <br><br>
-            <p class="card-text">{{$.UI.T "e2e.password"}}<br>
-            <b><kbd id="decryptionpw">{{$.UI.T "e2e.generating"}}</kbd></b> <button type="button" id="downpw" class="btn btn-outline-light btn-sm" disabled><i class="bi bi-download"></i></button></p>
-			<div id="errordiv" style="display:none">
-				<span id="errormessage" style="color:red"></span>
-				<br>
-				<br>
-			</div>
-            <b>{{$.UI.T "e2e.backup"}}</b>
-            <br><br>{{$.UI.T "e2e.resetHelp"}}
-            <br><br><button type="button" id="genbutton" class="btn btn-light" disabled onclick="window.location='./admin';">{{$.UI.T "common.continue"}}</button>
-		    </div>
-		  </div>
-		</div>
-	    </div>
-	    
-    
+<section class="public-panel public-panel-wide encryption-panel" aria-labelledby="encryptionTitle">
+  <i class="bi bi-shield-lock public-icon" aria-hidden="true"></i>
+  <h1 id="encryptionTitle">{{$.UI.T "e2e.title"}}</h1>
+  <p>{{$.UI.T "e2e.password"}}</p>
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <kbd id="decryptionpw">{{$.UI.T "e2e.generating"}}</kbd>
+    <button type="button" id="downpw" class="btn btn-outline-light flex-shrink-0" aria-label="{{$.UI.T "common.download"}}" disabled><i class="bi bi-download" aria-hidden="true"></i></button>
+  </div>
+  <div id="errordiv" class="public-form-error" role="alert" style="display:none"><span id="errormessage"></span></div>
+  <p><strong>{{$.UI.T "e2e.backup"}}</strong></p>
+  <p>{{$.UI.T "e2e.resetHelp"}}</p>
+  <button type="button" id="genbutton" class="btn btn-primary" disabled onclick="window.location='./admin';">{{$.UI.T "common.continue"}}</button>
+</section>
     <script>
 	function downloadKey(key) {
 	    const uInt8 = new TextEncoder().encode(key)
@@ -93,28 +84,15 @@ function newKey() {
     </script>
     
 {{ else }}	    
-      <div class="row">
-        <div class="col">
-		<div class="card" style="width: 50%;">
-		  <div class="card-body">
-            <h2 class="card-title">{{$.UI.T "e2e.title"}}</h2>
-		    <br><br>
-            <p class="card-text">{{$.UI.T "e2e.enterHelp"}}</p>
-		      <div class="mb-3"><br>
-    			<input type="password" class="form-control" id="password" name="password">
-			<div id="errordiv" style="display:none">
-				<br>
-				<span id="errormessage" style="color:red"></span>
-				<br>
-			</div>
-            <br><br><button type="button" id="enterpwbutton" class="btn btn-light" onclick="saveKey()" disabled>{{$.UI.T "common.save"}}</button>
-  			</div>
-		  </div>
-		</div>
-	    </div>
-    </div>
-    
-    
+<section class="public-panel public-panel-wide encryption-panel" aria-labelledby="encryptionTitle">
+  <i class="bi bi-shield-lock public-icon" aria-hidden="true"></i>
+  <h1 id="encryptionTitle">{{$.UI.T "e2e.title"}}</h1>
+  <p>{{$.UI.T "e2e.enterHelp"}}</p>
+  <label for="password" class="form-label">{{$.UI.T "download.enterPassword"}}</label>
+  <input type="password" class="form-control" id="password" name="password" autocomplete="off">
+  <div id="errordiv" class="public-form-error" role="alert" style="display:none"><span id="errormessage"></span></div>
+  <button type="button" id="enterpwbutton" class="btn btn-primary mt-4" onclick="saveKey()" disabled>{{$.UI.T "common.save"}}</button>
+</section>
     <script>
 	function saveKey() {
 	    localStorage.removeItem("e2ekey");
