@@ -1,0 +1,47 @@
+{
+  "browser_plugin": "absent",
+  "fallback": "existing Playwright/Chrome",
+  "viewports": [
+    [
+      1440,
+      1000
+    ],
+    [
+      700,
+      950
+    ]
+  ],
+  "red": {
+    "normal_limits": [
+      0,
+      0
+    ],
+    "save": {
+      "status": 400,
+      "errorCode": 3
+    },
+    "created_rows": 0,
+    "expected_console_errors": 2
+  },
+  "green": {
+    "normal_limits": [
+      7,
+      13
+    ],
+    "save": {
+      "status": 200,
+      "maxfiles": 7,
+      "maxsize": 13,
+      "downloads": 1
+    },
+    "created_rows": 1,
+    "reload_retained": true,
+    "no_horizontal_overflow": true,
+    "errors": [],
+    "admin_and_superadmin_limits": [
+      0,
+      0
+    ]
+  },
+  "preview_processes_finished": true
+}

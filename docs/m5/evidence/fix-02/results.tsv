@@ -1,0 +1,10 @@
+name	exit	seconds	command
+generate	0	2	go generate ./...
+generate-drift	0	0	git diff --exit-code
+targets	0	5	go test ./internal/webserver ./internal/webserver/api -tags=test\,noaws -run \^TestCollectionInitial\(Limits\|PolicyAPI\)\$ -count=3 -timeout=180s -v
+related-race	0	9	go test -race ./internal/webserver ./internal/webserver/api ./internal/storage/filerequest ./internal/environment ./internal/uploadquota ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -tags=test\,noaws -run TestCollectionInitial\|TestCollectionPolicyDefaultsAndUpdates\|TestSEC030Request\(Environment\|Policy\)\|TestSEC031UploadSizeSemantics\|TestUIUploadManagementContexts -count=1 -timeout=180s
+full-noaws	0	84	go test ./... -tags=test\,noaws -count=1 -timeout=300s
+related-awsmock	0	3	go test ./internal/webserver ./internal/webserver/api ./internal/storage/filerequest ./internal/configuration/database/provider/sqlite ./internal/configuration/database/provider/redis -tags=test\,awsmock -run TestCollectionInitial\|TestCollectionPolicyDefaultsAndUpdates\|TestSEC030RequestPolicy\|TestUIUploadManagementContexts -count=1 -timeout=180s
+build-default	0	1	go build -o /home/activer/codex-validation/m5-fix-02/final/server-default ./cmd/supashare
+build-noaws	0	1	go build -tags=noaws -o /home/activer/codex-validation/m5-fix-02/final/server-noaws ./cmd/supashare
+input-audit	0	2	sha256sum -c /mnt/c/Users/10747/.codex/visualizations/2026/10/30/01a18b05-a819-78a1-8cb6-a36026bc4840/m5-fix-02/final/inputs.sha256

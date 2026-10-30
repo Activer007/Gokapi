@@ -1,0 +1,29 @@
+M5-FIX-02 deterministic business RED
+baseline: 29367b5ebdf951bc013bbe14dd752f4b6f328396
+overlay: internal/webserver/collection_initial_limits_test.go
+private fixture adaptation only: both testconfig loopback ports 53843 -> 0
+command: go test ./internal/webserver -count=1 -tags=test,noaws -run '^TestCollectionInitialLimits$' -timeout=90s -v
+Go: go1.26.10 linux/amd64
+exit: 1; package: 1.733s
+
+Actual failures (both sqlite/miniredis):
+  finite, files-unlimited, size-unlimited
+  x empty, other-owner-invisible, orphan-owner
+  x ordinary user
+  = 18 failing leaf cases, 78 passing controls, 96 total
+
+Representative assertion from actual view and actual template:
+  FIRST_COLLECTION_POLICY: view limits=0/0, want 7/11 independently of visible collections
+  FIRST_COLLECTION_POLICY: rendered limitMaxFiles=0, want 7
+  FIRST_COLLECTION_POLICY: rendered limitMaxSize=0, want 11
+
+Chrome RED independently confirmed the user-visible failure:
+  normal account, empty list and fresh browser preferences
+  limitMaxFiles/Size=0/0; first save HTTP400 / ErrorCode3 / AdminOnly
+  created rows=0; admin/superadmin uncapped controls unchanged
+
+SETUP_FAIL attempts were not counted as RED:
+  missing generated ignored WASM; conflicting fixed test listener port;
+  private preview helper attempted assignment to GetEnvironment() value copy;
+  new API fixture initially reused empty PublicId (401), then unique PublicId fixed.
+Full raw logs, command/exit records and fixture hashes are in the chat's m5-fix-02 artifact directory.
