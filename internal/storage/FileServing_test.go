@@ -11,6 +11,7 @@ import (
 	"net/textproto"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 	"testing/synctest"
 	"time"
@@ -22,6 +23,7 @@ import (
 	"github.com/Activer007/SupaShare/internal/helper"
 	"github.com/Activer007/SupaShare/internal/models"
 	"github.com/Activer007/SupaShare/internal/storage/chunking"
+	"github.com/Activer007/SupaShare/internal/storage/filesystem"
 	"github.com/Activer007/SupaShare/internal/storage/filesystem/s3filesystem/aws"
 	"github.com/Activer007/SupaShare/internal/test"
 	"github.com/Activer007/SupaShare/internal/test/testconfiguration"
@@ -44,7 +46,33 @@ func TestMain(m *testing.M) {
 	os.Exit(exitVal)
 }
 
-var idNewFile string
+// EnableS3 only supplies credentials and selects the driver in awsmock builds.
+// The SDK build also needs explicit synthetic credentials for TestMain's
+// loopback server, and must select S3 only after its login has succeeded.
+func enableFileServingTestS3(t *testing.T) func() {
+	t.Helper()
+	previousFilesystem := filesystem.ActiveStorageSystem
+	if aws.IsMockApi || os.Getenv("REAL_AWS_CREDENTIALS") != "true" {
+		t.Setenv("GOKAPI_AWS_BUCKET", "gokapi-test")
+		t.Setenv("GOKAPI_AWS_REGION", "mock-region-1")
+		t.Setenv("GOKAPI_AWS_KEY", "accId")
+		t.Setenv("GOKAPI_AWS_KEY_SECRET", "accKey")
+	}
+	var once sync.Once
+	restore := func() {
+		once.Do(func() {
+			aws.LogOut()
+			filesystem.ActiveStorageSystem = previousFilesystem
+		})
+	}
+	t.Cleanup(restore)
+	config, ok := cloudconfig.Load()
+	if !ok || !aws.Init(config.Aws) {
+		t.Fatal("S3 test fixture could not initialize")
+	}
+	filesystem.SetAws()
+	return restore
+}
 
 func TestGetFile(t *testing.T) {
 	_, result := GetFile("invalid")
@@ -233,7 +261,6 @@ func TestNewFile(t *testing.T) {
 	test.IsEqualInt(t, int(retrievedFile.ExpireAt), 2147483600)
 	test.IsEqualBool(t, file.UnlimitedTime, false)
 	test.IsEqualBool(t, file.UnlimitedDownloads, false)
-	idNewFile = file.Id
 
 	request.UnlimitedDownload = true
 	file, err = NewFile(bytes.NewReader(content), &header, 99, request)
@@ -369,10 +396,13 @@ func TestNewFile(t *testing.T) {
 	configuration.Get().Encryption.Level = 0
 
 	if aws.IsIncludedInBuild {
+		// Keep the S3 temporary-file path covered with matching actual bytes
+		// and metadata, rather than a 20 MiB header on the small fixture.
+		s3Content := make([]byte, 20*1024*1024)
 		header = multipart.FileHeader{
 			Filename: "bigfile",
 			Header:   mimeHeader,
-			Size:     int64(20) * 1024 * 1024,
+			Size:     int64(len(s3Content)),
 		}
 		request = models.UploadParameters{
 			AllowedDownloads: 1,
@@ -380,19 +410,23 @@ func TestNewFile(t *testing.T) {
 			ExpiryTimestamp:  2147483600,
 			MaxMemory:        10,
 		}
-		testconfiguration.EnableS3()
-		config, ok := cloudconfig.Load()
-		test.IsEqualBool(t, ok, true)
-		ok = aws.Init(config.Aws)
-		test.IsEqualBool(t, ok, true)
-		file, err = NewFile(bytes.NewReader(content), &header, 99, request)
+		restoreS3 := enableFileServingTestS3(t)
+		file, err = NewFile(bytes.NewReader(s3Content), &header, 99, request)
 		test.IsNil(t, err)
 		retrievedFile, ok = database.GetMetaDataById(file.Id)
 		test.IsEqualBool(t, ok, true)
 		test.IsEqualString(t, retrievedFile.Name, "bigfile")
-		test.IsEqualString(t, retrievedFile.SHA1, "f1474c19eff0fc8998fa6e1b1f7bf31793b103a6")
+		test.IsEqualString(t, retrievedFile.SHA1, "9674344c90c2f0646f0b78026e127c9b86e3ad77")
 		test.IsEqualString(t, retrievedFile.Size, "20.0 MB")
-		testconfiguration.DisableS3()
+		test.IsEqualInt64(t, retrievedFile.SizeBytes, int64(len(s3Content)))
+		test.IsEqualBool(t, retrievedFile.AwsBucket != "", true)
+		if !aws.IsMockApi {
+			exists, size, err := aws.FileExists(retrievedFile)
+			test.IsNil(t, err)
+			test.IsEqualBool(t, exists, true)
+			test.IsEqualInt64(t, size, int64(len(s3Content)))
+		}
+		restoreS3()
 	}
 }
 
@@ -459,11 +493,7 @@ func TestNewFileFromChunk(t *testing.T) {
 	test.IsNotNil(t, err)
 
 	if aws.IsIncludedInBuild {
-		testconfiguration.EnableS3()
-		config, ok := cloudconfig.Load()
-		test.IsEqualBool(t, ok, true)
-		ok = aws.Init(config.Aws)
-		test.IsEqualBool(t, ok, true)
+		restoreS3 := enableFileServingTestS3(t)
 		id, header, request, err = createTestChunk()
 		test.IsNil(t, err)
 		file, err = NewFileFromChunk(id, header, 99, request)
@@ -473,7 +503,7 @@ func TestNewFileFromChunk(t *testing.T) {
 		retrievedFile, ok = database.GetMetaDataById(file.Id)
 		test.IsEqual(t, file, retrievedFile)
 		test.IsEqualBool(t, ok, true)
-		testconfiguration.DisableS3()
+		restoreS3()
 	}
 }
 
@@ -593,12 +623,16 @@ func TestDuplicateFile(t *testing.T) {
 }
 
 func TestServeFile(t *testing.T) {
-	file, result := GetFile(idNewFile)
+	fixture, err := createTestFile()
+	if err != nil {
+		t.Fatal(err)
+	}
+	file, result := GetFile(fixture.File.Id)
 	test.IsEqualBool(t, result, true)
 	r := httptest.NewRequest("GET", "/", nil)
 	w := httptest.NewRecorder()
 	ServeFile(file, w, r, true, true, false, false)
-	_, result = GetFile(idNewFile)
+	_, result = GetFile(file.Id)
 	test.IsEqualBool(t, result, false)
 
 	test.IsEqualString(t, w.Result().Header.Get("Content-Disposition"), "attachment; filename=\"test.dat\"; filename*=UTF-8''test.dat")
@@ -609,22 +643,24 @@ func TestServeFile(t *testing.T) {
 	test.IsEqualString(t, string(content), "This is a file for testing purposes")
 
 	if aws.IsIncludedInBuild {
-		testconfiguration.EnableS3()
-		config, ok := cloudconfig.Load()
-		test.IsEqualBool(t, ok, true)
-		ok = aws.Init(config.Aws)
-		test.IsEqualBool(t, ok, true)
+		restoreS3 := enableFileServingTestS3(t)
+		fixture, err = createTestFile()
+		if err != nil {
+			t.Fatal(err)
+		}
 		r = httptest.NewRequest("GET", "/", nil)
 		w = httptest.NewRecorder()
-		file, result = GetFile("awsTest1234567890123")
-		test.IsEqualBool(t, result, true)
+		file, result = GetFile(fixture.File.Id)
+		if !result || file.AwsBucket == "" {
+			t.Fatal("S3 test fixture is not retrievable from its bucket")
+		}
 		ServeFile(file, w, r, false, true, false, false)
 		if aws.IsMockApi {
 			test.ResponseBodyContains(t, w, "https://redirect.url")
 		} else {
 			test.ResponseBodyContains(t, w, "<a href=\"http")
 		}
-		testconfiguration.DisableS3()
+		restoreS3()
 	}
 }
 
@@ -762,13 +798,9 @@ func TestCleanUp(t *testing.T) {
 	test.FileDoesNotExist(t, "test/data/2341354656543213246465465465432456898794")
 
 	if aws.IsIncludedInBuild {
-		testconfiguration.EnableS3()
-		config, ok := cloudconfig.Load()
-		test.IsEqualBool(t, ok, true)
-		ok = aws.Init(config.Aws)
-		test.IsEqualBool(t, ok, true)
+		restoreS3 := enableFileServingTestS3(t)
 		test.IsEqualString(t, files["awsTest1234567890123"].Name, "Aws Test File")
-		testconfiguration.DisableS3()
+		restoreS3()
 	}
 	// Doesn't really test anything
 	CleanUp(true)
@@ -806,11 +838,7 @@ func TestDeleteFile(t *testing.T) {
 	test.IsEqualBool(t, ok, true)
 
 	if aws.IsIncludedInBuild {
-		testconfiguration.EnableS3()
-		config, ok := cloudconfig.Load()
-		test.IsEqualBool(t, ok, true)
-		ok = aws.Init(config.Aws)
-		test.IsEqualBool(t, ok, true)
+		restoreS3 := enableFileServingTestS3(t)
 		awsFile := models.File{
 			Id:        "awsTest1234567890123",
 			UserId:    1,
@@ -830,7 +858,7 @@ func TestDeleteFile(t *testing.T) {
 		test.IsEqualBool(t, result, false)
 		test.IsEqualInt(t, int(size), 0)
 		test.IsNil(t, err)
-		testconfiguration.DisableS3()
+		restoreS3()
 	}
 }
 
