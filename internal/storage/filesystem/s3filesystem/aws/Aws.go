@@ -146,38 +146,56 @@ func download(writer io.WriterAt, file models.File) (int64, error) {
 
 // Stream downloads a file from AWS sequentially, used for saving to a Zip file
 func Stream(writer io.Writer, file models.File) error {
+	return StreamContext(context.Background(), writer, file)
+}
+
+// StreamContext preserves cancellation while streaming a verified object. The
+// legacy Stream wrapper remains available to callers without a request context.
+func StreamContext(ctx context.Context, writer io.Writer, file models.File) error {
+	if err := validateDownloadContext(ctx); err != nil {
+		return err
+	}
+	sourceSize, err := downloadSourceSize(file)
+	if err != nil {
+		return err
+	}
+	var key []byte
+	if file.Encryption.IsEncrypted && !file.Encryption.IsEndToEndEncrypted {
+		key, err = downloadDecryptionKey(file)
+		if err != nil {
+			return err
+		}
+	}
 	sess, err := createSession()
 	if err != nil {
 		return err
 	}
 	s3svc := s3.New(sess)
 
-	obj, err := s3svc.GetObject(&s3.GetObjectInput{
+	obj, err := s3svc.GetObjectWithContext(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(file.AwsBucket),
 		Key:    aws.String(file.SHA1),
 	})
 	if err != nil {
-		return err
+		return downloadContextError(ctx, err)
 	}
 	defer obj.Body.Close()
-
-	var reader io.Reader = obj.Body
-
-	if file.Encryption.IsEncrypted {
-		return encryption.DecryptReader(file.Encryption, obj.Body, writer)
+	if obj.ContentLength != nil {
+		if err := checkDownloadLength(*obj.ContentLength, sourceSize); err != nil {
+			return err
+		}
 	}
-	_, err = io.Copy(writer, reader)
-	return err
+	return copyDownload(ctx, writer, obj.Body, file, sourceSize, key)
 }
 
 // ServeFile either redirects the user to a pre-signed download url (default) or downloads the file and serves it as a proxy (depending
 // on configuration). Returns true if blocking operation (to set download status) or false if non-blocking.
 func ServeFile(w http.ResponseWriter, r *http.Request, file models.File, forceDownload, forceDecryption bool) (bool, error) {
 	if forceDecryption {
-		return true, serveDecryptedFile(w, file)
+		return true, serveDecryptedFile(w, r, file)
 	}
 	if awsConfig.ProxyDownload {
-		return true, proxyDownload(w, file, forceDownload)
+		return true, proxyDownload(w, r, file, forceDownload)
 	}
 	return false, redirectToDownload(w, r, file, forceDownload)
 }
@@ -220,23 +238,57 @@ func redirectToDownload(w http.ResponseWriter, r *http.Request, file models.File
 }
 
 // proxyDownload streams the file from S3 as a proxy, by downloading a presigned url
-func proxyDownload(w http.ResponseWriter, file models.File, forceDownload bool) error {
+func proxyDownload(w http.ResponseWriter, r *http.Request, file models.File, forceDownload bool) error {
+	ctx := r.Context()
+	if err := validateDownloadContext(ctx); err != nil {
+		return err
+	}
+	sourceSize, err := downloadSourceSize(file)
+	if err != nil {
+		return err
+	}
 	url, err := getPresignedUrl(file, forceDownload)
 	if err != nil {
 		return err
 	}
 
-	resp, err := http.Get(url)
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return err
 	}
+	// The stored object length refers to its bytes, not transparent HTTP gzip.
+	request.Header.Set("Accept-Encoding", "identity")
+	resp, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return downloadContextError(ctx, err)
+	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("S3 download returned status %d", resp.StatusCode)
+	}
+	if err := checkDownloadLength(resp.ContentLength, sourceSize); err != nil {
+		return err
+	}
 	headers.Write(file, w, forceDownload, false)
-	_, _ = io.Copy(w, resp.Body)
-	return nil
+	return copyDownload(ctx, w, resp.Body, file, sourceSize, nil)
 }
 
-func serveDecryptedFile(w http.ResponseWriter, file models.File) error {
+func serveDecryptedFile(w http.ResponseWriter, r *http.Request, file models.File) error {
+	ctx := r.Context()
+	if err := validateDownloadContext(ctx); err != nil {
+		return err
+	}
+	sourceSize, err := downloadSourceSize(file)
+	if err != nil {
+		return err
+	}
+	var key []byte
+	if file.Encryption.IsEncrypted {
+		key, err = downloadDecryptionKey(file)
+		if err != nil {
+			return err
+		}
+	}
 	sess, err := createSession()
 	if err != nil {
 		return err
@@ -244,24 +296,132 @@ func serveDecryptedFile(w http.ResponseWriter, file models.File) error {
 	s3svc := s3.New(sess)
 
 	// 1. Get the object from S3
-	obj, err := s3svc.GetObject(&s3.GetObjectInput{
+	obj, err := s3svc.GetObjectWithContext(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(file.AwsBucket),
 		Key:    aws.String(file.SHA1),
 	})
 	if err != nil {
-		return err
+		return downloadContextError(ctx, err)
 	}
 	defer obj.Body.Close()
-
-	headers.Write(file, w, true, true)
-	if file.Encryption.IsEncrypted {
-		if !encryption.IsDecryptionAvailable() {
-			return errors.New("file is encrypted but server-side decryption key is not available")
+	if obj.ContentLength != nil {
+		if err := checkDownloadLength(*obj.ContentLength, sourceSize); err != nil {
+			return err
 		}
-		return encryption.DecryptReader(file.Encryption, obj.Body, w)
 	}
-	_, err = io.Copy(w, obj.Body)
+	headers.Write(file, w, true, true)
+	return copyDownload(ctx, w, obj.Body, file, sourceSize, key)
+}
+
+func validateDownloadContext(ctx context.Context) error {
+	if ctx == nil {
+		return errors.New("invalid S3 download context")
+	}
+	return ctx.Err()
+}
+
+func downloadContextError(ctx context.Context, err error) error {
+	if contextErr := ctx.Err(); contextErr != nil {
+		return contextErr
+	}
 	return err
+}
+
+func downloadSourceSize(file models.File) (int64, error) {
+	if file.SizeBytes < 0 {
+		return 0, errors.New("invalid S3 download length")
+	}
+	size := file.SizeBytes
+	if file.Encryption.IsEncrypted && !file.Encryption.IsEndToEndEncrypted {
+		size = encryption.CalculateEncryptedFilesize(file.SizeBytes)
+		if size < file.SizeBytes {
+			return 0, errors.New("invalid S3 encrypted download length")
+		}
+	}
+	return size, nil
+}
+
+func downloadDecryptionKey(file models.File) ([]byte, error) {
+	if file.Encryption.IsEndToEndEncrypted || !encryption.IsDecryptionAvailable() || len(file.Encryption.Nonce) != 12 {
+		return nil, errors.New("server-side decryption is unavailable")
+	}
+	key, err := encryption.GetCipherFromFile(file.Encryption)
+	if err != nil {
+		return nil, err
+	}
+	if len(key) != 32 {
+		return nil, errors.New("invalid S3 download decryption key")
+	}
+	return key, nil
+}
+
+// Unknown HTTP lengths are checked against the actual read count at EOF.
+func checkDownloadLength(actual, expected int64) error {
+	if actual >= 0 && actual != expected {
+		return errors.New("S3 download length does not match metadata")
+	}
+	return nil
+}
+
+type downloadReader struct {
+	ctx context.Context
+	io.Reader
+	count int64
+}
+
+func (r *downloadReader) Read(p []byte) (int, error) {
+	if err := r.ctx.Err(); err != nil {
+		return 0, err
+	}
+	n, err := r.Reader.Read(p)
+	r.count += int64(n)
+	return n, err
+}
+
+type downloadWriter struct {
+	ctx context.Context
+	io.Writer
+	count int64
+}
+
+func (w *downloadWriter) Write(p []byte) (int, error) {
+	if err := w.ctx.Err(); err != nil {
+		return 0, err
+	}
+	n, err := w.Writer.Write(p)
+	w.count += int64(n)
+	return n, err
+}
+
+func copyDownload(ctx context.Context, writer io.Writer, body io.Reader, file models.File, sourceSize int64, key []byte) error {
+	if writer == nil {
+		return errors.New("invalid S3 download writer")
+	}
+	source := &downloadReader{ctx: ctx, Reader: body}
+	output := &downloadWriter{ctx: ctx, Writer: writer}
+	var reader io.Reader = source
+	outputSize := sourceSize
+	if key != nil {
+		var err error
+		reader, err = encryption.GetDecryptReader(key, source)
+		if err != nil {
+			return err
+		}
+		outputSize = file.SizeBytes
+	}
+	if _, err := io.Copy(output, reader); err != nil {
+		return downloadContextError(ctx, err)
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if source.count < sourceSize || output.count < outputSize {
+		return io.ErrUnexpectedEOF
+	}
+	if source.count > sourceSize || output.count > outputSize {
+		return errors.New("S3 download exceeds metadata length")
+	}
+	return nil
 }
 
 func getTimeoutContext() (context.Context, context.CancelFunc) {
