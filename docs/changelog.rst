@@ -8,6 +8,33 @@ Overview of all changes
 -----------------------
 
 
+v2.13.0 (source update; not a published release)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Default new file collections to five days and one download per collected file.
+  Accept integer allowances from 1 through 10; preserve legacy unlimited policies
+  and existing files when changing a collection's future-upload settings.
+* Count ordinary users' management downloads, including every collection member
+  of a ZIP. Administrators and super administrators retain their allowances.
+  Recheck the actual consumer's current role and file permissions.
+* Protect the last allowance against concurrent downloads and reject invalid
+  ranges, missing/truncated local files and unsupported encrypted ZIP members
+  before charging. Preserve ZIP format for single-member archive requests.
+* Provide a fixed two-minute browser/account-bound retry window for management
+  collection downloads, with current authority and file-state checks. Keep
+  active transfers and their retry window protected from expiry cleanup.
+* Use short collection URLs with 22-character, 128-bit random credentials while
+  retaining old links and credentials. Resolve upload resources and API requests
+  correctly on short routes and deployments under a subdirectory.
+* Show upload time beside file size, with the browser's local UTC offset and
+  missing-date fallback, on ordinary and encrypted public download pages.
+* Keep exhausted files out of Download All after editing collection settings,
+  and update remaining allowances through collection-specific download events.
+* Upgrade SQLite to schema 18 with legacy-compatible download-policy defaults;
+  preserve policies during SQLite/Redis migration. Synchronize application,
+  footer, API and generated static-resource version metadata.
+
+
 v2.12.0 (source update; not a published release)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

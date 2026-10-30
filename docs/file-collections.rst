@@ -42,6 +42,11 @@ again. A different browser, missing cookie or server restart requires a new gran
 The bounded retry cache can disable retries under capacity pressure. Direct API
 downloads enforce the same counting policy but do not create browser retry grants.
 
+Explicit ZIP requests retain archive format even with one member. End-to-end
+encrypted files require client-side decryption and can be downloaded individually
+as ciphertext; server-side ZIP requests containing them are rejected before any
+allowances are charged.
+
 At zero remaining downloads the file is unavailable for new downloads and enters
 the existing cleanup process. Active transfers and their bounded retry window
 protect the content from expiry cleanup. Administrator exemption does not grant
