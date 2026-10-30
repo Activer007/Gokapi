@@ -26,11 +26,13 @@ G0/G1 是推进下一轮的基础，不代表 G2–G4 已通过。M0 的 FAIL/BL
 | 040-B | IMPLEMENTED / CI_GREEN / [PR48](https://github.com/Activer007/SupaShare/pull/48) | 冻结cf30b57含主线PR47；CI40922295319四组/全部相关race/build/scan PASS；两私密候选、FR Commit/跨owner、明确WATCH中止/unknown边界GREEN；ADR-024；普通用户全在途原子隔离仍VALIDATE |
 | 041 | IMPLEMENTED / CI_GREEN / [PR50](https://github.com/Activer007/SupaShare/pull/50) | 冻结d26875d，CI40932505670四组/相关race/build/scan PASS；原合同RED→GREEN、进程exit97、共享/重新引用、旧token/满容量/故障/迁库及完整GC交互；SQLite17/Redis10，ADR-025；真实持久化/断电仍NOT_RUN |
 | 052其余 | P1 / VALIDATE / BROWSER_BLOCKED | 浏览器新增截断/原生取消需用户手动处理临时证书；旧临时地址已失效，准备继续时须新建夹具。052-B局部修复不关闭此验收，更不关闭整个052/M4 |
-| 051 | P1 / VALIDATE | 初始限定浏览器预检，不以头缺失判XSS；结果见TEST-REPORT，未形成全路径安全结论 |
+| 051 | P1 / VERIFIED / PR52 | 两处nosniff策略RED→GREEN；真实HTTP/loopback S3最终边界及7c9a6ad上传浏览器样本通过；最终CI40996624682 SUCCESS。对象头边界/真实云/全局无XSS不外推，审查合并以PR为准 |
 | 050 | P1 / NOT_STARTED | 最小响应头、兼容及渐进CSP |
 
 公开只保留必要修复，私密精确负例不提交。每PR一个SEC；本PR完成不代表M4已完成。
 2026-10-29梳理后的开发安排与最小Gate见[M4执行安排](M4-GOAL.md#2026-10-29-执行安排当前工作基线-dee4382f)：040-B→041→052余项→051→050；升级须有实证，非缺头或源码猜测。
+
+2026-10-30用户豁免：当前052的Chromium+HTTPS补验因Service Worker证书校验受阻；用户没有可信隔离HTTPS入口并明确允许跳过。记SKIPPED_USER，不是PASS；不扩大为其他测试豁免。历史052证据保留原范围，050仍需实施。
 
 ## M3完成记录：最小崩溃恢复与阶段收口
 
@@ -141,7 +143,7 @@ G3回滚及限定场景验证见ADR017，不等于完整M3/真实生产G4通过�
 | SEC-040 | P0 CONFIRMED_CODE | 删除错误与元数据生命周期不一致；S3 RED | 003 → G1/G2/G3；先保留记录/传递错误/重试；复杂状态机后置；不把 #419 当相同修复 |
 | SEC-041 | P0 CONFIRMED_CODE + HISTORICAL_FIXED | 旧内容回收缺口与历史替换越权是两件事 | 020/040 → G1/G2/G3；先评审 [#419](https://github.com/Activer007/SupaShare/pull/419)，多引用与中断回滚；仅 fork 应用经验证的补丁 |
 | SEC-042 | P1 VALIDATE | 双层元数据扫描；真实性能瓶颈待测 | 040/041 → 基准后 G3；先 1k/10k 扫描计数，必要时 Blob 索引，SQLite/Redis 都可重建 |
-| SEC-050 | P1 VALIDATE | 全路由响应头/CSP 覆盖待测 | 012/023 → G1；先审 [#418](https://github.com/Activer007/SupaShare/pull/418)，下载/WASM/SSE 兼容，逐步启用 |
+| SEC-050 | P1 VALIDATE | 全路由响应头/CSP 覆盖待测 | 012/023 → G1；先审上游 [#418](https://github.com/Forceu/Gokapi/pull/418)，下载/WASM/SSE 兼容，逐步启用 |
 | SEC-051 | P1 HISTORICAL_FIXED / VALIDATE | SVG/文件名历史 XSS 已修，其他 MIME 路径需回归 | 020/050 → G1；浏览器执行与 Content-Disposition；E2E 无明文扫描承诺 |
 | SEC-052 | P1 VALIDATE，实证严重完整性问题升 P0 | 文档提示 Firefox 截断、File Request 非 E2E | 003/032/050 → G1/G3；浏览器/大小/截断/中断 SHA256；不自制新加密协议 |
 | SEC-060 | P1 VALIDATE | 审计 schema 与脱敏覆盖待盘点 | 020/040 → G1；白名单字段和失败结果；先审 #437；日志不含密码、Key、Cookie、完整 capability URL |
