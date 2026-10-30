@@ -1,6 +1,6 @@
 # 当前 Goal：M5 快速收尾（REL-01 Lite）
 
-2026-10-30。仓库仅为 `Activer007/SupaShare`。PR #56～#61 已合并，FIX-01/02/03 已完成；本轮基线为 master `54e65f45b63978823c9eee8155dc19d81ba51442`，源码版本 **2.13.1 / API 21301**。
+更新：2026-10-31。仓库仅为 `Activer007/SupaShare`。PR #56～#61 已合并，FIX-01/02/03 已完成；本轮基线为 master `54e65f45b63978823c9eee8155dc19d81ba51442`，源码版本 **2.13.1 / API 21301**。
 
 ## 本轮范围
 
@@ -11,7 +11,7 @@
 
 ## 当前结果与完成条件
 
-原生隔离安装、核心流程、重启、升级、备份恢复和快照回滚已通过，详见[验收表](M5-ACCEPTANCE.md)。Docker Desktop 被本机 `dockerInference` 临时对象访问错误阻断，Compose 为 **NOT_RUN**；该项通过前不关闭 M5。
+原生隔离安装、核心流程、重启、升级、备份恢复和快照回滚已通过；2026-10-31 补齐独立 Docker Compose 全新初始化、登录、上传/分享下载 hash、文件收集与重启验证，SQLite schema 18 / integrity_check=ok。详见[验收表](M5-ACCEPTANCE.md)。本轮 Lite 验收完成，建议 [PR #62](https://github.com/Activer007/SupaShare/pull/62) 审查合入后关闭 M5，不扩展发布验收范围。
 
 复用 FIX-01/02/03 的有效证据，不重跑源码未变的完整测试，不新增大型报告或框架。旧 REL-01 分支及命名 stash 保留，未直接应用。实际修改以小型独立 PR 交付，不自动合并。
 
