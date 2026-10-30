@@ -4,13 +4,13 @@
 
 ## 基线、范围与状态
 
-建包时 master 为 `77b8fa2c729db05a5e2ae3434b50f02eda127def`；本包从已审 FIX-02 提交 `831d08860aabc93fe1f7fc31112ba24cfd91cb67` 建立 `codex/m5-fix-03`。拟独立 stacked PR，base 为 `codex/m5-fix-02`，**尚未创建**；不借用前置 PR #60 的 review 作为本包 review。
+建包时 master 为 `77b8fa2c729db05a5e2ae3434b50f02eda127def`；本包从已审 FIX-02 提交 `831d08860aabc93fe1f7fc31112ba24cfd91cb67` 建立 `codex/m5-fix-03`。独立 stacked [PR #61](https://github.com/Activer007/SupaShare/pull/61)，base 为 `codex/m5-fix-02`；不借用前置 PR #60 的 review 作为本包 review。
 
 过程候选为 `caee47cc41104f4bd3b0181e4e83ce960ccb7b2b`。其全仓 SDK/awsmock 回归暴露旧测试夹具失败；在不可变 831d088 上复现后，仅修正 `FileServing_test.go`，生产代码保持 caee47c。最终候选从真实 Git bundle clone 验证，不合成 VCS 提交。
 
 - 最终受测代码 SHA：`cc41c169a87c904cfbee22634bf99af766f8cf96`，tree `94eb9a6eb7e8c50d644ce4d2bb458cb220fd53ce`。
 - 1538 项 tracked 输入与该提交 Git blobs 逐字节一致，测试后逐项复核通过；manifest/bundle SHA256 见 [source.json](evidence/fix-03/source.json)。
-- 独立 PR / 最新 head 自动 review / 合入状态：**PENDING，待回填**。
+- 独立 [PR #61](https://github.com/Activer007/SupaShare/pull/61)；最新 head 的实际自动 review 与精确交付 SHA 在该 PR 的 Codex Summary/交付 comment 核对；保持 OPEN，不自动合并。
 
 工具链为 Go 1.26.10 linux/amd64、CGO=1、WSL Ubuntu 24.04 原生文件系统、非 root；Node 24.16.0、现有 Playwright/Windows Chrome。不可变基线由 Windows `git -c core.autocrlf=false archive` 导出后在 Linux 解包，不借用 Windows `.git` 链接。Actions 保持关闭，本包未运行 CI。
 
@@ -104,3 +104,5 @@ CLI、API `Version/VersionInt`、页面 footer、两份 OpenAPI 的版本/示例
 无数据/schema/密钥迁移；文件分享 URL、加密格式、权限、收集下载计次/管理员例外和受理尝试记账保持。正常附件、Range/HEAD/条件请求、真实空文件及所列本地未知大小兼容有控制合同。回退会恢复已验证的失败终态问题，不是等效修复；恢复损坏对象须走核实备份或重新上传，本包未执行该恢复。
 
 真实云 S3/网络故障全组合、真实 Redis 持久化、HTTP/2/TLS 全矩阵、其他浏览器/客户端/取消组合、FD压力测试均 **NOT_RUN**。安装/升级、实际备份恢复、回滚演练、RC 与生产部署/发布属于 **REL-01 NOT_RUN**。M5 总目标继续 ACTIVE；独立 PR 的最新精确 head review、合入及合入后最终 master 验收分别记录，不自动合并。
+
+交付 [PR #61](https://github.com/Activer007/SupaShare/pull/61) 基于 PR #60，前置 #59/#60 均保持 OPEN；仅本包差异进入审查。前置 PR 合并后须重新核对 diff/base 及受影响闭包；不代替用户跨包合并。最终受测 code 为 cc41c16，此后的交付提交仅为文档/证据，不改变 build/test 输入；远端 review 对应最终 head，二者分别记录。Actions 持续关闭，未发布、部署或修改上游。
