@@ -1,20 +1,13 @@
-# M5：Core Stability & Release Readiness
+# 当前工作：依次合并 FIX-02、FIX-03
 
-用户冻结范围，2026-10-30。仓库仅为 Activer007/SupaShare；单个 Go 进程、现有 Web UI、SQLite/Redis、本地/S3 和兼容 API 保留。
+2026-10-30。用户已授权先处理冲突并合并 [PR #60](https://github.com/Activer007/SupaShare/pull/60)，再合并 [PR #61](https://github.com/Activer007/SupaShare/pull/61)。仓库仅为 `Activer007/SupaShare`；FIX-01、FIX-02 已分别通过 PR #59、#60 合并到 master，当前处理 PR #61。
 
-依次交付独立工作包：
+## 本轮范围
 
-1. FIX-01：删除与回收测试稳定性。
-2. FIX-02：首次 File Request 额度初始化。
-3. FIX-03：本地/S3 下载失败终态。
-4. REL-01：隔离安装、升级、实际备份恢复、回滚演练与发布候选验收。
+- 保留 FIX-02 的额度初始化修复及已有测试、文档和证据，不额外清理或重构。
+- 保留 FIX-03 的下载失败终态修复及源码版本 2.13.1，同步基线时不覆盖其独立改动。
+- 核对精确提交的审查结果，解决必要冲突，依次合并。复用未受影响的有效验证，达到要求后收口。
 
-当前开发包为 FIX-03；FIX-01/02 已分别提交 PR #59/#60 并通过各自最新 head 自动 review，保持开放、未自动合并。每包先核对最新 master、相关 PR、工作树和工具链，阅读实现并列出不变量；先复现/分类，再最小修复、目标测试、相关回归/race、差异审查和独立 PR。其他 PR 改变基线时重新核对受影响闭包，不覆盖其工作。
+REL-01 及发布准备不在本轮范围，已有分支、命名 stash、改动与证据保留。GitHub Actions 保持关闭，不启动新 CI，不发布 Release/tag/镜像，不部署或修改上游。
 
-不修改密文格式、历史 ID、权限模型、兼容配置或 Forceu/Gokapi。未知引用、存在性或提交结果均保守保留；不削弱 M3/M4 的锁序、重试和恢复边界，不进行无关架构重构。
-
-用户要求 GitHub Actions 保持关闭；本阶段本地验证与远端代码 review 分别记录，历史绿色 CI 不能代替当前源码验证。不自动合并 PR，不发布 Release/镜像，不进行生产部署；发布必须另行明确批准。
-
-M5 完成须四包各自验收、最新 master 必要完整测试、无未解释回归，以及隔离安装/升级、实际恢复和回滚全部有精确 SHA 的直接证据。FIX-01 或一个 PR 通过不表示 M5 完成。
-
-任务状态见 [看板](M5-TASK-BOARD.md)，验收见 [检查表](M5-ACCEPTANCE.md)。复用 [M3 冻结范围](../security/M3-GOAL.md)、[M4 审计](../security/M4-COMPLETION-AUDIT.md)及 ADR-022/024/025，不重写其历史测试结果与限制。
+各包原始受测提交与限制见[任务看板](M5-TASK-BOARD.md)、[验收表](M5-ACCEPTANCE.md)及各自 PR；本轮合并不表示整个 M5 或生产发布验收完成。

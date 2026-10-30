@@ -2,6 +2,8 @@
 
 更新：2026-10-30。状态：本地验收 PASS；[PR #59](https://github.com/Activer007/SupaShare/pull/59) 的远端 review 以其最新 head 摘要为准，不自动合并。
 
+此前 FIX-01 收口时，用户指示将当轮 Goal 收敛为 **仅 FIX-01**，其他阶段的历史工作不作为本包完成条件。该轮只更新范围文档，Go 代码及原受测输入闭包保持，文档 head 的自动 review 已单独核对。后续授权与当前状态以 [M5-GOAL](M5-GOAL.md) 和[任务看板](M5-TASK-BOARD.md)为准。
+
 ## G0 与源码基线
 
 - 仓库：`https://github.com/Activer007/SupaShare`，仅操作 origin；未修改上游或其他工作树。
@@ -86,7 +88,7 @@ python3 "$repo/docs/m5/tools/inject-deletion-observer.py" \
 
 自然随机基线 30 次通过不证明历史 CI 的具体阻塞根因；有界等待超时将继续明确失败，不会无限等待或重试真实清理错误。queued callback 合同验证 Cancel 先完成的交错，不冒称穷尽所有调度；其他结果受既有状态冲突合同约束。
 
-真实 Redis 持久化、云 S3、断电、安装升级/备份恢复/回滚演练、RC 与生产发布均 **NOT_RUN**。本包无 UI 变更，不新增浏览器矩阵；API 通过真实 handler 请求，远端 I/O 通过真实 loopback HTTP 验证。FIX-02/03/REL-01 未执行，M5 总目标未完成。
+真实 Redis 持久化、云 S3、断电、安装升级/整站备份恢复/回滚演练、RC 与生产发布均未作为 **FIX-01** 执行，不能记为本包 PASS。本包无 UI 变更，不新增浏览器矩阵；API 通过真实 handler 请求，远端 I/O 通过真实 loopback HTTP 验证。FIX-02/03/REL-01 不属于当轮 FIX-01 Goal，其历史工作另行保留；本包完成不表示全部 M5 完成。
 
 ## PR 与审查
 
