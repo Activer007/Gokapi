@@ -1,0 +1,35 @@
+SEC-051 final integrated candidate
+Repository: Activer007/SupaShare (no upstream writes)
+PR: https://github.com/Activer007/SupaShare/pull/52
+Frozen source: 7c9a6ad13efce6f54fcce1dc6cba36cec91583d3
+Frozen tree: 7fa937fbb73e074bf8d95b41d6632e659575c045
+CI: https://github.com/Activer007/SupaShare/actions/runs/40996624682
+Job: 123871218412, SUCCESS
+Actual checkout: 824921449524021e2c6706c43c0649d6de612574
+Parents: 4baeade735111135c1ce9deee1b787413d7dcca1 + 7c9a6ad13efce6f54fcce1dc6cba36cec91583d3
+Actual checkout tree: 7fa937fbb73e074bf8d95b41d6632e659575c045 (equals frozen tree).
+Runner: Ubuntu24.04 image20261025.353.1; Go1.26.10 linux/amd64
+PASS: generate + git diff guard; occupied-port setup; four whole tag sets
+PASS: related receiver/decryption/deletion/reclaim/provider/loopback S3 races
+PASS: upload target/race (10 markers, including both source-unchanged)
+PASS: toolchain/build/scan (19 markers); tested graph affected0
+Module-only scan notices remain: GO-2026-5932, GO-2022-0646, GO-2022-0635.
+SKIPPED: dispatch-only historical/compiler container/large-file matrix.
+Push40996521026 cancelled by workflow same-head concurrency; not a failure.
+Local source archive SHA256: 81c43c825fed74fdce70c7e34cfe5fab5c3c1dec9518c76541b9bc860aac42fd
+Local generate PASS72.111s; 1492->1496 files; 9 EOL-only tracked canonical matches.
+After helper builds/browser observations: all1496 source files unchanged, missing0.
+CI source SHA256:
+62dfa19afc0151f3677f9c4074e83b31a724a6998c5cd3635bb986a29083eef6 internal/storage/FileServing.go
+81595f60990a3d5e572c19e43ac9636d0f9e8760f4e5f69f40a8fab31e423b83 internal/webserver/headers/Headers.go
+95a9df12230ed53d49516730df616c9dc2a01f1ef5cba0bea9329d56fc3a8b2e cmd/wasmdownloader/Main.go
+c662d8cf646174dabe936f8b888dec0827c4b84aa3e978b0844de72775515a5d internal/webserver/web/templates/html_download.tmpl
+CI main.wasm SHA256: 3193ae9220b51609ac5a68e2bd501b1fb6e95f878c477740df0fca7113bb6b51
+Local main.wasm SHA256: 9b9c1013d8f0a993833cd1b5c69f393e18988a5fa46b8141ec08ecaa5b562bf3
+Different build contexts: no byte reproducibility assertion.
+Browser observations: real-upload IAB PNG/declared-PNG HTML hotlinks; Chrome native
+PNG73B and HTML313B attachments complete, exact saved names/bytes/SHA256.
+Single synthetic samples only, not a global no-XSS assertion. No private URLs,
+fragments, keys, payloads or raw response logs included here.
+Separate SEC052 current HTTPS supplement: SKIPPED_USER after healthy setup was
+blocked by ServiceWorker certificate validation; no browser integrity PASS claimed.

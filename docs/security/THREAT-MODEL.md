@@ -33,6 +33,8 @@ metadata是删除重试锚点；未确认探测/删除/引用/退休时不报告
 应用控制的文件与ZIP响应须明确nosniff，保留现有声明MIME、attachment/inline、解码后文件名及精确内容；inline原有强制sandbox不得被Report-Only替代。
 nosniff不是上传内容校验，也不能单独证明无XSS。真实上传/浏览器执行origin须独立验证，字符串头合同不作替代。
 S3默认重定向后的对象响应属于另一响应边界；应用头不会继承到对象。须核对最终MIME/Disposition/bytes与实际origin，代理和服务器解密分支另查。
+本次loopback最终对象明确未带本站nosniff/sandbox；已核对字节/文件名/MIME，不能将其描述成应用源内容隔离。真实云/CDN及同源部署组合保留VALIDATE。
+实际上传的PNG/HTML附件完成及hotlink两个样本上下文属于窄浏览器证据，不从marker未出现推出全局无XSS。当前HTTPS完整性补验经用户明确豁免为SKIPPED_USER；证书验证和生产不变量不变，不用模块/HTTP结果冒充该浏览器Gate。
 本轮仅在header helper和ZIP写出各增加一行，不改变静态/WASM/worker响应或加密协议；相关政策合同RED→GREEN，进一步HTTP/浏览器/后端Gate保持开放。
 
 ## M4下载失败边界

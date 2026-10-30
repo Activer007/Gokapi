@@ -9,7 +9,44 @@
 - RED：仅增加三个头断言，exit1/10.188s；两包明确缺nosniff，其他断言不变。这是防御策略RED，不是漏洞利用证据。
 - GREEN：仅两处生产写头后同命令exit0/9.593s，headers2.955s、storage5.260s。
 
-真实HTTP响应边界/上传浏览器/S3最终响应与完整CI当前NOT_RUN；夹具准备和源码审查不记PASS。当前头改动未触及WASM静态或worker，亦未解除052的HTTPS浏览器Gate。
+候选2213640的私密隔离模块实际命令及结果（不替代浏览器）：
+
+| 命令 | 实际结果 |
+| --- | --- |
+| `go generate ./...`（完整隔离归档） | PASS33.306s；9份tracked文本仅EOL变化，canonical Git blob与2213640一致，生成后1491项冻结 |
+| `go test -mod=readonly -count=1 -tags='test,noaws' -run '^TestSEC051LocalResponseContracts$' -timeout=60s -v .` | 首次SETUP_FAIL/exit1/120.348s：编译器无法分配内存，业务断言未执行 |
+| `GOMAXPROCS=2 GOMEMLIMIT=512MiB go test -mod=readonly -p=1 -count=1 -tags='test,noaws' -run '^TestSEC051LocalResponseContracts$' -timeout=60s -v .` | 仅重试前项失败，PASS55.183s/合同0.37s；真实HTTP附件、inline PNG、服务器解密和ZIP，MIME/解码文件名/nosniff/字节及源metadata保持 |
+| `go test -mod=readonly -count=1 -tags=test -run '^TestSEC051S3ResponseContracts$' -timeout=60s -v .` | PASS52.496s/合同0.31s；真实SDK与loopback对象服务，重定向最终origin/响应、代理、服务器解密合同 |
+
+S3最终对象的MIME/Disposition/字节通过；该对象服务最终未带nosniff及sandbox，这是观察结果，不把本站重定向头算作对象保护，也不推定真实S3/CDN或同源脚本执行。代理/解密响应有应用nosniff。
+2213640的[CI40993218654](https://github.com/Activer007/SupaShare/actions/runs/40993218654)已SUCCESS（job123860273800）；generate、四组全仓、相关race、build/scan通过，非当前整合UI的CI。
+期间PR49已合并4baeade；当前整合候选7c9a6ad13efce6f54fcce1dc6cba36cec91583d3/tree7fa937fbb73e074bf8d95b41d6632e659575c045。与2213640比较，storage/headers/encryption/go.mod/go.sum逐路径无变化，保留上述叶子合同覆盖；新UI/生成资源/浏览器及最终CI独立验证。
+首次真实上传浏览器helper的三次API上传准备成功，分享页可见；IAB等待下载发生工具超时/重置，未取得下载终态，记INCOMPLETE，不记产品失败或PASS。旧进程到期退出，drained/源metadata保持仅属清理证据。当前头改动未触及WASM静态或worker，亦未解除052的HTTPS浏览器Gate。
+
+### 整合候选7c9a6ad的最终证据
+
+冻结完整归档SHA256 `81c43c825fed74fdce70c7e34cfe5fab5c3c1dec9518c76541b9bc860aac42fd`，1492项；隔离 `GOMAXPROCS=2 GOMEMLIMIT=512MiB go generate ./...` PASS72.111s，生成后1496项，9项tracked原始EOL变化的canonical blob均等于冻结源码。
+`go build -p=1 -mod=readonly -tags=noaws -o server.exe .` PASS24.887s，仅合成文件/临时SQLite的真实三次multipart API上传；不把上传准备本身当浏览器通过。
+
+| 实际浏览器观察 | 结果及范围 |
+| --- | --- |
+| IAB Chromium，真实hotlink正常PNG/声明PNG的HTML | 正常1×1；负例0×0损坏图片、image/png上下文、零script节点且无marker。仅两个具体样本，不证明所有内容无XSS |
+| Chrome，真实分享页点击原生附件下载 | PNG73B与HTML313B均收到完成下载事件及本地路径；保存basename、字节数与SHA256逐项匹配真实上传源 |
+| HTML附件下载后分享页 | 仍为产品分享页，测试marker未出现；没有注入测试iframe、替换输出writer或伪造页面终态 |
+| 有限清理 | 显式stop后drained=true、三份canonical源与metadata保持；helper自身NOT_EVALUATED仅表示不代替浏览器裁决 |
+
+Chrome曾断开，用户恢复连接后才取得上述附件证据。旧2213640的1491项生成输入在HTTP/S3及首次helper结束后Changed0/Missing0；第一次清单比较因斜杠键不一致为SETUP_FAIL，修正路径规范化后才核实，原记录保留。
+
+[PR52](https://github.com/Activer007/SupaShare/pull/52)最终[CI40996624682](https://github.com/Activer007/SupaShare/actions/runs/40996624682) SUCCESS，job123871218412。实际checkout824921449524021e2c6706c43c0649d6de612574（4baeade+7c9a6ad）；输入树核对见[CI摘要](evidence/sec051-7c9a6ad/ci-summary.txt)。Ubuntu24.04/image20261025.353.1、Go1.26.10 linux/amd64。
+generate+diffguard、四组全仓（test,awsmock / test,noaws / test,noaws,integration / 合成loopback的test,awstest）、既有相关race、上传合同10个marker及build/scan19个marker均成功；同头push运行40996521026被workflow并发策略取消，不记FAIL。历史扫描/容器/大文件是dispatch-only，本次SKIPPED，不补跑未变矩阵。
+扫描报告测试构建图affected0，仍列模块级GO-2026-5932/GO-2022-0646/GO-2022-0635；不声称依赖零风险。真实S3/CDN、其他浏览器及全局无XSS仍未获证明。
+
+### SEC-052本次HTTPS补验：SKIPPED_USER
+
+基于7c9a6ad生成资源的新HTTPS夹具构建PASS14.288s；复用原同一证书/端口，私有readiness CertPool保留主机名验证，未安装信任或降低浏览器验证。
+用户处理页面证书提示后，真实Chrome页面及WASM已加载，但健康正例在Service Worker注册阶段被SSL certificate错误拒绝，未产生原生下载；此为SETUP/BLOCKED，不是完整性RED。
+用户随后明确答复“没有，可以跳过此项测试”（没有已信任的隔离HTTPS入口）。因此本次健康/截断/原生取消补验标记SKIPPED_USER，负例不继续执行，不借用HTTP或模块PASS替代；历史052-A浏览器正常/认证失败与052-B服务器/模块证据保留原范围。
+停止夹具后canonicalUnchanged/metadataSetUnchanged/metadataUnchanged均true，PID已不存在；不把cleanup当取消PASS。两helper构建及浏览器观察后1496份生成源逐项Changed0/Missing0。该豁免仅覆盖本次受证书阻塞的HTTPS浏览器补验，不改变生产证书验证、加密或其他M4任务。
 
 ### SEC-052单成员ZIP窄验证（无生产修改）
 

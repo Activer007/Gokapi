@@ -5,7 +5,10 @@
 ## 当前M4：可靠删除与下载内容边界
 
 SEC-051续作（2026-10-30）：基线1e5d80a31acd626d3c7991561a8681459c062acc（PR51已合并），fetch后自有主线一致、初始干净，Go1.26.10 windows/amd64；分支codex/sec-051-download-boundaries。
-CONFIRMED_CODE：应用控制的文件/ZIP响应未给出nosniff；三个新增头不变量断言得到策略RED（exit1/10.188s），不是XSS漏洞复现。仅两处响应写出补头后同命令GREEN（exit0/9.593s）；不改变MIME、文件名、Disposition或inline sandbox。HTTP字节/真实上传浏览器/S3最终响应与最终CI仍待本候选独立验证。
+CONFIRMED_CODE：应用控制的文件/ZIP响应未给出nosniff；三个新增头不变量断言得到策略RED（exit1/10.188s），不是XSS漏洞复现。仅两处响应写出补头后同命令GREEN（exit0/9.593s）；不改变MIME、文件名、Disposition或inline sandbox。
+2213640真实本地HTTP与loopback S3响应合同PASS，最终对象的nosniff/sandbox缺失单独记录，不把重定向头算对象保护；首次本地编译内存SETUP_FAIL后限并发重试通过。CI40993218654 SUCCESS仅对应2213640。自有PR49现已合并4baeade，干净整合为7c9a6ad；文件响应/加密/依赖叶子不变，新UI浏览器与整合CI继续VALIDATE。首次IAB下载观察工具超时，未取得业务终态，不作PASS或漏洞结论。
+整合候选7c9a6ad：新生成及真实上传后，IAB hotlink正常/伪PNG上下文观察完成；Chrome原生PNG73B/HTML313B下载完成，文件名/字节/SHA256正确，HTML附件未替换产品页面。仅这些样本，不推定全局无XSS。最终CI40996624682 SUCCESS，实际8249214输入树与冻结候选核对；四组/相关race/build/scan通过。PR52审查与合并以实际记录为准。
+SEC-052当前HTTPS补验在健康正例的Service Worker证书校验阶段受阻，未进入完整性负例。用户明确授权跳过，记SKIPPED_USER，非PASS；未安装证书/降低验证。历史052-A浏览器及052-B服务器/模块证据仅保留原范围，其他M4工作继续。
 SEC-052补充：在完整1e5d80a归档上，本地服务器加密单成员ZIP正常128KiB解包SHA256正确；受损源未形成可完整读取的有效成员。该负例HTTP仍正常EOF，成员读取被zip-format拒绝；仅窄归档拒绝证据，不证明浏览器下载失败或全部ZIP错误路径安全，不升P0。源1487项前后零变化，原始证据私密保留。
 
 SEC-052-B续作（2026-10-30）：基线0b6b2e2462626db6d928bde25f477548c021b8ef，分支codex/sec-052-download-cancel；fetch后自有主线一致，初始干净，Go1.26.10 windows/amd64。
