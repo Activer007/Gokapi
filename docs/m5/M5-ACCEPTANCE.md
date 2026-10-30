@@ -1,6 +1,6 @@
 # M5 验收检查表
 
-状态与命令以每包报告和精确代码提交为准；尚未执行不记 PASS。
+保留各包已完成的验证与原始受测提交；本轮按用户授权依次合并 PR #60、#61，不重复运行未受影响的验证。
 
 ## FIX-01
 
@@ -15,7 +15,7 @@
 | 重复删除/清理/陈旧快照不误退休、不重复退款 | provider SEC040/041、SEC041 重复 candidate、post-delete 第三次 GC | PASS（本地） |
 | 真实 I/O 失败保留锚点，恢复/重启可重试 | `TestSEC040CleanupRestart`、Redis retirement retry、post-delete 双 provider 恢复闭环 | PASS（本地） |
 | RED/GREEN、目标 30 次、要求的 race 与全仓 integration、相关 noaws/awsmock/安全测试 | [FIX-01 报告](FIX-01-REPORT.md) | PASS（本地） |
-| 无 production/API/schema/权限/密文变更；生成资产无漂移；独立 review | 差异与生成 guard，[PR #59](https://github.com/Activer007/SupaShare/pull/59) 最新 head review | 本地 PASS；远端结果以 PR 对应 SHA 摘要为准 |
+| 无 production/API/schema/权限/密文变更；生成资产无漂移；独立 review | 差异与生成 guard，[PR #59](https://github.com/Activer007/SupaShare/pull/59) 最新 head review | PASS；PR #59 已合并 |
 
 ## FIX-02
 
@@ -28,8 +28,8 @@
 | 生成资源一致；相关回归/race/awsmock、全仓 noaws、默认/noaws build | [FIX-02 报告](FIX-02-REPORT.md) 与结果清单 | PASS（本地） |
 | 独立 PR 与最新 head 自动 review | [PR #60](https://github.com/Activer007/SupaShare/pull/60)，不借用 PR #59 的审查 | 以该 PR 最新 head 的实际摘要为准 |
 
-## 后续工作包及总收口
+## 当前收口边界
 
-FIX-03、REL-01 的实际验收尚未执行，均 NOT_RUN。后续每包开始时需建立自己的基线、RED/GREEN、测试命令、风险、PR 和最终 SHA；不得借 FIX-01/02 的结果完成它们。
+FIX-01 已通过 PR #59 合并。FIX-02、FIX-03 的审查分别对应 `831d088`、`793613e`，均 completed/no findings；本轮仅处理合入 master 所需的文档冲突，按顺序合并 PR #60、#61。合并后的状态以各 PR 为准。
 
-最新 master 必要完整测试、安装/升级、实际备份恢复、回滚演练与 RC 清单目前均未取得 M5 收口证据。真实 Redis/S3 持久化、断电和生产环境也未从 miniredis/loopback/进程退出推定通过。发布仍需另行明确批准。
+REL-01 继续延期，保留已有改动和证据；不将真实 Redis/S3、断电、安装升级、备份恢复或发布候选演练记为本轮通过。GitHub Actions 保持关闭，不发布 Release/tag/镜像或部署。
