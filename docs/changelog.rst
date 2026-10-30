@@ -8,6 +8,30 @@ Overview of all changes
 -----------------------
 
 
+v2.12.0 (source update; not a published release)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Unify the desktop interface around top navigation, charcoal surfaces, blue
+  actions, labelled forms, keyboard focus and a shared footer. Retain English
+  and Chinese, configuration-based branding and the desktop-access policy.
+* Compact the file upload area and rule summary; keep the full searchable table
+  and align dynamically uploaded/decrypted rows with server-rendered files.
+* Refresh file collection, public upload, user/API administration and status
+  pages. Keep credential handoff and clearing, explicit permission saves and
+  cancellable dangerous actions.
+* Refresh login, password, error, download and E2E screens. Report asynchronous
+  initialization/transfer failures without false completion. Await key-backup
+  writes and allow retry after failure.
+* Restyle the independent installation/reconfiguration wizard, retaining all
+  configuration branches. Inline validation stays visible on smaller desktops;
+  long forms scroll while navigation and footer actions remain reachable.
+* This source version also contains separately delivered storage reclamation,
+  download cancellation, MIME-sniffing fixes and response security policies
+  documented in the advanced guide. Follow the existing stopped-service
+  backup and rollback guidance in ``docs/security/ADR-025-OLD-CONTENT-RECLAMATION.md``;
+  the UI changes themselves do not introduce a data/configuration migration.
+
+
 v2.11.0 (2026-10-29)
 ^^^^^^^^^^^^^^^^^^^^
 

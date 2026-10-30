@@ -2,7 +2,7 @@
 
 final result: passed
 
-Scope: B1 workspace, B2 collection, B3 administration, B4 public-page and B5 setup visual validation only. This is not acceptance of the full B0–B6 upgrade.
+Scope: B1–B6 visual validation. Source implementation and visual checks pass within the recorded coverage; PR delivery status is tracked separately in docs/ui-upgrade-execution.md. Actual 125%/200% browser zoom remains a user-accepted, non-blocking manual follow-up.
 
 Source: `docs/images/ui-concepts/ui-enhanced-compact.png`, 1586×992 pixels.
 Implementation: `docs/images/ui-upgrade/foundation-zh.jpg`, 1586×992 pixels, CSS viewport 1586×992, devicePixelRatio 1. Source and final implementation were displayed together in the same comparison tool result on 2026-10-29, without resizing or browser chrome. Original iteration captures remain under `local-ui.secret/ui-upgrade/foundation/`.
@@ -83,3 +83,16 @@ The selected concept and real Go-rendered setup page were inspected at CSS 1586�
 - Labels persist for account, storage and encryption inputs. Decorative navigation glyphs are hidden from assistive technology; the page and step headings have an explicit hierarchy.
 - Checked Chinese/English initial and reconfiguration views at 1280×720, 1440×900 and 1920×1080. No page-level horizontal overflow in the inspected states. No remaining P0/P1/P2 visual issue observed in this scope.
 - Preview boundary: screenshots use authenticated Go-rendered HTML plus real assets served through a read-only local preview. Authenticated installation/reconfiguration writes are covered by the native integration suite, not browser submissions. Actual zoom and full-site acceptance remain pending.
+
+## B6 final comparison and customization
+
+Final result for B6 visual scope: passed.
+
+On 2026-10-30, the selected 1586×992 source image and real 2.12.0 Chinese workspace (`docs/images/workspace-zh.jpg`) were displayed together at CSS 1586×992, DPR 1. The English workspace (`docs/images/workspace-en.jpg`) was captured at the same dimensions. Synthetic files and the original business columns remain intentional differences from the concept. The readable full-view comparison is sufficient for typography/spacing; the separate custom-name view supplies focused header evidence.
+
+- Typography/spacing: the established system font, clear heading hierarchy, compact upload panel and broad table remain. No new external font or icon library was introduced.
+- Palette/assets: existing charcoal/blue tokens and the independently generated folder/link asset remain unchanged. The B1 measured contrast values still apply to these unchanged tokens.
+- Content: source version is 2.12.0; real rule values, file sizes/counts/dates and configured footer remain authoritative. The artwork is decorative, with no rasterized controls.
+- Fixed P2: a long custom brand wrapped into several lines and displaced the workspace. One-line ellipsis now keeps the header at 70px in the actual 1280×720 check; complete text remains in its title and accessibility name. Final evidence: `local-ui.secret/ui-upgrade/delivery/custom-name-1280.jpg`, full-page 1265×832 content capture (scrollbar excluded) from a 1280×720 viewport, DPR 1. Navigation and the long footer remain reachable, with no page-level horizontal overflow.
+- Verified custom CSS precedence, custom public/admin script availability after application functions, two footer links and distinct configured browser title. No captured warning/error in this final custom page.
+- No remaining actionable P0/P1/P2 visual finding in the inspected scope. P3 asset-size optimization remains optional. Actual browser 125%/200% zoom could not be set reliably; the user explicitly accepted manual follow-up without blocking delivery on 2026-10-30.

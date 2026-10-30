@@ -97,7 +97,7 @@ Limits: no production HTTPS/ServerURL/Docker changes, no external-helper migrati
 Delivered as PR #49: https://github.com/Activer007/SupaShare/pull/49. Head `b248135` passed CI on retry and was merged after explicit user authorization as `4baeade`. The first CI attempt failed the Redis branch of `TestSEC030WholeReservedGCRechecksCommittedReference`; the unchanged test passed 30 consecutive native Linux repetitions, and the full CI retry passed. No test assertion or cleanup behavior was weakened.
 
 
-## Installation wizard — verified, preparing PR
+## Installation wizard — merged
 
 - The separately embedded setup page now uses charcoal surfaces, blue actions, persistent field labels, a scrollable card and a reachable footer. The existing local step list remains; no application-wide sidebar or new framework was introduced. Language controls remain visible across steps.
 - Keyboard activation works for previously visited steps. Step changes focus the heading; invalid submissions focus the first failed field. Validation uses Bootstrap's existing lifecycle but renders text directly below its field, fixing clipped right-side popovers at 1280×720. Recovery clears the field's error association.
@@ -116,3 +116,47 @@ Validation on 2026-10-30:
 Remaining: global zoom/customization checks, API empty state, initial E2E backup flow, latest-mainline encrypted download check, final documentation/version and B6 acceptance. Version remains 2.11.0.
 
 Iteration policy (user request, 2026-10-30): reuse passed checks for unchanged code; run focused checks only for affected behavior or new failures. B5's completed full suite is retained without another local full run before its PR. The final review corrected only an OIDC documentation link and prose punctuation. Consolidate remaining cross-page checks into B6, then run the complete local suite once against the final delivery snapshot. Repository-required CI remains enabled.
+
+Delivered as [PR #53](https://github.com/Activer007/SupaShare/pull/53), head `4fae48a`. CI passed. Automatic approval required this PR's separate confirmation; the user authorized it and the merge completed as `86af244`.
+
+## Final delivery — 2.12.0
+
+Source version: **2.12.0**, following the existing version-source/generation rules. This is a source update, not a Release, container publication or production deployment. B6 integrates master through `13a17b7`; independent security changes remain attributed to their own PRs.
+
+Final corrections and documentation:
+
+- Long custom brand names previously wrapped into a tall navigation header. The brand now truncates on one line, with its complete configured text retained in the title/accessibility name. A 1280×720 custom-name capture confirms a 70px header, available navigation and no page-level horizontal overflow.
+- Initial E2E key backup now awaits both writing and closing output, catches failures, aborts incomplete output, and restores retry controls. It clears the pending-backup flag only after successful close. The new behavior test covers write/close failures and delayed close without weakening existing assertions.
+- The API documentation browser title now says SupaShare; its generated specification shows 2.12.0. Swagger vendor bundles remain unchanged.
+- English/Chinese READMEs use real 2.12.0 workspace screenshots. The earlier permission-editor screenshot is explicitly labelled 2.11.0. Usage describes the actual upload-rule disclosure, Copy link/More actions and desktop policy. Customization notes identify changed layout selectors and retained E2E hooks.
+
+Final validation on 2026-10-30:
+
+- One final native Linux snapshot ran `bash build/test-ui-local.sh` successfully: resource generation, **41 Node tests**, both full Go suites (`test,noaws` and `test,awsmock`), selected race checks, and default/noaws production builds. All 525 runtime/build/specification files matched delivery commit `7ed8001`. Generated bundles and version metadata were imported and compared byte-for-byte with that validated snapshot (19 files). Subsequent mainline integration received the focused validation below instead of a repeated local full suite.
+- Runtime packaging check: 11 referenced JavaScript/CSS/brand/WASM/API resources returned HTTP 200 with nonempty content from the real embedded preview; the API specification reports 2.12.0. Setup's separately embedded stylesheet was checked in B5 and remains covered by the final setup tests.
+- Browser additions to earlier batch coverage: API empty state, actual forgot-password recovery instructions/back link, expired-share error and recovery with a valid link, initial E2E generation, backup download, long custom PublicName/username, custom Title, multiple footer links, custom CSS precedence and public/admin custom JS after application functions. The API documentation title/specification were inspected after reload.
+- Ordinary browser download matches **3,430 bytes**, SHA-256 `28ee9e08116d331eb8825b22af65397d9374b27c6d964020dcebec20b60d126c`. The generated backup matches all **44 bytes** of the displayed disposable key; the key itself is not committed.
+- Actual E2E browser paste upload, decrypted dynamic row/share link and browser download match all **58 UTF-8 bytes**, SHA-256 `d4b2f3774c2c2e8c05dd1ce5beed46d9e64097a955f58a9802555ce39e3c5a4f`. The download event timed out and early directory checks preceded the saved output; the user identified `Pasted Text (3).txt`, whose bytes were then checked directly. This final test used the unchanged external HTTP helper, as confirmed by rendered iframe URLs. It is not a production TLS/local-worker claim; earlier B4 records separately cover the local-worker branch.
+- Final Chinese workspace and selected concept were displayed together at **1586×992, DPR 1**. English workspace uses the same dimensions. Custom-brand correction was inspected at **1280×720, DPR 1**, with full-page capture to include the footer. Earlier batch checks supply 1440×900 and 1920×1080 coverage without repeating unchanged pages. No warning/error was captured in the inspected final custom page or successful E2E transfer tab.
+
+### Coverage and explicit limits
+
+Delivery PR: [#55](https://github.com/Activer007/SupaShare/pull/55). Initial head `7ed8001` passed CI run `41003604446`, and the user explicitly authorized its merge. Meanwhile PR #54 updated master to `13a17b7`. The sole merge conflict was in `docs/advanced.rst`; both customization and response-policy documentation were retained. A fresh native Linux snapshot of the integrated runtime passed `go test -race ./internal/webserver ./internal/webserver/headers -tags=test,noaws -run 'TestUI|TestSEC050|TestPostUpload|TestWriteDownloadHeaders' -count=1`. The updated PR requires CI on its final head before merging.
+
+PR #54 adds response policies independently of the UI work. Its script policy is Report-Only and may emit expected console messages for existing inline scripts. The earlier browser observations above predate that integration and do not claim a message-free console under the new observation policy. Enforced public-page restrictions cover base/object elements, not script execution; focused tests cover response headers and retained download/worker behavior.
+
+| Requirement | Evidence / result |
+| --- | --- |
+| B0 baseline and design reference | Baseline source/runtime, screenshot set and initial tests recorded above and in the local plan; final per-page screenshots complete the visual inventory. |
+| B1 files/admin/restricted role, empty/search/long names, upload/edit/replace/share/delete | B1 browser records and relevant behavior tests; final full suite retains coverage. Dynamic E2E rows additionally exercised in B4/B6. |
+| B2 request creation/public submission/limits/received files | B2 real two-file upload/ZIP-content and quota checks; reservation/expiry failures covered by the full Go suites. |
+| B3 credentials/permissions/API/status | B3 actual delivery/clear/save/cancel/filter checks, B6 API empty state, and existing Node/Go tests for failure/retry paths. |
+| B4 login/password/errors/download/E2E | B4 incorrect/correct passwords, known first-login redirect and bad-cipher recovery; B6 expired link, forgot-password page, key generation/backup and current file-content proof. Credential-changing submissions are covered by Go/Node tests, not claimed as browser password changes. |
+| B5 initial setup/reconfiguration | Real Go-rendered browser previews plus authenticated Go integration tests, including retained UI settings. Browser preview is read-only, not a submitted installation. |
+| Language/keyboard/configuration | Per-batch English/Chinese controls, keyboard menus/disclosures/focus, B6 custom resources and long-name checks; dictionaries and template tests pass in the final suite. |
+| Desktop sizes and zoom | Actual 1280×720, 1440×900, 1920×1080 checked across batches. Effective narrow layout also checked. **Actual 125%/200% browser zoom remains a manual follow-up; on 2026-10-30 the user explicitly accepted it as non-blocking.** No actual-zoom pass is claimed. |
+| Compatibility | Go templates/Bootstrap retained; seven file columns and E2E hooks retained; configuration/data/auth contracts and desktop policy tested. No HTTPS/ServerURL/Docker/external-helper behavior change. |
+
+Other limits: browser coverage uses synthetic local accounts/data and Chromium. OIDC/cloud provider behavior relies on existing tests and rendering; no new live identity/S3 integration validation is claimed. Arbitrary third-party custom selectors may need adaptation. All per-batch observations are scoped to their recorded source states; this report does not claim an exhaustive browser/device/security certification.
+
+Representative screenshots: [Chinese workspace](images/workspace-zh.jpg), [English workspace](images/workspace-en.jpg), [collections](images/ui-upgrade/collections-zh.jpg), [public upload](images/ui-upgrade/public-upload-zh.jpg), [users](images/ui-upgrade/users-zh.jpg), [API](images/ui-upgrade/api-zh.jpg), [status](images/ui-upgrade/status-zh.jpg), [login](images/ui-upgrade/login-zh.jpg), [download](images/ui-upgrade/download-zh.jpg), [setup](images/ui-upgrade/setup-zh.jpg). Per-batch captures retain their actual 2.11.0 version; only the refreshed workspaces are labelled 2.12.0.

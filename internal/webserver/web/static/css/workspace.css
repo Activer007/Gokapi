@@ -19,7 +19,7 @@ body.admin-shell::after { display: none; }
 .admin-shell .admin-layout { max-width: 1696px; height: auto !important; padding: 0 48px !important; }
 .admin-shell .workspace-header { margin: 0 0 32px; padding: 0; border-bottom: 1px solid var(--ss-border); }
 .workspace-navigation { min-height: 80px; display: flex; align-items: center; gap: 40px; }
-.workspace-brand { color: var(--ss-text); font-size: 26px; font-weight: 750; line-height: 1.25; text-decoration: none; max-width: 260px; overflow-wrap: anywhere; flex-shrink: 1; }
+.workspace-brand { color: var(--ss-text); font-size: 26px; font-weight: 750; line-height: 1.25; text-decoration: none; max-width: 260px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; }
 .workspace-brand:hover { color: #fff; filter: none; }
 .admin-shell .workspace-primary-nav { display: flex; align-self: stretch; align-items: stretch; gap: 24px; float: none; flex-wrap: nowrap; }
 .admin-shell .nav-masthead .nav-link { display: flex; align-items: center; gap: 9px; margin: 0; padding: 18px 2px; border: 0; border-bottom: 3px solid transparent; border-radius: 0; font-size: 15px; font-weight: 550; color: var(--ss-muted); white-space: nowrap; }

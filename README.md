@@ -8,7 +8,7 @@
 
 SupaShare is a self-hosted file sharing and collection application for teams using desktop browsers. Share files with download limits and expiry dates, collect files through request links, and manage access from a focused dark workspace. English and Simplified Chinese are built in.
 
-Developed from Gokapi and independently maintained by Activer007, SupaShare has its own interface, improvements and version line. The current source version is **2.11.0**. Build from this repository; use the [Releases page](https://github.com/Activer007/SupaShare/releases) to check for explicitly published SupaShare packages. Upstream Gokapi images do not include these changes.
+Developed from Gokapi and independently maintained by Activer007, SupaShare has its own interface, improvements and version line. The current source version is **2.12.0**. Build from this repository; use the [Releases page](https://github.com/Activer007/SupaShare/releases) to check for explicitly published SupaShare packages. Upstream Gokapi images do not include these changes.
 
 [Quick start](#quick-start) · [Interface](#interface) · [Site customization](#site-customization) · [Documentation](#documentation)
 
@@ -31,7 +31,11 @@ Independent development also includes fixes to setup credentials, session revoca
 
 ## Interface
 
-The desktop workspace keeps upload settings and sharing actions close to the file list. These are real **2.11.0** application screenshots with synthetic demonstration data. The cover above is brand artwork.
+The **2.12.0** desktop interface uses top navigation, a compact upload area,
+expandable upload rules and a wide searchable file list. Collections,
+administration, public pages and setup follow the same charcoal/blue design.
+The workspace images below are real **2.12.0** application screenshots with
+synthetic demonstration data. The cover above is brand artwork.
 
 **English workspace**
 
@@ -44,11 +48,14 @@ The desktop workspace keeps upload settings and sharing actions close to the fil
 
 ![中文版 SupaShare 工作台，包含上传设置、文件列表和复制链接操作](docs/images/workspace-zh.jpg)
 
-**Reviewable permissions**
+**Reviewable permissions (2.11.0 screenshot)**
 
 ![SupaShare user permission editor with named permissions and explicit Save and Cancel actions](docs/images/permissions-en.jpg)
 
 </details>
+
+See the [UI upgrade record](docs/ui-upgrade-execution.md) for page screenshots,
+validation scope and the staged delivery history.
 
 ## Quick start
 

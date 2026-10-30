@@ -780,6 +780,28 @@ If you want to change the layout (e.g. add your company logo or add/disable cert
 
 Optional: If you require further changes or want to embedded the changes permanently, you can clone the source code and then modify the templates in ``internal/webserver/web/templates``. Afterwards run ``make`` to build a new binary with these changes.
 
+SupaShare 2.12 interface compatibility
+------------------------------------
+
+The desktop redesign keeps configuration-based branding and custom resource
+ordering. Custom CSS loads after built-in styles; page-specific custom JavaScript
+loads after the page's standard scripts. The separately embedded installation
+wizard has its own stylesheet and does not load these main-application overrides.
+
+Review selectors that depend on the previous two-row header, upload-setting
+columns or action-button nesting. The application now uses ``.admin-shell`` and
+``.public-shell`` scopes, ``.workspace-header`` for the top navigation,
+``.upload-box`` for the upload area and ``.public-panel`` for public tasks.
+Prefer scoped selectors and existing control IDs over positional selectors.
+The file table still has seven columns, including its hidden link column;
+E2E filename/link/action indexes and existing control IDs are retained.
+Do not remove hidden links or override disabled encrypted-upload controls.
+
+Long configured names remain available through the brand link's title. Custom
+footer text and links remain configuration values and are not translated.
+An upgrade does not guarantee compatibility with arbitrary third-party styles;
+check your overrides in both languages and at your usual desktop zoom level.
+
 Response security policies
 ==========================
 

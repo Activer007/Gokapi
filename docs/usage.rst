@@ -13,7 +13,10 @@ General
 
 After you have started the SupaShare server, log in with your credentials by going to ``http(s)://your.gokapi.url/admin``
 
-There you can list and manage files and upload new files. You will also see three fields:
+Use the top navigation to move between Files, File Requests and the administration
+pages available to your account. The Files page places the upload area above a
+searchable file list. The upload-rule summary shows the current limits and whether
+a password is set; it never displays the password. Select *Adjust* to expand:
 
  - *Allowed downloads* lets you set how many times a file can be downloaded before it gets deleted
  - *Expiry in days* lets you set after how many days a file gets deleted latest
@@ -24,16 +27,26 @@ Uploading new files
 
 To upload, drag and drop a file, folder or multiple files to the Upload Zone. You can also directly paste an image or text from the clipboard. If you want to change the default expiry conditions, this has to be done before uploading. For each file an entry in the table will appear with a download link.
 
-Identical files are deduplicated, which means if you upload a file twice, it will only be stored once.
+Choose *Upload files* to use the file picker, or use drag/drop and clipboard paste.
+Invalid rules expand and focus the affected field before uploading. Rule changes
+apply to new uploads; edit an existing file to change its limits. Uploaded files
+appear in the current table without reloading the page. Search and sorting also
+apply to these new entries. Clear the search to see files hidden by the filter.
+
+Identical files are deduplicated where the storage/encryption mode supports it.
+End-to-end encrypted uploads do not use deduplication.
 
 Sharing files
 ---------------
 
-Once you have uploaded a file, you will see a button with the options *Copy URL* and *Copy Hotlink*. By clicking on *Copy URL*, you copy the URL for the download page to your clipboard. A user can then download the file from that page.
+Use *Copy link* beside a file to copy its download-page URL. The adjacent *More*
+menu contains the available download, share, edit, replace and delete actions.
+If clipboard access fails, a dialog lets you select and copy the link manually.
 
 If a file does not require client-side decryption, you can also use the *Copy Hotlink* button. A hotlink is a direct URL to the raw file, bypassing the download page — it can be embedded as an image on a forum or website, or used in scripts. Each view of a hotlink counts as one download. Although SupaShare sends headers to disallow caching, some browsers or external caches may still cache the content if they are not compliant.
 
-The second button lets you share the regular URL easily. If you are accessing SupaShare with a mobile device, a tap on the button will open your device's share menu. Otherwise you can click on the drop down element and select to either share the link via email or generate a QR code.
+The sharing actions include email and QR-code options. SupaShare is intended for
+desktop browsers; the desktop-access policy also applies to share-link visitors.
 
 Downloading files
 ------------------
@@ -107,7 +120,9 @@ You can download files in two ways:
 Creating and Editing Requests
 ---------------------------------
 
-To create a new request, click the *Plus* icon at the top right. To modify an existing one, click the *Pencil* icon.
+To create a request, select *Create file request* in the page heading. Use the edit
+action on its row to modify it. The public page shows the request's notes, expiry
+and remaining capacity alongside the upload area and individual file results.
 
 .. list-table::
    :widths: 20 80
