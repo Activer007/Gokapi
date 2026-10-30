@@ -740,11 +740,15 @@ func apiDownloadSingle(w http.ResponseWriter, r requestParser, user models.User,
 		return
 	}
 	if !request.PresignUrl {
+		if file.IsFileRequest() {
+			serveCollectionDownload(w, request.WebRequest, []models.File{file}, "", user, false)
+			return
+		}
 		forceDecryption := file.Encryption.IsEncrypted && !file.Encryption.IsEndToEndEncrypted
 		storage.ServeFile(file, w, request.WebRequest, true, request.IncreaseCounter, forceDecryption, false)
 		return
 	}
-	createAndOutputPresignedUrl([]string{file.Id}, w, "", apiKey)
+	createAndOutputPresignedUrl([]string{file.Id}, w, "", apiKey, false)
 }
 
 func apiDownloadZip(w http.ResponseWriter, r requestParser, user models.User, apiKey models.ApiKey) {
@@ -763,12 +767,40 @@ func apiDownloadZip(w http.ResponseWriter, r requestParser, user models.User, ap
 		}
 		requestedFiles = append(requestedFiles, file)
 		requestedFileIds = append(requestedFileIds, file.Id)
+		if file.Encryption.IsEndToEndEncrypted {
+			sendError(w, http.StatusBadRequest, errorcodes.EndToEndNotSupported, "End-to-end encrypted files cannot be included in ZIP downloads")
+			return
+		}
 	}
 	if !request.PresignUrl {
+		for _, file := range requestedFiles {
+			if file.IsFileRequest() {
+				serveCollectionDownload(w, request.WebRequest, requestedFiles, request.Filename, user, true)
+				return
+			}
+		}
 		storage.ServeFilesAsZip(requestedFiles, request.Filename, w, request.WebRequest)
 		return
 	}
-	createAndOutputPresignedUrl(requestedFileIds, w, request.Filename, apiKey)
+	createAndOutputPresignedUrl(requestedFileIds, w, request.Filename, apiKey, true)
+}
+
+// Collection allowances are enforced by the server, regardless of the optional
+// increaseCounter header used by ordinary management downloads.
+func serveCollectionDownload(w http.ResponseWriter, r *http.Request, files []models.File, filename string, user models.User, archive bool) {
+	if !storage.ValidateManagementRange(r, files, archive) {
+		sendError(w, http.StatusRequestedRangeNotSatisfiable, errorcodes.InvalidUserInput, "Invalid download range")
+		return
+	}
+	download, err := storage.PrepareManagementDownload(r.Context(), files, user.Id, storage.ManagementDownloadOptions{
+		Count: r.Method != http.MethodHead, Archive: archive,
+	})
+	if err != nil {
+		sendError(w, http.StatusNotFound, errorcodes.NotFound, "Download unavailable")
+		return
+	}
+	defer download.Close()
+	download.Serve(w, r, filename)
 }
 
 func checkDownloadAllowed(fileId string, user models.User) (models.File, int, int, string) {
@@ -782,12 +814,13 @@ func checkDownloadAllowed(fileId string, user models.User) (models.File, int, in
 	return file, 0, 0, ""
 }
 
-func createAndOutputPresignedUrl(ids []string, w http.ResponseWriter, filename string, apiKey models.ApiKey) {
+func createAndOutputPresignedUrl(ids []string, w http.ResponseWriter, filename string, apiKey models.ApiKey, archive bool) {
 	presignUrl := models.Presign{
 		Id:       helper.GenerateRandomString(60),
 		FileIds:  ids,
 		Expiry:   time.Now().Add(time.Second * 30).Unix(),
 		Filename: filename,
+		Archive:  archive,
 		UserId:   apiKey.UserId,
 		ApiKeyId: apiKey.Id,
 	}

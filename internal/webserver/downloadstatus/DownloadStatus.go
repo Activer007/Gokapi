@@ -29,9 +29,11 @@ func SetComplete(downloadStatusId string) {
 // Clean removes all expires status objects
 func Clean() {
 	now := time.Now().Unix()
+	statusMutex.Lock()
+	defer statusMutex.Unlock()
 	for _, item := range statusMap {
 		if item.ExpireAt < now {
-			SetComplete(item.Id)
+			delete(statusMap, item.Id)
 		}
 	}
 }
