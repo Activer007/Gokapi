@@ -65,4 +65,4 @@ master 仍为 `77b8fa2c729db05a5e2ae3434b50f02eda127def`，#56/#57/#58 已合并
 
 真实 Redis 持久化/云 S3、安装升级、实际备份恢复/回滚演练、RC、发布/部署均 NOT_RUN。FIX-03/REL-01 尚未开始，M5 总目标继续 ACTIVE。候选 full-noaws 通过不代表 master 已包含本包，合入后的最终 master 验收须单独执行。
 
-独立 PR：待创建；code SHA `9c18a42d834531290e426863486ad37e85f3f3e7`。最新 head 的自动 review、精确交付 SHA 及未合并状态将在 PR 中记录。Actions 持续关闭，不自动合并，不发布。
+独立 [PR #60](https://github.com/Activer007/SupaShare/pull/60)，base 为 `codex/m5-fix-01`；code SHA `9c18a42d834531290e426863486ad37e85f3f3e7`。最新 head 的自动 review 与精确交付 SHA 在该 PR 的 Codex Summary/交付 comment 核对，不借用前置 PR 的 review。PR #59 手动合并后应重新核对本包 diff 并调整 base，不自动执行合并。Actions 持续关闭，不自动合并，不发布。
