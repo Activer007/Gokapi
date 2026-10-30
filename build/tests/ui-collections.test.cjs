@@ -88,12 +88,12 @@ test('failed collection and received-file deletions allow retry',async()=>{
     assert.equal(buttons.deleteFile.disabled,false);
 });
 
-function collectionFormContext(stored = {}) {
+function collectionFormContext(stored = {}, limits = {files:0,size:0}) {
     const elements = new Map();
     const field = id => {
         if (!elements.has(id)) elements.set(id, {
-            value:'',checked:false,disabled:false,hidden:false,
-            setAttribute(){},reportValidity(){return true;}
+            value:'',checked:false,disabled:false,hidden:false,attributes:{},
+            setAttribute(name,value){this.attributes[name]=String(value);},reportValidity(){return true;}
         });
         return elements.get(id);
     };
@@ -102,13 +102,48 @@ function collectionFormContext(stored = {}) {
         document:{getElementById:field,querySelector:()=>null},
         localStorage:{getItem:key=>stored[key]??null,setItem:(key,value)=>stored[key]=value},
         Date:class extends Date { static now(){return now;} },
-        limitMaxFiles:0,limitMaxSize:0,createCalendar(){},t:key=>key,
+        limitMaxFiles:limits.files,limitMaxSize:limits.size,createCalendar(){},t:key=>key,
         runModalSave:async(_id,_button,save)=>save(),showToast(){},
     });
     vm.runInContext(source,context);
     context.insertOrReplaceFileRequest = () => {};
     return {context,field,now};
 }
+
+test('first collection uses server limits without saved defaults and submits those limits',async()=>{
+    for (const limits of [{files:7,size:13},{files:0,size:13},{files:7,size:0},{files:0,size:0}]) {
+        const {context,field}=collectionFormContext({},limits);
+        const calls=[];
+        context.apiURequestSave=async(...args)=>{calls.push(args);return {};};
+        context.loadFileRequestDefaults();
+        for (const [name,limit] of [['maxfiles',limits.files],['maxsize',limits.size]]) {
+            const checkbox=field(`mc_${name}`),input=field(`mi_${name}`);
+            assert.equal(checkbox.checked,limit!==0);
+            assert.equal(checkbox.disabled,limit!==0);
+            assert.equal(input.disabled,limit===0);
+            assert.equal(input.attributes.max,limit===0?'':String(limit));
+            if (limit!==0) assert.equal(Number(input.value),limit);
+        }
+        await context.saveFileRequest();
+        assert.equal(calls.length,1);
+        assert.equal(Number(calls[0][2]),limits.files);
+        assert.equal(Number(calls[0][3]),limits.size);
+        assert.equal(calls[0][6],1);
+    }
+});
+
+test('first collection preserves saved bounded preferences under current server limits',async()=>{
+    const {context,field}=collectionFormContext({fr_maxfiles:'3',fr_maxsize:'5'},{files:7,size:13});
+    const calls=[];
+    context.apiURequestSave=async(...args)=>{calls.push(args);return {};};
+    context.loadFileRequestDefaults();
+    assert.equal(field('mi_maxfiles').value,'3');
+    assert.equal(field('mi_maxsize').value,'5');
+    assert.equal(field('mc_maxfiles').disabled,true);
+    assert.equal(field('mc_maxsize').disabled,true);
+    await context.saveFileRequest();
+    assert.deepEqual(calls[0].slice(2,4),['3','5']);
+});
 
 test('new collections always start with five days and one download despite old expiry preferences',()=>{
     for (const oldExpiry of ['0','1209600']) {
