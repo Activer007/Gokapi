@@ -85,7 +85,7 @@ ssh -N -L 53842:127.0.0.1:53842 user@your-server
 
 生产访问建议通过反向代理使用 HTTPS，并将公开服务地址配置为用户实际访问的地址。可信代理、本机安装及可选的非 root Compose 部署详见[安装指南](docs/setup.rst)。默认 Compose 部署不会启用单独的非 root 方案。
 
-**已有部署？** 请先阅读[迁移说明](docs/repository-identity.rst)。使用同一份数据启动 SupaShare 前，应先停止旧 Gokapi 服务或容器，并保留现有数据卷、配置和加密密钥。
+**已有部署？** 请按[更新与恢复指南](docs/update.rst)完成停服备份、升级和快照回滚；从 Gokapi 迁移时，还需阅读[迁移说明](docs/repository-identity.rst)。使用同一份数据启动 SupaShare 前，应先停止旧服务或容器，并保留现有数据卷、配置和加密密钥。
 
 ## 站点定制
 
@@ -115,14 +115,18 @@ ssh -N -L 53842:127.0.0.1:53842 user@your-server
 - **资源规划：** 为已存文件和上传暂存预留磁盘空间。内存、CPU 和存储需求取决于文件大小、并发量与加密模式，项目不承诺统一的最低资源或吞吐量指标。
 - **异常恢复：** 无法确认的上传状态可能需要管理员核对。请遵循[上传恢复操作说明](docs/security/UPLOAD-RECOVERY-RUNBOOK.md)，避免直接删除文件或重置存储。
 
+**2.13.1 的 SQLite＋本地存储基线**已通过隔离 Compose 安装与重启验证，以及原生 2.12.0 → 2.13.1 升级、备份恢复和升级前快照回滚。精确范围、源码快照及缓存镜像限制见 [M5 验收记录](docs/m5/M5-ACCEPTANCE.md)；这些结果不代表生产、云存储或高可用验收。
+
 ## 文档导航
 
 | 文档 | 内容 |
 | --- | --- |
 | [安装指南](docs/setup.rst) | Docker、本机构建、安装凭据、HTTPS/代理与非 root 部署 |
 | [使用指南](docs/usage.rst) | 分享、文件收集、用户交付、权限和 API 密钥 |
+| [文件收集](docs/file-collections.rst) | 默认值、下载计数、短链接与历史策略 |
 | [高级配置](docs/advanced.rst) | 语言、站点定制、存储、环境变量与上传资源限制 |
-| [升级与迁移](docs/repository-identity.rst) | SupaShare 项目标识、兼容名称和版本管理 |
+| [更新与恢复](docs/update.rst) | 停服备份、升级、独立恢复与快照回滚 |
+| [迁移与项目标识](docs/repository-identity.rst) | SupaShare 项目标识、兼容名称和版本管理 |
 | [变更记录](docs/changelog.rst) | 当前项目改动及单独标注的继承历史 |
 | [问题排查](docs/troubleshooting.rst) | 运行诊断与故障处理 |
 | [安全政策](SECURITY.md) | 如何私密报告安全问题 |

@@ -53,7 +53,8 @@ GitHub Releases are separate publication steps; merging a PR does not
 automatically increment the version or publish a release.
 
 When changing the source version, update the current-version paragraph in both
-``README.md`` and ``README.zh-CN.md`` and add a SupaShare changelog entry. Screenshot
+``README.md`` and ``README.zh-CN.md``, the documentation release in ``docs/conf.py``,
+and the SupaShare changelog entry. Screenshot
 captions record the version actually captured; refresh the images before changing
 their version labels. The image guide in ``docs/images/README.md`` records their source.
 
@@ -62,7 +63,10 @@ Deployment and provenance
 
 Inherited publication jobs remain explicitly disabled. Replacing the repository
 identity must not silently enable publication to inherited image registries.
-Use the local validation workflow documented in ``build/test-ui-local.sh``.
+Select local checks according to the change's risk and impact, following
+``CONTRIBUTING.md``. The broader ``build/test-ui-local.sh`` workflow remains
+available when needed; it is not required for every small change. GitHub Actions
+remain disabled under the current maintainer policy.
 
 Raw historical security evidence in ``docs/security/evidence`` is preserved as
 captured, including its original module names and repository metadata. These

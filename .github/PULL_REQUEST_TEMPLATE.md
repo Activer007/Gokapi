@@ -15,7 +15,7 @@
 
 ## How Has This Been Tested?
 - [ ] **Manual Testing:** (e.g., "Uploaded a file using S3 and verified expiration")
-- [ ] **Unit Tests:** `go test ./...`
+- [ ] **Relevant checks:** Commands and results, or why a check was not needed; see [risk-based validation](https://github.com/Activer007/SupaShare/blob/master/CONTRIBUTING.md#choose-checks-by-risk).
 - [ ] **Environment:** (e.g., Docker, Linux, Windows)
 
 ## Checklist

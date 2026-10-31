@@ -79,10 +79,11 @@ Docker
 .. warning::
    Always mount ``/app/data`` and ``/app/config`` as volumes. Without them, **all data is lost** when the container is removed or updated.
 
-The standard run command:
+From a checkout of this repository, build the image before the first run:
 
 .. code-block:: bash
 
+   docker build -t supashare:local .
    docker run -v gokapi-data:/app/data -v gokapi-config:/app/config \
      -p 127.0.0.1:53842:53842 -e TZ=UTC supashare:local
 
@@ -106,7 +107,7 @@ Docker Compose
 """"""""""""""
 
 Use a complete checkout of this repository: the bundled Compose file builds
-the local Dockerfile and needs the application source. Rename ``.env.dist``
+the local Dockerfile and needs the application source. Copy ``.env.dist``
 to ``.env`` and edit as needed.
 
 The ``gokapi-data`` and ``gokapi-config`` folders are created automatically in the current directory. Start with:
@@ -115,7 +116,9 @@ The ``gokapi-data`` and ``gokapi-config`` folders are created automatically in t
 
    docker compose up -d --build
 
-By default the container restarts automatically on boot (``restart: always``). Change to ``restart: unless-stopped`` if you only want automatic restart after a crash.
+The bundled Compose service uses ``restart: always``. Choose a restart policy
+that matches your operational requirements; ``unless-stopped`` is not a
+crash-only policy.
 
 Fork non-root Compose (SEC-011)
 """""""""""""""""""""""""""""""
@@ -419,7 +422,12 @@ Native:
 
    ./supashare --reconfigure
 
-Docker:
+Docker (stop the normal container first):
+
+Stop the existing container or Compose service before reconfiguration, and use
+its exact config/data mounts below. Never run two instances against the same
+database or publish both on the same host port. The example uses named volumes;
+for the bundled Compose deployment, retain its existing bind directories instead.
 
 .. code-block:: bash
 
@@ -497,11 +505,9 @@ The ``DOCKER_NONROOT`` environment variable is deprecated. To migrate to ``docke
 .. code-block:: bash
 
    # Copy data out of the container (directories must not exist yet)
+   docker stop gokapi
    docker cp gokapi:/app/config ./gokapi-config
    docker cp gokapi:/app/data ./gokapi-data
-
-   # Remove the old container
-   docker rm -f gokapi
 
    # Start a new container as the current user
    docker run --user "$(id -u):$(id -g)" \
@@ -509,3 +515,9 @@ The ``DOCKER_NONROOT`` environment variable is deprecated. To migrate to ``docke
      -p 127.0.0.1:53842:53842 -e TZ=UTC supashare:local
 
 Replace the legacy ``gokapi`` container name with your actual old container name if different. Replace ``$(id -u):$(id -g)`` with explicit IDs if you want a specific user. Ensure the bind-mount directories are owned by that user.
+
+Keep the stopped old container and its original state until the copied deployment
+has been verified. Include any SQLite file outside config/data and all encryption
+material in the cold backup. For rollback, use the pre-upgrade state with its
+matching old image; do not restart the old version against migrated data. Follow
+:doc:`update` for backup and independent restore steps.

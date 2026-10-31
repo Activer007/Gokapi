@@ -90,7 +90,7 @@ ssh -N -L 53842:127.0.0.1:53842 user@your-server
 
 Use HTTPS through a reverse proxy for production access, and configure the public server URL to match the address users will visit. For trusted proxy settings, native installation and the opt-in non-root Compose deployment, follow the [installation guide](docs/setup.rst). The default Compose deployment does not enable the separate non-root profile.
 
-**Existing installation?** Follow the [migration notes](docs/repository-identity.rst) first. Stop the old Gokapi service/container before starting SupaShare against the same data; retain the existing volumes, configuration and encryption keys.
+**Existing installation?** Follow the [update and recovery guide](docs/update.rst) for a stopped-service backup, upgrade and snapshot rollback. If migrating from Gokapi, also read the [migration notes](docs/repository-identity.rst). Stop the old service/container before starting SupaShare against the same data; retain the existing volumes, configuration and encryption keys.
 
 ## Site customization
 
@@ -120,14 +120,18 @@ Merge these fields into your existing `config.json` (with the default Compose se
 - **Resource planning:** allow disk space for stored files and temporary uploads. Memory, CPU and storage needs depend on file sizes, concurrency and encryption mode; the project does not claim a universal minimum or throughput benchmark.
 - **Recovery:** uncertain upload states may require operator review. Consult the [upload recovery runbook](docs/security/UPLOAD-RECOVERY-RUNBOOK.md) rather than deleting files or resetting storage blindly.
 
+The **2.13.1 SQLite/local-storage baseline** passed isolated Compose installation and restart checks, plus a native 2.12.0 → 2.13.1 upgrade, backup restore and pre-upgrade snapshot rollback. See the [M5 acceptance record](docs/m5/M5-ACCEPTANCE.md) for exact scope, source snapshots and the cached-image limitation; these checks do not establish production, cloud-storage or HA readiness.
+
 ## Documentation
 
 | Guide | Contents |
 | --- | --- |
 | [Installation](docs/setup.rst) | Docker, native builds, setup credentials, HTTPS/proxies and non-root deployment |
 | [Usage](docs/usage.rst) | Sharing, File Requests, user onboarding, permissions and API keys |
+| [File collections](docs/file-collections.rst) | Defaults, download counting, short links and legacy policies |
 | [Configuration](docs/advanced.rst) | Languages, branding, storage, environment variables and upload budgets |
-| [Upgrade and migration](docs/repository-identity.rst) | SupaShare identity, retained identifiers and version management |
+| [Update and recovery](docs/update.rst) | Stopped-service backups, upgrades, independent restores and snapshot rollback |
+| [Migration and identity](docs/repository-identity.rst) | SupaShare identity, retained identifiers and version management |
 | [Changelog](docs/changelog.rst) | SupaShare changes and clearly separated inherited history |
 | [Troubleshooting](docs/troubleshooting.rst) | Operational diagnostics |
 | [Security policy](SECURITY.md) | How to report a vulnerability privately |
