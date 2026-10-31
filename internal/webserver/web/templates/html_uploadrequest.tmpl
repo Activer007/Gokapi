@@ -70,6 +70,12 @@
                       <label for="share-batch-links-{{.Id}}" class="small">{{$.UI.T "sharing.successLinks"}}</label>
                       <textarea id="share-batch-links-{{.Id}}" class="form-control mb-2" rows="4" readonly onclick="this.select()" data-allow-regular-paste></textarea>
                       <button id="share-batch-copy-{{.Id}}" type="button" class="btn btn-outline-light btn-sm" onclick="copyCollectionShareLinks('{{.Id}}', this)">{{$.UI.T "sharing.copySuccessful"}}</button>
+                      <fieldset class="delivery-create-panel mt-3">
+                        <legend class="h6">{{$.UI.T "delivery.selectSuccess"}}</legend>
+                        <div id="share-delivery-choices-{{.Id}}"></div>
+                        <p id="share-delivery-status-{{.Id}}" class="small" role="status" aria-live="polite"></p>
+                        <button id="share-delivery-create-{{.Id}}" type="button" class="btn btn-primary btn-sm" disabled onclick="createCollectionDelivery('{{.Id}}')">{{$.UI.T "delivery.create"}}</button>
+                      </fieldset>
                     </div>
 				    <ul class="list-group list-group-flush">
       {{ range .Files }}
@@ -135,6 +141,8 @@
                         </tbody>
                     </table>
   </div>
+  {{template "delivery_create" .}}
+  {{template "delivery_management" .}}
 </section>
     <div id="toastnotification" class="toastnotification" role="status" aria-live="polite" aria-atomic="true" data-default="{{$.UI.T "files.copyToast"}}"></div>
 	<div id="toastnotificationUndo" class="toastnotification">
@@ -151,6 +159,7 @@
     document.querySelectorAll('.filerequest-item').forEach(prepareFileRequestRow);
     document.querySelectorAll('[data-remaining="0"]').forEach(cell => expireCollectionFile(cell.id.slice('cell-downloadsRemaining-'.length)));
     updateFileRequestEmptyState();
+    refreshDeliveries();
 	registerCollectionChanges();
 	
 </script>

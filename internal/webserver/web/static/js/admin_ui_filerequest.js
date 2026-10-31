@@ -62,12 +62,36 @@ async function shareCollectionFile(id, button) {
     if (button.dataset.shared === 'true') return true;
     if (button.sharePromise) return button.sharePromise;
     if (button.disabled) return false;
+    const row = document.getElementById(`cell-listupload-${id}`);
+    const panel = row && document.getElementById(`collapse-filelist-${row.dataset.requestId}`);
+    if (panel) {
+        if (panel.shareBatchRunning && !panel.shareBatch.some(file => file.id === id)) return false;
+        // A failed member retries within its displayed batch. A different single
+        // action starts an explicit new scope; the success cache stays intact.
+        if (!panel.shareBatch?.some(file => file.id === id)) {
+            panel.shareBatch = [{id, name: row.querySelector('[data-collection-select]').dataset.name}];
+            panel.deliveryChoices = new Map();
+        }
+    }
+    if (panel) {
+        if (!panel.sharePending) panel.sharePending = new Set();
+        panel.sharePending.add(id);
+        updateCollectionShareResults(row.dataset.requestId);
+    }
     button.sharePromise = createCollectionShare(id, button);
     try {
         return await button.sharePromise;
     } finally {
         button.sharePromise = null;
+        if (panel) {
+            panel.sharePending.delete(id);
+            updateCollectionShareResults(row.dataset.requestId);
+        }
     }
+}
+
+function collectionShareRunning(panel) {
+    return Boolean(panel.shareBatchRunning || panel.shareBatch?.some(file => panel.sharePending?.has(file.id)));
 }
 
 async function createCollectionShare(id, button) {
@@ -91,7 +115,11 @@ async function createCollectionShare(id, button) {
         if (row) {
             const panel = document.getElementById(`collapse-filelist-${row.dataset.requestId}`);
             if (!panel.shareLinks) panel.shareLinks = new Map();
-            panel.shareLinks.set(id, {name: row.querySelector('[data-collection-select]').dataset.name, url});
+            panel.shareLinks.set(id, {
+                id: typeof data.Id === 'string' ? data.Id : '',
+                name: row.querySelector('[data-collection-select]').dataset.name,
+                url, e2e: data.IsEndToEndEncrypted !== false
+            });
             updateCollectionShareResults(row.dataset.requestId);
         }
         return true;
@@ -126,7 +154,9 @@ function updateCollectionShareSelection(requestId) {
 
 function collectionShareLinks(requestId) {
     const panel = document.getElementById(`collapse-filelist-${requestId}`);
-    return [...(panel.shareLinks?.values() || [])];
+    // Keep previous conversions cached to avoid creating duplicate shares, but
+    // expose only the current, explicitly selected batch in results and delivery.
+    return (panel.shareBatch || []).map(file => panel.shareLinks?.get(file.id)).filter(Boolean);
 }
 
 function updateCollectionShareResults(requestId) {
@@ -135,7 +165,11 @@ function updateCollectionShareResults(requestId) {
     const result = document.getElementById(`share-batch-result-${requestId}`);
     result.hidden = links.length === 0;
     document.getElementById(`share-batch-links-${requestId}`).value = formatShareLinks(links);
-    if (panel.shareBatch && !panel.shareBatchRunning) {
+    renderCollectionDeliveryChoices(requestId);
+    if (!panel.shareBatchRunning && collectionShareRunning(panel)) {
+        document.getElementById(`share-batch-status-${requestId}`).textContent = t('request.sharing');
+    }
+    if (panel.shareBatch && !collectionShareRunning(panel)) {
         const failed = panel.shareBatch.filter(file => !panel.shareLinks?.has(file.id));
         const success = panel.shareBatch.length - failed.length;
         const state = failed.length === 0 ? 'allSucceeded' : (success ? 'partlySucceeded' : 'allFailed');
@@ -146,7 +180,8 @@ function updateCollectionShareResults(requestId) {
 }
 
 async function shareSelectedCollectionFiles(requestId, button) {
-    if (button.disabled) return;
+    const panel = document.getElementById(`collapse-filelist-${requestId}`);
+    if (button.disabled || panel.shareBatchRunning) return;
     const selected = collectionShareSelections(requestId).filter(field => field.checked && !field.disabled);
     if (!selected.length) {
         showToast(3500, t('sharing.noSelection'));
@@ -157,9 +192,10 @@ async function shareSelectedCollectionFiles(requestId, button) {
     button.setAttribute('aria-busy', 'true');
     button.textContent = t('sharing.creating');
     const status = document.getElementById(`share-batch-status-${requestId}`);
-    const panel = document.getElementById(`collapse-filelist-${requestId}`);
+    panel.deliveryChoices = new Map();
     panel.shareBatch = selected.map(field => ({id: field.value, name: field.dataset.name}));
     panel.shareBatchRunning = true;
+    updateCollectionShareResults(requestId);
     try {
         for (const [index, field] of selected.entries()) {
             status.textContent = t('sharing.progress', {current: index + 1, total: selected.length});
@@ -173,6 +209,77 @@ async function shareSelectedCollectionFiles(requestId, button) {
         button.removeAttribute('aria-busy');
         button.disabled = false;
     }
+}
+
+// Selection here refers to successful *new* shares, never collection source IDs.
+function renderCollectionDeliveryChoices(requestId) {
+    const choices = document.getElementById(`share-delivery-choices-${requestId}`);
+    if (!choices) return;
+    const panel = document.getElementById(`collapse-filelist-${requestId}`);
+    if (!panel.deliveryChoices) panel.deliveryChoices = new Map();
+    choices.replaceChildren();
+    for (const source of panel.shareBatch || []) {
+        const share = panel.shareLinks?.get(source.id);
+        if (!share) continue;
+        const label = document.createElement('label');
+        label.className = 'd-flex align-items-start gap-2 mb-2';
+        const field = document.createElement('input');
+        field.type = 'checkbox';
+        field.className = 'form-check-input flex-shrink-0';
+        field.setAttribute('data-collection-delivery-select', '');
+        field.value = source.id;
+        const eligible = Boolean(share.id) && !share.e2e;
+        field.disabled = !eligible || collectionShareRunning(panel);
+        field.checked = eligible && (panel.deliveryChoices.get(source.id) ?? true);
+        field.onchange = () => {
+            panel.deliveryChoices.set(source.id, field.checked);
+            updateCollectionDeliverySelection(requestId);
+        };
+        const name = document.createElement('span');
+        name.className = 'delivery-item-details';
+        name.textContent = share.name + (!share.id ? ' — ' + t('delivery.noShareId') : '');
+        label.append(field, name);
+        choices.appendChild(label);
+    }
+    updateCollectionDeliverySelection(requestId);
+}
+
+function selectedCollectionDeliveryFiles(requestId) {
+    const panel = document.getElementById(`collapse-filelist-${requestId}`);
+    const selected = [...document.getElementById(`share-delivery-choices-${requestId}`)
+        .querySelectorAll('[data-collection-delivery-select]')];
+    const current = new Set((panel.shareBatch || []).map(file => file.id));
+    return selected.filter(field => field.checked && !field.disabled && current.has(field.value))
+        .map(field => panel.shareLinks?.get(field.value))
+        .filter(share => share?.id && !share.e2e)
+        .map(share => ({id: share.id, name: share.name, e2e: false}));
+}
+
+function updateCollectionDeliverySelection(requestId) {
+    const status = document.getElementById(`share-delivery-status-${requestId}`);
+    if (!status) return;
+    const panel = document.getElementById(`collapse-filelist-${requestId}`);
+    const links = collectionShareLinks(requestId);
+    const selected = selectedCollectionDeliveryFiles(requestId).length;
+    const excluded = links.filter(share => !share.id || share.e2e).length;
+    status.textContent = collectionShareRunning(panel) ? t('delivery.collectionRunning') :
+        t('delivery.collectionSelection', {selected, success: links.length, failed: (panel.shareBatch || []).length - links.length}) +
+        (excluded ? ' ' + t('delivery.collectionExcluded', {count: excluded}) : '') +
+        (selected < 2 || selected > 20 ? ' ' + t('delivery.selectionLimit') : '');
+    document.getElementById(`share-delivery-create-${requestId}`).disabled =
+        collectionShareRunning(panel) || selected < 2 || selected > 20;
+}
+
+function createCollectionDelivery(requestId) {
+    const panel = document.getElementById(`collapse-filelist-${requestId}`);
+    if (collectionShareRunning(panel)) {
+        document.getElementById(`share-delivery-status-${requestId}`).textContent = t('delivery.collectionRunning');
+        return;
+    }
+    const files = selectedCollectionDeliveryFiles(requestId);
+    // Only IDs/names/type are passed. E2E URL fragments and passwords never
+    // reach the delivery API or its shared creation form.
+    openDeliveryCreate(files, t('delivery.collectionContext'));
 }
 
 function copyCollectionShareLinks(requestId, button) {
