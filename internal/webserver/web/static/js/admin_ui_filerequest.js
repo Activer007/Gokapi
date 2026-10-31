@@ -548,6 +548,7 @@ function checkMaxNumber(element) {
 function insertOrReplaceFileRequest(jsonResult) {
     const tbody = document.getElementById("filerequesttable");
     let row = document.getElementById(`row-${jsonResult.id}`);
+    const isNew = !row;
 
     if (row) {
         updateCollectionSummary(jsonResult);
@@ -563,11 +564,17 @@ function insertOrReplaceFileRequest(jsonResult) {
         tbody.prepend(tr);
         updateCollectionSummary(jsonResult);
     }
+    row = document.getElementById(`row-${jsonResult.id}`);
+    if (row) row.dataset.ownerId = String(jsonResult.userid);
+    if (typeof ensureCollectionArrivalPanel === 'function') ensureCollectionArrivalPanel(jsonResult.id);
+    if (isNew && typeof seedCollectionArrivalBaseline === 'function') seedCollectionArrivalBaseline(jsonResult.id, []);
     updateFileRequestEmptyState();
 }
 
 function updateFileRequestControls(input) {
     const {id, name, maxfiles, maxsize, expiry, notes, alloweddownloads, uploadedfiles} = input;
+    const summaryRow = document.getElementById(`row-${id}`);
+    if (summaryRow && Number.isSafeInteger(input.userid) && input.userid > 0) summaryRow.dataset.ownerId = String(input.userid);
     const nameLink = document.getElementById(`collection-name-${id}`);
     if (nameLink && typeof name === 'string') nameLink.textContent = name;
     const edit = document.getElementById(`edit-${id}`);
@@ -621,6 +628,26 @@ function createFileRequestRow(jsonResult, user) {
     badge.className = 'badge collection-status';
     badge.setAttribute('role', 'status');
     nameCell.appendChild(badge);
+    const arrivals = document.createElement('div');
+    arrivals.id = `collection-arrivals-${jsonResult.id}`;
+    arrivals.className = 'collection-arrivals';
+    arrivals.hidden = true;
+    const arrivalCount = document.createElement('span');
+    arrivalCount.id = `collection-arrivals-count-${jsonResult.id}`;
+    arrivalCount.setAttribute('role', 'status');
+    arrivalCount.setAttribute('aria-live', 'polite');
+    const viewArrivals = document.createElement('button');
+    viewArrivals.id = `collection-arrivals-view-${jsonResult.id}`;
+    viewArrivals.type = 'button';
+    viewArrivals.className = 'btn btn-outline-light btn-sm';
+    viewArrivals.textContent = t('collection.arrivals.view');
+    viewArrivals.onclick = () => viewCollectionArrivals(jsonResult.id);
+    const arrivalDetail = document.createElement('span');
+    arrivalDetail.id = `collection-arrivals-detail-${jsonResult.id}`;
+    arrivalDetail.className = 'small';
+    arrivalDetail.setAttribute('role', 'status');
+    arrivals.append(arrivalCount, viewArrivals, arrivalDetail);
+    nameCell.appendChild(arrivals);
     tr.appendChild(nameCell);
     // Preserve the count hook and the expandable list when editing a request.
     const countCell = document.createElement('td');

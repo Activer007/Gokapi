@@ -3,6 +3,8 @@ const collectionSummarySnapshots = new Map();
 let collectionClockOffset = 0;
 let collectionStatusTimer;
 let collectionSummaryRefreshPending = false;
+let collectionSummaryRefreshPromise = null;
+let collectionSummaryRefreshManual = false;
 let collectionSummaryAuthBlocked = false;
 
 function collectionServerNow() {
@@ -22,7 +24,7 @@ function collectionSummarySnapshot(input) {
         if (!Number.isSafeInteger(value) || value < 0) return null;
         snapshot[key] = value;
     }
-    const ids = input.fileidlist ?? (typeof input.fileids === 'string' ? input.fileids.split(',').filter(Boolean) : []);
+    const ids = input.fileidlist ?? (typeof input.fileids === 'string' ? input.fileids.split(',').filter(Boolean) : null);
     if (!Array.isArray(ids) || ids.some(id => typeof id !== 'string' || !id)) return null;
     snapshot.fileidlist = Object.freeze([...ids]);
     return Object.freeze(snapshot);
@@ -36,7 +38,8 @@ function deriveCollectionStatus(snapshot, now) {
 }
 
 function renderCollectionStatus(snapshot) {
-    const state = deriveCollectionStatus(snapshot, collectionServerNow());
+    const row = document.getElementById(`row-${snapshot.id}`);
+    const state = row?.dataset.collectionAccess === 'unavailable' ? 'unavailable' : deriveCollectionStatus(snapshot, collectionServerNow());
     const badge = document.getElementById(`collection-status-${snapshot.id}`);
     if (badge) {
         const label = t(`collection.status.${state}`);
@@ -125,33 +128,77 @@ function initCollectionStatus(serverTime) {
     }, 1000);
 }
 
-async function refreshCollectionSummaries() {
-    if (collectionSummaryRefreshPending || collectionSummaryAuthBlocked) return false;
+function blockCollectionSummaryAccess() {
+    collectionSummaryAuthBlocked = true;
+    if (typeof storedTokens !== 'undefined') {
+        storedTokens.delete('PERM_MANAGE_FILE_REQUESTS');
+        storedTokens.delete('PERM_VIEW');
+    }
+    const button = document.getElementById('collectionRefresh');
+    if (button) button.disabled = true;
+    const status = document.getElementById('collectionRefreshStatus');
+    if (status) status.textContent = t('collection.authRequired');
+    if (typeof stopCollectionArrivalPolling === 'function') stopCollectionArrivalPolling();
+    if (typeof collectionArrivalStates !== 'undefined') {
+        for (const [id, state] of collectionArrivalStates) {
+            state.active = false;
+            setCollectionArrivalAccess(id, false);
+            renderCollectionArrivalNotice(id);
+        }
+    }
+}
+
+function refreshCollectionSummaries({silent = false} = {}) {
+    if (collectionSummaryAuthBlocked) return Promise.resolve(false);
+    if (collectionSummaryRefreshPromise) {
+        if (!silent) {
+            collectionSummaryRefreshManual = true;
+            const status = document.getElementById('collectionRefreshStatus');
+            if (status && status.textContent !== t('common.loading')) status.textContent = t('common.loading');
+        }
+        return collectionSummaryRefreshPromise;
+    }
+    collectionSummaryRefreshManual = !silent;
+    const pending = performCollectionSummaryRefresh();
+    collectionSummaryRefreshPromise = pending;
+    const clear = () => { if (collectionSummaryRefreshPromise === pending) collectionSummaryRefreshPromise = null; };
+    pending.then(clear, clear);
+    return pending;
+}
+
+async function performCollectionSummaryRefresh() {
     collectionSummaryRefreshPending = true;
     const button = document.getElementById('collectionRefresh');
     const status = document.getElementById('collectionRefreshStatus');
     if (button) { button.disabled = true; button.setAttribute('aria-busy', 'true'); }
-    if (status) status.textContent = t('common.loading');
+    if (status && collectionSummaryRefreshManual) status.textContent = t('common.loading');
     try {
         const result = await apiURequestList();
+        if (collectionSummaryAuthBlocked) return false;
         if (!Array.isArray(result.requests)) throw new Error('invalid collection summary');
         const snapshots = result.requests.map(collectionSummarySnapshot);
-        if (snapshots.some(snapshot => !snapshot)) throw new Error('invalid collection summary');
+        if (snapshots.some(snapshot => !snapshot) || new Set(snapshots.map(snapshot => snapshot.id)).size !== snapshots.length) {
+            throw new Error('invalid collection summary');
+        }
         setCollectionServerTime(result.serverTime);
         for (const [index, snapshot] of snapshots.entries()) {
             if (updateCollectionSummary(snapshot) && typeof updateFileRequestControls === 'function') {
                 updateFileRequestControls(result.requests[index]);
             }
         }
+        if (typeof processCollectionArrivalSnapshots === 'function') processCollectionArrivalSnapshots(snapshots);
         recordCollectionUpdatedTime();
-        if (status) status.textContent = t('collection.refreshed');
+        if (status && (collectionSummaryRefreshManual || status.textContent === t('collection.refreshFailed'))) {
+            status.textContent = t('collection.refreshed');
+        }
         return true;
     } catch (failure) {
-        collectionSummaryAuthBlocked = failure.status === 401 || failure.status === 403;
-        if (status) status.textContent = t(collectionSummaryAuthBlocked ? 'collection.authRequired' : 'collection.refreshFailed');
+        if (failure.status === 401 || failure.status === 403) blockCollectionSummaryAccess();
+        else if (status && status.textContent !== t('collection.refreshFailed')) status.textContent = t('collection.refreshFailed');
         return false;
     } finally {
         collectionSummaryRefreshPending = false;
+        collectionSummaryRefreshManual = false;
         if (button) { button.disabled = collectionSummaryAuthBlocked; button.removeAttribute('aria-busy'); }
     }
 }
