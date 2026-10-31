@@ -4,6 +4,7 @@
     <div><h1 id="collectionsTitle">{{.UI.T "nav.requests"}}</h1><p>{{.UI.T "request.workspaceHelp"}}</p></div>
     <button id="button-newfr" type="button" class="btn btn-primary primary-upload" onclick="newFileRequest()"><i class="bi bi-plus-lg" aria-hidden="true"></i>{{.UI.T "request.new"}}</button>
   </div>
+  {{template "quota_summary" .}}
   <div class="collections-section-heading d-flex align-items-center justify-content-between gap-3"><h2>{{.UI.T "request.links"}} <span id="requestCount" class="file-count">{{len .FileRequests}}</span></h2><button id="collectionRefresh" type="button" class="btn btn-outline-light btn-sm" onclick="refreshCollectionSummaries()">{{.UI.T "collection.refresh"}}</button></div>
   <p class="small text-muted">{{.UI.T "collection.displayHelp"}} <time id="collectionUpdatedAt"></time></p>
   <p id="collectionRefreshStatus" class="small" role="status" aria-live="polite"></p>
@@ -69,6 +70,7 @@
 			   <div class="p-2">
 
                     <p class="small text-muted mb-2">{{$.UI.T "request.shareHelp"}}</p>
+                    <p class="small text-muted mb-2">{{$.UI.T "quota.conversionHelp"}}</p>
                     <div class="d-flex flex-wrap gap-3 align-items-center mb-3">
                       <label><input id="share-select-all-{{.Id}}" type="checkbox" class="form-check-input me-2" onchange="selectCollectionShares('{{.Id}}', this.checked)">{{$.UI.T "sharing.selectAll"}}</label>
                       <button id="share-selected-{{.Id}}" type="button" class="btn btn-outline-light btn-sm" onclick="shareSelectedCollectionFiles('{{.Id}}', this)">{{$.UI.T "sharing.createSelected"}}</button>
@@ -173,6 +175,7 @@
     initCollectionStatus({{.TimeNow}});
     initCollectionArrivals();
     refreshDeliveries();
+    initQuotaSummary();
 	registerCollectionChanges();
 	
 </script>

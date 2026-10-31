@@ -269,6 +269,7 @@ function requestFileInfo(fileId, uid) {
     apiFilesListById(fileId)
         .then(data => {
             addRow(data);
+            if (typeof refreshQuotaAfterMutation === 'function') refreshQuotaAfterMutation();
             notifyWorker({ type: "fileAdded", item: data });
             let file = dropzoneGetFile(uid);
             if (file == null) {

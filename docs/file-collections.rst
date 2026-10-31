@@ -85,6 +85,12 @@ Sharing feedback distinguishes complete, partial and failed operations. Error
 messages identify unavailable files, permission, network or quota failures
 without exposing service diagnostics. Quota errors explain the logical charge
 for each new share; the page does not estimate remaining quota from visible files.
+**My logical quota** above the list shows only the signed-in user's authoritative
+logical usage and limits. A batch conversion refreshes it once when the batch
+finishes; successful single-file conversions refresh it separately. In-progress
+reservations and instance limits can still prevent another conversion. Failed
+quota reads keep any prior values visibly marked out of date and do not reset
+the conversion results or delivery form.
 
 API compatibility
 -----------------

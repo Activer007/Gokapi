@@ -977,6 +977,18 @@ async function apiE2eStore(content) {
 
 // Upload Requests
 
+async function apiQuotaSummary() {
+    try {
+        const token = await getToken('PERM_VIEW', false);
+        const response = await fetch('./api/quota/summary', {method: 'GET', headers: {apikey: token}, cache: 'no-store'});
+        if (!response.ok) throw await apiFailure(response);
+        return await response.json();
+    } catch (failure) {
+        if (failure.status === 401 || failure.status === 403) storedTokens.delete('PERM_VIEW');
+        throw failure;
+    }
+}
+
 async function apiURequestList() {
     try {
         const token = await getToken('PERM_MANAGE_FILE_REQUESTS', false);

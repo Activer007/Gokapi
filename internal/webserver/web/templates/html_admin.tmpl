@@ -5,6 +5,7 @@
           <div><h1 id="workspaceTitle">{{$.UI.T "files.yourFiles"}}</h1><p>{{$.UI.T "files.workspaceHelp"}}</p></div>
           <button id="selectUploadFiles" type="button" class="btn btn-primary primary-upload" {{if .EndToEndEncryption}}disabled{{end}} onclick="chooseUploadFiles()"><i class="bi bi-upload" aria-hidden="true"></i>{{$.UI.T "nav.upload"}}</button>
         </div>
+        {{template "quota_summary" .}}
 
 			<form action="./uploadChunk" class="dropzone upload-box text-center w-100" id="uploaddropzone">
 				<div class="dz-message">
@@ -211,6 +212,7 @@
 	    }
 	    });
 	    refreshDeliveries();
+        initQuotaSummary();
 	});
 
 	registerChangeHandler();

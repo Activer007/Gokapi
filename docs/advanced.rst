@@ -656,6 +656,13 @@ invalid configuration, an unreadable ledger or an incomplete read return HTTP
 limits are not interpreted as unlimited capacity. Responses use
 ``Cache-Control: no-store``.
 
+The Files and File Requests management pages show **My logical quota** using
+this summary: personal file count, logical bytes, their limits and the server's
+update time. Refresh is manual or follows confirmed upload metadata and a
+completed conversion batch; it does not poll with collection arrival checks.
+A failed refresh keeps the last values and marks them out of date. If no
+confirmed values exist, the page shows unavailable rather than zero or unlimited.
+
 Whole-file API, ordinary API/browser chunks and File Requests share owner and
 instance admission. File Requests additionally use
 ``GOKAPI_UPLOAD_REQUEST_TOTAL_MB`` (20480 MiB) and

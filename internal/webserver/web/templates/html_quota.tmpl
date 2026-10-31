@@ -1,0 +1,15 @@
+{{define "quota_summary"}}
+<section id="quotaSummary" class="quota-summary" data-state="loading" aria-labelledby="quotaTitle">
+  <div class="quota-heading">
+    <h2 id="quotaTitle">{{.UI.T "quota.title"}}</h2>
+    <button id="quotaRefresh" type="button" class="btn btn-outline-light btn-sm" onclick="refreshQuotaSummary()">{{.UI.T "quota.refresh"}}</button>
+  </div>
+  <dl class="quota-values">
+    <div><dt>{{.UI.T "quota.files"}}</dt><dd id="quotaFiles">—</dd></div>
+    <div><dt>{{.UI.T "quota.bytes"}}</dt><dd id="quotaBytes">—</dd></div>
+  </dl>
+  <p class="quota-help">{{.UI.T "quota.help"}}</p>
+  <p class="quota-help">{{.UI.T "quota.admissionHelp"}}</p>
+  <div class="quota-read-state"><time id="quotaUpdatedAt">{{.UI.T "quota.noConfirmedData"}}</time><span id="quotaStatus" role="status" aria-live="polite"></span></div>
+</section>
+{{end}}
