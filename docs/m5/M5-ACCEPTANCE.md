@@ -1,6 +1,6 @@
 # M5 验收检查表
 
-保留各包已完成的验证与原始受测提交；本轮按用户授权依次合并 PR #60、#61，不重复运行未受影响的验证。
+保留各包已完成的验证与原始受测提交；FIX-01/02/03 已合并，本轮仅补 REL-01 Lite 安装与恢复路径，不重复运行未受影响的完整测试。
 
 ## FIX-01
 
@@ -39,8 +39,26 @@
 | 版本源、API、页脚、Swagger、README、changelog 与生成资产同步为 2.13.1/21301 | 生成 guard、CLI、真实 Chrome/API/Swagger 与下载正负例 | PASS；源码更新，未发布 |
 | 完整回归、默认/noaws 构建、精确 SHA、独立 PR 与最新 head review | [FIX-03 报告](FIX-03-REPORT.md) | 本地 PASS；远端结果以 PR 对应最新 SHA 摘要为准 |
 
+## REL-01 Lite（2026-10-30～31）
+
+受测源码：2.12.0 / API 21200 为 `94ba10fd57feec60e463f63bd11e5f41d20cae46`，当前 2.13.1 / API 21301 为 `54e65f45b63978823c9eee8155dc19d81ba51442`。两者由源码归档在 WSL Ubuntu 24.04 / Go 1.26.10 运行 `go generate ./...`、`CGO_ENABLED=0 go build ./cmd/supashare`；均使用新建合成目录，未修改真实数据。
+
+| 路径 | 实际验证 | 结果 |
+| --- | --- | --- |
+| Docker Compose 全新安装及初始化 | Docker 29.1.3 / Compose 2.40.3；独立项目和全新 config/data 挂载，回环端口 58141；setup 初始化、CSRF 登录、上传、匿名分享下载及收集专用分片接口完成后管理下载，SHA-256 一致 | PASS |
+| 原生 SQLite＋本地全新安装 | 私有 setup 凭据初始化、CSRF 登录、普通上传、匿名分享下载 SHA-256、专用分片接口完成文件收集及管理下载 SHA-256 | PASS（原生，不代表 Compose） |
+| 重启后数据保持 | 同一数据目录正常停止/启动，登录、文件 hash、用户及收集链接/设置复核 | PASS（原生） |
+| Compose 重启后数据保持 | `docker compose restart` 后再次核对登录、普通/收集文件 hash、用户和收集设置；停止后 SQLite schema 18 / integrity_check=ok，清理仅限自有 project，保留挂载数据 | PASS（Compose） |
+| 2.12.0 → 2.13.1 | 旧版真实创建合成文件、额外用户和收集；冷备副本启动新版；schema 17→18、`UploadRequests.allowedDownloads` 新增且旧策略为 0，原 ID/key/expiry/限额、用户登录及文件 hash 保持 | PASS（原生） |
+| 新版备份恢复 | 升级后再写入文件，停止应用后备份 config/data；独立空目录恢复，用 2.13.1 验证全部文件 hash、用户和收集 | PASS（原生） |
+| 旧版快照回滚 | 另一个空目录恢复升级前快照，用 2.12.0 验证 schema 17、旧文件 hash、用户和收集；从未将 schema 18 数据交给旧版 | PASS（原生） |
+
+原生流程使用保留 stash 中的 HTTP 辅助函数，并按真实 2.12.0 API 和 schema 调整；未应用旧 stash 或提交额外验收框架。旧版冷备 SHA-256 为 `e03e22f1f9eb5e73695179f61dde12531c349a7a6b95259e80e343cbb9926226`，恢复/回滚后原备份 hash 保持；新版冷备 SHA-256 为 `c596776e8c3533cda2a51b4376e0b066aa97a643273c50e808f206180aa8aa34`。本地原始材料另行保留，不重复提交日志。
+
+Compose 使用本地镜像 `supashare:rel01-lite-2.13.1`。Docker Hub token 拉取超时，因此复用本机已有的 Alpine 3.23.7 运行层（tini/curl/ca-certificates/su-exec/tzdata），装入上述精确源码构建的静态二进制与项目 entrypoint；容器内版本 2.13.1，二进制 SHA-256 `584c31751386b09f120f114e9c7c349b2d0b535972b46cb12d2df318b1af2be6` 与原生受测文件一致。独立 Compose 执行 `up -d --pull never`、`restart`、`down`；全量联网重建镜像未验证，不将缓存运行层验证写成冷环境拉取通过。此前 Docker Desktop 启动阻断复核时已解除，未删除临时对象或重置任何 Docker 数据。
+
 ## 当前收口边界
 
-FIX-01、FIX-02 已分别通过 PR #59、#60 合并。FIX-02、FIX-03 的原代码审查分别对应 `831d088`、`793613e`，均 completed/no findings；本轮仅处理合入 master 所需的文档冲突，按顺序合并 PR #60、#61。合并后的状态以各 PR 为准。
+FIX-01/02/03 分别通过 PR #59/#60/#61 合并（`9478e55` / `bed031f` / `54e65f4`），既有代码验证与审查复用。REL-01 Lite 必需的安装、核心流程、升级、恢复与回滚均已通过；建议 PR #62 审查合入后关闭 M5，不自动进入下一里程碑。
 
-REL-01 继续延期，保留已有改动和证据；不将真实 Redis/S3、断电、安装升级、备份恢复或发布候选演练记为本轮通过。GitHub Actions 保持关闭，不发布 Release/tag/镜像或部署。
+真实 Redis/云 S3、HA、断电及生产部署为 NOT_RUN（本轮范围外）。GitHub Actions 保持关闭，不发布 Release/tag/镜像，不自动合并本轮 PR。
