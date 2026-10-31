@@ -233,22 +233,22 @@ insertLastOnlineDate({{ .User.LastOnline }}, "cell-lastonline-{{ .User.Id }}");<
 {{define "user_credentials"}}
 <div data-user-credentials class="text-start credential-delivery" hidden>
     <p class="mb-3">{{.T "users.firstLoginHelp"}}</p>
-    <div class="mb-3">
+    <div class="mb-3 credential-row">
         <label class="form-label w-100">{{.T "login.username"}}
             <input data-credential-field="username" type="text" class="form-control mt-1" readonly autocomplete="off" spellcheck="false">
         </label>
         <button type="button" data-credential-copy="username" class="btn btn-outline-light btn-sm">{{.T "users.copyUsername"}}</button>
     </div>
-    <div class="mb-3">
+    <div class="mb-3 credential-row">
         <label class="form-label w-100">{{.T "users.temporaryPassword"}}
             <input data-credential-field="password" type="password" class="form-control mt-1" readonly autocomplete="off" spellcheck="false">
         </label>
-        <div class="d-flex flex-wrap gap-2">
+        <div class="d-flex gap-2">
+            <button type="button" data-credential-toggle class="btn btn-outline-light btn-sm" aria-pressed="false" aria-label="{{.T "users.showPassword"}}" title="{{.T "users.showPassword"}}"><i class="bi bi-eye" aria-hidden="true"></i></button>
             <button type="button" data-credential-copy="password" class="btn btn-outline-light btn-sm">{{.T "users.copyPassword"}}</button>
-            <button type="button" data-credential-toggle class="btn btn-outline-light btn-sm" aria-pressed="false">{{.T "users.showPassword"}}</button>
         </div>
     </div>
-    <div class="mb-3">
+    <div class="mb-3 credential-row">
         <label class="form-label w-100">{{.T "users.loginUrl"}}
             <input data-credential-field="loginUrl" type="url" class="form-control mt-1" readonly autocomplete="off" spellcheck="false">
         </label>

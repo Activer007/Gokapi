@@ -17,6 +17,11 @@
 .api-workspace:not(:has(#apitable > tr)) .management-table { display: none; }
 .credential-delivery > div.mb-3 { padding: 14px 16px; border: 1px solid var(--ss-border); border-radius: 8px; background: #20252c; }
 .credential-delivery .form-label { color: var(--ss-muted); font-size: 14px; }
+.credential-delivery .credential-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 10px; }
+.credential-delivery .credential-row .form-label { min-width: 0; margin-bottom: 0; }
+.credential-row .btn { min-height: 38px; white-space: nowrap; }
+.credential-row [data-credential-copy] { width: 9rem; flex-shrink: 0; }
+.credential-row [data-credential-toggle] { min-width: 38px; }
 .credential-delivery input { font-family: ui-monospace, Consolas, monospace; }
 .credential-delivery > p:first-child { color: var(--ss-text); line-height: 1.6; }
 .status-metrics { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; margin-bottom: 28px; }
