@@ -11,6 +11,9 @@ Overview of all changes
 Unreleased
 ^^^^^^^^^^
 
+* Expand the login artwork catalog to 13 images with nine user-selected
+  mechanical, macro and abstract illustrations, optimized as local WebP assets.
+
 * Redesign local login with a charcoal panel, bilingual tagline and four optimized
   blue/silver illustrations. Select one local image per page load, retain it after
   failed login when storage permits, and fall back safely on resource failure.

@@ -2,6 +2,8 @@ Login artwork maintenance
 =========================
 
 The login page uses a left-hand form and a decorative illustration on the right.
+The catalog contains 13 images: four original file-sharing illustrations and
+nine selected mechanical, macro and abstract artworks.
 Each new page load selects one entry from a local catalog. The image stays fixed
 while typing. After a failed login, the browser attempts to reuse the previous
 image ID stored in this tab's sessionStorage. No credentials are stored there.
