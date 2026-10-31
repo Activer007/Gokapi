@@ -29,7 +29,7 @@ Key features:
 * **Configuration-based branding** — set the public name, browser title, footer text and help links; custom CSS and JavaScript remain available
 * **Account handoff** — create an internal-login user and copy their generated temporary password, username and login URL; require a password change after first browser login
 
-The documentation in this repository describes SupaShare. The historical Gokapi Read the Docs website describes the upstream project and may differ. Start with the repository's English or Chinese README for the current product overview and quick start.
+The documentation in this repository describes SupaShare. The historical Gokapi Read the Docs website describes the upstream project and may differ. Start with the default `Chinese README <https://github.com/Activer007/SupaShare/blob/master/README.md>`_ or the `English README <https://github.com/Activer007/SupaShare/blob/master/README.en.md>`_ for the current product overview and quick start.
 
 
 Contents

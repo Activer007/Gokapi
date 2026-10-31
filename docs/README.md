@@ -1,6 +1,6 @@
 # SupaShare documentation / 文档导航
 
-[English overview](../README.md) · [中文首页](../README.zh-CN.md)
+[中文首页](../README.md) · [English overview](../README.en.md)
 
 This directory is the documentation source for the SupaShare version in this checkout. Start with the repository README, then choose a guide below. The historical `gokapi.readthedocs.io` site belongs to the upstream project; it does not publish this repository's current documentation.
 
