@@ -698,5 +698,9 @@
   "collection.updatedAt": "更新于：{time}",
   "collection.refreshed": "收集状态已更新。",
   "collection.refreshFailed": "更新失败，已保留上次数据和更新时间，请稍后重试。",
-  "collection.authRequired": "登录已过期或权限不足，请重新登录后重新打开此页。"
+  "collection.authRequired": "登录已过期或权限不足，请重新登录后重新打开此页。",
+  "collection.status.unavailable": "不可用或权限已改变",
+  "collection.arrivals.count": "{name}：{count} 个新到文件尚未查看。",
+  "collection.arrivals.view": "查看新增",
+  "collection.arrivals.retry": "部分文件暂不可用或读取失败，未查看项已保留，可稍后重试。"
 }

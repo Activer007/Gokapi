@@ -1,0 +1,56 @@
+{{define "collection_file_templates"}}
+<!-- Inert skeletons supply the same M6/M7 controls for arrivals without
+     replacing an existing file row, selection, or conversion result. -->
+<template id="collection-file-row-template">
+  <li class="list-group-itemtext-light d-flex align-items-center border-bottom-0 filelist-item">
+    <input type="checkbox" class="form-check-input" data-collection-select data-file-field="select">
+    <div class="flex-grow-1 collection-file-name">
+      <a href="#" data-file-field="name" data-collection-download class="text-decoration-none text-light"></a>
+      <p data-file-field="error" class="small text-danger mb-0" role="alert"></p>
+      <div data-file-field="result" class="mt-2 me-3" hidden>
+        <label data-file-field="share-label" class="small" role="status">{{.UI.T "request.shareReady"}}</label>
+        <div class="input-group input-group-sm">
+          <input data-file-field="url" class="form-control" type="text" readonly onclick="this.select()" data-allow-regular-paste>
+          <button data-file-field="copy" type="button" class="copyurl btn btn-outline-light">{{.UI.T "common.copyLink"}}</button>
+        </div>
+        <a class="small" href="./admin">{{.UI.T "request.manageShare"}}</a>
+      </div>
+    </div>
+    <div class="small me-3 text-nowrap text-light">
+      <span data-file-field="size"></span> · <span data-file-field="date"></span>
+      <span class="d-block" title="{{.UI.T "files.remaining"}}">{{.UI.T "files.remaining"}}: <span data-file-field="remaining"></span> <span data-file-field="expired" hidden>· {{.UI.T "common.expired"}}</span></span>
+    </div>
+    <button data-file-field="share" type="button" class="btn btn-outline-light btn-sm text-nowrap">{{.UI.T "request.toShare"}}</button>
+    <button data-file-field="download" type="button" class="btn btn-outline-light btn-sm" data-collection-download title="{{.UI.T "common.download"}}"><i class="bi bi-download" aria-hidden="true"></i></button>
+    <button data-file-field="delete" type="button" class="btn btn-outline-danger btn-sm" disabled title="{{.UI.T "common.delete"}}"><i class="bi bi-trash3" aria-hidden="true"></i></button>
+  </li>
+</template>
+<template id="collection-file-panel-template">
+  <tr>
+    <td class="p-0">
+      <div class="collapse collection-files" data-panel-id="collapse-filelist">
+        <div class="p-2">
+          <p class="small text-muted mb-2">{{.UI.T "request.shareHelp"}}</p>
+          <div class="d-flex flex-wrap gap-3 align-items-center mb-3">
+            <label><input data-panel-id="share-select-all" type="checkbox" class="form-check-input me-2">{{.UI.T "sharing.selectAll"}}</label>
+            <button data-panel-id="share-selected" type="button" class="btn btn-outline-light btn-sm">{{.UI.T "sharing.createSelected"}}</button>
+            <span data-panel-id="share-batch-status" class="small" role="status" aria-live="polite"></span>
+          </div>
+          <div data-panel-id="share-batch-result" class="mb-3" hidden>
+            <label data-panel-for="share-batch-links" class="small">{{.UI.T "sharing.successLinks"}}</label>
+            <textarea data-panel-id="share-batch-links" class="form-control mb-2" rows="4" readonly onclick="this.select()" data-allow-regular-paste></textarea>
+            <button data-panel-id="share-batch-copy" type="button" class="btn btn-outline-light btn-sm">{{.UI.T "sharing.copySuccessful"}}</button>
+            <fieldset class="delivery-create-panel mt-3">
+              <legend class="h6">{{.UI.T "delivery.selectSuccess"}}</legend>
+              <div data-panel-id="share-delivery-choices"></div>
+              <p data-panel-id="share-delivery-status" class="small" role="status" aria-live="polite"></p>
+              <button data-panel-id="share-delivery-create" type="button" class="btn btn-primary btn-sm" disabled>{{.UI.T "delivery.create"}}</button>
+            </fieldset>
+          </div>
+          <ul class="list-group list-group-flush" data-collection-files></ul>
+        </div>
+      </div>
+    </td>
+  </tr>
+</template>
+{{end}}

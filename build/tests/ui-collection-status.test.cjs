@@ -60,6 +60,7 @@ test('expiry outranks count limits, Unix-second equality remains valid, and rese
     assert.equal(context.deriveCollectionStatus(summary({maxfiles:0,expiry:0,uploadedfiles:9,reserveduploads:12}),999999),'accepting');
     assert.equal(context.deriveCollectionStatus(summary({uploadedfiles:1,reserveduploads:0}),1000),'accepting');
     assert.equal(context.collectionSummarySnapshot(summary({uploadedfiles:-1})),null);
+    assert.equal(context.collectionSummarySnapshot(summary({fileidlist:undefined})),null);
 });
 
 test('SSR status uses server time and shows zero received separately from active reservations',()=>{
@@ -110,11 +111,12 @@ test('manual refresh blocks duplicate requests, updates existing rows only and s
     let finish,calls=0;
     context.apiURequestList=()=>{calls++;return new Promise(resolve=>{finish=resolve;});};
     const pending=context.refreshCollectionSummaries();
-    assert.equal(await context.refreshCollectionSummaries(),false);
+    const duplicate=context.refreshCollectionSummaries();
     assert.equal(calls,1);
     assert.equal(nodes.collectionRefresh.disabled,true);
     finish({requests:[summary({uploadedfiles:2,lastupload:1010,totalfilesize:9,fileidlist:['a','b']}),summary({id:'other'})],serverTime:1020});
     assert.equal(await pending,true);
+    assert.equal(await duplicate,true);
     assert.equal(nodes['row-r'],row);
     assert.equal(nodes['row-other'],undefined);
     assert.equal(nodes['totalFiles-fr-r'].textContent,'2');

@@ -28,8 +28,14 @@
                         <tbody id="filerequesttable">
                         
 {{ range $fileRequest := .FileRequests }}
-                            <tr id="row-{{ .Id }}" class="no-bottom-border filerequest-item" data-collection-summary data-id="{{.Id}}" data-uploadedfiles="{{.UploadedFiles}}" data-reserveduploads="{{.ReservedUploads}}" data-maxfiles="{{.MaxFiles}}" data-totalfilesize="{{.TotalFileSize}}" data-lastupload="{{.LastUpload}}" data-expiry="{{.Expiry}}" data-fileids="{{.GetFilesAsString}}">
-		                    <td><a id="collection-name-{{.Id}}" href="{{ $.ServerUrl }}r/{{ .ApiKey }}" target="_blank">{{ .Name }}</a><span id="collection-status-{{.Id}}" class="badge collection-status" role="status"></span></td>
+                            <tr id="row-{{ .Id }}" class="no-bottom-border filerequest-item" data-collection-summary data-owner-id="{{.UserId}}" data-id="{{.Id}}" data-uploadedfiles="{{.UploadedFiles}}" data-reserveduploads="{{.ReservedUploads}}" data-maxfiles="{{.MaxFiles}}" data-totalfilesize="{{.TotalFileSize}}" data-lastupload="{{.LastUpload}}" data-expiry="{{.Expiry}}" data-fileids="{{.GetFilesAsString}}">
+		                    <td><a id="collection-name-{{.Id}}" href="{{ $.ServerUrl }}r/{{ .ApiKey }}" target="_blank">{{ .Name }}</a><span id="collection-status-{{.Id}}" class="badge collection-status" role="status"></span>
+                              <div id="collection-arrivals-{{.Id}}" class="collection-arrivals" hidden>
+                                <span id="collection-arrivals-count-{{.Id}}" role="status" aria-live="polite"></span>
+                                <button id="collection-arrivals-view-{{.Id}}" type="button" class="btn btn-outline-light btn-sm" onclick="viewCollectionArrivals('{{.Id}}')">{{$.UI.T "collection.arrivals.view"}}</button>
+                                <span id="collection-arrivals-detail-{{.Id}}" class="small" role="status"></span>
+                              </div>
+                            </td>
 				    {{ template "uRFileCell" (newFileRequestContext . $.UI) }}
 		                    <td id="collection-size-{{.Id}}">{{ .GetReadableTotalSize }}</td>
             			    <td><span id="cell-lastupdate-{{ .Id }}"></span></td>
@@ -79,7 +85,7 @@
                         <button id="share-delivery-create-{{.Id}}" type="button" class="btn btn-primary btn-sm" disabled onclick="createCollectionDelivery('{{.Id}}')">{{$.UI.T "delivery.create"}}</button>
                       </fieldset>
                     </div>
-				    <ul class="list-group list-group-flush">
+				    <ul class="list-group list-group-flush" data-collection-files>
       {{ range .Files }}
 				      <li id="cell-listupload-{{ .Id }}" data-request-id="{{$fileRequest.Id}}" class="list-group-itemtext-light d-flex align-items-center border-bottom-0  filelist-item ">
 
@@ -151,17 +157,21 @@
       {{$.UI.T "files.deleted"}} <span id="toastFilename"></span>
        <button type="button" id="toastUndoButton" class="toast-undo btn btn-sm btn-outline-light" onclick="handleUndoFr(this)">{{$.UI.T "common.restore"}}</button>
 	</div>
+{{template "collection_file_templates" .}}
 <script src="./js/min/admin.min.{{ template "js_admin_version"}}.js"></script>
 <script>
 	var userName = "{{.ActiveUser.Name}}";
 	var baseUrl = "{{.ServerUrl}}";
 	var canViewOtherRequests = {{.ActiveUser.HasPermissionListOtherUploads}};
+    var currentUserId = {{.ActiveUser.Id}};
+    var canDeleteOtherCollectionFiles = {{.ActiveUser.HasPermissionDeleteOtherUploads}};
 	var limitMaxSize = {{.FileRequestMaxSize}};
 	var limitMaxFiles = {{.FileRequestMaxFiles}};
     document.querySelectorAll('.filerequest-item').forEach(prepareFileRequestRow);
     document.querySelectorAll('[data-remaining="0"]').forEach(cell => expireCollectionFile(cell.id.slice('cell-downloadsRemaining-'.length)));
     updateFileRequestEmptyState();
     initCollectionStatus({{.TimeNow}});
+    initCollectionArrivals();
     refreshDeliveries();
 	registerCollectionChanges();
 	

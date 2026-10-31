@@ -134,3 +134,27 @@ refresh control to update collection summaries without losing conversion results
 file selections or an unfinished delivery form. A failed refresh retains the
 previous snapshot and its successful update time. Collection expiry stops intake
 without deleting files already received.
+
+New arrivals in the open management page
+----------------------------------------
+
+While the collection management page is visible, it checks authorized collection
+summaries about once per minute. Returning to the tab checks again; the refresh
+button uses the same check. The initial file set is a baseline, so opening the page
+does not announce historical files as new arrivals. Notifications are local to the
+current page, without cross-device unread state or offline delivery.
+
+An arrival notice identifies the collection and lets you load its newly received
+files. Only confirmed file IDs from the management API count as arrivals; upload
+reservations and processing events do not. Repeated checks do not repeat the same
+notice. File details are loaded on demand and appended without rebuilding existing
+rows. New files start unselected and do not enter a pending conversion batch or
+delivery list automatically. Existing share results and unfinished delivery forms
+remain intact.
+
+A failed check retains the previous snapshot and update time. A failed file-detail
+read can be retried; an unavailable file does not prevent other new files from
+being displayed. If authentication or permission is lost, checking and new-file
+loading stop until the page is reopened with valid access. Newly visible
+collections establish a silent baseline rather than reporting their older files
+as new arrivals.

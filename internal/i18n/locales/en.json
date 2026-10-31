@@ -698,5 +698,9 @@
   "collection.updatedAt": "Updated: {time}",
   "collection.refreshed": "Collection status updated.",
   "collection.refreshFailed": "Unable to update. Previous values and update time are kept; please retry.",
-  "collection.authRequired": "Your session expired or permission is missing. Sign in again and reopen this page."
+  "collection.authRequired": "Your session expired or permission is missing. Sign in again and reopen this page.",
+  "collection.status.unavailable": "Unavailable or access changed",
+  "collection.arrivals.count": "{name}: {count} newly received files not yet viewed.",
+  "collection.arrivals.view": "View new files",
+  "collection.arrivals.retry": "Some files are unavailable or could not be loaded. Unviewed items are kept; please retry later."
 }
