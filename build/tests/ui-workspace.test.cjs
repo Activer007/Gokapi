@@ -135,3 +135,73 @@ test('replacement choices include filtered rows and use plain filename text', ()
     vm.runInContext(fs.readFileSync(path.join(__dirname,'../../internal/webserver/web/static/js/admin_ui_upload.js'),'utf8'),context);
     assert.deepEqual(JSON.parse(JSON.stringify(context.getAllAvailableFiles())),[['one','two'],['one.txt','<b>.txt']]);
 });
+
+function shareSelectionFixture() {
+    const fields={selectAllFiles:{},fileSelectionCount:{}};
+    const copied=[];
+    let visible=[];
+    const table={rows:options=>{
+        assert.equal(options.search,'applied');
+        return {nodes:()=>visible};
+    }};
+    const context=vm.createContext({
+        document:{getElementById:id=>fields[id],createElement:()=>({setAttribute(){}})},
+        $:()=>({DataTable:()=>table}),
+        copyShareLinks:async(entries,trigger)=>copied.push({entries:JSON.parse(JSON.stringify(entries)),trigger}),
+        t:(key,args={})=>key==='sharing.selected'?`${args.count} selected`:args.name
+    });
+    vm.runInContext(fs.readFileSync(path.join(__dirname,'../../internal/webserver/web/static/js/admin_ui_workspace.js'),'utf8'),context);
+    const row=(name,url,e2e=false)=>{
+        const label={textContent:name};
+        const copy={dataset:{clipboardText:url}};
+        const cell={textContent:name,checkbox:null,
+            querySelector:selector=>selector==='.file-name'?label:cell.checkbox,
+            prepend:box=>{cell.checkbox=box;}};
+        const result={dataset:{shareE2e:String(e2e)},classList:{contains:()=>false},cell,copy,label,
+            querySelector:selector=>selector==='[id^="cell-name-"]'?cell:selector==='[id^="url-button-"]'?copy:selector==='.file-name'?label:null};
+        return result;
+    };
+    return {context,fields,copied,row,show:rows=>{visible=rows;},table};
+}
+
+test('ordinary batch selection affects only filtered available rows and reports the selection',()=>{
+    const f=shareSelectionFixture();
+    const first=f.row('one.txt','https://example.test/d/one');
+    const hidden=f.row('hidden.txt','https://example.test/d/hidden');
+    const locked=f.row('Encrypted File','https://example.test/d/encrypted',true);
+    f.show([first,locked]);
+    f.context.toggleFileSelection(true);
+    assert.equal(first.cell.checkbox.checked,true);
+    assert.equal(locked.cell.checkbox.disabled,true);
+    assert.equal(hidden.dataset.shareSelected,undefined);
+    assert.equal(f.fields.fileSelectionCount.textContent,'1 selected');
+    assert.equal(f.fields.selectAllFiles.checked,true);
+    first.cell.checkbox.checked=false;
+    first.cell.checkbox.onchange();
+    assert.equal(f.fields.fileSelectionCount.textContent,'0 selected');
+    assert.equal(f.fields.selectAllFiles.checked,false);
+});
+
+test('ordinary batch copy reads authoritative current links, including E2E keys after cell rebuild',async()=>{
+    const f=shareSelectionFixture();
+    const first=f.row('one.txt','https://example.test/team/d?id=one');
+    const encrypted=f.row('中文.txt','https://example.test/team/d/two#cipher',true);
+    f.show([first,encrypted]);
+    f.context.toggleFileSelection(true);
+    encrypted.cell.checkbox=null; // Existing E2E decryption replaces filename cell contents.
+    encrypted.copy.dataset.clipboardText='https://example.test/team/d/two#updated-key';
+    const trigger={};
+    await f.context.copySelectedFileLinks(trigger);
+    assert.equal(encrypted.cell.checkbox.checked,true);
+    assert.deepEqual(f.copied,[{entries:[
+        {name:'one.txt',url:'https://example.test/team/d?id=one'},
+        {name:'中文.txt',url:'https://example.test/team/d/two#updated-key'}
+    ],trigger}]);
+});
+
+test('ordinary batch copy sends an empty selection to the existing feedback helper',async()=>{
+    const f=shareSelectionFixture();
+    f.show([f.row('one.txt','https://example.test/d/one')]);
+    await f.context.copySelectedFileLinks({});
+    assert.deepEqual(f.copied[0].entries,[]);
+});

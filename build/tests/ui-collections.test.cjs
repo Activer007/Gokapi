@@ -104,11 +104,12 @@ test('collection sharing waits once and retains the new link without duplicating
     const {context,nodes,button}=shareContext(()=>{calls++;return new Promise(resolve=>complete=resolve);});
     const pending=context.shareCollectionFile('f',button);
     assert.equal(button.disabled,true);
-    await context.shareCollectionFile('f',button);
+    const duplicate=context.shareCollectionFile('f',button);
     assert.equal(calls,1);
     const url='https://example.test/d?id=ordinary';
     complete({UrlDownload:url});
     await pending;
+    await duplicate;
     assert.equal(nodes['share-result-f'].hidden,false);
     assert.equal(nodes['share-url-f'].value,url);
     assert.equal(nodes['share-copy-f'].dataset.clipboardText,url);
@@ -283,7 +284,7 @@ test('collection download events update allowances and remove exhausted files fr
     const button={dataset:{},classList:{toggle(){}},removeAttribute(){}};
     const cell={dataset:{remaining:'2'},textContent:'2'};
     const status={hidden:true};
-    const row={dataset:{requestId:'collection'},querySelectorAll:()=>controls};
+    const row={dataset:{requestId:'collection'},querySelectorAll:()=>controls,querySelector:()=>null};
     const nodes={
         'cell-downloadsRemaining-a':cell,'cell-listupload-a':row,
         'cell-expired-file-a':status,'download-collection':button,

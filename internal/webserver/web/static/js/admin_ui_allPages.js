@@ -68,6 +68,24 @@ async function copySensitiveText(text, trigger, successMessage) {
     }
 }
 
+function formatShareLinks(entries) {
+    return entries.map(entry => `${entry.name}\n${entry.url}`).join('\n\n');
+}
+
+async function copyShareLinks(entries, trigger) {
+    if (trigger.disabled) return;
+    if (!entries.length) {
+        showToast(3500, t('sharing.noSelection'));
+        return;
+    }
+    trigger.disabled = true;
+    try {
+        await copySensitiveText(formatShareLinks(entries), trigger, t('sharing.linksCopied', {count: entries.length}));
+    } finally {
+        trigger.disabled = false;
+    }
+}
+
 var toastId;
 
 function labelIconButtons(root = document) {
