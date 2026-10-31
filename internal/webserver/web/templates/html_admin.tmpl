@@ -101,32 +101,7 @@
           <button id="copySelectedLinks" type="button" class="btn btn-outline-light btn-sm" onclick="copySelectedFileLinks(this)">{{$.UI.T "sharing.copySelected"}}</button>
           <button id="createDelivery" type="button" class="btn btn-outline-light btn-sm" onclick="showDeliveryCreate()">{{$.UI.T "delivery.create"}}</button>
         </div>
-        <p id="deliveryStatus" class="small" role="status" aria-live="polite"></p>
-        <div id="deliveryCreatePanel" class="delivery-create-panel mb-4" hidden>
-          <form id="deliveryCreateForm" onsubmit="createDelivery(event)">
-            <h3 class="h5">{{$.UI.T "delivery.create"}}</h3>
-            <p class="small text-muted">{{$.UI.T "delivery.createHelp"}}</p>
-            <label for="deliveryTitle" class="form-label">{{$.UI.T "request.title"}}</label>
-            <input id="deliveryTitle" class="form-control admin-input mb-3" maxlength="200" required data-allow-regular-paste>
-            <label for="deliveryNote" class="form-label">{{$.UI.T "delivery.note"}}</label>
-            <textarea id="deliveryNote" class="form-control admin-input mb-3" maxlength="2000" rows="2" data-allow-regular-paste></textarea>
-            <label for="deliveryExpiry" class="form-label">{{$.UI.T "delivery.expiry"}}</label>
-            <input id="deliveryExpiry" type="datetime-local" class="form-control admin-input mb-3" aria-describedby="deliveryExpiryHelp">
-            <p id="deliveryExpiryHelp" class="small text-muted">{{$.UI.T "delivery.expiryHelp"}}</p>
-            <div class="d-flex gap-2">
-              <button id="deliveryCreateSubmit" type="submit" class="btn btn-primary">{{$.UI.T "delivery.create"}}</button>
-              <button type="button" class="btn btn-outline-light" onclick="document.getElementById('deliveryCreatePanel').hidden = true">{{$.UI.T "common.cancel"}}</button>
-            </div>
-          </form>
-        </div>
-        <div id="deliveryCreated" class="delivery-create-panel mb-4" hidden>
-          <label for="deliveryCreatedURL" class="form-label">{{$.UI.T "delivery.link"}}</label>
-          <div class="input-group">
-            <input id="deliveryCreatedURL" class="form-control admin-input" readonly onclick="this.select()" data-allow-regular-paste>
-            <button type="button" class="btn btn-outline-light" onclick="copySensitiveText(document.getElementById('deliveryCreatedURL').value, this, t('files.copyToast'))">{{$.UI.T "common.copyLink"}}</button>
-          </div>
-          <p class="small text-muted mt-2 mb-0">{{$.UI.T "delivery.revokeHelp"}}</p>
-        </div>
+        {{template "delivery_create" .}}
 		<div class="file-table-container">
 			<table id="maintable" class="table table-dark">
 				<thead>
@@ -181,15 +156,7 @@
 				</tbody>
 			</table>
 		      </div>
-        <section class="delivery-management" aria-labelledby="deliveryHeading">
-          <div class="d-flex justify-content-between align-items-center gap-3 mb-2">
-            <h2 id="deliveryHeading" class="h5 mb-0">{{$.UI.T "delivery.yourLists"}}</h2>
-            <button id="deliveryRefresh" type="button" class="btn btn-outline-light btn-sm" onclick="refreshDeliveries()">{{$.UI.T "delivery.refresh"}}</button>
-          </div>
-          <p class="small text-muted">{{$.UI.T "delivery.revokeHelp"}}</p>
-          <p id="deliveryListStatus" class="small" role="status" aria-live="polite"></p>
-          <ul id="deliveryList" class="delivery-management-list"></ul>
-        </section>
+        {{template "delivery_management" .}}
 </section>
 
 	{{ template "admin_modal_edit" . }}

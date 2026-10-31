@@ -24,6 +24,32 @@ Revoking or expiring a list closes that list's entry point. It does not delete
 files or revoke ordinary file links that recipients have already obtained.
 To disable an individual share, use the existing file management controls.
 
+Create a list from collected shares
+-----------------------------------
+
+After selecting received files and creating ordinary shares, use **Create delivery
+list** in the successful-results section. Check the successful shares to include,
+then review their names in the shared creation form before submitting. The form
+retains the title, optional note and optional expiry controls from the ordinary
+file workspace. Both pages include the same list management controls.
+
+Results show only the current collection's explicitly selected batch. Earlier
+conversions remain cached on the current page to prevent creating duplicate
+ordinary shares, but do not enter a later batch unless selected again. Retrying a
+failed member preserves that batch's successes. A failed conversion is identified
+by name and is never included in the delivery list.
+
+Select 2–20 successful ordinary shares. If more than 20 succeed, explicitly uncheck
+items to choose a range; the page does not truncate or split the list. E2E shares
+and results without reliable new-share information cannot be selected. The server
+checks each share again at creation, so a newly expired share can still prevent
+creation. Correct the selection and retry after a definitive rejection.
+
+If a creation response is lost, the form and successful conversions remain on the
+page. Refresh the delivery list, inspect whether the list already exists, and only
+then decide whether to retry. Refreshing does not repeat a create request. Deleting
+the original collection does not delete the independent ordinary shares or list.
+
 Persistence and upgrades
 ------------------------
 
@@ -41,4 +67,4 @@ to an older version. Redis durability still depends on the operator's Redis
 persistence and backup configuration.
 
 This release adds no ZIP bundles, folders, notifications, mobile access, end-to-end
-encrypted lists or collection-result shortcuts.
+encrypted lists.

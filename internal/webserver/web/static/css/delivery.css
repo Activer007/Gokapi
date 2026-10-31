@@ -1,5 +1,7 @@
 .delivery-create-panel { padding: 20px; border: 1px solid var(--ss-border); border-radius: var(--ss-radius); text-align: left; }
 .delivery-create-panel form { max-width: 680px; }
+.delivery-selection-list { margin-bottom: 20px; padding-left: 24px; overflow-wrap: anywhere; }
+.delivery-selection-list li + li { margin-top: 4px; }
 .delivery-management { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--ss-border); text-align: left; }
 .delivery-management-list, .delivery-public-list { list-style: none; padding: 0; margin: 0; }
 .delivery-management-row, .delivery-public-row { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 18px 0; border-top: 1px solid var(--ss-border); }

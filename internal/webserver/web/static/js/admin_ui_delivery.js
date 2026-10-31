@@ -2,6 +2,7 @@
 // on each file's original share page.
 let deliveryCreating = false;
 let deliveryCreateUncertain = false;
+let deliveryPendingFiles = null;
 
 async function deliveryRequest(action, payload) {
     const permissions = {list: 'PERM_VIEW', create: 'PERM_UPLOAD', revoke: 'PERM_DELETE'};
@@ -19,23 +20,56 @@ function selectedDeliveryFiles() {
     return rows.filter(row => {
         const checkbox = prepareFileSelection(row);
         return checkbox && !checkbox.disabled && checkbox.checked;
-    }).map(row => ({id: row.id.slice('row-'.length), e2e: row.dataset.shareE2e === 'true'}));
+    }).map(row => ({id: row.id.slice('row-'.length),
+        name: row.querySelector('.file-name')?.textContent || row.id.slice('row-'.length),
+        e2e: row.dataset.shareE2e === 'true'}));
 }
 
 function showDeliveryCreate() {
-    const files = selectedDeliveryFiles();
+    return openDeliveryCreate(selectedDeliveryFiles());
+}
+
+// Both entry points pass authoritative ordinary-share IDs. Keep a separate
+// snapshot so filtering a table or retrying a conversion cannot change a form
+// that the user is already reviewing.
+function openDeliveryCreate(files, contextLabel = '') {
     const status = document.getElementById('deliveryStatus');
+    const panel = document.getElementById('deliveryCreatePanel');
+    if (deliveryCreating || deliveryCreateUncertain) {
+        panel.hidden = false;
+        status.textContent = t(deliveryCreating ? 'delivery.creating' : 'delivery.createUncertain');
+        return false;
+    }
+    if (!Array.isArray(files) || files.some(file => !file || typeof file.id !== 'string' || !file.id) ||
+        new Set(files.map(file => file.id)).size !== files.length || files.length < 2 || files.length > 20) {
+        status.textContent = t('delivery.selectionLimit');
+        return false;
+    }
     if (files.some(file => file.e2e)) {
         status.textContent = t('delivery.noE2E');
-        return;
+        return false;
     }
-    if (files.length < 2 || files.length > 20) {
-        status.textContent = t('delivery.selectionLimit');
-        return;
+    deliveryPendingFiles = Object.freeze(files.map(file => Object.freeze({
+        id: file.id, name: String(file.name || file.id), e2e: Boolean(file.e2e)
+    })));
+    const confirmation = document.getElementById('deliverySelectedFiles');
+    if (confirmation) {
+        confirmation.replaceChildren();
+        for (const file of deliveryPendingFiles) {
+            const item = document.createElement('li');
+            item.textContent = file.name;
+            confirmation.appendChild(item);
+        }
     }
-    document.getElementById('deliveryCreatePanel').hidden = false;
+    const context = document.getElementById('deliveryCreateContext');
+    if (context) context.textContent = contextLabel;
+    document.getElementById('deliveryCreated').hidden = true;
+    document.getElementById('deliveryCreatedURL').value = '';
+    panel.hidden = false;
     document.getElementById('deliveryTitle').focus();
+    panel.scrollIntoView?.({block: 'nearest'});
     status.textContent = t('delivery.selected', {count: files.length});
+    return true;
 }
 
 function deliveryFailure(failure) {
@@ -47,7 +81,7 @@ function deliveryFailure(failure) {
 async function createDelivery(event) {
     event.preventDefault();
     if (deliveryCreating || deliveryCreateUncertain) return;
-    const files = selectedDeliveryFiles();
+    const files = deliveryPendingFiles || selectedDeliveryFiles();
     const status = document.getElementById('deliveryStatus');
     if (files.some(file => file.e2e)) { status.textContent = t('delivery.noE2E'); return; }
     if (files.length < 2 || files.length > 20) { status.textContent = t('delivery.selectionLimit'); return; }
@@ -60,7 +94,11 @@ async function createDelivery(event) {
         return;
     }
     const button = document.getElementById('deliveryCreateSubmit');
+    const fields = ['deliveryTitle', 'deliveryNote', 'deliveryExpiry'].map(id => document.getElementById(id));
+    const disabled = fields.map(field => field.disabled);
     deliveryCreating = true;
+    fields.forEach(field => { field.disabled = true; });
+    document.getElementById('deliveryCreated').hidden = true;
     button.disabled = true;
     button.setAttribute('aria-busy', 'true');
     status.textContent = t('delivery.creating');
@@ -70,11 +108,14 @@ async function createDelivery(event) {
             note: document.getElementById('deliveryNote').value,
             fileIds: files.map(file => file.id), expiresAt
         });
-        if (!result.url) throw new Error('missing delivery result');
+        if (!result?.url) throw new Error('missing delivery result');
         document.getElementById('deliveryCreatedURL').value = result.url;
+        const open = document.getElementById('deliveryCreatedOpen');
+        if (open) open.href = result.url;
         document.getElementById('deliveryCreated').hidden = false;
         document.getElementById('deliveryCreatePanel').hidden = true;
         form.reset();
+        deliveryPendingFiles = null;
         status.textContent = t('delivery.created');
         await refreshDeliveries();
     } catch (failure) {
@@ -84,6 +125,7 @@ async function createDelivery(event) {
         status.textContent = deliveryCreateUncertain ? t('delivery.createUncertain') : deliveryFailure(failure);
     } finally {
         deliveryCreating = false;
+        fields.forEach((field, index) => { field.disabled = disabled[index]; });
         button.disabled = deliveryCreateUncertain;
         button.removeAttribute('aria-busy');
     }
@@ -152,13 +194,15 @@ async function refreshDeliveries() {
     if (button.disabled) return;
     button.disabled = true;
     const status = document.getElementById('deliveryListStatus');
+    // A query already in flight before an uncertain write cannot confirm it.
+    const checkingUncertain = deliveryCreateUncertain;
     status.textContent = t('common.loading');
     try {
         const items = await deliveryRequest('list');
         if (!Array.isArray(items)) throw new Error('invalid delivery list');
         renderDeliveries(items);
         status.textContent = '';
-        if (deliveryCreateUncertain) {
+        if (checkingUncertain && deliveryCreateUncertain) {
             deliveryCreateUncertain = false;
             document.getElementById('deliveryCreateSubmit').disabled = deliveryCreating;
             document.getElementById('deliveryStatus').textContent = t('delivery.inspectBeforeRetry');
