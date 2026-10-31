@@ -57,6 +57,22 @@ protect the content from expiry cleanup. Administrator exemption does not grant
 access to exhausted or deleted files. Recovering an already cleaned file is not
 supported.
 
+Turn a collected file into a share
+---------------------------------
+
+Choose **Create share** beside a received file to create an ordinary share
+and copy its download link. The original collection file and its download count
+stay unchanged. The new file appears in the ordinary file list, where its rules
+can be edited. It initially inherits the source's remaining downloads, expiry
+and password, and retains the same encryption. A protected source keeps its
+password; send it to the recipient separately.
+
+Conversion requires permission to read the source and create an upload. Deleted,
+pending-deletion or exhausted files cannot be converted. Each new share counts
+toward the user's and instance's logical quota even though it reuses stored
+content. Deleting the original collection does not delete an independent share.
+If creation fails, the page retains the source and offers a retry.
+
 API compatibility
 -----------------
 

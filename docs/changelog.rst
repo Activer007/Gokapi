@@ -8,6 +8,16 @@ Overview of all changes
 -----------------------
 
 
+v2.14.0 (source update; not a published release)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Turn a collected file into an independent ordinary share from its management
+  row, with a copyable link and recoverable error feedback in English and Chinese.
+* Reuse the stored content and existing quota transaction. Preserve the original
+  collection file, download allowance, password and encryption; the new share
+  inherits its current rules and remains available after the collection is deleted.
+
+
 v2.13.1 (source update; not a published release)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

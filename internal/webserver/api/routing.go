@@ -400,6 +400,7 @@ func (p *paramFilesChangeOwner) ProcessParameter(r *http.Request) error {
 type paramFilesDuplicate struct {
 	Request            *http.Request
 	Id                 string `header:"id" required:"true"`
+	AsShare            bool   `header:"asShare"`
 	AllowedDownloads   int    `header:"allowedDownloads"`
 	ExpiryDays         int    `header:"expiryDays"`
 	Password           string `header:"password"`
@@ -413,6 +414,13 @@ type paramFilesDuplicate struct {
 
 func (p *paramFilesDuplicate) ProcessParameter(r *http.Request) error {
 	p.Request = r
+	if p.AsShare {
+		for _, header := range []string{"allowedDownloads", "expiryDays", "password", "originalPassword", "filename"} {
+			if p.foundHeaders[header] {
+				return errors.New("asShare cannot be combined with changes to file rules")
+			}
+		}
+	}
 	if p.foundHeaders["allowedDownloads"] {
 		p.RequestedChanges |= storage.ParamDownloads
 		if p.AllowedDownloads == 0 {
