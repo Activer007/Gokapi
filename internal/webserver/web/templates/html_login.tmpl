@@ -1,8 +1,11 @@
 {{define "login"}}{{template "header" .}}
-<section id="container" class="public-panel" aria-labelledby="loginTitle">
+<section class="login-workspace" aria-labelledby="loginTitle">
+<p class="login-tagline">{{.UI.T "login.tagline"}}</p>
+<div class="login-panel">
+<div id="container" class="public-panel login-form-panel">
   <h1 id="loginTitle">{{.UI.T "page.login"}}</h1>
   <p>{{.UI.T "login.help"}}</p>
-  <form method="post" action="./login" id="form" name="form" onsubmit="return submitForm()">
+  <form method="post" action="./login" id="form" name="form" onsubmit="return submitForm()" {{if .IsFailedLogin}}aria-describedby="loginError"{{end}}>
     <div class="mb-3">
       <label class="form-label" for="username">{{.UI.T "login.username"}}</label>
       <input type="text" class="form-control" autocomplete="username" value="{{.User}}" id="username" required>
@@ -13,11 +16,14 @@
       <input type="password" class="form-control" autocomplete="current-password" id="password" required>
       <input type="hidden" id="pw_hidden" name="password">
     </div>
-    {{if .IsFailedLogin}}<div class="public-form-error" role="alert">{{if .IsFailedCsfr}}{{.UI.T "login.expired"}}{{else}}{{.UI.T "login.invalid"}}{{end}}</div>{{end}}
+    {{if .IsFailedLogin}}<div id="loginError" class="public-form-error" role="alert">{{if .IsFailedCsfr}}{{.UI.T "login.expired"}}{{else}}{{.UI.T "login.invalid"}}{{end}}</div>{{end}}
     <button type="submit" id="submitbutton" class="btn btn-primary w-100 mt-2">{{.UI.T "page.login"}}</button>
     <input type="hidden" id="csrf-token" name="csrf-token" value="{{.CsrfToken}}">
   </form>
   <p class="public-secondary"><a href="./forgotpw">{{.UI.T "login.forgot"}}</a></p>
+</div>
+{{template "login_art" .}}
+</div>
 </section>
 <script>
 function submitForm(){
@@ -28,6 +34,7 @@ function submitForm(){
 	document.getElementById("submitbutton").disabled = true;
 	return true;
 }
+initLoginArt();
 </script>
 {{ template "pagename" "Login"}}
 {{ template "customjs" .}}

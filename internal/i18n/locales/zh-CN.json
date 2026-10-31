@@ -17,6 +17,7 @@
   "footer.poweredBy": "由以下项目提供支持：",
   "language.label": "语言",
   "language.busy": "请先完成或取消当前传输，再切换语言。",
+  "login.tagline": "连接文件，连接协作。",
   "login.username": "用户名",
   "login.password": "密码",
   "login.expired": "登录页面已过期，请重试。",

@@ -44,6 +44,7 @@ Contents
    delivery-lists
    update
    repository-identity
+   login-artwork
    advanced
    troubleshooting
    examples

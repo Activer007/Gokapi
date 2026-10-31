@@ -96,3 +96,25 @@ On 2026-10-30, the selected 1586×992 source image and real 2.12.0 Chinese works
 - Fixed P2: a long custom brand wrapped into several lines and displaced the workspace. One-line ellipsis now keeps the header at 70px in the actual 1280×720 check; complete text remains in its title and accessibility name. Final evidence: `local-ui.secret/ui-upgrade/delivery/custom-name-1280.jpg`, full-page 1265×832 content capture (scrollbar excluded) from a 1280×720 viewport, DPR 1. Navigation and the long footer remain reachable, with no page-level horizontal overflow.
 - Verified custom CSS precedence, custom public/admin script availability after application functions, two footer links and distinct configured browser title. No captured warning/error in this final custom page.
 - No remaining actionable P0/P1/P2 visual finding in the inspected scope. P3 asset-size optimization remains optional. Actual browser 125%/200% zoom could not be set reliably; the user explicitly accepted manual follow-up without blocking delivery on 2026-10-30.
+
+
+## Login artwork upgrade — 2026-10-31
+
+Final result for this login visual scope: passed.
+
+Compared selected login-03.png and real Chinese login at 1586×992. Evidence:
+docs/images/login-implementation-2026-10-31/login-zh.png and login-en.png.
+The 45:55 panel, charcoal palette, blue/silver artwork and shared header/footer
+follow reference 3. Individual artwork, real brand typography and version 2.16.0
+are intentional differences.
+
+- Fixed P2: shared public CSS overrode heading/control sizes; scoped specificity
+  now preserves the intended hierarchy.
+- Checked Chinese/English, 1280×720, 1440×900, 1920×1080 and 800px desktop width.
+  No horizontal overflow observed; short views scroll naturally.
+- Real successful/failed login, CSRF expiry, recovery and keyboard focus checked.
+- All four images decoded; one request on normal entry, none while narrow and
+  one on widening. Image failure fallback terminates without blocking login.
+- Long custom brand, configured title, footer links, custom CSS/public JS checked.
+- No remaining actionable P0/P1/P2 finding in this scope. Actual 125%/200% browser
+  zoom remains a nonblocking manual check. No production deployment performed.

@@ -1,0 +1,10 @@
+{{define "login_art"}}
+<aside class="login-art" id="loginArt" aria-hidden="true" data-retry="{{.IsFailedLogin}}">
+  <img id="loginArtImage" width="1280" height="1056" alt="" decoding="async">
+  {{/* First entry is the fallback. Add a versioned WebP and one entry to extend the pool. */}}
+  <span hidden data-login-art-id="linked-pair" data-login-art-src="./assets/brand/login/linked-pair-v1.webp" data-position="50% 50%"></span>
+  <span hidden data-login-art-id="linked-chain" data-login-art-src="./assets/brand/login/linked-chain-v1.webp" data-position="50% 50%"></span>
+  <span hidden data-login-art-id="shared-folder" data-login-art-src="./assets/brand/login/shared-folder-v1.webp" data-position="50% 50%"></span>
+  <span hidden data-login-art-id="document-flow" data-login-art-src="./assets/brand/login/document-flow-v1.webp" data-position="50% 50%"></span>
+</aside>
+{{end}}

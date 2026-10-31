@@ -17,6 +17,7 @@
   "footer.poweredBy": "Powered by",
   "language.label": "Language",
   "language.busy": "Please finish or cancel the current transfer before switching language.",
+  "login.tagline": "Connect files. Connect collaboration.",
   "login.username": "Username",
   "login.password": "Password",
   "login.expired": "The login page was open too long and expired. Please try again.",
