@@ -239,9 +239,13 @@ func writeUploadQuota(ctx context.Context, conn *sql.Conn, encoded []byte) error
 	return nil
 }
 
-// quotaMetadata reads exactly the logical fields needed for accounting, through
-// the same connection holding BEGIN IMMEDIATE and the reservation state.
-func quotaMetadata(ctx context.Context, conn *sql.Conn) (map[string]models.File, error) {
+type quotaMetadataQuerier interface {
+	QueryContext(context.Context, string, ...any) (*sql.Rows, error)
+}
+
+// quotaMetadata reads only accounting fields on the same checked transaction
+// as the ledger, for both admission writes and deferred read-only snapshots.
+func quotaMetadata(ctx context.Context, conn quotaMetadataQuerier) (map[string]models.File, error) {
 	rows, err := conn.QueryContext(ctx, "SELECT Id, UserId, SizeBytes, UploadRequestId FROM FileMetaData")
 	if err != nil {
 		return nil, err

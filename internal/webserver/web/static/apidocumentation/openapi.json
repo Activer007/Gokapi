@@ -45,6 +45,9 @@
     },
     {
       "name": "deliveries"
+    },
+    {
+      "name": "quota"
     }
   ],
   "paths": {
@@ -2370,6 +2373,51 @@
           }
         }
       }
+    },
+    "/quota/summary": {
+      "get": {
+        "tags": [
+          "quota"
+        ],
+        "summary": "Read the authenticated user logical upload quota summary",
+        "operationId": "quotaSummary",
+        "description": "Returns only the authenticated user, including for administrators; there is no target-user selector. Every retained metadata record counts toward logical usage, including expired or pending-deletion records and multiple shares referencing one blob. Limits come from the validated effective server configuration; MiB settings use 1024 * 1024 bytes. Reservations and instance constraints are excluded, so this summary does not promise admission for another upload or conversion. Reads have a finite context and responses use Cache-Control: no-store.",
+        "security": [
+          {
+            "apikey": [
+              "VIEW"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Consistent logical usage and effective user limits; asOf is server Unix seconds when the read completed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotaSummary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unsupported method or request URL; user-selection parameters are not supported."
+          },
+          "401": {
+            "description": "Missing, expired, revoked, public-upload, or insufficient-permission API credential."
+          },
+          "503": {
+            "description": "Quota data, ledger health, effective configuration or the bounded read is unavailable. No usage or limit numbers are returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotaSummaryUnavailable"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2953,6 +3001,86 @@
           "url": {
             "type": "string",
             "format": "uri"
+          }
+        }
+      },
+      "QuotaSummary": {
+        "type": "object",
+        "required": [
+          "available",
+          "usedBytes",
+          "usedFiles",
+          "limitBytes",
+          "limitFiles",
+          "asOf"
+        ],
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "usedBytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "description": "Logical metadata byte usage; not deduplicated physical storage."
+          },
+          "usedFiles": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "description": "Retained metadata records owned by the current user."
+          },
+          "limitBytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "Effective validated user byte limit."
+          },
+          "limitFiles": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "Effective validated user file-record limit."
+          },
+          "asOf": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Server Unix seconds when the consistent read completed."
+          }
+        }
+      },
+      "QuotaSummaryUnavailable": {
+        "type": "object",
+        "required": [
+          "Result",
+          "available",
+          "ErrorCode",
+          "ErrorMessage"
+        ],
+        "properties": {
+          "Result": {
+            "type": "string",
+            "enum": [
+              "error"
+            ]
+          },
+          "available": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "ErrorCode": {
+            "type": "integer"
+          },
+          "ErrorMessage": {
+            "type": "string",
+            "enum": [
+              "Quota summary temporarily unavailable"
+            ]
           }
         }
       }
