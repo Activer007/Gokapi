@@ -8,6 +8,37 @@ Overview of all changes
 -----------------------
 
 
+v2.16.0 (2026-10-31)
+^^^^^^^^^^^^^^^^^^^^
+
+* Create, view, copy and revoke a delivery list containing 2–20 existing ordinary
+  shares, including successful collection conversions. Recipients open one public
+  link and download each item through its existing password, expiry and download
+  allowance checks. Revoking the list does not revoke previously obtained file
+  links. Lists do not copy blobs or consume additional file quota; E2E files are
+  excluded. SQLite schema 19 and Redis schema 11 persist lists across restarts.
+* Show collection status (expired, full, temporarily full with in-flight uploads,
+  or accepting files), manual refresh and server-calibrated update times. While
+  the management page is visible, check every 60 seconds for newly received file
+  IDs; also check on returning to the tab. This is a current-page reminder, not
+  offline notification or cross-device unread tracking. Keep selections, batch
+  results and delivery forms when new files arrive.
+* Add an authenticated, consistent read-only summary of the current user's
+  logical file count and bytes with effective limits and a server timestamp.
+  Administrators also see only themselves. SQLite and Redis reads validate the
+  ledger and metadata together, use bounded waits/retries and fail unavailable
+  without returning misleading zero values. No new quota schema or admission
+  policy is introduced.
+* Display personal logical quota in the file workspace and collection management,
+  refreshing after confirmed uploads and completed sharing batches. Preserve and
+  mark old values as stale on failure. Multiple shares of the same content count
+  separately; pending deletion may still count. No remaining capacity, reservation
+  or instance total is inferred, and the displayed usage does not promise admission.
+* Publish Linux amd64 and arm64 server binaries with SHA256 checksums. Docker
+  remains a source build from this repository; no upstream registry publication
+  is enabled. See the update guide for stopped-service backups and snapshot rollback.
+
+
 v2.15.1 (source update; not a published release)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

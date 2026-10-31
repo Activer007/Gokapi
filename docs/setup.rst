@@ -15,7 +15,7 @@ Installation
 *****************************
 
 There are two deployment methods (Docker and native).
-Use this repository's tested source or an explicitly published SupaShare image.
+Use this repository's source or an explicitly published SupaShare server binary.
 The original ``f0rc3/gokapi`` image does not contain this fork's changes.
 
 Docker
@@ -38,18 +38,34 @@ Native Deployment
 Stable version
 """"""""""""""
 
-Use explicitly published SupaShare artifacts from the `releases page
-<https://github.com/Activer007/SupaShare/releases>`_ when available, and copy
-the executable into a new folder with write permissions. Inherited upstream
-assets do not contain this fork's changes. Until renamed artifacts are
-published, build from source as described below.
+Version 2.16.0 provides Linux server binaries on the `releases page
+<https://github.com/Activer007/SupaShare/releases>`_. Download the executable
+matching the host architecture and ``SHA256SUMS`` into a new writable directory:
 
-When downloading a SupaShare build, choose the binary matching your system:
+* **Linux x86-64:** ``supashare-2.16.0-linux-amd64``
+* **Linux ARM64:** ``supashare-2.16.0-linux-arm64``
 
-* **Windows:** ``supashare-windows_amd64``
-* **Mac (Intel):** ``supashare-darwin_amd64``
-* **Mac (Apple Silicon):** ``supashare-darwin_arm64``
-* **Linux:** ``supashare-linux_<arch>`` matching your architecture
+Verify the selected file before running it (the manifest also lists the other
+architecture; ``--ignore-missing`` checks files present in this directory):
+
+.. code-block:: bash
+
+   sha256sum --check --ignore-missing SHA256SUMS
+   chmod +x supashare-2.16.0-linux-amd64
+   ./supashare-2.16.0-linux-amd64 --version
+   ./supashare-2.16.0-linux-amd64
+
+Substitute ``arm64`` for an ARM64 host. The checksum command must report ``OK``
+for the binary you downloaded. Keep configuration and data in this working
+directory, or retain your deployment's explicit paths. On first start, read the
+setup credential from the local file path printed in the startup output; use
+username ``setup`` at ``http://127.0.0.1:53842/setup``. A remote installation
+requires an SSH tunnel or a trusted HTTPS proxy for setup. The setup password
+is separate from the administrator account created in the wizard.
+
+Other operating systems can build from source with the toolchain in ``go.mod``.
+This release does not publish Windows, macOS, CLI or container image artifacts.
+Inherited upstream assets do not contain this fork's changes.
 
 .. note::
    ``supashare-XXX`` is the main server application. ``supashare-cli-XXX`` is the optional command-line upload/download tool — you do not need it to run the server.

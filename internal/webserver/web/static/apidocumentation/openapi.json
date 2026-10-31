@@ -3,7 +3,7 @@
   "info": {
     "title": "SupaShare",
     "description": "[https://github.com/Activer007/SupaShare](https://github.com/Activer007/SupaShare)\n",
-    "version": "2.15.1"
+    "version": "2.16.0"
   },
   "servers": [
     {
@@ -2852,11 +2852,11 @@
         "properties": {
           "Version": {
             "type": "string",
-            "example": "2.15.1"
+            "example": "2.16.0"
           },
           "VersionInt": {
             "type": "integer",
-            "example": 21501
+            "example": 21600
           },
           "EndToEndEncryptionEnabled": {
             "type": "boolean",
