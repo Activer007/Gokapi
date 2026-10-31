@@ -81,6 +81,11 @@ and links, with selectable multiline text as a fallback. The ordinary file list
 also supports selecting existing files and copying their current links together;
 this does not create new files.
 
+Sharing feedback distinguishes complete, partial and failed operations. Error
+messages identify unavailable files, permission, network or quota failures
+without exposing service diagnostics. Quota errors explain the logical charge
+for each new share; the page does not estimate remaining quota from visible files.
+
 API compatibility
 -----------------
 

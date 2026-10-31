@@ -8,6 +8,16 @@ Overview of all changes
 -----------------------
 
 
+v2.15.1 (source update; not a published release)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Distinguish running, fully successful, partly successful and failed sharing
+  operations; show copying progress and retain manual copying after failure.
+* Use safe sharing error categories instead of raw service diagnostics. Explain
+  the logical quota needed for each new share without estimating unused capacity
+  from the browser's file list.
+
+
 v2.15.0 (source update; not a published release)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
