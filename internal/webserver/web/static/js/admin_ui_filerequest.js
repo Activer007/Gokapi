@@ -291,6 +291,10 @@ function changeFileCountFr(frId, change) {
 	let currentCount = Number(countCell.innerText) || 0;
 	let newCount = currentCount + change;
 	countCell.innerText = newCount;
+    if (typeof collectionSummarySnapshots !== 'undefined') {
+        const snapshot = collectionSummarySnapshots.get(frId);
+        if (snapshot) updateCollectionSummary({...snapshot, uploadedfiles: Math.max(0, newCount)});
+    }
 }
 
 function bindRequestDownload(button, ids, name) {
@@ -546,8 +550,8 @@ function insertOrReplaceFileRequest(jsonResult) {
     let row = document.getElementById(`row-${jsonResult.id}`);
 
     if (row) {
-        const user = document.getElementById(`cell-username-${jsonResult.id}`)?.innerText || userName;
-        row.replaceWith(createFileRequestRow(jsonResult, user));
+        updateCollectionSummary(jsonResult);
+        updateFileRequestControls(jsonResult);
     } else {
         let tr = createFileRequestRow(jsonResult, userName);
         tr.querySelectorAll('td').forEach((td) => {
@@ -557,8 +561,25 @@ function insertOrReplaceFileRequest(jsonResult) {
             }, 700);
         });
         tbody.prepend(tr);
+        updateCollectionSummary(jsonResult);
     }
     updateFileRequestEmptyState();
+}
+
+function updateFileRequestControls(input) {
+    const {id, name, maxfiles, maxsize, expiry, notes, alloweddownloads, uploadedfiles} = input;
+    const nameLink = document.getElementById(`collection-name-${id}`);
+    if (nameLink && typeof name === 'string') nameLink.textContent = name;
+    const edit = document.getElementById(`edit-${id}`);
+    if (edit) edit.onclick = () => editFileRequest(id, name, maxfiles, maxsize, expiry, notes, alloweddownloads);
+    const remove = document.getElementById(`delete-${id}`);
+    if (remove) remove.onclick = () => deleteOrShowModal(id, name, uploadedfiles);
+    const download = document.getElementById(`download-${id}`);
+    if (download && Array.isArray(input.fileidlist)) {
+        bindRequestDownload(download, input.fileidlist, name);
+        const row = document.getElementById(`row-${id}`);
+        if (row) prepareFileRequestRow(row);
+    }
 }
 
 
@@ -593,24 +614,51 @@ function createFileRequestRow(jsonResult, user) {
     tr.className = "filerequest-item";
 
     // Name
-    tr.appendChild(tdLink(jsonResult.name, publicUrl));
+    const nameCell = tdLink(jsonResult.name, publicUrl);
+    nameCell.querySelector('a').id = `collection-name-${jsonResult.id}`;
+    const badge = document.createElement('span');
+    badge.id = `collection-status-${jsonResult.id}`;
+    badge.className = 'badge collection-status';
+    badge.setAttribute('role', 'status');
+    nameCell.appendChild(badge);
+    tr.appendChild(nameCell);
     // Preserve the count hook and the expandable list when editing a request.
     const countCell = document.createElement('td');
+    countCell.id = `collection-count-${jsonResult.id}`;
+    const received = document.createElement('span');
+    received.id = `collection-received-${jsonResult.id}`;
+    received.appendChild(document.createTextNode(t('collection.receivedLabel') + ' '));
     const count = document.createElement('span');
     count.id = `totalFiles-fr-${jsonResult.id}`;
     count.textContent = jsonResult.uploadedfiles;
-    countCell.appendChild(count);
-    if (jsonResult.reserveduploads) countCell.appendChild(document.createTextNode(` +${jsonResult.reserveduploads}`));
-    if (jsonResult.maxfiles) countCell.appendChild(document.createTextNode(` / ${jsonResult.maxfiles}`));
+    received.appendChild(count);
+    const maximum = document.createElement('span');
+    maximum.id = `collection-max-${jsonResult.id}`;
+    received.appendChild(maximum);
+    countCell.appendChild(received);
+    for (const [prefix, key, className] of [['inflight', 'collection.inflight', 'collection-inflight'],
+        ['empty', 'collection.noFiles', 'collection-no-files']]) {
+        const helper = document.createElement('span');
+        helper.id = `collection-${prefix}-${jsonResult.id}`;
+        helper.className = `small ${className}`;
+        helper.textContent = t(key, {count: jsonResult.reserveduploads});
+        countCell.appendChild(helper);
+    }
     const existingToggle = document.querySelector(`#row-${jsonResult.id} .collapse-toggle`);
     if (existingToggle) countCell.appendChild(existingToggle);
     tr.appendChild(countCell);
     // Total size
-    tr.appendChild(tdText(getReadableSize(jsonResult.totalfilesize)));
+    const sizeCell = tdText(getReadableSize(jsonResult.totalfilesize));
+    sizeCell.id = `collection-size-${jsonResult.id}`;
+    tr.appendChild(sizeCell);
     // Last upload
-    tr.appendChild(tdText(formatTimestampWithNegative(jsonResult.lastupload, t("common.none"))));
+    const lastCell = tdText(formatTimestampWithNegative(jsonResult.lastupload, t("common.none")));
+    lastCell.id = `cell-lastupdate-${jsonResult.id}`;
+    tr.appendChild(lastCell);
     // Expiry
-    tr.appendChild(tdText(formatFileRequestExpiry(jsonResult.expiry)));
+    const expiryCell = tdText(formatFileRequestExpiry(jsonResult.expiry));
+    expiryCell.id = `cell-expiry-${jsonResult.id}`;
+    tr.appendChild(expiryCell);
     // Optional user column
     if (canViewOtherRequests) {
         let userTd = tdText(user);

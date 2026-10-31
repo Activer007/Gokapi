@@ -685,5 +685,18 @@
   "delivery.collectionExcluded": "{count} end-to-end encrypted items or items without reliable new share information cannot be included.",
   "delivery.collectionRunning": "Conversion is still running. Wait for this batch to finish.",
   "delivery.selectSuccess": "Select successful shares to include in the delivery list",
-  "delivery.noShareId": "No reliable new share ID was returned. Check the ordinary file list."
+  "delivery.noShareId": "No reliable new share ID was returned. Check the ordinary file list.",
+  "collection.status.expired": "Expired",
+  "collection.status.full": "Received limit reached",
+  "collection.status.reserved": "Slots temporarily full",
+  "collection.status.accepting": "Accepting files",
+  "collection.receivedLabel": "Received",
+  "collection.inflight": "{count} uploads in progress",
+  "collection.noFiles": "No files received yet",
+  "collection.refresh": "Refresh status",
+  "collection.displayHelp": "Status is a display snapshot. Uploads are checked against current limits when submitted.",
+  "collection.updatedAt": "Updated: {time}",
+  "collection.refreshed": "Collection status updated.",
+  "collection.refreshFailed": "Unable to update. Previous values and update time are kept; please retry.",
+  "collection.authRequired": "Your session expired or permission is missing. Sign in again and reopen this page."
 }

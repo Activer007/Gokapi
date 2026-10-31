@@ -977,6 +977,22 @@ async function apiE2eStore(content) {
 
 // Upload Requests
 
+async function apiURequestList() {
+    try {
+        const token = await getToken('PERM_MANAGE_FILE_REQUESTS', false);
+        const response = await fetch('./api/uploadrequest/list', {
+            method: 'GET', headers: {apikey: token}, cache: 'no-store'
+        });
+        if (!response.ok) throw await apiFailure(response);
+        const requests = await response.json();
+        const serverDate = Date.parse(response.headers.get('Date'));
+        return {requests, serverTime: Number.isFinite(serverDate) ? serverDate / 1000 : null};
+    } catch (failure) {
+        if (failure.status === 401 || failure.status === 403) storedTokens.delete('PERM_MANAGE_FILE_REQUESTS');
+        throw failure;
+    }
+}
+
 async function apiURequestDelete(id) {
     const apiUrl = './api/uploadrequest/delete';
     const reqPerm = 'PERM_MANAGE_FILE_REQUESTS';
