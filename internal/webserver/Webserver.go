@@ -116,6 +116,7 @@ func Start() {
 	mux.HandleFunc("/apiKeys", requireLogin(showApiAdmin, true, false))
 	mux.HandleFunc("/changePassword", requireLogin(changePassword, true, true))
 	mux.HandleFunc("/d", showDownload)
+	mux.HandleFunc("/delivery/{token}", showDelivery)
 	mux.HandleFunc("/downloadFile", downloadFile)
 	mux.HandleFunc("/downloadPresigned", requireLogin(downloadPresigned, false, false))
 	mux.HandleFunc("/e2eSetup", requireLogin(showE2ESetup, true, false))

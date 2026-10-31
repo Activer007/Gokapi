@@ -1,0 +1,12 @@
+.delivery-create-panel { padding: 20px; border: 1px solid var(--ss-border); border-radius: var(--ss-radius); text-align: left; }
+.delivery-create-panel form { max-width: 680px; }
+.delivery-management { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--ss-border); text-align: left; }
+.delivery-management-list, .delivery-public-list { list-style: none; padding: 0; margin: 0; }
+.delivery-management-row, .delivery-public-row { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 18px 0; border-top: 1px solid var(--ss-border); }
+.delivery-item-details { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.delivery-item-details strong { display: block; }
+.delivery-item-actions { display: flex; flex-wrap: wrap; gap: 8px; flex-shrink: 0; }
+.public-delivery { max-width: 800px; }
+.delivery-note { white-space: pre-wrap; }
+.delivery-public-list { margin: 24px 0; }
+.delivery-public-row > .btn, .delivery-public-row > .badge { flex-shrink: 0; }

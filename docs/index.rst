@@ -34,6 +34,7 @@ Contents
    setup
    usage
    file-collections
+   delivery-lists
    update
    repository-identity
    advanced

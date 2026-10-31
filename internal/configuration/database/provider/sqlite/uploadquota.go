@@ -181,7 +181,7 @@ func (p DatabaseProvider) CheckEmptyForMigration(ctx context.Context) error {
 			return uploadquota.ErrConflict
 		}
 		// These are fixed schema identifiers, never caller-provided SQL.
-		for _, table := range [...]string{"ApiKeys", "E2EConfig", "FileMetaData", "Hotlinks", "Sessions", "Users", "UploadRequests", "Statistics"} {
+		for _, table := range [...]string{"ApiKeys", "E2EConfig", "FileMetaData", "Hotlinks", "Sessions", "Users", "UploadRequests", "Statistics", "DeliveryLists"} {
 			var exists bool
 			if err := conn.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM "+table+" LIMIT 1)").Scan(&exists); err != nil {
 				return fmt.Errorf("check migration destination %s: %w", table, err)
