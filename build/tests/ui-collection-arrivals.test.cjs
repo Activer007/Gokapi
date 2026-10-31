@@ -148,3 +148,36 @@ test('newly visible unknown scopes establish a quiet baseline while a locally cr
     assert.equal(pending('local'),1);
     assert.equal(nodes['collection-arrivals-local'].hidden,false);
 });
+
+test('fifty unavailable arrivals rotate behind a later valid file without issuing automatic extra requests',async()=>{
+    const {context,nodes,init,pending}=arrivalContext();init();
+    const unavailable=Array.from({length:50},(_,index)=>`unavailable-${index}`);
+    context.processCollectionArrivalSnapshots([snapshot('r',[...unavailable,'tail-valid'])]);
+    const calls=[],opened=[];
+    nodes['collapse-filelist-r'].classList.add=name=>opened.push(name);
+    context.loadCollectionArrivalFiles=async(_requestId,ids)=>{
+        calls.push(Array.from(ids));
+        // Preserve the reader's existing 50-item cap; the controller must
+        // fairly select which pending items reach that bounded reader.
+        const attempted=Array.from(ids).slice(0,50);
+        const rejected=attempted.filter(id=>id!=='tail-valid');
+        return {shown:attempted.filter(id=>id==='tail-valid'),unavailable:rejected.slice(0,25),failed:rejected.slice(25)};
+    };
+    assert.equal(await context.viewCollectionArrivals('r'),false);
+    assert.deepEqual(calls[0],unavailable);
+    assert.equal(pending('r'),51);
+    assert.deepEqual(opened,[]);
+    await settle();
+    assert.equal(calls.length,1);
+    assert.equal(await context.viewCollectionArrivals('r'),false);
+    assert.equal(calls[1][0],'tail-valid');
+    assert.equal(calls[1].length,50);
+    assert.deepEqual(opened,['show']);
+    const remaining=Array.from(vm.runInContext("collectionArrivalStates.get('r').pendingIDs",context));
+    assert.deepEqual(new Set(remaining),new Set(unavailable));
+    assert.equal(pending('r'),50);
+    assert.equal(nodes['collection-arrivals-view-r'].disabled,false);
+    assert.match(nodes['collection-arrivals-detail-r'].textContent,/collection.arrivals.retry/);
+    await settle();
+    assert.equal(calls.length,2);
+});

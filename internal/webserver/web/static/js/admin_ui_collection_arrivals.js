@@ -97,13 +97,18 @@ async function viewCollectionArrivals(requestId) {
     state.viewing = true;
     state.detailKey = '';
     renderCollectionArrivalNotice(requestId);
-    const requestedIDs = [...state.pendingIDs];
+    const requestedIDs = [...state.pendingIDs].slice(0, 50);
     try {
         const result = await loadCollectionArrivalFiles(requestId, requestedIDs);
         if (!collectionArrivalCanView(requestId)) return false;
         if (!Array.isArray(result.shown)) throw new Error('invalid arrival detail result');
         const requested = new Set(requestedIDs);
         for (const id of result.shown) if (requested.has(id)) state.pendingIDs.delete(id);
+        // Retry unsuccessful members after the rest of the queue. A batch of
+        // missing or temporarily unreadable files must not starve later arrivals.
+        for (const id of requestedIDs) {
+            if (state.pendingIDs.delete(id)) state.pendingIDs.add(id);
+        }
         if (result.shown.some(id => requested.has(id))) {
             const panel = document.getElementById(`collapse-filelist-${requestId}`);
             if (panel) {
