@@ -702,5 +702,20 @@
   "collection.status.unavailable": "Unavailable or access changed",
   "collection.arrivals.count": "{name}: {count} newly received files not yet viewed.",
   "collection.arrivals.view": "View new files",
-  "collection.arrivals.retry": "Some files are unavailable or could not be loaded. Unviewed items are kept; please retry later."
+  "collection.arrivals.retry": "Some files are unavailable or could not be loaded. Unviewed items are kept; please retry later.",
+  "quota.title": "My logical quota",
+  "quota.refresh": "Refresh quota",
+  "quota.files": "Files",
+  "quota.bytes": "Logical size",
+  "quota.help": "Each file record counts separately, including shares that reuse the same stored content. Expired or pending-deletion records count until retired.",
+  "quota.admissionHelp": "This is your usage snapshot, not a guarantee that the next upload or conversion will fit. In-progress reservations and instance limits may also apply.",
+  "quota.conversionHelp": "Creating ordinary shares adds logical file and size usage even when no stored content is copied. Check My logical quota above; the server still decides whether each conversion can proceed.",
+  "quota.noConfirmedData": "No confirmed usage yet",
+  "quota.updatedAt": "Updated: {time}",
+  "quota.exactBytes": "{used} / {limit} bytes",
+  "quota.updated": "Quota updated.",
+  "quota.unavailable": "Quota is temporarily unavailable. Refresh to try again.",
+  "quota.stale": "These values are out of date. The refresh failed; the previous values and update time are kept.",
+  "quota.authRequired": "Your session expired or permission is missing. Sign in again and reopen this page.",
+  "quota.staleAuth": "These values are out of date. Your session expired or permission is missing; sign in again and reopen this page."
 }

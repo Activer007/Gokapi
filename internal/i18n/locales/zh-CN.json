@@ -702,5 +702,20 @@
   "collection.status.unavailable": "不可用或权限已改变",
   "collection.arrivals.count": "{name}：{count} 个新到文件尚未查看。",
   "collection.arrivals.view": "查看新增",
-  "collection.arrivals.retry": "部分文件暂不可用或读取失败，未查看项已保留，可稍后重试。"
+  "collection.arrivals.retry": "部分文件暂不可用或读取失败，未查看项已保留，可稍后重试。",
+  "quota.title": "我的逻辑额度",
+  "quota.refresh": "刷新额度",
+  "quota.files": "文件数",
+  "quota.bytes": "逻辑容量",
+  "quota.help": "每条文件记录分别计入额度，复用同一份内容创建的新分享也会占用；过期或删除中的记录在完成回收前仍可能计入。",
+  "quota.admissionHelp": "此处为本人的用量快照，不保证下一次上传或转换必定可用；在途预约和实例限制也可能影响操作。",
+  "quota.conversionHelp": "转为普通分享会新增逻辑文件数和容量占用，即使没有复制文件内容。可查看上方“我的逻辑额度”，每项转换仍由服务端实时判断。",
+  "quota.noConfirmedData": "尚无已确认的额度数据",
+  "quota.updatedAt": "更新于：{time}",
+  "quota.exactBytes": "{used} / {limit} 字节",
+  "quota.updated": "额度已更新。",
+  "quota.unavailable": "额度暂不可用，请点击刷新重试。",
+  "quota.stale": "额度数据已过时。刷新失败，已保留上次的数值和更新时间。",
+  "quota.authRequired": "登录已失效或权限不足，请重新登录后重新打开此页。",
+  "quota.staleAuth": "额度数据已过时。登录已失效或权限不足，请重新登录后重新打开此页。"
 }

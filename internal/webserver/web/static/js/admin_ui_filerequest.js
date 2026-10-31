@@ -112,8 +112,8 @@ async function createCollectionShare(id, button) {
         result.hidden = false;
         button.textContent = t('request.shared');
         const row = document.getElementById(`cell-listupload-${id}`);
+        const panel = row && document.getElementById(`collapse-filelist-${row.dataset.requestId}`);
         if (row) {
-            const panel = document.getElementById(`collapse-filelist-${row.dataset.requestId}`);
             if (!panel.shareLinks) panel.shareLinks = new Map();
             panel.shareLinks.set(id, {
                 id: typeof data.Id === 'string' ? data.Id : '',
@@ -122,6 +122,7 @@ async function createCollectionShare(id, button) {
             });
             updateCollectionShareResults(row.dataset.requestId);
         }
+        if (!panel?.shareBatchRunning && typeof refreshQuotaAfterMutation === 'function') refreshQuotaAfterMutation();
         return true;
     } catch (failure) {
         error.textContent = t('request.shareFailed') + shareFailureMessage(failure);
@@ -205,6 +206,7 @@ async function shareSelectedCollectionFiles(requestId, button) {
     } finally {
         panel.shareBatchRunning = false;
         updateCollectionShareResults(requestId);
+        if (typeof refreshQuotaAfterMutation === 'function') refreshQuotaAfterMutation();
         button.textContent = label;
         button.removeAttribute('aria-busy');
         button.disabled = false;
