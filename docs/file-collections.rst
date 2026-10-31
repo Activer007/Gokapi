@@ -29,11 +29,15 @@ of who created the collection or issued a temporary download link:
   the file's counted downloads. Downloads are still logged, and normal file
   permissions and validity checks apply.
 * Pages, link generation and HEAD probes do not spend an allowance. Invalid
-  ranges and detectable local read/decryption errors are rejected before charging.
+  ranges and source-length or wrapped-key errors detected during preflight are
+  rejected before charging.
   Concurrent transfers cannot each claim the same last allowance.
 
 An allowance is charged when an authorized transfer starts, rather than when the
-browser saves it. Management collection downloads permit a two-minute retry
+browser saves it. If decryption, reads or writes fail after transfer starts, or
+the client cancels, the download is interrupted; a charged attempt is not refunded.
+Eligible retries still use the same charged allowance. Management collection
+downloads permit a two-minute retry
 window in the same browser and signed-in account. Single-range continuation of
 unencrypted local files and full retries of ZIP/decrypted transfers use the same
 charged allowance. The window is fixed and cannot be extended by retries. Current

@@ -10,7 +10,9 @@ This directory is the documentation source for the SupaShare version in this che
 | --- | --- |
 | [Setup](setup.rst) | Installation, bootstrap credentials and proxies / 安装、初始凭据和代理 |
 | [Usage](usage.rst) | Files, collections, accounts and permissions / 文件、收集、账户与权限 |
+| [File collections](file-collections.rst) | Defaults, counting and legacy links / 默认值、计数与历史链接 |
 | [Advanced configuration](advanced.rst) | Languages, site branding, storage and limits / 语言、站点定制、存储和限制 |
+| [Update and recovery](update.rst) | Stopped-service backups, upgrades and snapshot rollback / 停服备份、升级与快照回滚 |
 | [Migration](repository-identity.rst) | Existing installations and version management / 现有部署迁移和版本管理 |
 | [Changelog](changelog.rst) | SupaShare changes and inherited history / 当前项目改动和继承历史 |
 | [Troubleshooting](troubleshooting.rst) | Diagnostics / 问题排查 |

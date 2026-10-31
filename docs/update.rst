@@ -59,17 +59,34 @@ against the same state at the same time.
 Native deployment
 *******************
 
-Stable version
-==============
+Published packages
+==================
 
-Download the latest release and extract it into the same directory as your existing installation, overwriting the old binary. Then restart SupaShare.
+Use a matching SupaShare package from the `releases page
+<https://github.com/Activer007/SupaShare/releases>`_ only when explicitly published.
+The current 2.13.1 source version is not itself a published package. Otherwise,
+build from a reviewed source checkout as below. Preserve the old binary and the
+stopped-service snapshot before replacing the executable, then restart SupaShare.
 
-Unstable version
-=================
+Source builds
+=============
 
 .. code-block:: bash
 
-   git pull
-   make
+   # In the existing source checkout, select the source revision to deploy.
+   git fetch origin
+   git checkout <reviewed-commit-or-tag>
+   make build
 
-Then restart SupaShare.
+Replace ``<reviewed-commit-or-tag>`` with the revision you reviewed; commit or
+stash local development changes before switching. The build produces
+``./supashare``. Replace the stopped deployment's binary while preserving its
+configuration/data paths, then restart it. Do not run the new binary from an
+empty directory and accidentally initialize a separate installation.
+
+The 2.12.0 → 2.13.1 SQLite/local-storage upgrade, independent backup restore and
+old-snapshot rollback were verified with synthetic data in the native runtime.
+Compose installation and restart were verified separately using a cached runtime
+layer; see the `M5 acceptance record
+<https://github.com/Activer007/SupaShare/blob/master/docs/m5/M5-ACCEPTANCE.md>`_
+for the exact scope and unexecuted checks.

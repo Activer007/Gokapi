@@ -20,7 +20,7 @@ a password is set; it never displays the password. Select *Adjust* to expand:
 
  - *Allowed downloads* lets you set how many times a file can be downloaded before it gets deleted
  - *Expiry in days* lets you set after how many days a file gets deleted latest
- - *Password* lets you set a password that a user needs to enter before downloading the file. Please note that the file on the storage server is not encrypted.
+ - *Password* controls access to the download. A download password does not itself encrypt the stored file; encryption at rest depends on the configured encryption mode.
 
 Uploading new files
 ---------------------
@@ -51,7 +51,7 @@ desktop browsers; the desktop-access policy also applies to share-link visitors.
 Downloading files
 ------------------
 
-The upload menu has a button which lets you download a file without increasing the download counter. You can also click on the file ID to go to the regular download page, which increases the counter.
+Management downloads of ordinary files do not spend their download allowance. For collected files, ordinary users spend an allowance while administrators and super administrators are exempt. Downloading an ordinary shared file through its public link spends its configured allowance. See :doc:`file-collections` for ZIP, retry and failure semantics.
 
 Editing files
 ---------------
@@ -117,6 +117,8 @@ You can download files in two ways:
 1.  **Single File**: Click the file name or the download icon within the expanded list.
 2.  **Batch Download**: Click the download icon in the *Actions* column. If multiple files exist, the system will automatically package them into a ``.zip`` archive.
 
+For ordinary users, each collected file included in a download spends one allowance; administrators and super administrators are exempt. An explicit ZIP request remains a ZIP even with one member. See :doc:`file-collections` for the complete policy.
+
 Creating and Editing Requests
 ---------------------------------
 
@@ -137,9 +139,13 @@ and remaining capacity alongside the upload area and individual file results.
    * - **Max Size**
      - Set the maximum size of each file (in MiB, 1 MiB = 1024 x 1024 bytes).
    * - **Expiry**
-     - Set a date after which the link will no longer function.
+     - New requests default to five days. Change or disable the deadline; it stops new uploads without expiring files already collected.
+   * - **Allowed downloads**
+     - New requests default to one download per collected file; choose an integer from 1 to 10. Changes affect subsequent uploads. Editing preserves legacy unlimited settings unless explicitly changed.
    * - **Notes**
      - Public notes that are shown on the upload page
+
+The creation dialog starts with the current defaults; editing preserves saved settings. Short links, legacy compatibility and download behavior are detailed in :doc:`file-collections`.
 
 
 .. note::
