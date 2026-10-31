@@ -18,7 +18,8 @@ function element(values = {}) {
 function modal(id) {
     const fields = Object.fromEntries(['username','password','loginUrl'].map(name => [name, element({type:name === 'password' ? 'password' : 'text'})]));
     const copies = Object.fromEntries(['all','username','password','loginUrl'].map(name => [name, element({dataset:{credentialCopy:name}})]));
-    const toggle = element();
+    const icon = element({className:'bi bi-eye'});
+    const toggle = element({querySelector:selector => selector === 'i' ? icon : null});
     const fallbackValue = element();
     const fallback = element({hidden:true, querySelector: selector => selector === 'textarea' ? fallbackValue : null});
     const panel = element({hidden:true,
@@ -104,10 +105,14 @@ test('creation immediately presents masked canonical credentials, copy actions a
     assert.equal(create.panel.hidden,false);
     assert.equal(create.fields.username.value,'canonical-user');
     assert.equal(create.fields.password.type,'password');
+    assert.equal(create.toggle.querySelector('i').className,'bi bi-eye');
+    assert.equal(create.toggle.attributes['aria-label'],messages['users.showPassword']);
     assert.equal(create.fields.loginUrl.value,'https://share.example/prefix/login');
     create.toggle.onclick();
     assert.equal(create.fields.password.type,'text');
     assert.equal(create.toggle.attributes['aria-pressed'],'true');
+    assert.equal(create.toggle.querySelector('i').className,'bi bi-eye-slash');
+    assert.equal(create.toggle.attributes['aria-label'],messages['users.hidePassword']);
     await create.copies.all.onclick();
     assert.equal(copies[0], 'Your SupaShare account is ready.\n\nLogin address: https://share.example/prefix/login\nUsername: canonical-user\nTemporary password: Temporary-fixture-password\n\nPlease choose a new password after signing in for the first time.');
     await create.copies.username.onclick();
@@ -119,6 +124,8 @@ test('creation immediately presents masked canonical credentials, copy actions a
     context.bootstrap.Modal.getOrCreateInstance(create).hide();
     assert.equal(create.fields.password.value,'');
     assert.equal(create.fields.password.type,'password');
+    assert.equal(create.toggle.querySelector('i').className,'bi bi-eye');
+    assert.equal(create.toggle.attributes['aria-label'],messages['users.showPassword']);
     assert.equal(create.fields.username.value,'');
     assert.equal(create.copies.all.onclick,null);
     assert.equal(create.title.textContent,messages['users.create']);

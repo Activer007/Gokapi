@@ -49,6 +49,14 @@ function showDeleteUserModal(userId, userEmail) {
 const userCredentialState = new WeakMap();
 const userCredentialLifecycle = new WeakSet();
 
+function updateCredentialPasswordToggle(toggle, visible) {
+    const label = t(visible ? 'users.hidePassword' : 'users.showPassword');
+    toggle.setAttribute('aria-label', label);
+    toggle.setAttribute('title', label);
+    toggle.setAttribute('aria-pressed', String(visible));
+    toggle.querySelector('i').className = visible ? 'bi bi-eye-slash' : 'bi bi-eye';
+}
+
 function clearUserCredentials(modal) {
     userCredentialState.delete(modal);
     delete modal.dataset.credentialsIssued;
@@ -60,8 +68,7 @@ function clearUserCredentials(modal) {
     panel.querySelector('[data-credential-fallback]').hidden = true;
     for (const button of panel.querySelectorAll('button')) button.onclick = null;
     const toggle = panel.querySelector('[data-credential-toggle]');
-    toggle.textContent = t('users.showPassword');
-    toggle.setAttribute('aria-pressed', 'false');
+    updateCredentialPasswordToggle(toggle, false);
 }
 
 function resetUserCredentialModal(modal) {
@@ -147,8 +154,7 @@ function showUserCredentials(modal, values) {
         const field = panel.querySelector('[data-credential-field="password"]');
         const visible = field.type === 'password';
         field.type = visible ? 'text' : 'password';
-        toggle.textContent = t(visible ? 'users.hidePassword' : 'users.showPassword');
-        toggle.setAttribute('aria-pressed', String(visible));
+        updateCredentialPasswordToggle(toggle, visible);
     };
 }
 
