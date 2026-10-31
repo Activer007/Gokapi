@@ -2,6 +2,8 @@
 
 **English** · [简体中文](README.zh-CN.md)
 
+![SupaShare — self-hosted file sharing, with a blue folder and a sharing link on a charcoal background](docs/images/supashare-cover.png)
+
 **Self-hosted file collection and delivery for individuals and small teams.**
 
 Collect files through an upload link, turn selected submissions into shares,
