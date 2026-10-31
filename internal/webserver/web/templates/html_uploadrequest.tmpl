@@ -4,7 +4,9 @@
     <div><h1 id="collectionsTitle">{{.UI.T "nav.requests"}}</h1><p>{{.UI.T "request.workspaceHelp"}}</p></div>
     <button id="button-newfr" type="button" class="btn btn-primary primary-upload" onclick="newFileRequest()"><i class="bi bi-plus-lg" aria-hidden="true"></i>{{.UI.T "request.new"}}</button>
   </div>
-  <div class="collections-section-heading"><h2>{{.UI.T "request.links"}} <span id="requestCount" class="file-count">{{len .FileRequests}}</span></h2></div>
+  <div class="collections-section-heading d-flex align-items-center justify-content-between gap-3"><h2>{{.UI.T "request.links"}} <span id="requestCount" class="file-count">{{len .FileRequests}}</span></h2><button id="collectionRefresh" type="button" class="btn btn-outline-light btn-sm" onclick="refreshCollectionSummaries()">{{.UI.T "collection.refresh"}}</button></div>
+  <p class="small text-muted">{{.UI.T "collection.displayHelp"}} <time id="collectionUpdatedAt"></time></p>
+  <p id="collectionRefreshStatus" class="small" role="status" aria-live="polite"></p>
   <div id="requestEmpty" class="collection-empty" {{if .FileRequests}}hidden{{end}}>
     <i class="bi bi-inbox" aria-hidden="true"></i><h3>{{.UI.T "request.emptyTitle"}}</h3><p>{{.UI.T "request.emptyHelp"}}</p>
   </div>
@@ -26,10 +28,10 @@
                         <tbody id="filerequesttable">
                         
 {{ range $fileRequest := .FileRequests }}
-                            <tr id="row-{{ .Id }}" class="no-bottom-border filerequest-item">
-		                    <td><a href="{{ $.ServerUrl }}r/{{ .ApiKey }}" target="_blank">{{ .Name }}</a></td>
+                            <tr id="row-{{ .Id }}" class="no-bottom-border filerequest-item" data-collection-summary data-id="{{.Id}}" data-uploadedfiles="{{.UploadedFiles}}" data-reserveduploads="{{.ReservedUploads}}" data-maxfiles="{{.MaxFiles}}" data-totalfilesize="{{.TotalFileSize}}" data-lastupload="{{.LastUpload}}" data-expiry="{{.Expiry}}" data-fileids="{{.GetFilesAsString}}">
+		                    <td><a id="collection-name-{{.Id}}" href="{{ $.ServerUrl }}r/{{ .ApiKey }}" target="_blank">{{ .Name }}</a><span id="collection-status-{{.Id}}" class="badge collection-status" role="status"></span></td>
 				    {{ template "uRFileCell" (newFileRequestContext . $.UI) }}
-		                    <td>{{ .GetReadableTotalSize }}</td>
+		                    <td id="collection-size-{{.Id}}">{{ .GetReadableTotalSize }}</td>
             			    <td><span id="cell-lastupdate-{{ .Id }}"></span></td>
 				       <script>insertDateWithNegative({{ .LastUpload }}, "cell-lastupdate-{{ .Id }}", t("common.none"));</script>
             			    <td><span id="cell-expiry-{{ .Id }}"></span></td>
@@ -159,6 +161,7 @@
     document.querySelectorAll('.filerequest-item').forEach(prepareFileRequestRow);
     document.querySelectorAll('[data-remaining="0"]').forEach(cell => expireCollectionFile(cell.id.slice('cell-downloadsRemaining-'.length)));
     updateFileRequestEmptyState();
+    initCollectionStatus({{.TimeNow}});
     refreshDeliveries();
 	registerCollectionChanges();
 	
@@ -276,8 +279,10 @@
 {{ end }}
 
 {{ define "uRFileCell" }}
-	<td>
-    <span id="totalFiles-fr-{{.Id}}" title="{{$.UI.T "request.uploadedFiles"}}">{{ .UploadedFiles }}</span>{{ if ne .ReservedUploads 0 }}<span title="{{$.UI.T "request.activeUploads"}}">+{{.ReservedUploads}}</span>{{end}}{{ if ne .MaxFiles 0 }} / <span title="{{$.UI.T "request.fileLimit"}}">{{ .MaxFiles }}</span>{{end}}
+	<td id="collection-count-{{.Id}}">
+    <span id="collection-received-{{.Id}}">{{$.UI.T "collection.receivedLabel"}} <span id="totalFiles-fr-{{.Id}}" title="{{$.UI.T "request.uploadedFiles"}}">{{ .UploadedFiles }}</span><span id="collection-max-{{.Id}}">{{if ne .MaxFiles 0}} / {{.MaxFiles}}{{end}}</span></span>
+    <span id="collection-inflight-{{.Id}}" class="small collection-inflight" {{if eq .ReservedUploads 0}}hidden{{end}}>{{$.UI.T "request.activeUploads"}}: {{.ReservedUploads}}</span>
+    <span id="collection-empty-{{.Id}}" class="small collection-no-files" {{if gt .UploadedFiles 0}}hidden{{end}}>{{$.UI.T "collection.noFiles"}}</span>
 	{{ if gt .UploadedFiles 0 }}
 	 <button
 		  class="btn btn-sm btn-link text-light p-0 collapse-toggle"

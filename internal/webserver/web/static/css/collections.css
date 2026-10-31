@@ -15,6 +15,12 @@
 .collections-table .request-actions .btn { min-height: 36px; border-radius: 7px !important; }
 .collections-table .request-actions .copyurl { color: var(--ss-link); border-color: #609be7; }
 .collections-table .collection-files { background: #20252c; }
+.collection-status { display: table; margin-top: 8px; font-weight: 500; white-space: normal; line-height: 1.4; }
+.collection-status-accepting { background: #173e32; color: #baf1d9; }
+.collection-status-full { background: #363e4c; color: #e2e7ef; }
+.collection-status-reserved { background: #4a3b1b; color: #ffe4a7; }
+.collection-status-expired { background: #512d34; color: #ffd4dd; }
+.collection-inflight:not([hidden]), .collection-no-files:not([hidden]) { display: block; margin-top: 4px; color: var(--ss-muted); }
 .collections-table .filelist-item { gap: 12px; margin: 0; padding: 12px 16px; }
 .collection-file-name { min-width: 0; overflow-wrap: anywhere; }
 .collection-files .collapse-toggle { color: var(--ss-link); }

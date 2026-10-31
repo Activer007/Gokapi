@@ -116,3 +116,21 @@ row, wrapping when the window is narrow. Times use the browser's local timezone
 with an explicit UTC offset; missing timestamps display an unknown-time label.
 This applies to both ordinary and encrypted download pages. Collection files
 continue to be retrieved through the authenticated management page.
+
+Collection intake status
+------------------------
+
+The collection list distinguishes files already received from uploads still in
+progress. An expired collection shows **Expired**; a collection whose received
+count reaches its limit shows **Received limit reached**. If received files plus
+in-progress uploads occupy all slots, it shows **Slots temporarily full** instead.
+Otherwise it shows **Accepting files**. A collection with no received files also
+says so explicitly. Reaching a limit does not mean all business documents have
+been submitted or approved.
+
+These labels describe the latest available snapshot. Upload admission remains a
+server-side decision and can also depend on quota and other limits. Use the
+refresh control to update collection summaries without losing conversion results,
+file selections or an unfinished delivery form. A failed refresh retains the
+previous snapshot and its successful update time. Collection expiry stops intake
+without deleting files already received.

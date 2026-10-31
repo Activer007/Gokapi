@@ -685,5 +685,18 @@
   "delivery.collectionExcluded": "{count} 项为端到端加密文件或缺少可靠的新分享信息，不能加入。",
   "delivery.collectionRunning": "转换仍在进行，请等本批次完成。",
   "delivery.selectSuccess": "选择要加入交付清单的成功分享",
-  "delivery.noShareId": "未获得可靠的新分享 ID，请到普通文件列表确认。"
+  "delivery.noShareId": "未获得可靠的新分享 ID，请到普通文件列表确认。",
+  "collection.status.expired": "已到期",
+  "collection.status.full": "已收满",
+  "collection.status.reserved": "名额暂满",
+  "collection.status.accepting": "可接收",
+  "collection.receivedLabel": "已收",
+  "collection.inflight": "在途 {count} 项",
+  "collection.noFiles": "尚未收到文件",
+  "collection.refresh": "刷新状态",
+  "collection.displayHelp": "状态仅供展示，上传能否接收仍以提交时的实时检查为准。",
+  "collection.updatedAt": "更新于：{time}",
+  "collection.refreshed": "收集状态已更新。",
+  "collection.refreshFailed": "更新失败，已保留上次数据和更新时间，请稍后重试。",
+  "collection.authRequired": "登录已过期或权限不足，请重新登录后重新打开此页。"
 }
