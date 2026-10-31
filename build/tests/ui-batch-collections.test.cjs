@@ -23,6 +23,8 @@ function batchContext(api) {
     }
     const context=vm.createContext({document:{getElementById:id=>nodes[id]},
         apiCollectionFileShare:api,t:(key,values={})=>key+JSON.stringify(values),showToast(){}});
+    vm.runInContext(fs.readFileSync(path.join(base,'admin_api.js'),'utf8'),context);
+    context.apiCollectionFileShare=api;
     vm.runInContext(fs.readFileSync(path.join(base,'admin_ui_allPages.js'),'utf8'),context);
     vm.runInContext(fs.readFileSync(path.join(base,'admin_ui_filerequest.js'),'utf8'),context);
     return {context,nodes,fields};
@@ -37,7 +39,7 @@ test('collection batch is sequential, retains partial results and retries only f
         if (id==='b' && calls.filter(id=>id==='b').length===1) throw new Error('quota full');
         return {UrlDownload:`https://example.test/d/${id}`};
     });
-    const button={disabled:false};
+    const button={disabled:false,textContent:'Create shares',setAttribute(){},removeAttribute(){}};
     const pending=context.shareSelectedCollectionFiles('r',button);
     await context.shareSelectedCollectionFiles('r',button);
     await pending;
@@ -45,13 +47,18 @@ test('collection batch is sequential, retains partial results and retries only f
     assert.equal(maxActive,1);
     assert.equal(nodes['share-batch-links-r'].value,'a.txt\nhttps://example.test/d/a');
     assert.match(nodes['share-batch-status-r'].textContent,/"failed":1/);
+    assert.match(nodes['share-batch-status-r'].textContent,/sharing.partlySucceeded/);
     assert.match(nodes['share-batch-status-r'].textContent,/b.txt/);
     assert.equal(button.disabled,false);
-    await context.shareSelectedCollectionFiles('r',button);
+    await context.shareCollectionFile('b',nodes['button-share-b']);
     assert.deepEqual(calls,['a','b','b']);
     assert.equal(nodes['share-batch-result-r'].hidden,false);
     assert.equal(nodes['share-batch-links-r'].value,'a.txt\nhttps://example.test/d/a\n\nb.txt\nhttps://example.test/d/b');
     assert.match(nodes['share-batch-status-r'].textContent,/"success":2,"failed":0/);
+    assert.match(nodes['share-batch-status-r'].textContent,/sharing.allSucceeded/);
+    // Retrying the whole selection also reuses the now-successful row result.
+    await context.shareSelectedCollectionFiles('r',button);
+    assert.deepEqual(calls,['a','b','b']);
     // The new shares stay copyable when the original collection rows disappear.
     nodes['collapse-filelist-r'].querySelectorAll=()=>[];
     context.updateCollectionShareResults('r');
@@ -82,7 +89,7 @@ test('batch clipboard uses exact names and URLs and offers the complete multilin
     const notices=[],fallbacks=[];
     context.showToast=(...args)=>notices.push(args);
     context.showClipboardFallback=(...args)=>fallbacks.push(args);
-    const button={disabled:false};
+    const button={disabled:false,textContent:'Copy links',setAttribute(){},removeAttribute(){}};
     await context.copyShareLinks(entries,button);
     assert.equal(written,'a.txt\nhttps://example.test/a#key\n\nb.txt\nhttps://example.test/b?name=b');
     assert.equal(notices.length,1);
@@ -91,4 +98,18 @@ test('batch clipboard uses exact names and URLs and offers the complete multilin
     assert.equal(notices.length,1);
     assert.equal(fallbacks[0][1],written);
     assert.equal(button.disabled,false);
+});
+
+test('all failed conversions show safe quota feedback and leave retry available',async()=>{
+    const {context,nodes}=batchContext(async()=>{
+        throw Object.assign(new Error('SENSITIVE_SENTINEL /srv/private apikey=secret'),{code:21,status:413});
+    });
+    const button={disabled:false,textContent:'Create shares',setAttribute(){},removeAttribute(){}};
+    await context.shareSelectedCollectionFiles('r',button);
+    assert.match(nodes['share-batch-status-r'].textContent,/sharing.allFailed/);
+    assert.match(nodes['share-error-a'].textContent,/sharing.errorQuota/);
+    assert.doesNotMatch(nodes['share-error-a'].textContent,/SENSITIVE_SENTINEL|apikey|private/);
+    assert.equal(nodes['share-batch-result-r'].hidden,true);
+    assert.equal(button.disabled,false);
+    assert.equal(button.textContent,'Create shares');
 });

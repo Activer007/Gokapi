@@ -305,6 +305,18 @@ async function apiCollectionFileShare(fileId) {
     return response.json();
 }
 
+// Sharing feedback uses server-owned categories, never raw service diagnostics.
+function shareFailureMessage(error) {
+    const code = error?.code;
+    const status = error?.status;
+    if (code === 21) return t('sharing.errorQuota');
+    if ([2, 3, 6].includes(code) || status === 401 || status === 403) return t('sharing.errorPermission');
+    if (code === 5 || status === 404 || status === 409) return t('sharing.errorUnavailable');
+    if ([16, 20, 22].includes(code) || status === 429 || status === 503) return t('sharing.errorBusy');
+    if (error?.name === 'TypeError' && !status) return t('sharing.errorNetwork');
+    return t('sharing.errorGeneric');
+}
+
 async function apiFilesListById(fileId) {
     const apiUrl = './api/files/list/' + fileId;
     const reqPerm = 'PERM_VIEW';

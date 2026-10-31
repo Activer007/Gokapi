@@ -63,8 +63,10 @@ async function copySensitiveText(text, trigger, successMessage) {
     try {
         await navigator.clipboard.writeText(text);
         showToast(3500, successMessage);
+        return true;
     } catch (error) {
         showClipboardFallback(trigger, text);
+        return false;
     }
 }
 
@@ -78,10 +80,15 @@ async function copyShareLinks(entries, trigger) {
         showToast(3500, t('sharing.noSelection'));
         return;
     }
+    const label = trigger.textContent;
     trigger.disabled = true;
+    trigger.setAttribute('aria-busy', 'true');
+    trigger.textContent = t('sharing.copying');
     try {
-        await copySensitiveText(formatShareLinks(entries), trigger, t('sharing.linksCopied', {count: entries.length}));
+        return await copySensitiveText(formatShareLinks(entries), trigger, t('sharing.linksCopied', {count: entries.length}));
     } finally {
+        trigger.textContent = label;
+        trigger.removeAttribute('aria-busy');
         trigger.disabled = false;
     }
 }

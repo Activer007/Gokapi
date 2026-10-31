@@ -95,6 +95,8 @@ function shareContext(api) {
     };
     const button = {disabled:false,dataset:{},setAttribute(){},removeAttribute(){}};
     const context = vm.createContext({document:{getElementById:id=>nodes[id]},apiCollectionFileShare:api,t:key=>key});
+    vm.runInContext(fs.readFileSync(path.join(__dirname,'../../internal/webserver/web/static/js/admin_api.js'),'utf8'),context);
+    context.apiCollectionFileShare=api;
     vm.runInContext(source,context);
     return {context,nodes,button};
 }
@@ -127,7 +129,7 @@ test('collection sharing shows the failure inline and permits a successful retry
     await context.shareCollectionFile('f',button);
     assert.equal(button.disabled,false);
     assert.equal(nodes['share-result-f'].hidden,true);
-    assert.equal(nodes['share-error-f'].textContent,'request.shareFailedquota full');
+    assert.equal(nodes['share-error-f'].textContent,'request.shareFailedsharing.errorGeneric');
     await context.shareCollectionFile('f',button);
     assert.equal(nodes['share-error-f'].textContent,'');
     assert.equal(nodes['share-result-f'].hidden,false);

@@ -96,7 +96,7 @@ async function createCollectionShare(id, button) {
         }
         return true;
     } catch (failure) {
-        error.textContent = t('request.shareFailed') + (failure.message || String(failure));
+        error.textContent = t('request.shareFailed') + shareFailureMessage(failure);
         button.textContent = t('request.toShare');
         return false;
     } finally {
@@ -130,10 +130,19 @@ function collectionShareLinks(requestId) {
 }
 
 function updateCollectionShareResults(requestId) {
+    const panel = document.getElementById(`collapse-filelist-${requestId}`);
     const links = collectionShareLinks(requestId);
     const result = document.getElementById(`share-batch-result-${requestId}`);
     result.hidden = links.length === 0;
     document.getElementById(`share-batch-links-${requestId}`).value = formatShareLinks(links);
+    if (panel.shareBatch && !panel.shareBatchRunning) {
+        const failed = panel.shareBatch.filter(file => !panel.shareLinks?.has(file.id));
+        const success = panel.shareBatch.length - failed.length;
+        const state = failed.length === 0 ? 'allSucceeded' : (success ? 'partlySucceeded' : 'allFailed');
+        document.getElementById(`share-batch-status-${requestId}`).textContent =
+            t('sharing.' + state, {success, failed: failed.length}) +
+            (failed.length ? ' ' + t('sharing.failedFiles', {names: failed.map(file => file.name).join(', ')}) : '');
+    }
 }
 
 async function shareSelectedCollectionFiles(requestId, button) {
@@ -143,21 +152,25 @@ async function shareSelectedCollectionFiles(requestId, button) {
         showToast(3500, t('sharing.noSelection'));
         return;
     }
+    const label = button.textContent;
     button.disabled = true;
+    button.setAttribute('aria-busy', 'true');
+    button.textContent = t('sharing.creating');
     const status = document.getElementById(`share-batch-status-${requestId}`);
-    const failed = [];
-    let success = 0;
+    const panel = document.getElementById(`collapse-filelist-${requestId}`);
+    panel.shareBatch = selected.map(field => ({id: field.value, name: field.dataset.name}));
+    panel.shareBatchRunning = true;
     try {
         for (const [index, field] of selected.entries()) {
             status.textContent = t('sharing.progress', {current: index + 1, total: selected.length});
             const single = document.getElementById(`button-share-${field.value}`);
-            if (single && await shareCollectionFile(field.value, single)) success++;
-            else failed.push(field.dataset.name);
+            if (single) await shareCollectionFile(field.value, single);
         }
-        status.textContent = t('sharing.batchResult', {success, failed: failed.length}) +
-            (failed.length ? ' ' + t('sharing.failedFiles', {names: failed.join(', ')}) : '');
-        updateCollectionShareResults(requestId);
     } finally {
+        panel.shareBatchRunning = false;
+        updateCollectionShareResults(requestId);
+        button.textContent = label;
+        button.removeAttribute('aria-busy');
         button.disabled = false;
     }
 }
