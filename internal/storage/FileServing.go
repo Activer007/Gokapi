@@ -424,6 +424,20 @@ func DuplicateFile(file models.File, parametersToChange int, newFileName string,
 // DuplicateFileContext publishes only metadata for an existing blob. It shares
 // atomic logical accounting with uploads without creating an upload session.
 func DuplicateFileContext(ctx context.Context, file models.File, parametersToChange int, newFileName string, fileParameters models.UploadParameters) (models.File, error) {
+	return duplicateFileContext(ctx, file, parametersToChange, newFileName, fileParameters, false)
+}
+
+// ConvertCollectionToShareContext creates an independent ordinary share while
+// retaining the source's download rules, password and encrypted blob unchanged.
+// The caller must hold the source metadata lock while resolving and authorizing it.
+func ConvertCollectionToShareContext(ctx context.Context, file models.File, userID int) (models.File, error) {
+	if !file.IsFileRequest() {
+		return models.File{}, uploadquota.ErrInvalid
+	}
+	return duplicateFileContext(ctx, file, 0, "", models.UploadParameters{UserId: userID}, true)
+}
+
+func duplicateFileContext(ctx context.Context, file models.File, parametersToChange int, newFileName string, fileParameters models.UploadParameters, asShare bool) (models.File, error) {
 	if ctx == nil || fileParameters.UserId <= 0 {
 		return models.File{}, uploadquota.ErrInvalid
 	}
@@ -478,12 +492,15 @@ func DuplicateFileContext(ctx context.Context, file models.File, parametersToCha
 	newFile.Id = createNewId()
 	newFile.DownloadCount = 0
 	newFile.UserId = fileParameters.UserId
+	if asShare {
+		newFile.UploadRequestId = ""
+	}
 	newFile.HotlinkId = ""
 	setHotlinkCandidate(&newFile)
 	_, err = database.ApplyUploadQuota(ctx, uploadquota.Change{
 		Action: uploadquota.DuplicateMetadata, Source: &file, File: &newFile,
 		Upload: uploadquota.Reservation{ID: newFile.Id, UserID: newFile.UserId, RequestID: newFile.UploadRequestId, BytesKnown: true, Bytes: newFile.SizeBytes},
-		Limits: limits, Now: time.Now().Unix(), CheckRequestPolicy: newFile.UploadRequestId != "",
+		Limits: limits, Now: time.Now().Unix(), CheckRequestPolicy: newFile.UploadRequestId != "", DetachCollection: asShare,
 	})
 	if err != nil {
 		return models.File{}, err

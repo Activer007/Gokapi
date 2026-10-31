@@ -31,9 +31,16 @@ func duplicateMetadata(ledger Ledger, files map[string]models.File, change Chang
 		return rejected(ErrInvalid)
 	}
 	source, file := *change.Source, *change.File
+	requestID := source.UploadRequestId
+	if change.DetachCollection {
+		if requestID == "" || file.UploadRequestId != "" || change.CheckRequestPolicy {
+			return rejected(ErrConflict)
+		}
+		requestID = ""
+	}
 	current, found := files[source.Id]
 	if !found || current.UserId != source.UserId || current.SizeBytes != source.SizeBytes || current.UploadRequestId != source.UploadRequestId ||
-		file.Id != change.Upload.ID || file.Id == source.Id || file.UserId != change.Upload.UserID || file.UploadRequestId != source.UploadRequestId ||
+		file.Id != change.Upload.ID || file.Id == source.Id || file.UserId != change.Upload.UserID || file.UploadRequestId != requestID ||
 		file.UploadRequestId != change.Upload.RequestID || file.SizeBytes != source.SizeBytes || file.SizeBytes != change.Upload.Bytes ||
 		file.SHA1 != source.SHA1 || file.AwsBucket != source.AwsBucket || file.Encryption.IsEncrypted != source.Encryption.IsEncrypted ||
 		file.Encryption.IsEndToEndEncrypted != source.Encryption.IsEndToEndEncrypted || !bytes.Equal(file.Encryption.DecryptionKey, source.Encryption.DecryptionKey) || !bytes.Equal(file.Encryption.Nonce, source.Encryption.Nonce) {

@@ -108,6 +108,9 @@ type Change struct {
 	Terminal           State
 	CleanupConfirmed   bool
 	CheckRequestPolicy bool
+	// DetachCollection permits only a collection-to-ordinary metadata duplicate.
+	// It does not alter the source or create another File Request charge.
+	DetachCollection bool
 	// Source is a trusted authorization snapshot, rechecked inside the provider
 	// transaction for a metadata duplicate, transfer or replacement. Not persisted.
 	Source *models.File

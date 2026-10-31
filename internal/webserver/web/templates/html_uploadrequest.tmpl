@@ -60,6 +60,7 @@
 			<div id="collapse-filelist-{{ .Id }}" class="collapse collection-files">
 			   <div class="p-2">
 
+                    <p class="small text-muted mb-2">{{$.UI.T "request.shareHelp"}}</p>
 				    <ul class="list-group list-group-flush">
       {{ range .Files }}
 				      <li id="cell-listupload-{{ .Id }}" data-request-id="{{$fileRequest.Id}}" class="list-group-itemtext-light d-flex align-items-center border-bottom-0  filelist-item ">
@@ -68,6 +69,17 @@
 					  <a href="#" id="cell-name-{{ .Id }}" data-collection-download class="text-decoration-none text-light" onClick="downloadFileWithPresign('{{ .Id }}'); return false;">
 					    {{ .Name }}
 					  </a>
+                          {{if or (eq $.ActiveUser.Id .UserId) $.ActiveUser.HasPermissionListOtherUploads}}
+                          <p id="share-error-{{.Id}}" class="small text-danger mb-0" role="alert"></p>
+                          <div id="share-result-{{.Id}}" class="mt-2 me-3" hidden>
+                            <label class="small" for="share-url-{{.Id}}" role="status">{{$.UI.T "request.shareReady"}}</label>
+                            <div class="input-group input-group-sm">
+                              <input id="share-url-{{.Id}}" class="form-control" type="text" readonly onclick="this.select()" data-allow-regular-paste>
+                              <button id="share-copy-{{.Id}}" type="button" class="copyurl btn btn-outline-light">{{$.UI.T "common.copyLink"}}</button>
+                            </div>
+                            <a class="small" href="./admin">{{$.UI.T "request.manageShare"}}</a>
+                          </div>
+                          {{end}}
 					</div>
 
 					<div class="small me-3 text-nowrap text-light">
@@ -75,6 +87,11 @@
                           <span class="d-block" title="{{$.UI.T "files.remaining"}}">{{$.UI.T "files.remaining"}}: <span id="cell-downloadsRemaining-{{.Id}}" data-remaining="{{if .UnlimitedDownloads}}-1{{else}}{{.DownloadsRemaining}}{{end}}">{{if .UnlimitedDownloads}}{{$.UI.T "common.unlimited"}}{{else}}{{.DownloadsRemaining}}{{end}}</span> <span id="cell-expired-file-{{.Id}}" {{if or .UnlimitedDownloads (gt .DownloadsRemaining 0)}}hidden{{end}}>· {{$.UI.T "common.expired"}}</span></span>
 					</div>
 					<script>insertFormattedDate({{ .UploadDate }}, "cell-date-file-{{.Id}}");</script>
+
+                        {{if or (eq $.ActiveUser.Id .UserId) $.ActiveUser.HasPermissionListOtherUploads}}
+                        <button id="button-share-{{.Id}}" type="button" class="btn btn-outline-light btn-sm text-nowrap"
+                          onclick="shareCollectionFile('{{.Id}}', this)" {{if .IsPendingForDeletion}}disabled{{end}}>{{$.UI.T "request.toShare"}}</button>
+                        {{end}}
 
 					<button class="btn btn-outline-light btn-sm" data-collection-download
 						 onClick="downloadFileWithPresign('{{ .Id }}');"

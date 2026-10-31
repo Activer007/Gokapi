@@ -88,6 +88,64 @@ test('failed collection and received-file deletions allow retry',async()=>{
     assert.equal(buttons.deleteFile.disabled,false);
 });
 
+function shareContext(api) {
+    const nodes = {
+        'share-error-f': {textContent:''}, 'share-result-f': {hidden:true},
+        'share-url-f': {value:''}, 'share-copy-f': {dataset:{}}
+    };
+    const button = {disabled:false,dataset:{},setAttribute(){},removeAttribute(){}};
+    const context = vm.createContext({document:{getElementById:id=>nodes[id]},apiCollectionFileShare:api,t:key=>key});
+    vm.runInContext(source,context);
+    return {context,nodes,button};
+}
+
+test('collection sharing waits once and retains the new link without duplicating a successful share',async()=>{
+    let complete, calls=0;
+    const {context,nodes,button}=shareContext(()=>{calls++;return new Promise(resolve=>complete=resolve);});
+    const pending=context.shareCollectionFile('f',button);
+    assert.equal(button.disabled,true);
+    await context.shareCollectionFile('f',button);
+    assert.equal(calls,1);
+    const url='https://example.test/d?id=ordinary';
+    complete({UrlDownload:url});
+    await pending;
+    assert.equal(nodes['share-result-f'].hidden,false);
+    assert.equal(nodes['share-url-f'].value,url);
+    assert.equal(nodes['share-copy-f'].dataset.clipboardText,url);
+    assert.equal(nodes['share-error-f'].textContent,'');
+    await context.shareCollectionFile('f',button);
+    assert.equal(calls,1);
+});
+
+test('collection sharing shows the failure inline and permits a successful retry',async()=>{
+    let calls=0;
+    const {context,nodes,button}=shareContext(async()=>{
+        if (++calls===1) throw new Error('quota full');
+        return {UrlDownload:'https://example.test/d?id=retry'};
+    });
+    await context.shareCollectionFile('f',button);
+    assert.equal(button.disabled,false);
+    assert.equal(nodes['share-result-f'].hidden,true);
+    assert.equal(nodes['share-error-f'].textContent,'request.shareFailedquota full');
+    await context.shareCollectionFile('f',button);
+    assert.equal(nodes['share-error-f'].textContent,'');
+    assert.equal(nodes['share-result-f'].hidden,false);
+    assert.equal(button.disabled,true);
+});
+
+test('collection share API explicitly detaches the copy and leaves its rules unchanged',async()=>{
+    let request;
+    const context=vm.createContext({fetch:async(url,options)=>{
+        request={url,...options}; return {ok:true,json:async()=>({Id:'new'})};
+    }});
+    vm.runInContext(fs.readFileSync(path.join(__dirname,'../../internal/webserver/web/static/js/admin_api.js'),'utf8'),context);
+    context.getToken=async permission=>{assert.equal(permission,'PERM_UPLOAD');return 'fixture-token';};
+    await context.apiCollectionFileShare('received');
+    assert.equal(request.url,'./api/files/duplicate');
+    assert.equal(request.method,'POST');
+    assert.deepEqual({...request.headers},{'Content-Type':'application/json',apikey:'fixture-token',id:'received',asShare:'true'});
+});
+
 function collectionFormContext(stored = {}, limits = {files:0,size:0}) {
     const elements = new Map();
     const field = id => {

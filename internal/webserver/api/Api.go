@@ -863,6 +863,20 @@ func apiDuplicateFile(w http.ResponseWriter, r requestParser, user models.User, 
 	if !ok {
 		panic("invalid parameter passed")
 	}
+	ctx := chunkRequestContext(request.Request)
+	if request.AsShare {
+		// Resolve password, ownership and source state under the same gate used
+		// by edits/deletion before publishing an ordinary public share.
+		lockedCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		defer cancel()
+		ctx = lockedCtx
+		unlock, err := apimutex.LockContext(ctx, apimutex.TypeMetaData, request.Id)
+		if err != nil {
+			sendUploadAdmissionError(w, fileupload.UploadAdmissionError(err))
+			return
+		}
+		defer unlock()
+	}
 	file, ok := storage.GetFile(request.Id)
 	if !ok {
 		sendError(w, http.StatusNotFound, errorcodes.NotFound, "Invalid id provided.")
@@ -870,6 +884,19 @@ func apiDuplicateFile(w http.ResponseWriter, r requestParser, user models.User, 
 	}
 	if !authorization.Authorize(user, authorization.ReadFile, file.UserId) {
 		sendError(w, http.StatusUnauthorized, errorcodes.NoPermission, "No permission to duplicate this file")
+		return
+	}
+	if request.AsShare {
+		if !file.IsFileRequest() {
+			sendError(w, http.StatusBadRequest, errorcodes.InvalidUserInput, "Only collection files can be converted to a share")
+			return
+		}
+		newFile, err := storage.ConvertCollectionToShareContext(ctx, file, user.Id)
+		if err != nil {
+			sendUploadAdmissionError(w, fileupload.UploadAdmissionError(err))
+			return
+		}
+		outputFileApiInfo(w, newFile)
 		return
 	}
 	if file.IsFileRequest() && request.foundHeaders["allowedDownloads"] &&
@@ -886,7 +913,7 @@ func apiDuplicateFile(w http.ResponseWriter, r requestParser, user models.User, 
 		0,     // is not being used by storage.DuplicateFile
 		"")
 	uploadConfig.UserId = user.Id
-	newFile, err := storage.DuplicateFileContext(chunkRequestContext(request.Request), file, request.RequestedChanges, request.FileName, uploadConfig)
+	newFile, err := storage.DuplicateFileContext(ctx, file, request.RequestedChanges, request.FileName, uploadConfig)
 	if err != nil {
 		sendUploadAdmissionError(w, fileupload.UploadAdmissionError(err))
 		return

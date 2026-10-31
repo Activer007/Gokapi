@@ -3,7 +3,7 @@
   "info": {
     "title": "SupaShare",
     "description": "[https://github.com/Activer007/SupaShare](https://github.com/Activer007/SupaShare)\n",
-    "version": "2.13.1"
+    "version": "2.14.0"
   },
   "servers": [
     {
@@ -984,7 +984,7 @@
           "files"
         ],
         "summary": "Duplicates an existing file",
-        "description": "This API call duplicates an existing file with new parameters. Requires API permission UPLOAD. To duplicate files that were not uploaded by the user, the user needs to have the user permission LIST",
+        "description": "Duplicates an existing file with new parameters. Requires API permission UPLOAD and permission to read the source (ownership or LIST permission for other users' files). With asShare=true, only a collected file is accepted: create an ordinary share owned by the caller, preserving its current remaining downloads, expiry, password and encryption. Do not combine asShare with rule or filename overrides. The original file and collection remain unchanged; each new share consumes user and instance logical quota while reusing the stored content. Omitted/false asShare retains the existing duplicate behavior and File Request association.",
         "operationId": "duplicate",
         "security": [
           {
@@ -1002,6 +1002,16 @@
             "description": "ID of file to be duplicated",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "asShare",
+            "in": "header",
+            "required": false,
+            "description": "Convert a collected file into an independent ordinary share, preserving its rules and password. Defaults to false; cannot be combined with rule or filename overrides.",
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           },
           {
@@ -2604,11 +2614,11 @@
         "properties": {
           "Version": {
             "type": "string",
-            "example": "2.13.1"
+            "example": "2.14.0"
           },
           "VersionInt": {
             "type": "integer",
-            "example": 21301
+            "example": 21400
           },
           "EndToEndEncryptionEnabled": {
             "type": "boolean",

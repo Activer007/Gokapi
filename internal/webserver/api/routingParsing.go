@@ -225,6 +225,19 @@ func (p *paramFilesDuplicate) ParseRequest(r *http.Request) error {
 		p.Id = r.Header.Get("id")
 	}
 
+	// RequestParser header value "asShare", required: false
+	exists, err = checkHeaderExists(r, "asShare", false, false)
+	if err != nil {
+		return err
+	}
+	p.foundHeaders["asShare"] = exists
+	if exists {
+		p.AsShare, err = parseHeaderBool(r, "asShare")
+		if err != nil {
+			return fmt.Errorf("invalid value in header asShare supplied")
+		}
+	}
+
 	// RequestParser header value "allowedDownloads", required: false
 	exists, err = checkHeaderExists(r, "allowedDownloads", false, false)
 	if err != nil {

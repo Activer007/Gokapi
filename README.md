@@ -8,7 +8,7 @@
 
 SupaShare is a self-hosted file sharing and collection application for teams using desktop browsers. Share files with download limits and expiry dates, collect files through request links, and manage access from a focused dark workspace. English and Simplified Chinese are built in.
 
-Developed from Gokapi and independently maintained by Activer007, SupaShare has its own interface, improvements and version line. The current source version is **2.13.1**. Build from this repository; use the [Releases page](https://github.com/Activer007/SupaShare/releases) to check for explicitly published SupaShare packages. Upstream Gokapi images do not include these changes.
+Developed from Gokapi and independently maintained by Activer007, SupaShare has its own interface, improvements and version line. The current source version is **2.14.0**. Build from this repository; use the [Releases page](https://github.com/Activer007/SupaShare/releases) to check for explicitly published SupaShare packages. Upstream Gokapi images do not include these changes.
 
 [Quick start](#quick-start) · [Interface](#interface) · [Site customization](#site-customization) · [Documentation](#documentation)
 
@@ -17,7 +17,7 @@ Developed from Gokapi and independently maintained by Activer007, SupaShare has 
 | Capability | What you can do |
 | --- | --- |
 | Controlled sharing | Set a download limit, expiry date and optional password for a file. |
-| File collection | Share a short upload link with a five-day default deadline and a per-file allowance of 1–10 downloads, defaulting to one. Contributors need no account. |
+| File collection | Share a short upload link with a five-day default deadline and a per-file allowance of 1–10 downloads, defaulting to one. Turn received files into independent ordinary shares. Contributors need no account. |
 | Bilingual workspace | Switch between English and Simplified Chinese across setup, public pages and administration. |
 | Your site identity | Set the public name, browser title, footer text and help links in the existing configuration file. |
 | Easier account handoff | Create an internal-login user, then copy their username, generated temporary password and login URL together. The user must change the password after their first browser login. |

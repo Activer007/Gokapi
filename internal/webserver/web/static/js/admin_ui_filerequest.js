@@ -58,6 +58,33 @@ function deleteFileFr(id, frId) {
         });
 }
 
+async function shareCollectionFile(id, button) {
+    if (button.disabled || button.dataset.shared === 'true') return;
+    const error = document.getElementById(`share-error-${id}`);
+    const result = document.getElementById(`share-result-${id}`);
+    button.disabled = true;
+    button.setAttribute('aria-busy', 'true');
+    button.textContent = t('request.sharing');
+    error.textContent = '';
+    try {
+        const data = await apiCollectionFileShare(id);
+        const url = data.UrlDownload;
+        if (!url) throw new Error(t('request.shareMissingLink'));
+        // A successful conversion stays available here without creating another copy.
+        button.dataset.shared = 'true';
+        document.getElementById(`share-url-${id}`).value = url;
+        document.getElementById(`share-copy-${id}`).dataset.clipboardText = url;
+        result.hidden = false;
+        button.textContent = t('request.shared');
+    } catch (failure) {
+        error.textContent = t('request.shareFailed') + (failure.message || String(failure));
+        button.textContent = t('request.toShare');
+    } finally {
+        button.removeAttribute('aria-busy');
+        button.disabled = button.dataset.shared === 'true' || button.dataset.unavailable === 'true';
+    }
+}
+
 function changeFileCountFr(frId, change) {
 	let countCell = document.getElementById("totalFiles-fr-" + frId);
 	let currentCount = Number(countCell.innerText) || 0;
@@ -486,6 +513,11 @@ function expireCollectionFile(id) {
         control.removeAttribute('href');
         control.classList.add('disabled');
     });
+    const share = document.getElementById(`button-share-${id}`);
+    if (share) {
+        share.dataset.unavailable = 'true';
+        share.disabled = true;
+    }
     const status = document.getElementById(`cell-expired-file-${id}`);
     if (status) status.hidden = false;
     removeDownloadFileReference(id, row.dataset.requestId);

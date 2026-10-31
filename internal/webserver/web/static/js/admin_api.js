@@ -295,6 +295,16 @@ async function apiFilesReplace(id, newId) {
     }
 }
 
+async function apiCollectionFileShare(fileId) {
+    const token = await getToken('PERM_UPLOAD', false);
+    const response = await fetch('./api/files/duplicate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', apikey: token, id: fileId, asShare: 'true'}
+    });
+    if (!response.ok) throw await apiFailure(response);
+    return response.json();
+}
+
 async function apiFilesListById(fileId) {
     const apiUrl = './api/files/list/' + fileId;
     const reqPerm = 'PERM_VIEW';
