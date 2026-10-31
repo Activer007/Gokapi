@@ -208,6 +208,18 @@ func ApplyUploadQuota(ctx context.Context, change uploadquota.Change) (uploadquo
 
 func ReadUploadQuota(ctx context.Context) (uploadquota.Ledger, error) { return db.ReadUploadQuota(ctx) }
 
+// ReadUserUploadUsage reads one owner's logical metadata charge. It does not
+// expose reservations or make an admission decision for a subsequent upload.
+func ReadUserUploadUsage(ctx context.Context, userID int) (uploadquota.Usage, error) {
+	if ctx == nil || userID <= 0 {
+		return uploadquota.Usage{}, uploadquota.ErrInvalid
+	}
+	if db == nil {
+		return uploadquota.Usage{}, uploadquota.ErrSchema
+	}
+	return db.ReadUserUploadUsage(ctx, userID)
+}
+
 // ReadRecoveryFile is the checked, context-bound metadata read for startup recovery.
 func ReadRecoveryFile(ctx context.Context, id string) (models.File, bool, error) {
 	if ctx == nil {

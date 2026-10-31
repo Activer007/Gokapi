@@ -638,6 +638,24 @@ their usage already exceeds a limit, but new upload admission is rejected.
 Logical byte/file exhaustion returns HTTP 413/code 21; active capacity returns
 429/code 22, staging capacity 507, and receipt/transaction backpressure 503.
 
+``GET /api/quota/summary`` requires a ``VIEW``-scoped API credential and reports
+only the authenticated user's ``usedBytes``, ``usedFiles``, ``limitBytes`` and
+``limitFiles``, including when the caller is an administrator. ``asOf`` is the
+server Unix timestamp when the bounded, consistent read completed. See the
+`API schema <https://github.com/Activer007/SupaShare/blob/master/openapi.json>`_.
+The limits come from the effective validated configuration; MiB values use
+1024 * 1024 bytes. Reusing one blob in several shares counts every metadata
+record separately, and expired or pending-deletion records remain charged until
+their metadata is actually retired.
+
+This read-only summary does not include reservations, instance usage or other
+users' records, and does not guarantee that the next upload or conversion will
+be admitted. It never changes the existing atomic quota checks. Storage errors,
+invalid configuration, an unreadable ledger or an incomplete read return HTTP
+503 with ``available: false`` and no usage or limit numbers; zero or invalid
+limits are not interpreted as unlimited capacity. Responses use
+``Cache-Control: no-store``.
+
 Whole-file API, ordinary API/browser chunks and File Requests share owner and
 instance admission. File Requests additionally use
 ``GOKAPI_UPLOAD_REQUEST_TOTAL_MB`` (20480 MiB) and

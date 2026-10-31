@@ -38,6 +38,7 @@ func (r apiRoute) Continue(w http.ResponseWriter, request requestParser, user mo
 type apiFunc func(w http.ResponseWriter, request requestParser, user models.User, apiKey models.ApiKey)
 
 var routes = []apiRoute{
+	{Url: "/quota/summary", ApiPerm: models.ApiPermView, execution: apiQuotaSummary, RequestParser: &paramQuotaSummary{}},
 	{Url: "/deliveries/create", ApiPerm: models.ApiPermUpload, execution: apiDeliveryCreate, RequestParser: &paramDeliveryCreate{}},
 	{Url: "/deliveries/list", ApiPerm: models.ApiPermView, execution: apiDeliveryList, RequestParser: &paramDeliveryList{}},
 	{Url: "/deliveries/revoke", ApiPerm: models.ApiPermDelete, execution: apiDeliveryRevoke, RequestParser: &paramDeliveryRevoke{}},
@@ -334,6 +335,8 @@ type paramDeliveryCreate struct {
 }
 
 type paramDeliveryList struct{ Request *http.Request }
+
+type paramQuotaSummary struct{ Request *http.Request }
 
 type paramDeliveryRevoke struct {
 	Request *http.Request

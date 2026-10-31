@@ -29,6 +29,8 @@ type Database interface {
 	// must authenticate the caller and confirm cleanup before releasing staging.
 	ApplyUploadQuota(context.Context, uploadquota.Change) (uploadquota.Reservation, error)
 	ReadUploadQuota(context.Context) (uploadquota.Ledger, error)
+	// ReadUserUploadUsage returns logical metadata usage from one checked, read-only snapshot.
+	ReadUserUploadUsage(context.Context, int) (uploadquota.Usage, error)
 	ReadBlobEncryption(context.Context, string, string) (models.EncryptionInfo, bool, error)
 	ReadRecoveryFile(context.Context, string) (models.File, bool, error)
 	ReadCleanupIDs(context.Context) ([]string, error)

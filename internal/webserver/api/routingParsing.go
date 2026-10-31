@@ -33,6 +33,17 @@ func (p *paramDeliveryList) New() requestParser {
 	return &paramDeliveryList{}
 }
 
+// ParseRequest parses the header file. As paramQuotaSummary has no fields with the
+// tag header, this method does nothing, except calling ProcessParameter()
+func (p *paramQuotaSummary) ParseRequest(r *http.Request) error {
+	return p.ProcessParameter(r)
+}
+
+// New returns a new instance of paramQuotaSummary struct
+func (p *paramQuotaSummary) New() requestParser {
+	return &paramQuotaSummary{}
+}
+
 // ParseRequest parses the header file. As paramDeliveryRevoke has no fields with the
 // tag header, this method does nothing, except calling ProcessParameter()
 func (p *paramDeliveryRevoke) ParseRequest(r *http.Request) error {
