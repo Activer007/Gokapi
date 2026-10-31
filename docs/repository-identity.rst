@@ -53,10 +53,11 @@ GitHub Releases are separate publication steps; merging a PR does not
 automatically increment the version or publish a release.
 
 When changing the source version, update the current-version paragraph in both
-``README.md`` and ``README.zh-CN.md``, the documentation release in ``docs/conf.py``,
+``README.md`` (Chinese) and ``README.en.md`` (English), the documentation release in ``docs/conf.py``,
 and the SupaShare changelog entry. Screenshot
 captions record the version actually captured; refresh the images before changing
-their version labels. The image guide in ``docs/images/README.md`` records their source.
+their version labels. ``README.zh-CN.md`` remains a compatibility link to the
+Chinese default README, rather than a separately maintained copy. The image guide in ``docs/images/README.md`` records their source.
 
 Deployment and provenance
 -------------------------
