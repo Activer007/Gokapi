@@ -20,6 +20,11 @@ const (
 
 // Database declares the required functions for a database connection
 type Database interface {
+	InsertDelivery(context.Context, models.Delivery) (bool, error)
+	ReadDelivery(context.Context, string) (models.Delivery, bool, error)
+	ListDeliveries(context.Context, int) ([]models.Delivery, error)
+	ReadAllDeliveries(context.Context) ([]models.Delivery, error)
+	RevokeDelivery(context.Context, string, int, int64) (bool, error)
 	// Quota operations are internal transaction primitives. HTTP integration
 	// must authenticate the caller and confirm cleanup before releasing staging.
 	ApplyUploadQuota(context.Context, uploadquota.Change) (uploadquota.Reservation, error)

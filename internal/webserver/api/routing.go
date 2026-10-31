@@ -16,6 +16,7 @@ import (
 	"github.com/Activer007/SupaShare/internal/models"
 	"github.com/Activer007/SupaShare/internal/storage"
 	"github.com/Activer007/SupaShare/internal/storage/chunking"
+	"github.com/Activer007/SupaShare/internal/storage/delivery"
 )
 
 type apiRoute struct {
@@ -37,6 +38,9 @@ func (r apiRoute) Continue(w http.ResponseWriter, request requestParser, user mo
 type apiFunc func(w http.ResponseWriter, request requestParser, user models.User, apiKey models.ApiKey)
 
 var routes = []apiRoute{
+	{Url: "/deliveries/create", ApiPerm: models.ApiPermUpload, execution: apiDeliveryCreate, RequestParser: &paramDeliveryCreate{}},
+	{Url: "/deliveries/list", ApiPerm: models.ApiPermView, execution: apiDeliveryList, RequestParser: &paramDeliveryList{}},
+	{Url: "/deliveries/revoke", ApiPerm: models.ApiPermDelete, execution: apiDeliveryRevoke, RequestParser: &paramDeliveryRevoke{}},
 	{
 		Url:           "/info/version",
 		ApiPerm:       models.ApiPermNone,
@@ -322,6 +326,18 @@ type requestParser interface {
 	ProcessParameter(r *http.Request) error
 	// New returns an empty struct of the type
 	New() requestParser
+}
+
+type paramDeliveryCreate struct {
+	Request *http.Request
+	Input   delivery.Input
+}
+
+type paramDeliveryList struct{ Request *http.Request }
+
+type paramDeliveryRevoke struct {
+	Request *http.Request
+	Token   string
 }
 
 type paramFilesListAll struct {

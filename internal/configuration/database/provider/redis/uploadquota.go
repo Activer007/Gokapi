@@ -119,12 +119,16 @@ func (p DatabaseProvider) CheckEmptyForMigration(ctx context.Context) error {
 	}()
 	bootstrap := map[string]bool{
 		p.dbPrefix + keyDbVersion:             true,
+		p.dbPrefix + keyDeliveriesVersion:     true,
 		p.dbPrefix + keyUploadQuota:           true,
 		p.dbPrefix + keyMetadataRevision:      true,
 		p.dbPrefix + keyBlobCandidatesVersion: true,
 		p.dbPrefix + keyBlobCandidates:        true,
 	}
-	if _, err = redigo.DoContext(conn, ctx, "WATCH", p.dbPrefix+keyDbVersion, p.dbPrefix+keyUploadQuota, p.dbPrefix+keyMetadataRevision, p.dbPrefix+keyBlobCandidatesVersion, p.dbPrefix+keyBlobCandidates); err != nil {
+	if _, err = redigo.DoContext(conn, ctx, "WATCH", p.dbPrefix+keyDbVersion, p.dbPrefix+keyUploadQuota, p.dbPrefix+keyMetadataRevision, p.dbPrefix+keyBlobCandidatesVersion, p.dbPrefix+keyBlobCandidates, p.dbPrefix+keyDeliveriesVersion); err != nil {
+		return err
+	}
+	if err := p.checkDeliverySchema(ctx, conn); err != nil {
 		return err
 	}
 	ledger, err := p.readUploadQuota(ctx, conn)

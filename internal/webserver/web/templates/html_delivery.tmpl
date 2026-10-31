@@ -1,0 +1,27 @@
+{{define "delivery"}}{{template "header" .}}
+<section class="public-panel public-delivery" aria-labelledby="deliveryTitle">
+  <h1 id="deliveryTitle">{{.Title}}</h1>
+  {{if .Note}}<p class="delivery-note">{{.Note}}</p>{{end}}
+  <p>{{.UI.T "delivery.publicHelp"}}</p>
+  <ul class="delivery-public-list">
+    {{range .Files}}
+    <li class="delivery-public-row">
+      <div class="delivery-item-details">
+        <strong>{{if .Name}}{{.Name}}{{else}}{{$.UI.T "delivery.unavailable"}}{{end}}</strong>
+        {{if .Size}}<p class="small mb-0">{{.Size}}</p>{{end}}
+        {{if .PasswordRequired}}<p class="small mb-0"><i class="bi bi-key" aria-hidden="true"></i> {{$.UI.T "delivery.passwordRequired"}}</p>{{end}}
+      </div>
+      {{if .Available}}
+        <a href="{{.URL}}" class="btn btn-primary text-white" target="_blank" rel="noopener noreferrer">{{$.UI.T "download.action"}}</a>
+      {{else}}
+        <span class="badge text-bg-secondary">{{$.UI.T "delivery.unavailable"}}</span>
+      {{end}}
+    </li>
+    {{end}}
+  </ul>
+  <p class="small mb-0">{{.UI.T "delivery.publicLimits"}}</p>
+</section>
+{{template "pagename" "Delivery"}}
+{{template "customjs" .}}
+{{template "footer" .UI}}
+{{end}}

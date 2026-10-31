@@ -11,6 +11,39 @@ import (
 // Do not modify: This is an automatically generated file created by updateApiRouting.go
 // It contains the code that is used to parse the headers submitted in an API request
 
+// ParseRequest parses the header file. As paramDeliveryCreate has no fields with the
+// tag header, this method does nothing, except calling ProcessParameter()
+func (p *paramDeliveryCreate) ParseRequest(r *http.Request) error {
+	return p.ProcessParameter(r)
+}
+
+// New returns a new instance of paramDeliveryCreate struct
+func (p *paramDeliveryCreate) New() requestParser {
+	return &paramDeliveryCreate{}
+}
+
+// ParseRequest parses the header file. As paramDeliveryList has no fields with the
+// tag header, this method does nothing, except calling ProcessParameter()
+func (p *paramDeliveryList) ParseRequest(r *http.Request) error {
+	return p.ProcessParameter(r)
+}
+
+// New returns a new instance of paramDeliveryList struct
+func (p *paramDeliveryList) New() requestParser {
+	return &paramDeliveryList{}
+}
+
+// ParseRequest parses the header file. As paramDeliveryRevoke has no fields with the
+// tag header, this method does nothing, except calling ProcessParameter()
+func (p *paramDeliveryRevoke) ParseRequest(r *http.Request) error {
+	return p.ProcessParameter(r)
+}
+
+// New returns a new instance of paramDeliveryRevoke struct
+func (p *paramDeliveryRevoke) New() requestParser {
+	return &paramDeliveryRevoke{}
+}
+
 // ParseRequest reads r and saves the passed header values in the paramFilesListAll struct
 // In the end, ProcessParameter() is called
 func (p *paramFilesListAll) ParseRequest(r *http.Request) error {

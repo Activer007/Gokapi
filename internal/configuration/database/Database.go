@@ -125,6 +125,17 @@ func MigrateChecked(ctx context.Context, configOld, configNew models.DbConnectio
 		}
 		candidates = nil
 	}
+	deliveryVersion := 19
+	if dbOld.GetType() == dbabstraction.TypeRedis {
+		deliveryVersion = 11
+	}
+	deliveries, err := dbOld.ReadAllDeliveries(ctx)
+	if err != nil {
+		if dbOld.GetDbVersion() >= deliveryVersion || !errors.Is(err, uploadquota.ErrNotFound) {
+			return err
+		}
+		deliveries = nil
+	}
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -173,6 +184,15 @@ func MigrateChecked(ctx context.Context, configOld, configNew models.DbConnectio
 	}
 	if err := ctx.Err(); err != nil {
 		return err
+	}
+	for _, delivery := range deliveries {
+		inserted, err := dbNew.InsertDelivery(ctx, delivery)
+		if err != nil {
+			return err
+		}
+		if !inserted {
+			return uploadquota.ErrConflict
+		}
 	}
 	if err := dbNew.ImportUploadQuota(ctx, ledger); err != nil {
 		return err

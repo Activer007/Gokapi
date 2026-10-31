@@ -42,6 +42,9 @@
     },
     {
       "name": "logs"
+    },
+    {
+      "name": "deliveries"
     }
   ],
   "paths": {
@@ -2180,6 +2183,193 @@
           }
         }
       }
+    },
+    "/deliveries/list": {
+      "get": {
+        "tags": [
+          "deliveries"
+        ],
+        "summary": "List delivery links owned by the current user",
+        "operationId": "deliveryList",
+        "security": [
+          {
+            "apikey": [
+              "VIEW"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Delivery"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credential or insufficient API permission"
+          },
+          "503": {
+            "description": "Delivery storage temporarily unavailable"
+          }
+        }
+      }
+    },
+    "/deliveries/create": {
+      "post": {
+        "tags": [
+          "deliveries"
+        ],
+        "summary": "Create one link for 2 to 20 existing ordinary shares",
+        "operationId": "deliveryCreate",
+        "security": [
+          {
+            "apikey": [
+              "UPLOAD"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Delivery"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credential or insufficient API permission"
+          },
+          "503": {
+            "description": "Delivery storage temporarily unavailable"
+          },
+          "400": {
+            "description": "Invalid input or unavailable, foreign, collection or E2E source"
+          }
+        },
+        "description": "Only available ordinary shares owned by the caller are accepted. E2E and File Request files are excluded. No blobs, file metadata, download rules or quota are changed. JSON request body is limited to 16 KiB.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "fileIds"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "note": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "fileIds": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 20,
+                    "items": {
+                      "type": "string",
+                      "maxLength": 128
+                    },
+                    "description": "Existing file IDs in presentation order; duplicates are removed."
+                  },
+                  "expiresAt": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0,
+                    "description": "Future Unix seconds; omitted or 0 means no list expiry."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/deliveries/revoke": {
+      "post": {
+        "tags": [
+          "deliveries"
+        ],
+        "summary": "Revoke a delivery link owned by the current user",
+        "operationId": "deliveryRevoke",
+        "security": [
+          {
+            "apikey": [
+              "DELETE"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Result": {
+                      "type": "string",
+                      "enum": [
+                        "OK"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credential or insufficient API permission"
+          },
+          "503": {
+            "description": "Delivery storage temporarily unavailable"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Delivery not found or owned by another user"
+          }
+        },
+        "description": "Only the list entrance is revoked; original file links retain their own password, expiry and download-count rules.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "token"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "minLength": 43,
+                    "maxLength": 43
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2720,6 +2910,49 @@
           "offset": {
             "type": "integer",
             "description": "The chunk's offset starting at the beginning of the file"
+          }
+        }
+      },
+      "Delivery": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "High entropy public capability; keep private."
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "fileIds": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 20,
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "expiresAt": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix seconds; 0 means no list expiry."
+          },
+          "revokedAt": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unix seconds; 0 means not revoked."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
           }
         }
       }
