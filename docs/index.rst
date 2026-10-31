@@ -12,6 +12,13 @@ Key features:
 
 * **Expiring links** — files are deleted after a configurable number of downloads or after a set number of days
 * **File Requests** — generate a link that lets external users upload files to your server
+* **Collection to delivery** — turn selected received files into ordinary shares,
+  copy their links together, or create one public delivery list for individual
+  downloads without copying the stored content
+* **Collection status and reminders** — see accepting/full/expired status and new
+  files on the current management page; no offline notifications
+* **Personal logical quota** — read your own authoritative usage and limits,
+  counting separate shares separately; displayed usage does not guarantee admission
 * **Multi-user support** — multiple accounts with granular per-user and per-API-key permissions
 * **Deduplication** — avoid duplicate storage in supported encryption modes; end-to-end encrypted uploads do not use deduplication
 * **End-to-end encryption** — optional client-side encryption; see the setup guide for the mode's requirements and limitations
