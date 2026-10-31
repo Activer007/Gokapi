@@ -3,6 +3,7 @@
 function prepareFileActions(row) {
     const filename = row.querySelector('[id^="cell-name-"]');
     if (filename) decorateFileName(filename);
+    prepareFileSelection(row);
     const toolbar = row.querySelector('.btn-toolbar');
     if (!toolbar || toolbar.dataset.prepared) return;
     const primary = toolbar.querySelector('[id^="url-button-"]');
@@ -131,6 +132,71 @@ function updateFileCount(table) {
     }
     const clear = document.getElementById('clearFileSearch');
     if (clear) clear.hidden = !table.search();
+    updateFileSelection(table);
+}
+
+function currentFileShareLink(row) {
+    const copy = row.querySelector('[id^="url-button-"]');
+    const url = copy?.dataset.clipboardText || row.querySelector('[id^="url-href-"]')?.getAttribute('href') || '';
+    // An E2E link is usable only after the existing decryption flow supplies its key.
+    return row.dataset.shareE2e === 'true' && !url.includes('#') ? '' : url;
+}
+
+function prepareFileSelection(row) {
+    const cell = row.querySelector('[id^="cell-name-"]');
+    if (!cell) return;
+    let checkbox = cell.querySelector('[data-file-select]');
+    if (!checkbox) {
+        checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'form-check-input me-2';
+        checkbox.setAttribute('data-file-select', '');
+        checkbox.onchange = () => {
+            row.dataset.shareSelected = String(checkbox.checked);
+            updateFileSelection($('#maintable').DataTable());
+        };
+        cell.prepend(checkbox);
+    }
+    checkbox.setAttribute('aria-label', t('sharing.selectFile', {name: cell.querySelector('.file-name')?.textContent || cell.textContent}));
+    checkbox.checked = row.dataset.shareSelected === 'true';
+    checkbox.disabled = !currentFileShareLink(row) || row.classList.contains('rowDeleting');
+    return checkbox;
+}
+
+function visibleShareRows(table) {
+    return Array.from(table.rows({search: 'applied'}).nodes()).filter(row => !row.classList.contains('rowDeleting'));
+}
+
+function updateFileSelection(table) {
+    const all = document.getElementById('selectAllFiles');
+    const count = document.getElementById('fileSelectionCount');
+    if (!all || !count) return;
+    const boxes = visibleShareRows(table).map(prepareFileSelection).filter(box => box && !box.disabled);
+    const selected = boxes.filter(box => box.checked).length;
+    all.disabled = boxes.length === 0;
+    all.checked = boxes.length > 0 && selected === boxes.length;
+    all.indeterminate = selected > 0 && selected < boxes.length;
+    count.textContent = t('sharing.selected', {count: selected});
+}
+
+function toggleFileSelection(checked) {
+    const table = $('#maintable').DataTable();
+    for (const row of visibleShareRows(table)) {
+        const checkbox = prepareFileSelection(row);
+        if (checkbox && !checkbox.disabled) row.dataset.shareSelected = String(checked);
+    }
+    updateFileSelection(table);
+}
+
+async function copySelectedFileLinks(trigger) {
+    const table = $('#maintable').DataTable();
+    const entries = [];
+    for (const row of visibleShareRows(table)) {
+        const checkbox = prepareFileSelection(row);
+        if (!checkbox || checkbox.disabled || !checkbox.checked) continue;
+        entries.push({name: row.querySelector('.file-name').textContent, url: currentFileShareLink(row)});
+    }
+    await copyShareLinks(entries, trigger);
 }
 
 function clearFileSearch() {

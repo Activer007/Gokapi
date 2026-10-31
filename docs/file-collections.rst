@@ -73,6 +73,14 @@ toward the user's and instance's logical quota even though it reuses stored
 content. Deleting the original collection does not delete an independent share.
 If creation fails, the page retains the source and offers a retry.
 
+Select multiple received files, or select all within the collection, to create
+shares in sequence. Successful links remain available if another file fails;
+retry the failed file or run the selection again without recreating successful
+shares on the current page. **Copy all successful links** includes filenames
+and links, with selectable multiline text as a fallback. The ordinary file list
+also supports selecting existing files and copying their current links together;
+this does not create new files.
+
 API compatibility
 -----------------
 

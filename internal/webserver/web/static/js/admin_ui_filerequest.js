@@ -59,7 +59,18 @@ function deleteFileFr(id, frId) {
 }
 
 async function shareCollectionFile(id, button) {
-    if (button.disabled || button.dataset.shared === 'true') return;
+    if (button.dataset.shared === 'true') return true;
+    if (button.sharePromise) return button.sharePromise;
+    if (button.disabled) return false;
+    button.sharePromise = createCollectionShare(id, button);
+    try {
+        return await button.sharePromise;
+    } finally {
+        button.sharePromise = null;
+    }
+}
+
+async function createCollectionShare(id, button) {
     const error = document.getElementById(`share-error-${id}`);
     const result = document.getElementById(`share-result-${id}`);
     button.disabled = true;
@@ -76,13 +87,83 @@ async function shareCollectionFile(id, button) {
         document.getElementById(`share-copy-${id}`).dataset.clipboardText = url;
         result.hidden = false;
         button.textContent = t('request.shared');
+        const row = document.getElementById(`cell-listupload-${id}`);
+        if (row) {
+            const panel = document.getElementById(`collapse-filelist-${row.dataset.requestId}`);
+            if (!panel.shareLinks) panel.shareLinks = new Map();
+            panel.shareLinks.set(id, {name: row.querySelector('[data-collection-select]').dataset.name, url});
+            updateCollectionShareResults(row.dataset.requestId);
+        }
+        return true;
     } catch (failure) {
         error.textContent = t('request.shareFailed') + (failure.message || String(failure));
         button.textContent = t('request.toShare');
+        return false;
     } finally {
         button.removeAttribute('aria-busy');
         button.disabled = button.dataset.shared === 'true' || button.dataset.unavailable === 'true';
     }
+}
+
+function collectionShareSelections(requestId) {
+    return [...document.getElementById(`collapse-filelist-${requestId}`).querySelectorAll('[data-collection-select]')];
+}
+
+function selectCollectionShares(requestId, checked) {
+    for (const field of collectionShareSelections(requestId)) {
+        if (!field.disabled) field.checked = checked;
+    }
+    updateCollectionShareSelection(requestId);
+}
+
+function updateCollectionShareSelection(requestId) {
+    const fields = collectionShareSelections(requestId).filter(field => !field.disabled);
+    const selected = fields.filter(field => field.checked).length;
+    const all = document.getElementById(`share-select-all-${requestId}`);
+    all.checked = fields.length > 0 && selected === fields.length;
+    all.indeterminate = selected > 0 && selected < fields.length;
+}
+
+function collectionShareLinks(requestId) {
+    const panel = document.getElementById(`collapse-filelist-${requestId}`);
+    return [...(panel.shareLinks?.values() || [])];
+}
+
+function updateCollectionShareResults(requestId) {
+    const links = collectionShareLinks(requestId);
+    const result = document.getElementById(`share-batch-result-${requestId}`);
+    result.hidden = links.length === 0;
+    document.getElementById(`share-batch-links-${requestId}`).value = formatShareLinks(links);
+}
+
+async function shareSelectedCollectionFiles(requestId, button) {
+    if (button.disabled) return;
+    const selected = collectionShareSelections(requestId).filter(field => field.checked && !field.disabled);
+    if (!selected.length) {
+        showToast(3500, t('sharing.noSelection'));
+        return;
+    }
+    button.disabled = true;
+    const status = document.getElementById(`share-batch-status-${requestId}`);
+    const failed = [];
+    let success = 0;
+    try {
+        for (const [index, field] of selected.entries()) {
+            status.textContent = t('sharing.progress', {current: index + 1, total: selected.length});
+            const single = document.getElementById(`button-share-${field.value}`);
+            if (single && await shareCollectionFile(field.value, single)) success++;
+            else failed.push(field.dataset.name);
+        }
+        status.textContent = t('sharing.batchResult', {success, failed: failed.length}) +
+            (failed.length ? ' ' + t('sharing.failedFiles', {names: failed.join(', ')}) : '');
+        updateCollectionShareResults(requestId);
+    } finally {
+        button.disabled = false;
+    }
+}
+
+function copyCollectionShareLinks(requestId, button) {
+    return copyShareLinks(collectionShareLinks(requestId), button);
 }
 
 function changeFileCountFr(frId, change) {
@@ -517,6 +598,12 @@ function expireCollectionFile(id) {
     if (share) {
         share.dataset.unavailable = 'true';
         share.disabled = true;
+    }
+    const selection = row.querySelector('[data-collection-select]');
+    if (selection) {
+        selection.checked = false;
+        selection.disabled = true;
+        updateCollectionShareSelection(row.dataset.requestId);
     }
     const status = document.getElementById(`cell-expired-file-${id}`);
     if (status) status.hidden = false;

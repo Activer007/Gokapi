@@ -749,6 +749,7 @@ function addRow(item) {
     let row = table.insertRow(0);
     item.Id = sanitizeId(item.Id);
     row.id = "row-" + item.Id;
+    row.dataset.shareE2e = String(item.IsEndToEndEncrypted === true);
     let cellFilename = row.insertCell(0);
     let cellFileSize = row.insertCell(1);
     let cellRemainingDownloads = row.insertCell(2);

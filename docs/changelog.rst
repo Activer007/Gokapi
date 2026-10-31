@@ -8,6 +8,17 @@ Overview of all changes
 -----------------------
 
 
+v2.15.0 (source update; not a published release)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Select collected files and create ordinary shares in sequence. Keep successful
+  results when another file fails, retry without duplicating those shares, and
+  copy filenames and links together.
+* Select existing ordinary files and copy their current public links together,
+  preserving encryption link information. Offer multiline manual copying when
+  the clipboard is unavailable. No new batch API or database format is needed.
+
+
 v2.14.0 (source update; not a published release)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

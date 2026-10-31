@@ -61,9 +61,23 @@
 			   <div class="p-2">
 
                     <p class="small text-muted mb-2">{{$.UI.T "request.shareHelp"}}</p>
+                    <div class="d-flex flex-wrap gap-3 align-items-center mb-3">
+                      <label><input id="share-select-all-{{.Id}}" type="checkbox" class="form-check-input me-2" onchange="selectCollectionShares('{{.Id}}', this.checked)">{{$.UI.T "sharing.selectAll"}}</label>
+                      <button id="share-selected-{{.Id}}" type="button" class="btn btn-outline-light btn-sm" onclick="shareSelectedCollectionFiles('{{.Id}}', this)">{{$.UI.T "sharing.createSelected"}}</button>
+                      <span id="share-batch-status-{{.Id}}" class="small" role="status" aria-live="polite"></span>
+                    </div>
+                    <div id="share-batch-result-{{.Id}}" class="mb-3" hidden>
+                      <label for="share-batch-links-{{.Id}}" class="small">{{$.UI.T "sharing.successLinks"}}</label>
+                      <textarea id="share-batch-links-{{.Id}}" class="form-control mb-2" rows="4" readonly onclick="this.select()" data-allow-regular-paste></textarea>
+                      <button id="share-batch-copy-{{.Id}}" type="button" class="btn btn-outline-light btn-sm" onclick="copyCollectionShareLinks('{{.Id}}', this)">{{$.UI.T "sharing.copySuccessful"}}</button>
+                    </div>
 				    <ul class="list-group list-group-flush">
       {{ range .Files }}
 				      <li id="cell-listupload-{{ .Id }}" data-request-id="{{$fileRequest.Id}}" class="list-group-itemtext-light d-flex align-items-center border-bottom-0  filelist-item ">
+
+                        {{if or (eq $.ActiveUser.Id .UserId) $.ActiveUser.HasPermissionListOtherUploads}}
+                        <input type="checkbox" class="form-check-input" data-collection-select value="{{.Id}}" data-name="{{.Name}}" aria-labelledby="cell-name-{{.Id}}" onchange="updateCollectionShareSelection('{{$fileRequest.Id}}')" {{if .IsPendingForDeletion}}disabled{{end}}>
+                        {{end}}
 
 					<div class="flex-grow-1 collection-file-name">
 					  <a href="#" id="cell-name-{{ .Id }}" data-collection-download class="text-decoration-none text-light" onClick="downloadFileWithPresign('{{ .Id }}'); return false;">
