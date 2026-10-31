@@ -8,6 +8,14 @@ Overview of all changes
 -----------------------
 
 
+Unreleased
+^^^^^^^^^^
+
+* Redesign local login with a charcoal panel, bilingual tagline and four optimized
+  blue/silver illustrations. Select one local image per page load, retain it after
+  failed login when storage permits, and fall back safely on resource failure.
+  Extend the template catalog without changing selection code; see :doc:`login-artwork`.
+
 v2.16.0 (2026-10-31)
 ^^^^^^^^^^^^^^^^^^^^
 

@@ -1,3 +1,49 @@
+// The template catalog is the only source of image URLs; storage holds an ID only.
+function initLoginArt() {
+    const panel = document.getElementById('loginArt');
+    const image = document.getElementById('loginArtImage');
+    if (!panel || !image || panel.dataset.initialized) return;
+    const entries = Array.from(panel.querySelectorAll('[data-login-art-id]'));
+    if (!entries.length) return;
+    panel.dataset.initialized = 'true';
+    const storageKey = 'supashare.loginArt';
+    function show() {
+        let previous;
+        try { previous = window.sessionStorage.getItem(storageKey); } catch (_) { /* Optional decoration state. */ }
+        let selected = panel.dataset.retry === 'true' && entries.find(entry => entry.dataset.loginArtId === previous);
+        if (!selected) selected = entries[Math.floor(Math.random() * entries.length)];
+        function load(entry) {
+            try { window.sessionStorage.setItem(storageKey, entry.dataset.loginArtId); } catch (_) { /* Login still works. */ }
+            image.style.objectPosition = entry.dataset.position || '50% 50%';
+            image.src = entry.dataset.loginArtSrc;
+        }
+        image.onload = () => image.classList.add('is-loaded');
+        image.onerror = () => {
+            image.classList.remove('is-loaded');
+            if (selected !== entries[0]) {
+                selected = entries[0];
+                load(selected);
+            } else {
+                image.onerror = null;
+                image.onload = null;
+                image.removeAttribute('src');
+            }
+        };
+        load(selected);
+    }
+    const narrow = window.matchMedia('(max-width: 960px)');
+    if (narrow.matches) {
+        const onResize = () => {
+            if (narrow.matches) return;
+            narrow.removeEventListener('change', onResize);
+            show();
+        };
+        narrow.addEventListener('change', onResize);
+    } else {
+        show();
+    }
+}
+
 function t(key, parameters = {}) {
     let message = (window.gokapiMessages || {})[key] || key;
     return message.replace(/\{(\w+)\}/g, (match, name) =>
